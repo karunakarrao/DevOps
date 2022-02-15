@@ -1,0 +1,19 @@
+$ kubectl version --> to check the kubernetes version
+$ kubectl explain <Object-name> --> Documentation for resource object (Pod, Replicaset, Deployment, service, etc.)
+ex:-
+    $ kubectl explain pod --> Documentation for POD
+    $ kubectl explain replicaset/rs --> Documentation for Replicaset
+    $ kubectl explain replicationController/rc --> Doc. for RC
+    $ kubectl explain deployment/deploy --> doc for deployment
+    $ kubectl explain service/svc --> doc for service
+
+Kubernetes object creating are done in two types.
+    1. imperative --> objects created using command line are called imperative.
+    2. declarative --> objects created using yml/programing are called declarative.
+
+Syntax:-
+$ kubectl run <Pod-Name> --image=<Pod-image-name>  --> to run a pod 
+Examples:
+    $ kubectl run nginx --image=nginx --> creating a nginx pod
+    $ kubectl run redis --image=redis --> creating a redis pod
+    
