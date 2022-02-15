@@ -1,19 +1,55 @@
 $ kubectl version --> to check the kubernetes version
 $ kubectl explain <Object-name> --> Documentation for resource object (Pod, Replicaset, Deployment, service, etc.)
-ex:-
+examples:
     $ kubectl explain pod --> Documentation for POD
     $ kubectl explain replicaset/rs --> Documentation for Replicaset
-    $ kubectl explain replicationController/rc --> Doc. for RC
+    $ kubectl explain replicationcontroller/rc --> Doc. for RC
     $ kubectl explain deployment/deploy --> doc for deployment
     $ kubectl explain service/svc --> doc for service
 
-Kubernetes object creating are done in two types.
+Kubernetes objects (Pod,Replicasets,Deployments,service,etc) are created in two types.
     1. imperative --> objects created using command line are called imperative.
     2. declarative --> objects created using yml/programing are called declarative.
 
-Syntax:-
+Syntax: Imperative way
 $ kubectl run <Pod-Name> --image=<Pod-image-name>  --> to run a pod 
 Examples:
-    $ kubectl run nginx --image=nginx --> creating a nginx pod
-    $ kubectl run redis --image=redis --> creating a redis pod
+$ kubectl run nginx --image=nginx --> creating a nginx pod
+$ kubectl run redis --image=redis --> creating a redis pod
     
+Syntax: Declarative way
+$ kubectl create -f pod-definition.yaml 
+
+pod-definition.yaml--> POD-definition file in YAML format :
+-----------------------------------------------------------
+apiVersion: v1
+kind: Pod
+metadata: 
+    name: nginx-pod
+    labels:
+        app: nginx
+        tire: frontend
+spec: 
+    containers:
+    - name: nignx
+      image: nginx
+-------------------------------------------------------------
+
+$ kubectl get pods --> to list pods running on default namespace
+$ kubectl get all --> to list all objects(Pod, Replicasets, Deploylments, services, etc.) running in default namespace
+$ kubectl get pods -n prod1-namespace  -> to list the pods running on the namespace prod1-namespace
+(or)
+$ kubectl get pods --namespace=prod1-namespace
+$ kubectl get all --namespace=kube-system --> to list "kube-system" namespace objects, kubernetes object namespace
+
+examples:
+$ kubectl get pods
+$ kubectl get replicationcontrollers
+$ kubectl get replicasets
+$ kubectl get deployments
+$ kubectl get services
+$ kubectl get namespaces
+$ kubectl get daemonsets
+
+$ kubectl describe pod <pod-name> --> to see the details of pod and properties
+
