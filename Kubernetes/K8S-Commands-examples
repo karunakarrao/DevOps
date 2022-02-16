@@ -1,7 +1,7 @@
 $ kubectl version --> to check the kubernetes version
 $ kubectl explain <Object-name> --> Documentation for resource object (Pod, Replicaset, Deployment, service, etc.)
 examples:
-    $ kubectl explain pod --> Documentation for POD
+    $ kubectl explain pod --> Documentation for POD. to check apiVersion of k8s object.
     $ kubectl explain replicaset/rs --> Documentation for Replicaset
     $ kubectl explain replicationcontroller/rc --> Doc. for RC
     $ kubectl explain deployment/deploy --> doc for deployment
@@ -11,7 +11,10 @@ Kubernetes objects (Pod,Replicasets,Deployments,service,etc) are created in two 
     1. imperative --> objects created using command line are called imperative.
     2. declarative --> objects created using yml/programing are called declarative.
 
+POD:
+====
 Syntax: Imperative way
+$ kubectl run {...} --> only used to create pod object 
 $ kubectl run <Pod-Name> --image=<Pod-image-name>  --> to run a pod 
 Examples:
 $ kubectl run nginx --image=nginx --> creating a nginx pod
@@ -28,7 +31,6 @@ metadata:
     name: nginx-pod
     labels:
         app: nginx
-        tire: frontend
 spec: 
     containers:
     - name: nignx
@@ -52,4 +54,73 @@ $ kubectl get namespaces
 $ kubectl get daemonsets
 
 $ kubectl describe pod <pod-name> --> to see the details of pod and properties
+example:
+$ kubectl describe pod my-pod1
+$ kubectl describe pods
+$ kubectl describe replicaset my-replicaset1
+$ kubectl describe replicasets
+$ kubectl describe deployment my-deployment1
+$ kubectl describe deployments
+$ kubectl describe daemonsets --namespace=kube-system
+$ kubectl describe -n kube-system daemonsets    --> -n is namespace 
+
+ReplicationController:
+======================
+$ kubectl create -f replicationcontroller-definition.yaml
+replicationcontroller-definition.yaml --> with help of this YAML file we replicate n times. same pod used in pod-definition.yaml :
+----------------------------------------------------------------------------------------------------------------------------------
+apiVersion: v1
+kind: ReplicationController
+metadata:
+    name: my-rc
+    labels:
+        app: my-rc-nginx
+spec:
+    replicas: 3
+    template:
+        metadata: 
+            name: nginx-pod
+            labels:
+                app: nginx
+        spec: 
+            containers:
+            - name: nignx
+              image: nginx
+---------------------------------------------------------------------------------------------------------------------------------
+$ kubectl create -f replicationcontroller-definition.v1.yaml
+$ kubectl get replicaitoncontroller
+(or)
+$ kubectl get rc
+$ kubectl delete rc my-rc1
+$ kubectl describe rc my-rc1
+$ kubectl edit rc my-rc1
+$ kubectl replace -f replicationcontroller-definiton.v2.yaml
+
+Replicaset:
+===========
+ReplicationController and ReplicaSet are used for similer functionality. ReplicationController is older version, ReplicaSet is the newer version.
+
+replicaset-definition.yaml
+-------------------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+    name: my-rs
+    labels:
+        app: my-rs-nginx
+spec:
+    template:
+        metadata: 
+            name: nginx-pod
+            labels:
+                app: nginx
+        spec: 
+            containers:
+            - name: nignx
+              image: nginx
+    selector:
+        matchLabels:
+            app: nginx    
+    replicas: 5
+
 
