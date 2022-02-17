@@ -68,7 +68,7 @@ $ kubectl describe -n kube-system daemonsets    --> -n is namespace
 
 ReplicationController:
 ======================
-$ kubectl create -f replicationcontroller-definition.yaml
+
 replicationcontroller-definition.yaml --> with help of this YAML file we replicate n times. same pod used in pod-definition.yaml :
 ----------------------------------------------------------------------------------------------------------------------------------
 apiVersion: v1
@@ -89,7 +89,9 @@ spec:
             - name: nignx
               image: nginx
 ---------------------------------------------------------------------------------------------------------------------------------
-$ kubectl create -f replicationcontroller-definition.v1.yaml
+Create: ReplicationController
+=============================
+$ kubectl create -f replicationcontroller-definition.yaml
 $ kubectl get replicaitoncontroller
 (or)
 $ kubectl get rc
@@ -125,6 +127,8 @@ spec:
             app: nginx    
     replicas: 5
 -----------------------------------------------------------------------------------
+Create: ReplicaSet
+==================
 $ kubectl create -f replicaset-definition.v1.yaml --dry-run=client --> to run the YAML file with out applying the changes
 $ kubectl create -f replicaset-definition.v1.yaml   --> create replicaset
 $ kubectl get replicaset    --> list replicasets
@@ -142,8 +146,8 @@ $ kubectl delete replicaset my-rs --> to delete replicaset my-rs
 
 Deployment:
 ===========
-deployment-definition.yaml
--------------------------------------------------------------------------------------
+deployment-definition.yaml --> this deployment YAML file creates PODs, Replicasets, Deployment objects
+-------------------------------------------------------------------------------------------------------
 apiVersion: apps/v1
 kind: Deployment
 metadata: 
@@ -162,8 +166,9 @@ spec:
             containers:
             - name: nginx
               image: nginx
---------------------------------------------------------------------------------------
-
+------------------------------------------------------------------------------------------------------
+Create: Deployment:
+===================
 $ kubectl create -f deployment-definition.yaml --dry-run=client --> to trial run the YAML file, if will not apply any changes
 $ kubectl create -f deployment-definition.yaml --> to exicute the YAML file.
 (or)
@@ -180,11 +185,26 @@ $ kubectl edit deployment my-deploy --> update the version by editing the runnin
 deployment rollout is done in two ways 
     1. rollingupdate (Default) --> it will bringdown one by one depends on RollingUpdateStrategy defined. 
     2. recreate --> will bringdown all pods at a time, and brinup all 
-    
+
+Update: Deployment
+==================
+$ kubectl apply -f deployment-definition.v2.yaml --> to update the latest version of application.
 $ kubectl replace -f deployment-definition.v2.yaml --> updating the app version(nginx to nginx:1.16.2) using the YAML and replace with running deployment.
 $ kubectl set image deployment my-deploy nginx=nginx:1.16.1 --> to set the latest nginx image on the running deployment
 $ kubectl rollout history deployment my-deploy --> history of the number of deployments
 $ kubectl rollout status deployment my-deploy --> deployment status can be checked. 
-$ kubectl rollout undo deployment my-deploy --> rollout the new-version deployment to the old-verison deployment 
+$ kubectl rollout undo deployment my-deploy --> if update is failed for some reason, then rollout the new-version deployment to the old-verison deployment 
 $ kubectl scale deployment my-deploy --replicas=10 --> to scale up the deployment
 $ kubectl scale deployment my-deploy --replicas=3 --> to scale down the deployment
+
+Note: remember every time new-verison changed, respective "replicaset" is brought down parallel a new "replicaset" is created with new-verison, the old replicasets
+will avaiable but not pods will be avaiable in running state. when you do the undo operation thet old replicaset is recreated and new one will go down.
+
+Service:
+========
+Service is a k8s object, which exposes the sevice to the outside network. this can be done in two ways. by using the command line parameter "expose" we can expose
+the service to the outside network.
+
+$ kubectl expose deployment my-deploy --port=8080
+
+
