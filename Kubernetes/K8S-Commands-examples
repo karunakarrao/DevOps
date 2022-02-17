@@ -205,25 +205,33 @@ Service:
 Service is a k8s object, which exposes the sevice to the outside network. this can be done in two ways. by using the command line parameter "expose" we can expose
 the service to the outside network.
 
-ClusterIP: Exposes the Service on a cluster-internal IP. Service only reachable from within the cluster. This is the default ServiceType.
-NodePort: Exposes the Service on each Node's IP at a static port (the NodePort). 
-LoadBalancer: Exposes the Service externally using a cloud provider's load balancer. NodePort and ClusterIP Services, to which the external load balancer routes, are automatically created.
+--> 
 
+ClusterIP: Exposes the Service on a cluster-internal IP. Service only reachable from within the cluster. This is the default ServiceType.
 $ kubectl expose deployment my-deploy --port=80 --> this expose the deployment as a clusterIP. to access URL use clusterIP.
 example:
     $ kubectl get service -o wide
     NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE     SELECTOR
     my-deploy    ClusterIP   10.101.51.194   <none>        80/TCP    6m56s   app=nginx
+    
 --> to access the URL use clusterIP ip address 
     $  curl http://10.101.51.194
-    
+
+NodePort: Exposes the Service on each Node's IP at a static port (the NodePort). NodePort ranges from port 30000 to 32767.
 $ kubectl expose deployment my-deploy --type=NodePort --port=80 --> expose it as NodePort, to access URL use nodeport with ip.
 example: 
-    controlplane ~ ➜  kubectl get service
+    $  kubectl get service
     NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
     my-deploy    NodePort    10.104.86.214   <none>        80:31358/TCP   3m10s  
+    
 --> to access the URL use Node ip address and the NodePort
     $ curl http://localhost:31358
+Note: remember the application listen port should be same as --port other wise we can't access the application.
+
+LoadBalancer: Exposes the Service externally using a cloud provider's load balancer. NodePort and ClusterIP Services, to which the external load balancer routes, 
+are automatically created. this can only be achived with cloud providers like (Aws, Azure, GCP). 
+
+??????
 
 service-definition.yaml
 ---------------------------------------------------------------------------------
@@ -232,15 +240,18 @@ kind: Service
 metadata:
     name: my-svc
 spec:
-    type: NodePort   #we can use this NodePort/LoadBalancer/ClusterIP
+    type: NodePort       # we can use this NodePort/LoadBalancer/ClusterIP
     ports:
-    - port: 80      # nginx webserver listens on port: 80 (*), this is Service port
+    - port: 80           # nginx webserver listens on port: 80 (*), this is Service port
       targetPort: 80    # targetPort is a nginx POD port
       nodePort: 30008   # This port is Node port or external access port
     selector:
         app: nginx
 ----------------------------------------------------------------------------
 
-$ kubectl expose deployment my-deploy --port=80 
+$ kubectl create -f sevice-definition.yaml --> to create the sevice
+$ kubectl get services  --> to check the services
+$ kubectl get services -o wide --> to see more details 
+
 
 
