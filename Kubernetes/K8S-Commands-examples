@@ -122,5 +122,18 @@ spec:
         matchLabels:
             app: nginx    
     replicas: 5
+-----------------------------------------------------------------------------------
 
+$ kubectl create -f replicaset-definition.v1.yaml   --> create replicaset
+$ kubectl get replicaset    --> list replicasets
+(or)
+$ kubectl get rs    --> list replicasets 
+$ kubectl describe replicaset my-rs --> describe replicaset properties
+$ kubectl replace -f replicaset-definition.v2.yaml  --> replace the replicaset with latest version
+$ kubectl scale replicaset my-rs --replicas=10  --> scale up number of replicas 
+(or)
+$ kubectl scale -f replicaset-definition.yaml --replicas=10 --> scale up number of replicas using replicaset definition file
+$ kubectl scale -f replicaset-definition.yaml --replicas=2 --> scale down number of replicas
+$ kubectl edit replicaset my-rs   --> edit the replicaset properties using the 
+$ kubectl explain replicaset|grep version
 
