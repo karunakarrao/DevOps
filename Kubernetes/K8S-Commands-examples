@@ -196,6 +196,7 @@ Update: Deployment
 ==================
 $ kubectl apply -f deployment-definition.v2.yaml --> to update the latest version of application.
 $ kubectl replace -f deployment-definition.v2.yaml --> updating the app version(nginx to nginx:1.16.2) using the YAML and replace with running deployment.
+$ kubectl replace --force -f deployment-definition.v2.yaml --> this will bring down the existing deployment forcefully and creates the new one.
 $ kubectl set image deployment my-deploy nginx=nginx:1.16.1 --> to set the latest nginx image on the running deployment
 $ kubectl rollout history deployment my-deploy --> history of the number of deployments
 $ kubectl rollout status deployment my-deploy --> deployment status can be checked. 
@@ -237,7 +238,7 @@ Note: remember the application listen port, should be same as --port other wise 
 LoadBalancer: Exposes the Service externally using a cloud provider's load balancer. NodePort and ClusterIP Services, to which the external load balancer routes, 
 are automatically created. this can only be achived with cloud providers like (Aws, Azure, GCP). 
 
-??????
+?????????? pending ????????
 
 service-definition.yaml
 ---------------------------------------------------------------------------------
@@ -339,3 +340,67 @@ $ kubectl config get-context --> to check the namespace
 $ kubectl get namespace --show-labels --> to show labels of all namespaces
 
 Namespace: ResourceQuota
+=========================
+
+?????????? Pending ???????????
+
+before creating resource quota for namespace, we need to create namespace 
+$ kubectl create namespace prod2
+
+prod2-ns-resourcequota-def.yaml
+-----------------------------------------------------------------------------
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: my-ns-rquota
+  namespace: prod2
+spec:
+  hard:
+    requests.cpu: "1"
+    requests.memory: 1Gi
+    limits.cpu: "2"
+    limits.memory: 2Gi
+    requests.nvidia.com/gpu: 4
+-------------------------------------------------------------------------------
+    
+Manual scheduling:
+==================
+--> the scheduler is responsible to distribute the work among all the nodes equally, if a new node is created, it will allocate work to it. 
+--> if you don't want a scheduler to chose where to create pod on the cluster nodes, specifing the parameter "nodeName", it will create pod on the defined Node name.
+--> every pod has a field called "nodeName" which is by default not set, the scheduler goes to all PODs and looks for this property, if not avaialbe the scheduler will run 
+an algoritham and assign a node to this pod. 
+--> if scheduler is down, we can't start the pod it will go to pending state, to avoid this we can use NodeName parameter 
+--> specifying the nodeName property only work during the pod creation, to change the pod nodeName during runtime we need to use Binding methord to change nodeName.
+
+pod-definition.yaml --> this YAML file only work during the pod creation. we can't change node name during runtime with this yaml file.
+-----------------------------------------------------------------------------------
+apiVersion: v1
+kind: Pod
+metadata: 
+    name: nginx-pod
+    labels:
+        app: nginx
+spec:
+    nodeName: controlplane # check the list on nodes avaiable and specify the name of the node
+    containers:
+    - name: nginx
+      image: nginx
+      ports:
+        - containerPort: 8080
+------------------------------------------------------------------------------------     
+
+pod-bind-runtime.yaml --> this file will change the pod nodeName during runtime. but below file need to convert into JSON format. pass it as a command line option.
+-------------------------------------------------------------------------------------
+apiVersion: v1
+kind: Binding
+metadata: 
+    name: nginx-pod
+target:
+    apiVersion: v1
+    kind: Node
+    name: node01
+------------------------------------------------------------------------------------
+
+Labels & Selectors:
+===================
+Labels and selectors are the properties attached to each k8s objects(Pods, deployments, services, etc..). they use to group kubernetes objects/resources to gether. 
