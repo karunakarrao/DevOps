@@ -407,7 +407,120 @@ Labels & Selectors:
 --> labels or annotations to attach metadata to Kubernetes objects. Labels can be used to select objects and to find collections of objects that satisfy certain conditions. 
 In contrast, annotations are not used to identify and select objects.
 
+-----------------------------------------
+apiVersion:v1
+kind: Pod
+metadata:
+    name: my-pod
+    labels:
+        app: nginx
+        env: prod
+        tire: frontend
+        bu: finance
+-------------------------------------------
+to filter the k8s resources using labels 
+
+$ kubectl get all --selector app=nginx
+$ kubectl get pods --selector env=prod
+$ kubectl get pods --selector env=prod,app=nginx
+
+$ kubectl get nodes --show-labels
+
 Annotations:
 =============
 Annotations are used to record details like name, build, email, phonenumber, other information. this information is not used to filter the k8s objects. they are used for
 information purpose only. 
+
+------------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+    name: my-pod
+    labels:
+        app: nginx
+    annotations:
+        name: karunakar
+        email: sample@xyz.com
+        phone: 999999999
+------------------------------------
+
+Taint & Tolerations:
+====================
+--> Taints and tolerations work together to ensure that pods are not scheduled onto inappropriate nodes. One or more taints are applied to a node;
+this marks that the node should not accept any pods that do not tolerate the taints
+
+Taint: is applied to nodes, it will reject the pods if the pods not has tolerations
+Tolerations: is applied to pods, it will allow the pod to accept by the tainted node.
+
+taints are 3 types
+    1. NoSchedule : it will not allow pod to schedule on node, if already running it will ignore
+    2. PreferNoSchedule : it will not allow pod on the node, if no choice it will ignore this property and allow pod to schedule
+    3. NoExecute: it will not allow, if already any pod running it will remove them.
+    
+$ kubectl taint node node01 env=UAT:NoSchedule 
+$ kubectl taint node node02 env=dev:PreferNoSchedule
+$ kubectl taint node node03 env=prod:NoExecute
+
+$ kubectl desribe node node01|grep taint
+
+to allow the tained nodes to create pods, we need to create the pods with taint tolerations while creating the pod.
+
+pod-tolaration.yaml
+----------------------------------------------------------------
+apiVersion: v1
+kind: Pod
+metadata: 
+    name: nginx-pod
+    labels:
+        app: nginx
+spec:
+    containers:
+    - name: nginx
+      image: nginx
+    tolerations:
+        key: "env"
+        operator: "Equal"
+        value: "prod"
+        effect: NoSchedule
+-----------------------------------------------------------------
+spec:
+    contianers:
+    - name: nginx
+      image: nginx
+    tolerations:
+        key: "env"
+        operator: "Equal"
+        value: "prod"
+        effect: NoExecute
+-----------------------------------------------------------------
+
+NodeSelector:
+=============
+NodeSelector is similer to nodeName, where we specify nodename, but here we select the node labels. for example in a cluster few nodes, labeled as "disktype=ssd" then if we 
+use this label with nodeSelector field. that means all the nodes with disktype=ssd are all eligible to create the pod with that labels.
+
+to apply this property we need to follow 2 steps
+step-1:
+$ kubectl get nodes 
+$ kubectl label node node01 env=prod
+$ kubectl get node node01 --show-labels
+
+step2:
+$ kubectl create -f my-pod.yaml
+-----------------------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+    name: nginx-pod
+spec:
+    nodeSelector:
+        env: prod
+    containers:
+    - name: nginx
+      image: nginx
+-----------------------------------------------
+
+
+
+
+
