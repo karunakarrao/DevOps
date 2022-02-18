@@ -403,4 +403,11 @@ target:
 
 Labels & Selectors:
 ===================
-Labels and selectors are the properties attached to each k8s objects(Pods, deployments, services, etc..). they use to group kubernetes objects/resources to gether. 
+--> Labels and selectors are the properties attached to each k8s objects(Pods, deployments, services, etc..). they use to group kubernetes objects/resources to gether. 
+--> labels or annotations to attach metadata to Kubernetes objects. Labels can be used to select objects and to find collections of objects that satisfy certain conditions. 
+In contrast, annotations are not used to identify and select objects.
+
+Annotations:
+=============
+Annotations are used to record details like name, build, email, phonenumber, other information. this information is not used to filter the k8s objects. they are used for
+information purpose only. 
