@@ -520,6 +520,13 @@ spec:
       image: nginx
 -----------------------------------------------
 
+NodeAffinity:
+=============
+Node affinity is conceptually similar to nodeSelector -- it allows you to constrain which nodes your pod is eligible to be scheduled on, based on labels on the node.
+
+there are 2 types of nodeAffinity 
+ 1. requiredDuringSchedulingIgnoredDuringExecution 
+ 2. preferredDuringSchedulingIgnoredDuringExecution
 
 
 
