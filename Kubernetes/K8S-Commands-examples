@@ -828,8 +828,158 @@ $ kubectl apply -f cpu-limits.yaml --namespace=prod1
 $ kubectl get pod default-mem-demo --output=yaml --namespace=prod1 --> to view detailed information.
 
 What if you specify a container's limit, but not its request? 
-
+---------------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: default-mem-demo-2
+spec:
+  containers:
+  - name: default-mem-demo-2-ctr
+    image: nginx
+    resources:
+      limits:
+        memory: "1Gi"
+--------------------------------------
 
 What if you specify a container's request, but not its limit?
 the container's memory request is set to the value specified in the container's manifest. The container is limited to use no more than 512MiB of memory, 
 which matches the default memory limit for the namespace.
+
+--> Remember, you CANNOT edit specifications of an existing POD other than the below.
+
+spec.containers[*].image
+spec.initContainers[*].image
+spec.activeDeadlineSeconds
+spec.tolerations
+
+Daemonset:
+===========
+A DaemonSet ensures that all Nodes run a copy of a Pod. As nodes are added to the cluster, Pods are added to nodes. As nodes are removed from the cluster, 
+those Pods are garbage collected. Deleting a DaemonSet will clean up the Pods it created.
+--> Some typical uses of a DaemonSet are:
+    1. running a cluster storage daemon on every node
+    2. running a logs collection daemon on every node
+    3. running a node monitoring daemon on every node
+
+Daemonsets are like replicasets, the pod defined in daemonset, will create one pod on each node so that it can be avaiable on all nodes in a cluster. when a new node is added
+to the cluster daemonset will create one pod in new node, if the node is removed it will remove the pod on the node. 
+
+this is useful when you want to 
+    monitor logs of each node (or) 
+    run services like kubeproxy on each node, (or) 
+    monitoring the node status. etc. in this scenario we use the daemonsets. 
+
+kube-proxy-daemonset.yaml
+-------------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+    name: kube-proxy
+    namespace: kube-system
+    labels:
+        k8s-app: kube-proxy
+spec:
+    selector:
+        matchLabels:
+            k8s-app: kube-proxy
+    template:
+        metadata:
+            labels:
+                k8s-app: kube-proxy
+        spec:
+            containers:
+            - command:
+                - /usr/local/bin/kube-proxy
+                - --config=/var/lib/kube-proxy/config.conf
+                - --hostname-override=$(NODE_NAME)
+                ....
+                ....
+                ....
+---------------------------------------------------------------
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: my-ds-pod
+  labels:
+    app: nginx
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+-------------------------------------------------
+
+Static PODs:
+============
+Static Pods are managed directly by the kubelet daemon on a specific node, without the API server observing them. 
+Kubelet daemon will monitor this directory /etc/kubernetes/manifests/ and new pod definition files are exicuted.
+
+these pods are not controlled by kubectl but just we can monitor, if you want to delete those pods just have to remove the file from that location. 
+this location can be changed according to over convenence using the file "/var/lib/kubelet/config.yaml". $ ps -ef |grep kubelet -> and change the staticPodPath:
+we can't deploy objects like replicasets, deployments, sevices as a static pods
+
+note: all static pods ends with node name 
+
+simple-static-pod.yaml
+-------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  labels:
+    app: nginx
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+--------------------------------
+
+$ kubectl get pods --all-namespaces
+$ cd /etc/kubernetes/manifests
+$ more /var/lib/kubelet/config.yaml
+
+all kuberenetes components are placed as static pod onthe system in 
+
+/etc/kubernetes/manifests ➜  ls -ltr
+-rw------- 1 root root 1450 Feb 19 10:07 kube-scheduler.yaml
+-rw------- 1 root root 3380 Feb 19 10:07 kube-controller-manager.yaml
+-rw------- 1 root root 3849 Feb 19 10:07 kube-apiserver.yaml
+-rw------- 1 root root 2215 Feb 19 10:07 etcd.yaml
+
+Note: daemonset and static pods are ignored by kube-scheduler
+
+Monitoring:
+===========
+how to monitor the resource consumtion on kubernetes cluster, what would like to monitor, 
+    1. i want to monitor node level health like, CPU, memory, network and disk
+    2. pod and performace 
+   
+by default k8s not comes with monitoring solution. for that we need to use open source solutions like
+    1. Metrix severs
+    2. prometheus
+    3. elastic stack
+    4. Datadog
+    5. dynatrace
+
+we can have i metrix sever for each k8s cluster. it is an in memory monitroing solution. we cant see historical performace. k8s runs and agent on each node is kubelet. kubelet also contain component called cAdviser. which is resposible collecting the node metrix and send it to the metrics sever.
+
+for minikube, we can use 
+$ minikube addons enable metrics-server
+
+for other setups
+$ git clone https://github.com/kubernetes-incubator/metrics-server
+
+Multiple Schedulers:
+====================
+--> Kubernetes ships with a default scheduler that is described here. If the default scheduler does not suit your needs you can implement your own scheduler. 
+Moreover, you can even run multiple schedulers simultaneously alongside the default scheduler and instruct Kubernetes what scheduler to use for each of your pods.
+
+
