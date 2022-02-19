@@ -976,10 +976,81 @@ $ minikube addons enable metrics-server
 
 for other setups
 $ git clone https://github.com/kubernetes-incubator/metrics-server
+$ kubectl create -f ... options.
+
+
+we can view the metrics details using the below
+
+$ kubectl top node 
 
 Multiple Schedulers:
 ====================
 --> Kubernetes ships with a default scheduler that is described here. If the default scheduler does not suit your needs you can implement your own scheduler. 
 Moreover, you can even run multiple schedulers simultaneously alongside the default scheduler and instruct Kubernetes what scheduler to use for each of your pods.
+
+Logging :
+=========
+to view the logs of the pod, we can view the logs during the execution also
+
+$ kubectl logs -f <pod-name> --> if we have only one pod in a definition file. this methord will work.
+$ kubectl logs -f <pod-name> <container-name> --> if multiple containers are available in the pod.
+
+Configure Applications:
+========================
+Configuring applications comprises of understanding the following concepts:
+
+Configuring Command and Arguments on applications
+Configuring Environment Variables
+Configuring Secrets
+
+Configuring Command and Arguments on applications:
+--------------------------------------------------
+we use the docker images in k8s. so when we use the images where it require inputs how are we pass them
+
+docker uses 2 parameters in docker images 
+    1. CMD sleep 5  --> defined input, if not specified it will use the existing value 5, other wise $ docker run ubuntu-sleep sleep 10 
+   
+    2. ENTRYPOINT ["sleep"] --> it will look for the input, $ docker run ubuntu-sleeper 10
+
+to pass the arguments similer in the k8s, we use this options
+-----------------------------------------------
+apiVersion: v1
+kind: Pod
+metadata: 
+  name: ubuntu-sleeper-pod
+  labels:
+    app: ubuntu-sleeper1
+spec: 
+  containers:
+  - name: ubuntu-sleeper
+    image: ubuntu-sleeper
+    args: ["10"]
+    command: ["sleep 20"]
+------------------------------------------------
+
+Configuring Environment Variables:
+----------------------------------
+--> if the docker require, any environment variable we specify them with option "-e key=value". similarly in k8s we specify the values as below.
+
+pod-definition.yaml
+--------------------------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+    name: nginx-pod
+    labels:
+        app: nginx
+spec:
+    env: 
+    - name: color
+      value: Red
+---------------------------------------------------
+
+ConfigMaps:
+============
+--> this is an alternate way to pass the environment variables to the pod. in complex environment we use this methord as a global store for variables.
+    step-1. create configMap
+    step-2. inject configMap
+    
 
 
