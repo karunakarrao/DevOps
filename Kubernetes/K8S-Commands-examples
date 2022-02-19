@@ -576,7 +576,9 @@ there are 2 types of nodeAffinity
  1. requiredDuringSchedulingIgnoredDuringExecution 
  2. preferredDuringSchedulingIgnoredDuringExecution
 
-Notes:
+In the future K8S plan to offer below 2types also
+ 3. requiredDuringSchedulingRequiredDuringExecution 
+ 4. requiredDuringSchedulingIgnoredDuringExecution except that it will evict pods from nodes that cease to satisfy the pods' node affinity requirements.
 
 Scenario-1:
 --> If you specify both nodeSelector and nodeAffinity, both must be satisfied for the pod to be scheduled onto a candidate node. below 
@@ -666,6 +668,7 @@ spec:
                 value:  #  the pod can be scheduled onto a node if one of the nodeSelectorTerms can be satisfied.
                 - prod1
                 - prod2
+                
             -   key: bu
                 operator: Exists
   containers:
@@ -673,4 +676,124 @@ spec:
     image: nginx
 -----------------------------------------------------------------
 
+Node affinity per scheduling profile:
+=====================================
+When configuring multiple scheduling profiles, you can associate a profile with a Node affinity, which is useful if a profile only applies to a specific set of Nodes. 
+To do so, add an addedAffinity to the args of the NodeAffinity plugin in the scheduler configuration. 
 
+------------------------------------------------------------------
+apiVersion: kubescheduler.config.k8s.io/v1beta1
+kind: KubeSchedulerConfiguration
+
+profiles:
+  - schedulerName: default-scheduler
+  - schedulerName: foo-scheduler
+    pluginConfig:
+      - name: NodeAffinity
+        args:
+          addedAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: scheduler-profile
+                  operator: In
+                  values:
+                  - foo
+-------------------------------------------------------------
+
+Inter-pod affinity and anti-affinity:
+=====================================
+
+Inter-pod affinity and anti-affinity allow you to constrain which nodes your pod is eligible to be scheduled based on labels on pods that are already running on the node 
+rather than based on labels on nodes.
+
+Note: Inter-pod affinity and anti-affinity require substantial amount of processing which can slow down scheduling in large clusters significantly. We do not recommend 
+using them in clusters larger than several hundred nodes.
+
+------------------------------------------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: with-pod-affinity
+spec:
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: security
+            operator: In
+            values:
+            - S1
+        topologyKey: topology.kubernetes.io/zone
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: security
+              operator: In
+              values:
+              - S2
+          topologyKey: topology.kubernetes.io/zone
+  containers:
+  - name: with-pod-affinity
+    image: k8s.gcr.io/pause:2.0
+-----------------------------------------------------------------
+
+Resource Limits:
+====================
+When a pod placed on a node it consumes system resources such as CPU, Memeory, Disk Space. if node doesn't have the sufficient resources the scheduler avoid placing the pod
+on the node it shows insufficient CPU.
+
+Kubernetes doesn't provide default resource limits out-of-the-box. This means that unless you explicitly define limits, your containers can consume unlimited CPU and memory.
+Pods deployed after this LimitRange, without their own CPU or memory limit, will have these limits applied to them automatically.
+
+Note: pod default resource requirement need to set at the namespace level first. like CPU, Memory, DISK.
+
+we can specify the resource requirement for each pod using resources parameter. 
+
+--> it's useful to specify CPU units less than 1.0 or 1000m using the milliCPU form. 1CPU unit = 1000milli cpu units.
+
+--------------------------------------------------------------
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: frontend
+spec:
+  containers:
+  - name: app
+    image: images.my-company.example/app:v4
+    resources:
+      requests: # minimum limit a pod can consume
+        memory: "64Mi"
+        cpu: "250m"
+      limits:    # maximux limit a pod can consume
+        memory: "128Mi"
+        cpu: "500m"
+        
+  - name: log-aggregator
+    image: images.my-company.example/log-aggregator:v6
+    resources:
+      requests: # minimum limit a pod can consume
+        memory: "64Mi"
+        cpu: "250m"
+      limits:   # maximux limit a pod can consume
+        memory: "128Mi"
+        cpu: "500m"
+-----------------------------------------------------------------
+
+With resource quotas, cluster administrators can restrict resource consumption and creation on a namespace basis. Within a namespace, a Pod or Container can consume as much 
+CPU and memory as defined by the namespace's resource quota. 
+-----------------------------------------------------------------
+apiVersion: v1
+kind: LimitRange
+metadata:
+    name: prod1-ns-limits
+spec:
+    limits:
+    -   default:
+            memory: 128Mi
+        
