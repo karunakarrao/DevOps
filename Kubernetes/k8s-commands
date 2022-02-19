@@ -1,0 +1,7 @@
+$ kubectl version   --> kubernetes version check
+$ kubectl explain pod/replicaset/deployment/service/daemonset/etc... --> doc. for k8s objects
+
+$ kubectl run nginx --image=nginx   --> run an "nginx" pod
+$ kubectl expose pod nginx 
+$ kubectl get pods 
+$ kubectl describe pod my-pod 
