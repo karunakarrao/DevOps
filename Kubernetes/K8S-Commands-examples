@@ -1110,10 +1110,32 @@ metadata:
     labels:
         app: nginx
 spec:
-    envFrom:
-    -   configMapRef:
-            name: mysql-config
     containers:
     -   name: nginx
         image: nginx
+        envFrom:    # configmap is mapped to a specific contiainer.
+        -   configMapRef:
+            -   name: mysql-config  # mapping complete configmap
+-------------------------------------------------------------
+
+only one variable from configmap also can be used
+-------------------------------------------------------------
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    env:
+    -  name: APP_COLOR
+       valueFrom:
+         configMapKeyRef:
+            name: app-env-config      #configmap name 
+            key: APP_COLOR
+-------------------------------------------------------------
+
+$ kubectl get configmaps --> to list the configmaps
+$ kubectl edit configmap <configmap-name> --> to edit or update the configmap
+$ kubectl delete configmap <configmap-name> --> to delete the configmap
+
+
+
 
