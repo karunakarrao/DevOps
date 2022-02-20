@@ -1,11 +1,9 @@
 Red Hat Ansible Engine Implementation:-
 --------------------------------------
-
 Topics:-
 --------
 1. Overview :-
 --------------
-
 -> Ansible is an Open source configuration management and orchestration utility
 -> Automates and standardizes configuration of remote hosts and virtual machines
 -> Coordinates launch and shutdown of multitiered applications
@@ -32,7 +30,6 @@ Ansible Limitations:-
 
 2. Architecture:-
 -----------------
-
 -> Two types of machines in Ansible architecture: control node and managed hosts
 	-> Ansible software installed and maintained on control node
 	-> Managed hosts listed in host inventory
