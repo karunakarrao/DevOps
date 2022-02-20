@@ -1042,15 +1042,78 @@ metadata:
         app: nginx
 spec:
     env: 
-    - name: color
+    - name: APP_COLOR
       value: Red
+    - name: APP_ANIMAL
+      value: cat
+    - name: APP_SIZE
+      value: large
+    - name: APP_MODE
+      value: prod
 ---------------------------------------------------
 
 ConfigMaps:
 ============
---> this is an alternate way to pass the environment variables to the pod. in complex environment we use this methord as a global store for variables.
+A ConfigMap is an API object used to store non-confidential data in key-value pairs. Pods can consume ConfigMaps as environment variables, command-line arguments, 
+or as configuration files in a volume.
+A ConfigMap is not designed to hold large chunks of data. The data stored in a ConfigMap cannot exceed 1 MiB. If you need to store settings that are larger than this limit,
+you may want to consider mounting a volume or use a separate database or file service
+
+Note: The spec of a static Pod cannot refer to a ConfigMap or any other API objects. The Pod and the ConfigMap must be in the same namespace.
+
+--> there are 2 steps involved in setting up the configmaps.
     step-1. create configMap
     step-2. inject configMap
-    
 
+step-1: creating configmap:
+----------------------------
+$ kubectl create configmap mysql-config --from-literal=mysql_port=3306 --from-literal=mysql_db_user=rajesh-db1
+(or)
+$ kubectl create configmap mysql-config \
+> --from-literal=mysql_port=3306 \
+> --from-literal=mysql_db_user=rajesh-db1
+
+(or)
+---------------------------------------------
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: mqsql-config
+    namespace: default # configmaps are used with in the namespace.
+data:
+    mysql_port: 3306
+    mysql_db_user: rajesh-db1
+----------------------------------------------
+
+(or)
+creating a configmap from a file with multiple env variables
+
+app-env.properties
+-----------------------------------------------
+APP_COLOR: RED
+APP_NAME: rajesh
+APP_DB_NAME: DB1
+APP_DB_USER: db-user1
+------------------------------------------------
+
+$ kubectl create configmap app-env-config --from-file: app-env.properties
+
+step-2: inject configMap:
+--------------------------
+to inject configmaps with pods we can use it like below
+
+------------------------------------------------------------
+apiVersion: v1
+kind: Pod
+metadata: 
+    name: nginx-pod
+    labels:
+        app: nginx
+spec:
+    envFrom:
+    -   configMapRef:
+            name: mysql-config
+    containers:
+    -   name: nginx
+        image: nginx
 
