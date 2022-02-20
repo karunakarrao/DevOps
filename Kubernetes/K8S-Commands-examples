@@ -1136,6 +1136,78 @@ $ kubectl get configmaps --> to list the configmaps
 $ kubectl edit configmap <configmap-name> --> to edit or update the configmap
 $ kubectl delete configmap <configmap-name> --> to delete the configmap
 
+Configuring Secrets:
+====================
+secrets are used to store the sensitive data like passwords and keys. so that they are encripted. hashing format base64
+
+this involves 2 steps
+    1. create secrets
+    2. inject it into pod
+
+step-1: creating secrets:
+--------------------------
+$ kubectl create secret generic my-secret --from-literal=db_host=mysql --from-literal=DB_user=root --from-literal=DB_password=password
+(or)
+
+$ kubectl create secret generic my-secret --from-file=secrets.properties.
+
+before creating the secret file, we need to convert values in to encripted format. like
+$ echo -n "root" |base64
+cm9vdA==
+$ echo -n "password" |base64
+cGFzc3dvcmQ=
+$ echo -n "mqsql" |base64
+bXFzcWw=
+------------------------------
+$ echo -n "cm9vdA==" |base64 --decode --> to decript the value
+$ echo -n "cGFzc3dvcmQ=" |base64 --decode
+
+secret.yaml
+--------------------------
+apiVersion: v1
+kind: Secret
+metadata:
+    name: my-secrets
+data:
+    DB_user: cm9vdA==
+    DB_Password: cGFzc3dvcmQ=
+    DB_Host: bXFzcWw=
+---------------------------
+
+$ kubectl create -f secret.yaml
+$ kubectl get secrets my-secret
+$ kubectl get secrets my-secret -o wide --> to show the output in yaml file
+$ kubectl describe secrets my-secret
+
+step-2: injecting in to pod
+----------------------------
+apiVersion: v1
+kind: Pod
+metadata: 
+    name: nginx-pod
+    labels:
+        app: nginx
+spec:
+    containers:
+    -   name: nginx
+        image: nginx
+        envFrom:    # configmap is mapped to a specific contiainer.
+        - secretRef:
+          - name: my-secret  # mapping complete configmap
+-------------------------------
+spec:
+    containers:
+    -   name: nginx
+        image: nginx
+        env:    # configmap is mapped to a specific contiainer.
+        - name: DB_Password
+          valueFrom:
+            secretKeyRef:
+                name: my-secret  # secret configmap file
+                key: DB_Password
+                
+                
+-----------------------------------------------------------------------------
 
 
 
