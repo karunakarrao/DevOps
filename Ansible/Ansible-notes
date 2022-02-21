@@ -112,77 +112,57 @@ Ansible plugin "local" is an another connection plug-in for Linux applications. 
 	-> When writing playbooks that interface with cloud services or other API
 	-> When Ansible is invoked locally by cron job
 
-Q. what is paramiko and ControlPersist:
-----------------------------
+Q. what is paramiko and ControlPersist?
 -> paramiko: Connection plug-in used on Red Hat Enterprise Linux 5 and 6 machines
 	-> Paramiko SSH is Python-based OpenSSH implementation that implements persistent SSH connections
 	-> Connection solution for older systems using versions of OpenSSH that do not implement ControlPersist
 -> ControlPersist allows for persistent SSH connections
 	-> Improves Ansible performance
 	-> Eliminates SSH connection overhead when multiple SSH commands execute in succession
-winrm and docker:-
-------------------
--> winrm: Allows Microsoft Windows machines to be managed hosts
-	-> pywinrm Python module must be installed on Linux control node to support winrm
--> docker: Allows Ansible to treat Docker containers as managed hosts without using SSH
-	->Introduced in Ansible 2
 
-7. Ansible Configuration:-
---------------------------
-Configuration File:-
+Q. What is winrm and docker:
+winrm: Allows Microsoft Windows machines to be managed hosts.
+Note: pywinrm Python module must be installed on Linux control node to support winrm
+
+docker: Allows Ansible to treat Docker containers as managed hosts without using SSH. this feature introduced in Ansible 2
+
+Q. What is Ansible Configuration file?
+Configuration File:
 	-> Settings in Ansible adjustable via configuration file (ansible.cfg)
 	-> Default configuration file, /etc/ansible/ansible.cfg, sufficient for most users
-		-> There may be reasons to change it
-Environment Variables:-
--> Ansible also allows configuration of settings using environment variables
-	-> If set, they override settings loaded from configuration file
-Command Line Options:
--> Not all configuration options available via command line, just those deemed most useful or common
--> Settings in command line override those passed through configuration file and environment
 
-Ansible Configuration Settings:-
---------------------------------
--> ansible-config utility allows users to see all available configuration settings, their defaults, how to set them, and where current values come from
--> Changes can be made in configuration file
--> Ansible searches for file to use in this order:
-	-> ANSIBLE_CONFIG (environment variable, if set)
-	-> ansible.cfg (in current directory)
-	-> ~/.ansible.cfg (in home directory)
-	-> /etc/ansible/ansible.cfg
--> First file found is used, all others ignored
+Environment Variables: Ansible also allows configuration settings using environment variables. they override default configuration file settings
 
-8. Prerequisites:-
-------------------
-Control Node:-
---------------
--> Ansible uses agentless architecture
-	-> Differs from other configuration management utilities like Puppet, Chef
--> Software installs on control node
-	-> Few steps
-	-> Only requirement: Python version 2.6 or later
-	-> To check installed Python version:
-		[root@controlnode ~]# yum list python
+Q. How can we change Ansible Configuration Settings?
+ansible-config utility allows users to see all available configuration settings and their defaults. it also shows how to set them, and where current values come from. 
+Changes can be made in configuration file. Ansible searches for file to use in this order. First file found is used, all others ignored
+	1st. ANSIBLE_CONFIG (environment variable, if set)
+	2nd. ansible.cfg (in current directory)
+	3rd.  ~/.ansible.cfg (in home directory)
+	4th. /etc/ansible/ansible.cfg
+	
+Q. What are Ansible Prerequisites?
+Ansible-Master: Ansible uses agentless architecture. Differs from other configuration management utilities like Puppet, Chef. 
+	1. Software installs on Ansible-master 
+		Only requirement: Python version 2.6 or later 
+		# yum list python
 		Loaded plugins: langpacks, search-disabled-repos
 		Installed Packages	
 		python.x86_64	2.7.5-34.el7	installed
--> Ansible currently not included in Red Hat Enterprise Linux
--> For installation instructions and other information: https://www.ansible.com/get-started
 
-Managed Hosts:-
----------------
--> No special Ansible agent needed
--> Require Python 2.4 or later
--> Python prior to 2.5, also requires python-simplejson
--> Control node communicates with managed hosts over network
-	-> Multiple options available
-	-> SSH connection used by default
--> Ansible normally connects to managed hosts using same username running Ansible on control node
--> SSH sessions require authentication at initiation of each connection
-	-> Password authentication for each connection becomes unwieldy as number of managed hosts increases
-	-> Key-based authentication preferable in enterprise environments
+Managed Hosts: No special Ansible agent needed on ansible-worker nodes. 
+	1. Require Python 2.4 or later
+	2. Python prior to 2.5, also requires python-simplejson
+	3. Control node communicates with managed hosts over network
+		-> Multiple options available
+		-> SSH connection used by default
+	4. Ansible normally connects to managed hosts using same username running Ansible on Ansible-Master.
+		-> SSH sessions require authentication at initiation of each connection
+		-> Password authentication for each connection becomes unwieldy as number of managed hosts increases
+		-> Key-based authentication preferable in enterprise environments
 
-SSH Key-Based Authentication:-
-------------------------------
+Q. How Ansible uses SSH Key-Based Authentication? 
+
 -> To authenticate ssh logins without password, use public key authentication
 -> ssh lets users authenticate using private/public key scheme
 	-> Two keys generated: private and public
