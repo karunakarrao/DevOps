@@ -162,134 +162,85 @@ Managed Hosts: No special Ansible agent needed on ansible-worker nodes.
 		-> Key-based authentication preferable in enterprise environments
 
 Q. How Ansible uses SSH Key-Based Authentication? 
-
--> To authenticate ssh logins without password, use public key authentication
--> ssh lets users authenticate using private/public key scheme
-	-> Two keys generated: private and public
--> Private key file used as authentication credential
-	-> Must be kept secret and secure
--> Public key copied to systems user wants to log in to
-	-> Used to verify private key
-	-> Does not need to be secret
--> SSH server with public key issues challenge
-	-> System with private key answers
-	-> Possession of private key used to complete authentication
-
-ssh-keygen:-
--------------
--> To generate keys, use ssh-keygen
-	-> Private key: ~/.ssh/id_rsa
-	-> Public key: ~/.ssh/id_rsa.pub
--> Default: SSH keys stored in .ssh/ directory of user’s home directory
--> File permissions on private key allow:
+To authenticate ssh logins without password, use public key authentication. SSH lets users authenticate using private/public key scheme.
+	Two keys generated: private and public
+		1. Private key file used as authentication credential. and it Must be kept secret and secure
+		2. Public key file is shared with uses to verify private key. it does not need to be secret.
+		-> SSH server with public key issues challenge
+			-> System with private key answers
+			-> Possession of private key used to complete authentication
+			
+Q. How to generate SSH-Keys and uses ?
+ssh-keygen: 
+To generate keys, use ssh-keygen: $ ssh-keygen 
+	1. Private key: ~/.ssh/id_rsa
+	2. Public key: ~/.ssh/id_rsa.pub
+by Default SSH keys stored in .ssh/ directory of user’s home directory. File permissions on private key allow:
 	-> Read/write access to user who owns file
 	-> Octal 0600
--> File permissions on public key allow:
+File permissions on public key allow:
 	-> All system users read access
 	-> Only file owner write access
 	-> Octal 0644
 
-ssh-copy-id:-
--------------
--> Before using key-based authentication, need to copy public key to destination system
--> To do this, use ssh-copy-id:
-	[student@controlnode ~]$ ssh-copy-id student@managedhost
+ssh-copy-id: 
+Before using key-based authentication, need to copy public key to destination system i.e. Ansible-Worker.
+To do this, use ssh-copy-id:
+	]$ ssh-copy-id student@managedhost
 
--> After copying key, use key-based authentication to authenticate SSH connections to host
+After copying key, use key-based authentication to authenticate SSH connections to host
 
-9. Modules:-
-------------
-To see modules available on control node, run ansible-doc with -l option
+Q. How to see the ansible Modules ?
+To see modules available on Ansible-Master, run ansible-doc with -l option. Modules installed under /usr/lib/python2.7/site-packages/ansible/modules
+	$ ansible-doc -l
 
--> Use modules to perform operations on managed hosts
-	-> Ready-to-use tools for specific tasks
-	-> Run from command line or use in playbooks
-	-> Copied to and run from managed host
--> Over 200 prepackaged modules
-	-> Let you perform wide range of tasks
-	-> Examples: Cloud, user, package, service management
+Q. Types of Module comes with ansible?
 
-Module Type: -
---------------
+Core modules: These modules are Included with Ansible. Written and maintained by Ansible Engineering Team. Integral to basic foundations of Ansible distribution. 
+Used for common tasks. Always available
 
-Core modules:-
---------------
--> Included with Ansible
--> Written and maintained by Ansible Engineering Team
--> Integral to basic foundations of Ansible distribution
--> Used for common tasks
--> Always available
+Network modules: Currently included with Ansible. Written and maintained by Ansible Network Team. If categorized as Certified or Community, not maintained by Ansible
 
-Network modules:-
------------------
--> Currently included with Ansible
--> Written and maintained by Ansible Network Team
--> If categorized as Certified or Community, not maintained by Ansible
+Certified modules: Part of a future planned program currently in development
 
-Certified modules:-
--------------------
--> Part of a future planned program currently in development
+Community modules: Included as a convenience. Submitted and maintained by Ansible community.Not maintained by Ansible.
 
-Community modules:-
--------------------
--> Included as a convenience
--> Submitted and maintained by Ansible community
--> Not maintained by Ansible
--> Included as a convenience
+Q. Anisble Module Categories:
 
-Use of Categories: Documentation and Organization:-
----------------------------------------------------
--> Module documentation indexed by category on Ansible documentation website
--> Helps in searching for module for specific task
--> Module storage on Ansible control node organized by categories
--> Modules installed under /usr/lib/python2.7/site-packages/ansible/modules
--> Core and extra modules housed under separate directories
--> Modules within directories organized into subdirectories by category
+	-> Cloud
+	-> Clustering
+	-> Commands
+	-> Database
+	-> Files
+	-> Inventory
+	-> Messaging
+	-> Monitoring
+	-> Network
+	-> Notification
+	-> Packaging
+	-> Source Control
+	-> System
+	-> Utilities
+	-> Web Infrastructure
+	-> Windows
 
-Module Categories:-
--------------------
--> Cloud
--> Clustering
--> Commands
--> Database
--> Files
--> Inventory
--> Messaging
--> Monitoring
--> Network
--> Notification
--> Packaging
--> Source Control
--> System
--> Utilities
--> Web Infrastructure
--> Windows
+Modules avaibale in Ansible-Master locally: /usr/lib/python2.7/site-packages/ansible/modules
+To display documentation on specific module, pass module name to ansible-doc: $ ansible-doc yum
+To display sinapsis $ ansible-doc -s yum
 
--> Modules avaibale in Control node locally
-	[student@controlnode modules]$ pwd
-	/usr/lib/python2.7/site-packages/ansible/modules
-	[student@controlnode modules]$ tree -d
+To call modules as part of ad-hoc command, use ansible -m specifies which module to use
+Example: Use ping to test connectivity to all managed hosts:
+$ ansible -m ping all
 
--> To display documentation on specific module, pass module name to ansible-doc 
-	[student@workstation modules]$ ansible-doc yum
-
--> To display sinapsis 
-	[student@workstation modules]$ ansible-doc -s yum
-
-Methods to Invoke Modules:-
----------------------------
--> To call modules as part of ad hoc command, use ansible
-	-m specifies which module to use
-	Example: Use ping to test connectivity to all managed hosts:
-	[student@controlnode ~]$ ansible -m ping all
--> Can call modules in playbooks as part of task
-	Example: Invoke yum module
-	Arguments: Package name and desired state:	
-	tasks:
-  		- name: Installs a package
-  		  yum:
-    		  name: Postfix
-      		  state: latest
+call modules in playbooks as part of task
+Example: Invoke yum module Arguments: Package name and desired state
+-----------------------------------------
+tasks:
+- name: Installs a package
+  yum:
+    name: Postfix
+    state: latest
+-----------------------------------------
 -> To call modules from Python scripts, use Ansible Python API
 	-> Not supported in case of failures
 	-> Can import API into application to leverage Ansible system deployment and configuration
