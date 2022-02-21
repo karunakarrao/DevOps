@@ -1,49 +1,21 @@
-Red Hat Ansible Engine Implementation:-
+Red Hat Ansible Engine Implementation:
 --------------------------------------
-Topics:-
---------
-1. Overview :-
---------------
--> Ansible is an Open source configuration management and orchestration utility
--> Automates and standardizes configuration of remote hosts and virtual machines
--> Coordinates launch and shutdown of multitiered applications
--> Performs rolling updates of multiple systems with zero downtime
--> Originally written by Michael DeHaan
--> Creator of Cobbler provisioning application
--> System administrators find it simple to use
--> Developers can learn it easily
--> Built on Python
--> Supported by DevOps tools such as Vagrant and Jenkins
+Q. What is Ansible?
+Ansible is an Open source. its built on Python. Ansible is a configuration management and orchestration utility. Ansible Automates and standardizes configuration of 
+remote hosts and virtual machines. we can start and shutdown of applications. we can Performs rolling updates with zero downtime. it support Vagrant and Jenkins.
 
-Ansible Limitations:-
----------------------
--> Cannot audit changes made by other users on system
-	-> Cannot determine who made change to a file
--> Does not perform initial minimal installation of system
-	-> Start with minimal installation via Kickstart or base cloud starter image
-	-> Then use Ansible to add packages and do configuration
--> Does not monitor configuration drift
-	-> Can remediate it
--> Does not track changes made to files on system
-	-> Does not track which user or process made changes
-	-> To track changes, use version control system or Linux® Auditing System
+Q. What are Ansible Limitations? 
+Ansible cannot audit changes made by other users on system. we can't determine who made change to a file. it does not perform initial minimal installation of system
+it does not track changes made to files on system. and its does not track which user or process made changes. To track changes, use version control system or Linux® Auditing System
 
-2. Architecture:-
------------------
--> Two types of machines in Ansible architecture: control node and managed hosts
-	-> Ansible software installed and maintained on control node
-	-> Managed hosts listed in host inventory
-	-> Text file on control node with managed host names or IP addresses
--> System administrators log in to control node and launch Ansible
-	-> Specify playbook
-	-> Specify target host to manage: single system, group of hosts, or wild card
--> SSH used as network transport to communicate with managed hosts
-	-> Modules referenced in playbook copied to managed hosts
-	-> Modules execute in order with arguments specified in playbook
--> Core modules perform most system administration tasks
-	-> Users can write custom modules
+Q. Ansible Architecture?
+two types of machines in Ansible architecture
+	1. control node (Ansible-master) --> Ansible software installed and maintained on control node. It must be linux OS.
+	2. managed hosts (Ansible-Worker) --> worker nodes can be linux / Windows.
+System administrators login to Ansible-Master and launch Ansible playbook on a specify target host to hosts. SSH used as network transport to communicate with managed hosts
+Modules refer in playbook copied to managed hosts. and delete once the task is completed. Core modules perform most system administration tasks Users can write custom modules
 
-Control Node Components:-
+Control Node Components:
 ------------------------
 Ansible configuration:-
 	-> Defines how Ansible behaves. Settings include:
