@@ -15,58 +15,34 @@ two types of machines in Ansible architecture
 System administrators login to Ansible-Master and launch Ansible playbook on a specify target host to hosts. SSH used as network transport to communicate with managed hosts
 Modules refer in playbook copied to managed hosts. and delete once the task is completed. Core modules perform most system administration tasks Users can write custom modules
 
-Control Node Components:
-------------------------
-Ansible configuration:-
-	-> Defines how Ansible behaves. Settings include:
-		-> Remote user for command execution
-		-> Passwords for executing remote commands with sudo
-	-> To override default values, use environment variables or values defined in configuration files
+Q. What are Ansible-Master Components?
+Ansible configuration: Ansible installtion comes with ansible config file (ansible.cfg) located in /etc/ansible directory. all ansible settings avaiable here. to override 
+the default values we need to use environment variables (or) we can update the file. 
 
-Host inventory:-
-	-> Defines configuration groups to which hosts belong
-	-> Defines how Ansible communicates with managed host
-	-> Defines host and group variable values
+Host inventory: This is a text based file, which containes list of hosts(ansible-worker) added here. we can devide them into groups for specific tasks.
 
-Core modules:-
-	-> Programs copied to managed hosts to perform work for Ansible
-	-> Over 400 core modules built in
+Core modules: Ansible installtion comes with default/core modules. it's over 400 modules are built in to perform various tasks on ansible worker nodes.
 
-Custom modules:-
-	-> Extend functionality
-	-> Typically written in Python
-		-> Alternative: Any interpreted programming language
-	-> Add custom modules to Ansible library
+Custom modules: Ansible also provide a create custom modules to perform a specific functionality in ansible. they written python, Add custom modules to Ansible library
 
-Playbooks:-
-	-> Files written in YAML syntax
-	-> Define modules, with arguments, to apply to managed hosts
-	-> Declare tasks that need to be performed
+Playbooks: are list of tasks written in YAML syntax. each task to perform one operation on Ansible-worker node. this task are exicuted in sequential order. 
+playbook tasks use modules with arguments and exicutes on managed hosts
 
-Connection plug-ins:-
-	-> Enable communication with remote hosts and cloud
-	-> Include native SSH (default), Paramiko SSH, and local
-		-> Paramiko: Python implementation of OpenSSH for Red Hat Enterprise Linux 5 and 6
-	-> Provides ControlPersist performance setting required by Ansible
+Connection plug-ins: Ansible uses communication with remote hosts/cloud hosts/ using native SSH (default) or Paramiko SSH or local. Paramiko is Python implementation 
+of OpenSSH for Red Hat Enterprise Linux 5 and 6
 
-Plug-ins:- 
-	-> Extend Ansible’s functionality
-		Examples: Email notifications and logging
+Plug-ins: Extend Ansible’s functionality Examples: Email notifications and logging
 
-Control Node Role:-
-------------------
-	-> System administrators log in and initiate Ansible operations from control node
-	-> Ansible software installed and configuration files maintained on control node
-	-> Other names for control node: Ansible host and control machine
+Q. what are Ansible-Master Roles?
+System administrators login to ansible-master server and initiate Ansible operations. Ansible software installed and allconfiguration files maintained on Ansible-master. 
 
-Control Node Requirements:-
--------------------------
-	-> Must have Python 2.6 or 2.7 installed
-	-> Includes Linux, macOS, any BSD-based UNIX system
-	-> Windows not currently supported for control node
-	-> On Red Hat Enterprise Linux 6 or 7, ansible package and dependencies must be installed
+Q. what are Ansible-Master Requirements?
+	1. Must have Python 2.6 or 2.7 installed
+	2. Ansible-master runs on Linux, macOS, any BSD-based UNIX system
+	3. Windows not currently supported for Ansible-Master.
+	4. On Red Hat Enterprise Linux 6 or 7, ansible package and dependencies must be installed
 
-Managed Host Role:-
+Managed Host Role
 ------------------
 	-> Ansible does the following on managed host systems:
 		-> Logs in
