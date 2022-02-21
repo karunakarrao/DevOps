@@ -1,0 +1,6 @@
+$ ansible --verison --> to check the ansible version.
+$ ansible-doc -l  --> to list the modules 
+$ ansible-doc <module-name> --> to see the ansible module synapsis 
+  example:
+   $ ansible-doc yum
+   $ ansible-doc copy
