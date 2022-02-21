@@ -1,5 +1,6 @@
 Red Hat Ansible Engine Implementation:
 --------------------------------------
+
 Q. What is Ansible?
 Ansible is an Open source. its built on Python. Ansible is a configuration management and orchestration utility. Ansible Automates and standardizes configuration of 
 remote hosts and virtual machines. we can start and shutdown of applications. we can Performs rolling updates with zero downtime. it support Vagrant and Jenkins.
@@ -29,7 +30,7 @@ Playbooks: are list of tasks written in YAML syntax. each task to perform one op
 playbook tasks use modules with arguments and exicutes on managed hosts
 
 Connection plug-ins: Ansible uses communication with remote hosts/cloud hosts/ using native SSH (default) or Paramiko SSH or local. Paramiko is Python implementation 
-of OpenSSH for Red Hat Enterprise Linux 5 and 6
+of OpenSSH for Red Hat Enterprise Linux 5 and 6. Ansible supports passwords for SSH authentication. Most common practice: Use SSH user keys to access managed hosts
 
 Plug-ins: Extend Ansible’s functionality Examples: Email notifications and logging
 
@@ -42,71 +43,59 @@ Q. what are Ansible-Master Requirements?
 	3. Windows not currently supported for Ansible-Master.
 	4. On Red Hat Enterprise Linux 6 or 7, ansible package and dependencies must be installed
 
-Managed Host Role
-------------------
-	-> Ansible does the following on managed host systems:
-		-> Logs in
-		-> Installs modules
-		-> Executes remote commands for configuration
-	-> Other names for managed host: managed node and remote node
+Q. what are Ansible-Managed Host Role?
+Ansible does the following on managed host systems:
+	-> Ansible-Master Login to managed Hosts.
+	-> Installs modules requied for the task
+	-> Executes remote commands for configuration
 
-Managed Host Requirements:- 
---------------------------
-	-> SSH must be installed and configured
-		-> Allows incoming connections and communication with managed hosts
-	-> Python 2.4 or later
-		-> Lets you use Ansible to manage Red Hat Enterprise Linux 5, 6, and 7 hosts
-	-> python-simplejson package must be installed on Red Hat Enterprise Linux 5 managed hosts
-		-> Not required on Red Hat Enterprise Linux 6 and 7 managed hosts
-		-> Python 2.5 and newer versions provide functionality by default
+Q. What are Ansible-Managed Host Requirements?
+	1. Ansible managed hosts must install SSH and configured. and it should allow incoming connections from ansible-master. 
+	2. install Python 2.4 or later Lets you use Ansible to manage Red Hat Enterprise Linux 5, 6, and 7 hosts
+	3. python-simplejson package must be installed on Red Hat Enterprise Linux 5 managed hosts
+Note: python=simplejson is Not required on Red Hat Enterprise Linux 6 and 7 managed hosts. Python 2.5 and newer versions provide functionality by default.
 
-3. Use Cases:-
---------------
--> Configuration management
-	-> Deploy and manipulate remote host’s configuration files
-	-> Use static files or create files on fly using templates
--> Multi-node deployment tool
-	-> Use playbooks to define applications installed and configured on remote machines
-	-> Apply playbook to multiple machines, building them in consistent manner
-	-> Orchestrate multi-node applications with Ansible rules
--> Remote task execution
-	-> Example: Specify ad hoc commands on command line
-	-> Causes Ansible to execute commands on remote hosts
+Q. what are ansible Use Cases ?
+   	1. Configuration management
+		-> Deploy and manipulate remote host’s configuration files
+		-> Use static files or create files on fly using templates
+	2. Multi-node deployment tool
+		-> Use playbooks to define applications installed and configured on remote machines
+		-> Apply playbook to multiple machines, building them in consistent manner
+		-> Orchestrate multi-node applications with Ansible rules
+	3. Remote task execution
+		-> Example: Specify ad hoc commands on command line
+		-> Causes Ansible to execute commands on remote hosts
 
-4. Deployments:-
----------------
--> Ansible strength: Simplifies software configuration of servers
--> When Ansible accesses managed hosts, it can discover version of Red Hat Enterprise Linux running on remote server
--> Ansible determines if host is properly entitled by comparing installed applications and applied software subscriptions
--> Ansible Playbooks can consistently build development, test, and production servers
-	-> Kickstart can get bare-metal servers running
-	-> Ansible builds them further
-	-> Provision servers to corporate baseline standard or specific role within datacenter
+Q. What are ansible Deployments?
+	-> Ansible strength: Simplifies software configuration of servers
+	-> When Ansible accesses managed hosts, it can discover version of Red Hat Enterprise Linux running on remote server
+	-> Ansible determines if host is properly entitled by comparing installed applications and applied software subscriptions
+	-> Ansible Playbooks can consistently build development, test, and production servers
+		-> Kickstart can get bare-metal servers running
+		-> Ansible builds them further
+		-> Provision servers to corporate baseline standard or specific role within datacenter
 
-Red Hat JBoss® Middleware:-
----------------------------
+Red Hat JBoss® Middleware:
 -> Ansible can discover Red Hat JBoss Middleware versions and reconcile subscriptions
 -> Ansible supports managed hosts running Windows
 -> Red Hat JBoss Middleware products can be deployed consistently, regardless of target machine operating systems
 -> Ansible can also deploy and manage Red Hat JBoss Middleware applications
 -> All Red Hat JBoss Middleware configurations are centrally stored on Ansible control node
 
-Red Hat OpenShift®:-
-------------------
+Red Hat OpenShift®:
 -> Ansible can manage software development life cycle for applications deployed into Red Hat OpenShift Container Platform
 -> OpenShift Container Platform 3.1 provides:
 	-> Ansible software for Red Hat Enterprise Linux
 	-> Playbooks for provisioning and managing applications
 
-Red Hat Satellite:-
-------------------
+Red Hat Satellite:
 -> Ansible can supplement functionality provided by Red Hat Satellite
 -> Deploy Satellite agents to existing servers in datacenter
 -> Discover and manage software subscriptions on Red Hat Satellite clients
 -> Perform post-install configuration of hosts provisioned by Red Hat Satellite
 
-5. Orchestration Methods:-
---------------------------
+Q. what are Ansible Orchestration Methods?
 -> Ansible commonly used to finish provisioning application servers
 	-> Example: Write playbook to perform these steps on newly installed base system:
 		-> Configure software repositories
@@ -117,24 +106,13 @@ Red Hat Satellite:-
 		-> Start relevant services
 		-> Test application and confirm it is functioning
 
-6. Connection Plug-ins:-
-------------------------
--> Connection plug-ins: Allow Ansible to communicate with managed hosts and cloud providers
--> Preferred connection plug-in for newer versions of Ansible is native SSH plug-in, ssh
-	-> Default connection method used by Ansible
-		-> If OpenSSH on control node supports ControlPersist option
--> Ansible supports passwords for SSH authentication
-	-> Most common practice: Use SSH user keys to access managed hosts
-
-local:-
--------
--> local: Another connection plug-in for Linux applications
--> Use to manage Ansible control node locally, without SSH
-Common uses:
+Q. what is ansible plugin local?
+Ansible plugin "local" is an another connection plug-in for Linux applications. it use to manage Ansible-Master locally, without SSH
+	Common uses:
 	-> When writing playbooks that interface with cloud services or other API
 	-> When Ansible is invoked locally by cron job
 
-paramiko and ControlPersist:
+Q. what is paramiko and ControlPersist:
 ----------------------------
 -> paramiko: Connection plug-in used on Red Hat Enterprise Linux 5 and 6 machines
 	-> Paramiko SSH is Python-based OpenSSH implementation that implements persistent SSH connections
