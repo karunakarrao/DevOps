@@ -379,12 +379,10 @@ to manage the remote hosts.
 
 2.2. Generate SSH Key Pair:-
 ----------------------------
--> Generate an SSH key pair for the devops user
-	
+Generate an SSH key pair for the devops user
 	$ ssh-keygen -N '' -f ~/.ssh/id_rsa
 
--> Verify that the SSH key was successfully created
-	
+Verify that the SSH key was successfully created	
 	$ ls -ltr ~/.ssh
 
 3. Set Up Remote Hosts:-
@@ -395,13 +393,11 @@ In this section, you set up the remote hosts.
 You create the "devops" user on all of the remote hosts and copy its public key to each host.
 
 -> As the devops user, explore the remote hosts in control node:
-
 	$ ansible all --list-hosts
 	(or)
 	$ ansible all --list
 
 -> To test the connectivity with remote host using ping module
-	
 	$ ansible -m ping all
 	(or)
 	$ ansible all -m ping
@@ -411,31 +407,25 @@ You create the "devops" user on all of the remote hosts and copy its public key 
 In this section, you create the user and set up the SSH keys for the devops user on the remote hosts.
 
 -> Create the devops user on the remote hosts using the Ansible user module
-
 	$ ansible all -m user -a "name=devops" -b 
 	(or)
 	$ ansible -m user -a "name=devops" -b all
 
--> Display the SSH public key for the devops user
-	
+-> Display the SSH public key for the devops user	
 	$ cat ~/.ssh/id_rsa.pub
 
 -> To Add the SSH key to the authorized keys for the devops user, making sure to replace the value of the SSH public key with the one that you just displayed
-
 	$ ansible all -m authorized_key -a "user=devops state=present key='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCiR9HQUu8OUr7k8oe+odfvVQgdMNVsHM+dV0oNQnqG+Unv5PSf7GVkp1JwCroF4wIdjKKvEJ8qJqAbxoY3gEcfrSTR9e9p3zeydHIY2svENGmSNjlX28tMe9uisA9KfIEqe013MuIsplGV7YhXAV0YyCCuJ+OMDr+iEmsmVTza/MLzd9iQxYffLwrV+yY+VUilpS12ns/gmDR8ijO5b0sxdHk8Umk77h8Q1bXE8gyue3cnc1c9Sdzpm4UVNhp9ZcqZCqepUBQOszEvllWxrIw+mktzMdn8INgYhiUBzFQxS/92Qh9prB33F3TdOjin4d/Z/tV2lsNN8HVexXswmoF3 devops@bastion.0926.internal'" -b 
 
 -> To Remove the SSH key from authorized_key file use change the state=present to state=removed/absent which will remove the entry from the file.
-
 	$ ansible all -m authorized_key -a "user=devops state=absent key='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCiR9HQUu8OUr7k8oe+odfvVQgdMNVsHM+dV0oNQnqG+Unv5PSf7GVkp1JwCroF4wIdjKKvEJ8qJqAbxoY3gEcfrSTR9e9p3zeydHIY2svENGmSNjlX28tMe9uisA9KfIEqe013MuIsplGV7YhXAV0YyCCuJ+OMDr+iEmsmVTza/MLzd9iQxYffLwrV+yY+VUilpS12ns/gmDR8ijO5b0sxdHk8Umk77h8Q1bXE8gyue3cnc1c9Sdzpm4UVNhp9ZcqZCqepUBQOszEvllWxrIw+mktzMdn8INgYhiUBzFQxS/92Qh9prB33F3TdOjin4d/Z/tV2lsNN8HVexXswmoF3 devops@bastion.0926.internal'" -b
 
 -> The contents of /home/devops/.ssh/id_rsa.pub is used as the value of the parameter "key" for "authorized_key" Ansible module.
 
--> Configure sudo on the remote host for privileged escalation for the "devops" user
-	
+-> Configure sudo on the remote host for privileged escalation for the "devops" user by adding in /etc/sudoers file	
 	$ ansible all -m lineinfile -a "dest=/etc/sudoers state=present line='devops ALL=(ALL) NOPASSWD: ALL'" -b
 
 -> Verify the connection to the remote hosts from bastion as the devops user, starting with the app1 server
-
 	$ export GUID=`hostname | awk -F"." '{print $2}'`
 
 	$ ssh <hostname>
@@ -444,11 +434,10 @@ In this section, you create the user and set up the SSH keys for the devops user
 
 4. Explore Ad Hoc Commands:-
 ----------------------------
--> After you have successfully configured the Ansible Controller and remote hosts, you can run Ansible ad hoc commands and playbooks as the "devops" user from "Ansible Controller Machine" without being prompted for the password.
+-> After you have successfully configured the Ansible Controller and remote hosts, you can run Ansible ad hoc commands and playbooks as the "devops" user 
+from "Ansible_master" without being prompted for the password.
 
--> In this section, you explore ad hoc commands to manage remote hosts.
-
--> You configure ansible.cfg and the static inventory needed to complete this lab. You use " -u " to specify the " devops " user and "--private-key" to specify the private key.
+-> You configure ansible.cfg and the static inventory needed to complete this lab. You use "-u" to specify the "devops" user and "--private-key" to specify the private key.
 
 1. Verify remote user:
 	
@@ -456,7 +445,8 @@ In this section, you create the user and set up the SSH keys for the devops user
 
 The command is expected to show "ec2-user" because it is using the default ansible.cfg and the SSH keys defined in the default /etc/ansible/hosts static inventory.
 
-2. Create a directory called "ansible_implementation" as your working directory for all future labs and an "ansible.cfg" file with a [defaults] section for specifying user-specific settings
+2. Create a directory called "ansible_implementation" as your working directory for all future labs and an "ansible.cfg" file with a [defaults] 
+section for specifying user-specific settings
 
 	$ mkdir ansible_implementation
 	$ cd ansible_implementation/
@@ -477,6 +467,7 @@ The command is expected to show "ec2-user" because it is using the default ansib
 	app1.${GUID}.internal
 	app2.${GUID}.internal
 	EOF
+	
 4. Verify the remote user
 
 	$ ansible all -a whoami
