@@ -278,49 +278,25 @@ examples:
 	$ ansible localhost -m copy -a "src=~/src1/file1 dest=~/dest1"
 	
 
-Module: Shell :-
-----------------
--> command module lets you quickly run remote commands on managed hosts
--> Not processed by shell on managed hosts
--> Cannot access shell environment variables
--> Cannot perform shell operations
--> To run commands that require shell processing, use shell module
--> Pass commands to run as arguments to module
--> Ansible runs command remotely
--> shell commands processed through shell
--> Can use shell environment variables
--> Can perform shell operations
+Q. uses of Module: Shell ?
+"command" module lets you quickly run remote commands on managed hosts. Not processed by shell on managed hosts. Cannot access shell environment variables. 
+Cannot perform shell operations. To run commands that require shell processing, use shell module. Pass commands to run as arguments to module. Ansible runs command remotely
+shell commands processed through shell ans we Can use shell environment variables
 
-Ad Hoc Command Configuration:-
-------------------------------
--> When running ad hoc command, things occur in background
--> Configuration file (/etc/ansible/ansible.cfg) consulted for parameters
-	Example: module_name parameter
--> Other parameters determine how to connect to managed hosts
-
-Connection Settings:-
----------------------
--> After reading parameters, Ansible makes connections to managed host
--> Default: Connections initiated with SSH
-	-> Requires connection established using account on managed host
-	-> Account referred to as remote user
-	-> Defined by remote_user setting under [defaults] section in /etc/ansible/ansible.cfg:
+Connection Settings:
+After reading parameters, Ansible makes connections to managed host. Default: Connections initiated with SSH
+Defined by remote_user setting under [defaults] section in /etc/ansible/ansible.cfg:
 		# default user to use for playbooks if user is not specified
 		# (/usr/bin/ansible will use current user as default)
-		#remote_user = root
+		# remote_user = root
 
-Remote Operations:-
--------------------
--> Default: remote_user parameter commented out in /etc/ansible/ansible.cfg
--> With parameter undefined, commands connect to managed hosts using same remote user account as one on control node running command
--> After making SSH connection to managed host, specified module performs operation
--> After operation completed, output displayed on control node
--> Operation restricted by limits on permissions of remote user who initiated it
+Remote Operations:
+Default: remote_user parameter commented out in /etc/ansible/ansible.cfg. With parameter undefined, commands connect to managed hosts using same remote user account 
+as one on Ansible-Master running command. After making SSH connection to managed host, specified module performs operation. After operation completed, 
+output displayed on Ansible-Master. Operation restricted by limits on permissions of remote user who initiated it
 
-Privilege Escalation:-
-----------------------
--> After connecting to managed host, Ansible can switch to another user before executing operation
--> Example: Using sudo, can run ad hoc command with root privilege
+Q. what is Privilege Escalation:
+After connecting to managed host, Ansible can switch to another user before executing operation. Example: Using sudo, can run ad hoc command with root privilege
 	-> Only if connection to managed host authenticated by nonprivileged remote user
 	-> Settings to enable privilege escalation located under [privilege_escalation] section of ansible.cfg:
 		#become=True
@@ -328,24 +304,19 @@ Privilege Escalation:-
 		#become_user=root
 		#become_ask_pass=False
 
-Enabling Privilege Escalation:-
--------------------------------
--> Privilege escalation not enabled by default
--> To enable, uncomment become parameter and define as True:
+Q. how to Enabling Privilege Escalation?
+Privilege escalation not enabled by default, To enable, uncomment become parameter and define as True in ansible.cfg file.
 	become=True
--> Enabling privilege escalation makes become_method, become_user, and become_ask_pass parameters available
--> Applies even if commented out in /etc/ansible/ansible.cfg
--> Predefined internally within Ansible
--> Predefined values:
+	
+Enabling privilege escalation makes become_method, become_user, and become_ask_pass parameters available. Applies even if commented out in /etc/ansible/ansible.cfg
+Predefined internally within Ansible. Predefined values:
 	become_method=sudo
 	become_user=root
 	become_ask_pass=False
 
-Command Line Options:-
------------------------
--> Configure settings for remote host connections and privilege escalation in /etc/ansible/ansible.cfg
--> Alternative: Define using options in ad hoc commands
--> Command line options take precedence over configuration file settings
+Q. Command Line Options for ansible?
+Configure settings for remote host connections and privilege escalation in /etc/ansible/ansible.cfg. Alternative: Define using options in ad hoc commands.
+Command line options take precedence over configuration file settings
 	-> inventory -i
 	-> remote-user -u
 	-> become --become, -b
@@ -369,21 +340,13 @@ Obtaining Current Setting Values:-
 	  -u REMOTE_USER, --user=REMOTE_USER
 			connect as this user (default=None)
 
-Ad Hoc Commands:-
------------------
--> Use modules to perform operations on managed hosts with ad hoc commands
--> Useful for simple operations
--> Not suited for complex configuration or orchestration scenarios
--> Ad hoc commands invoke one module and one set of arguments at a time
--> Multiple operations must be executed over multiple commands
-
 ===============================================================================================================
 LAB-1:-
----------
+===============================================================================================================
 
-Ansible Setup and Ad Hoc Command Lab:-
---------------------------------------
-In this lab, you set up and configure the Ansible Controller server for managing remote hosts. You install the required packages on the Controller server, create a user, and set up SSH private keys. Then you test connecting to remote hosts. Finally, you run ad hoc commands to manage the remote hosts.
+Ansible Setup and Ad Hoc Command Lab:
+In this lab, you set up and configure the Ansible-master server for managing remote hosts. You install the required packages on the Ansible-master server, create a user 
+and set up SSH private keys. Then you test connecting to remote hosts. Finally, you run ad hoc commands to manage the remote hosts.
 
 Goals:-
 --------
@@ -394,14 +357,17 @@ Goals:-
 
 1. Connect to Environment:-
 ---------------------------
--> Connect to an ansible controller host using ssh command 
+-> Connect to an ansible-master host using ssh command 
 	
 	$ ssh <username>@<hostname>
 	  Enter the password: 
+	  
+	$ ssh devops@192.168.1.10
 
 2. Configure Ansible Controller:-
 ---------------------------------
-You use a "devops" user on the Ansible Controller, and generate an SSH key pair for the user "devops". The "devops" user is used to run all of the Ansible CLI commands to manage the remote hosts.
+You use a "devops" user on the Ansible-Master, and generate an SSH key pair for the user "devops". The "devops" user is used to run all of the Ansible CLI commands 
+to manage the remote hosts.
 
 2.1. Install Ansible:-
 ----------------------
