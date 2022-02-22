@@ -1,8 +1,21 @@
+ansible-config files:
+/etc/ansible/ansible.cfg --> main ansible configuration file
+/etc/ansible/hosts  --> default host inventory file
+Ansible searches for file to use in this order. First file found is used, all others ignored
+	1st. ANSIBLE_CONFIG (environment variable, if set)
+	2nd. ansible.cfg (in current directory)
+	3rd.  ~/.ansible.cfg (in home directory)
+	4th. /etc/ansible/ansible.cfg
+
+
 $ ansible --verison --> to check the ansible version.
 $ ansible-doc -l  --> to list the modules 
-$ ansible-doc <module-name> --> to see the ansible module synapsis 
+$ ansible-doc <module-name> --> to see the ansible module synapsis/syntax
   example:
    $ ansible-doc yum
    $ ansible-doc copy
 
 $ ansible all -m ping --> ad-hoc command to ping all the severs avaiable in 
+$ ansible localhost -m command -a uptime --> to check the server uptime on localhost using ansible command
+$ ansible all -m command -a uptime  --> to check server uptime on all inventory hosts
+$ ansible all -m copy -a "src=~/src/file1 dest=~/dest/file1" --> copy the source file 
