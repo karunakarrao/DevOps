@@ -441,7 +441,7 @@ from "Ansible_master" without being prompted for the password.
 
 1. Verify remote user:
 	
-	$ ansible frontends -a whoami
+	$ ansible all -m command -a whoami
 
 The command is expected to show "ec2-user" because it is using the default ansible.cfg and the SSH keys defined in the default /etc/ansible/hosts static inventory.
 
@@ -515,7 +515,7 @@ Inventories:-
 	-> Dynamic host inventory generated from outside providers
 
 1.Static Host Inventory:-
---------------------------
+-------------------------
 -> Static host inventory defined in INI-like text file
 -> Each section in file defines a host group
 	-> Starts with host group name enclosed in brackets: [hostgroupname]
@@ -533,9 +533,9 @@ Example:-
 -> Host inventory defines two host groups: webservers and db-servers
 -> SSH on web2.example.com configured to listen on port 1234
 -> Ansible must log in to host as ftaylor
-
+------------------------------------------------------------------------------------------
 	[webservers]
-	localhost 				ansible_connection=local
+	localhost  ansible_connection=local
 	web1.example.com
 	web2.example.com:1234 	ansible_connection=ssh ansible_user=ftaylor
 	192.168.3.7
@@ -543,22 +543,26 @@ Example:-
 	[db-servers]
 	web1.example.com
 	db1.example.com
+----------------------------------------------------------------------------------------------
 
 Groups of Groups:-
 -------------------
 -> Host inventories can include groups of host groups
 -> To do this, use :children suffix
 -> Example: Create new group nwcapitols that includes all hosts from olympia and salem groups
-
+----------------------------------------------------------------------------------------------
 	[olympia]
 	washington1.example.com
 	washington2.example.com
+	
 	[salem]
 	oregon01.example.com
 	oregon02.example.com
+	
 	[nwcapitols:children]
 	olympia
 	salem
+-----------------------------------------------------------------------------------------------
 
 Ranges:-
 --------
@@ -664,50 +668,6 @@ YAML File Syntax:-
 -> Optional document markers:
 	-> Start of document: ---
 	-> End of document: ...
--> Data structures represented in outline format
-	-> Space characters used for indentation
--> Indentation rules:
-	-> Elements at same level in hierarchy must have same indentation
-	-> Child elements must be indented further than parents
-	-> No rules about exact number of spaces to use
--> Optional: Insert blank lines for readability
-
-Example: YAML File
--------------------
----
-title: 		My book
-author:
-    first_name:	John
-    last_name:	Doe
-
-publish_date: 	2016-01-01
-
-chapters:
-    - number:	1
-      title:	Chapter 1 Title
-      pages:	10
-
-    - number:	1
-      title:	Chapter 2 Title
-      pages:	10
-
-...	
----------------------
-
-YAML in Playbooks:-
--------------------
--> Ansible Playbooks: YAML files written in list format
--> List items are key/value pairs
-	Optional:
-	Initiate playbook with --- marker
-	Terminate playbooks with ... marker
--> Lack of markers does not affect playbook execution
-
-Example:
-
---- # My first playbook
-...output omitted...
-...
 
 Strings:-
 ---------
@@ -739,23 +699,6 @@ Use > :-
           	a very long,
           	long, long, long
           	sentence.
-
-Dictionaries:-
---------------
--> Other names for key/value data pair: Dictionary, hash, associative array
--> To separate keys from values, use : followed by space:
-	keys: value
-
--> Dictionaries commonly expressed in indented block format:
-	---
-  	name: Automation using Ansible
-  	code: DO407
-
--> Optional: Express dictionaries in inline block format
--> Enclose multiple key/value pairs between curly brackets
--> Separate pairs with , followed by space:
-	---
-  	{name: Automation using Ansible, code: DO407}
 
 Lists:-
 --------
@@ -869,7 +812,7 @@ Host Attribute:-
 -> Integral component to play
 -> Must be defined in every play
 -> To define, use host pattern to reference hosts in inventory:
-	host: managedhost.example.com
+	hosts: managedhost.example.com
 
 User Attribute:-
 -----------------
@@ -903,8 +846,8 @@ Tasks Attribute:-
 	-> First item entry defines task name
 	-> Second invokes service module and supplies arguments as values:
 	tasks:
-   		 - name: first task
-      		service: name=httpd enabled=true
+	     -	name: first task
+		service: name=httpd enabled=true
 
 -> Hyphen in first entry marks beginning of list of task attributes
 -> Second entry indented to same level as first
