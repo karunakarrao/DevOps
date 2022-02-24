@@ -868,7 +868,7 @@ Multiple Tasks:-
             service: name=sshd enabled=true
 
 Example: Writing a Playbook:-
-------------------------------
+----------------------------
 ---
   # This is a simple playbook with a single play
   - name: a simple play
@@ -900,12 +900,12 @@ Multiline format:-
 tasks:
     - name: first task
       service: name=httpd
-               enabled=true
+               enabled=true	# Will enable httpd as a service.
                state=started
 
 Blocks:-
 ------------
--> Complex play0books may contain long list of tasks
+-> Complex playbooks may contain long list of tasks
 	-> Some tasks related in function
 -> Blocks: Alternative method of task organization
 -> Use to group related tasks
