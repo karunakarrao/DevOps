@@ -1189,7 +1189,7 @@ Custom Facts:-
 	-> Value based on program execution
 -> Save facts file in /etc/ansible/facts.d
 	-> Required for Ansible to find facts
--> File must end in .fact
+-> File must save with the extension .fact
 	-> Plain-text INI or JSON file
 	-> Both return same result
 	-> Result put in ansible_local
