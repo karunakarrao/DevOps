@@ -1240,6 +1240,7 @@ Used in same way as default facts:
   - name: Prints various Ansible facts
     debug:
       msg: The package to install on {{ ansible_fqdn }} is {{ ansible_local.custom.packages.web_package }}
+
 [user@demo ~]$ ansible-playbook playbook.yml
 PLAY ***********************************************************************
 
@@ -1271,7 +1272,8 @@ Static Inventory and Playbook Lab
 ------------------------------------------------------
 Static Inventory and Playbook Lab:-
 -----------------------------------
--> In this lab, you set up and configure a static inventory to group managed remote hosts according to their role. Then you test the connection to the remote hosts using a host group. Finally, you write a playbook to set up an Apache web server with static content.
+-> In this lab, you set up and configure a static inventory to group managed remote hosts according to their role. Then you test the connection to the remote hosts
+using a host group. Finally, you write a playbook to set up an Apache web server with static content.
 
 Goals:-
 --------
