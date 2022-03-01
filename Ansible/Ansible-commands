@@ -129,7 +129,7 @@ to disable collecting ansible facts can be done using gather_facts: no
 ---------------------------------------------------------------
 ---
 - hosts: large_farm
-  gather_facts: no
+  gather_facts: no  # to avoid ansilbe collecting facts.
   
 ---------------------------------------------------------------
 
