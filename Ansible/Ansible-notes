@@ -341,7 +341,7 @@ Obtaining Current Setting Values:-
 			connect as this user (default=None)
 
 ===============================================================================================================
-LAB-1:-
+LAB-1: Ansbile-master setup with worker nodes using Ad-hoc commands.
 ===============================================================================================================
 
 Ansible Setup and Ad Hoc Command Lab:
@@ -389,8 +389,7 @@ Verify that the SSH key was successfully created
 ------------------------
 3.1. Explore Environment:-
 --------------------------
-In this section, you set up the remote hosts. 
-You create the "devops" user on all of the remote hosts and copy its public key to each host.
+set up the remote hosts: create "devops" user on all of the remote hosts and copy its public key to each host.
 
 -> As the devops user, explore the remote hosts in control node:
 	$ ansible all --list-hosts
@@ -402,7 +401,7 @@ You create the "devops" user on all of the remote hosts and copy its public key 
 	(or)
 	$ ansible all -m ping
 
-3.2. Create User and Set Up SSH Keys for Remote Host:-
+3.2. Create User and Set Up SSH Keys for Remote Host:
 ------------------------------------------------------
 In this section, you create the user and set up the SSH keys for the devops user on the remote hosts.
 
@@ -414,7 +413,7 @@ In this section, you create the user and set up the SSH keys for the devops user
 -> Display the SSH public key for the devops user	
 	$ cat ~/.ssh/id_rsa.pub
 
--> To Add the SSH key to the authorized keys for the devops user, making sure to replace the value of the SSH public key with the one that you just displayed
+-> To Add the SSH key to the authorized keys for "devops" user, making sure to replace the value of the SSH public key with the one that you just displayed
 	$ ansible all -m authorized_key -a "user=devops state=present key='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCiR9HQUu8OUr7k8oe+odfvVQgdMNVsHM+dV0oNQnqG+Unv5PSf7GVkp1JwCroF4wIdjKKvEJ8qJqAbxoY3gEcfrSTR9e9p3zeydHIY2svENGmSNjlX28tMe9uisA9KfIEqe013MuIsplGV7YhXAV0YyCCuJ+OMDr+iEmsmVTza/MLzd9iQxYffLwrV+yY+VUilpS12ns/gmDR8ijO5b0sxdHk8Umk77h8Q1bXE8gyue3cnc1c9Sdzpm4UVNhp9ZcqZCqepUBQOszEvllWxrIw+mktzMdn8INgYhiUBzFQxS/92Qh9prB33F3TdOjin4d/Z/tV2lsNN8HVexXswmoF3 devops@bastion.0926.internal'" -b 
 
 -> To Remove the SSH key from authorized_key file use change the state=present to state=removed/absent which will remove the entry from the file.
@@ -434,10 +433,10 @@ In this section, you create the user and set up the SSH keys for the devops user
 
 4. Explore Ad Hoc Commands:-
 ----------------------------
--> After you have successfully configured the Ansible Controller and remote hosts, you can run Ansible ad hoc commands and playbooks as the "devops" user 
+After you have successfully configured the Ansible Controller and remote hosts, you can run Ansible ad hoc commands and playbooks as the "devops" user 
 from "Ansible_master" without being prompted for the password.
 
--> You configure ansible.cfg and the static inventory needed to complete this lab. You use "-u" to specify the "devops" user and "--private-key" to specify the private key.
+You configure ansible.cfg and the static inventory needed to complete this lab. You use "-u" to specify the "devops" user and "--private-key" to specify the private key.
 
 1. Verify remote user:
 	
@@ -476,17 +475,18 @@ section for specifying user-specific settings
 	
 	$ ansible all -m ping
 
-6. Execute an ad hoc command on localhost to identify the user account used by Ansible to perform operations on managed hosts:
+6. identify the user account used by Ansible to perform operations on managed hosts
 		
 	$ ansible localhost -m command -a 'id'
 
-7. Execute an ad hoc command to display the contents of the /etc/motd file on app1.${GUID}.internal as the devops user
+7. to display the contents of the /etc/motd file on all managed hosts as the devops user
 	
 	$ ansible all -m command -a "cat /etc/motd" 
 
-8. Execute an ad hoc command using the copy module and the devops account to change the contents of the /etc/motd file to include the message "Managed by Ansible" on all of the remote hosts	
+8. copy module and the devops account to change the contents of the /etc/motd file to include the message "Managed by Ansible" on all of the remote hosts	
 
 	$ ansible all -m copy -a 'content="Managed by Ansible \n" dest=/etc/motd'
+	
 Error: Expect the ad hoc command to fail due to insufficient permissions
 
 9. Create the /etc/motd file on all of the hosts, but this time, escalate the root user’s privileges using -b or --become
@@ -501,35 +501,25 @@ Error: Expect the ad hoc command to fail due to insufficient permissions
 Your First Playbook:-
 ---------------------
 
-Topics:
---------
-
 Inventories:-
 -------------
--> Host inventory defines hosts managed by Ansible
--> Hosts may belong to groups
-	-> Typically used to identify host’s role in datacenter
-	-> Host can be member of more than one group
--> Two ways to define host inventories:
+Host inventory file defines hosts managed by Ansible. Hosts may belong to group specify in [ ].  
+	1. Typically used to identify host’s role in datacenter
+	2. Host can be member of more than one group
+   Two ways to define host inventories:
 	-> Static host inventory defined by text file
 	-> Dynamic host inventory generated from outside providers
 
-1.Static Host Inventory:-
--------------------------
--> Static host inventory defined in INI-like text file
--> Each section in file defines a host group
-	-> Starts with host group name enclosed in brackets: [hostgroupname]
-	-> Lists host entries
-		-> One line for each managed host
-		-> Entries are host names or IP addresses
--> Host entries define how Ansible communicates with managed host
-	-> Include transport and user account information
--> Default location for host inventory file: /etc/ansible/hosts
--> ansible* commands use different host inventory file when used with --inventory PATHNAME
-	-> -i PATHNAME for short
+Q. what is a Static Host Inventory? 
+Static host inventory defined in INI-like text file. Each section in file defines a host group. One line for each managed host
+Host entries define how Ansible communicates with managed host. Include transport and user account information. 
+	-> Default location for host inventory file: /etc/ansible/hosts
+	-> ansible* commands use different host inventory file when used with 
+		--inventory PATHNAME
+	 	(or)
+		-i PATHNAME for short
 
-Example:-
-----------
+Example:
 -> Host inventory defines two host groups: webservers and db-servers
 -> SSH on web2.example.com configured to listen on port 1234
 -> Ansible must log in to host as ftaylor
@@ -591,29 +581,26 @@ Leading Zeros:-
 
 Playbook Variables:-
 --------------------
--> Specify values for variables used by playbooks in host inventory files
-	-> To specify variable values for individual host, append them at end of host line in inventory
-	-> To specify values for group of hosts, declare them in stanza with :vars suffix
-
--> Example: Defines two group-level variable values, http_port and maxRequestsPerChild, for webservers group
-	-> Value of http_port is set to 8080 for web2.example.com:
+we can define variables in inventory.txt file, as below. if the variables are specific to a single host, or to a group of hosts
 	
-	[webservers]
-	web1.example.com
-	web2.example.com:1234 http_port=8080
+	1. Variable are specific to a single host. on web1 we are installing "httpd" on web2 we are installing "tomcat"
+		[web]
+		web1 ansible_host=172.20.1.100 ansible_ssh_pass=Passw0rd ansible_user=root webserver=httpd
+		web2 ansible_host=172.20.1.101 ansible_ssh_pass=Passw0rd ansible_user=root webserver=tomcat
 
-	[webservers:vars] #variables defined for group "webservers" are defined here
-	http_port=80 maxRequestsPerChild=500
+	2. Defining variables for a specific group. to do so [group-name:vars]. this means variables defined in vars section 
+		[web]
+		web1 ansible_host=172.20.1.100 ansible_ssh_pass=Passw0rd ansible_user=root 
+		web2 ansible_host=172.20.1.101 ansible_ssh_pass=Passw0rd ansible_user=root 
+		
+		[web:vars] 	# syntax to define group variables [group-name:vars]
+		webserver=httpd
 
-	[db-servers]
-	web1.example.com
-	db1.example.com
+
 
 2. Dynamic Host Inventory:-
 ---------------------------
-
--> Host inventory information can be dynamically generated
--> Sources for dynamic inventory information include
+Host inventory information can be dynamically generated.
 	-> Public and private cloud providers
 	-> Cobbler system information
 	-> LDAP database
@@ -655,9 +642,7 @@ Platform Type:-
 
 3. YAML Overview:-
 -------------------
--> Ansible Playbooks written in YAML language
--> Need understanding of YAML syntax basics
--> YAML designed to represent data structures in easy-to-write, human-readable format
+Ansible Playbooks written in YAML language. Need understanding of YAML syntax basics. YAML designed to represent data structures in easy-to-write, human-readable format
 	Examples: Lists, associative arrays
 -> Abandons enclosure syntax used to structure data hierarchy in other languages
 	Examples: Brackets, braces, open/close tags
@@ -730,25 +715,12 @@ Syntax Verification:-
 -> To read playbook YAML file using Python, use command similar to:
 	[student@demo ~] python -c 'import yaml, sys; print yaml.load(sys.stdin)' < myyaml.yml
 
-YAML Lint:
------------
--> Online YAML syntax verification tools available
--> Useful for administrators not familiar with Python
+--syntax-check :
+-----------------
+YAML Lint: Online YAML syntax verification tools available
 	Example: YAML Lint website: http://yamllint.com/
--> Copy and paste playbook’s YAML contents into form on home page
--> Submit form
 
 --syntax-check :
-----------------
--> Ansible offers native feature for validating playbook YAML syntax
--> Use --syntax-check option with ansible-playbook command to check for syntax errors
--> --syntax-check method:
-	-> Conducts more rigorous review
-	-> Ensures data elements specific to playbooks are not missing
-	-> Recommended for verifying playbook YAML syntax
-
-Example:
---------
 	$ ansible-playbook --syntax-check myyaml.yml
 
 4. Playbooks and Ad Hoc Commands:-
@@ -899,18 +871,17 @@ Multiline format:-
 
 tasks:
     - name: first task
-      service: name=httpd
-               enabled=true	# Will enable httpd as a service.
-               state=started
+      service: 
+      	name: httpd
+        enabled: true	# Will enable httpd as a service.
+        state: started
 
 Blocks:-
 ------------
--> Complex playbooks may contain long list of tasks
-	-> Some tasks related in function
--> Blocks: Alternative method of task organization
--> Use to group related tasks
-	-> Improves readability
-	-> Allows performance of task parameters at block level
+In some Complex playbooks may contain long list of tasks. we use this Some tasks related to perticular functionality.
+	Blocks: Alternative method of task organization
+
+in high level it Use to group related tasks. this will improves readability.
 
 Examples: Block Formatting:-
 -----------------------------
@@ -1003,18 +974,12 @@ Name Attribute:-
 
 	$ ansible-playbook --syntax-check webserver.yml
 
-Executing Dry Run:-
---------------------
+Dry Run: -C
+------------
 -> ansible-playbook also offers -C option
 -> When run with -C:
 -> Ansible does not make changes on managed hosts
 -> Instead reports what changes would occur if playbook is executed
-
-Example: Executing Dry Run:
----------------------------
--> Dry run of playbook containing single task
--> Ensure latest version of httpd installed on managed host
--> Dry run reports that task would make change on managed host:
 
 $ ansible-playbook -C webserver.yml
 
@@ -1029,9 +994,8 @@ $ ansible-playbook -C webserver.yml
   PLAY RECAP *********************************************************************
   servera.lab.example.com : ok=2 changed=1 unreachable=0 failed=0
 
-Step-by-Step Execution:
------------------------
--> For new playbooks, helpful to execute interactively
+Step-by-Step Execution: --step
+------------------------------
 -> ansible-playbook offers --step option
 -> When run with --step, Ansible steps through each playbook task
 -> Before executing task, Ansible prompts for input
@@ -1182,25 +1146,14 @@ Disabling Facts:
 
 Custom Facts:-
 -------------
--> Create and push custom facts to managed hosts
-	-> Integrated and read by setup
--> Use to define:
-	-> System value based on custom script
-	-> Value based on program execution
--> Save facts file in /etc/ansible/facts.d
-	-> Required for Ansible to find facts
--> File must save with the extension .fact
-	-> Plain-text INI or JSON file
-	-> Both return same result
-	-> Result put in ansible_local
+custom facts are the facts defined by the user depends on the requirement. Create and push custom facts to managed hosts. once they are pushed they are Integrated 
+and read by setup. Save custom facts file in /etc/ansible/facts.d with file extentions .fact this is for Ansible to find facts.
+Example: uses of custome facts.
+		-> System value based on custom script
+		-> Value based on program execution
 
-INI File:
-----------
-Contains:
------------
--> Top level defined by section
--> Key/value pairs for facts to define:
-
+custom.fact
+----------------------------------------
 [packages]
 web_package = httpd
 db_package = mariadb-server
@@ -1208,6 +1161,7 @@ db_package = mariadb-server
 [users]
 user1 = joe
 user2 = jane
+----------------------------------------
 
 -> Help ensure successful installation and retrieval of custom facts:
 -------------------------------
@@ -1277,10 +1231,10 @@ using a host group. Finally, you write a playbook to set up an Apache web server
 
 Goals:-
 --------
--> Configure a static inventory to add managed hosts in groups
--> Write a playbook to check connectivity using a host group
--> Set up a static inventory to use inventory variables
--> Write a playbook to deploy an Apache web server to the hosts in the "webservers" host group
+1. Configure a static inventory to add managed hosts in groups
+2. Write a playbook to check connectivity using a host group
+3. Set up a static inventory to use inventory variables
+4. Write a playbook to deploy an Apache web server to the hosts in the "webservers" host group
 
 1. Connect to Environment:
 -----------------------------
@@ -1409,7 +1363,6 @@ ansible_ssh_private_key_file = /home/devops/.ssh/id_rsa
 -> Using the Ansible setup module, run an ad hoc command to retrieve the facts for all of the servers in the db group:
 -> The output displays all of the facts gathered for appdb1 server in JSON format
 
-	$ export GUID=`hostname | awk -F"." '{print $2}'`
 	$ cd ~/ansible_implementation
 	$ ansible db -m setup
 
@@ -1554,9 +1507,7 @@ Topics:-
 
 1. Variables Overview:
 ----------------------
-
--> Reusing content in playbooks helps reduce errors
--> To reuse content, use variables
+Variables are used for Reusing content in playbooks helps reduce errors.
 -> Variable: String or number that gets assigned value
 -> When variable is invoked, Ansible replaces with value
 -> Lets you reuse information across:
@@ -1577,7 +1528,8 @@ Topics:-
 
 Examples:
 ---------------------------
-Invalid		: Valid
+Invalid		| Valid
+------------------------------
 web server	: web_server
 remote.file	: remote_file
 1st file	: file_1, file1
@@ -1596,25 +1548,15 @@ users:
     last_name: Cook
     home_dir: /users/acook
 
-Accessing Variables from an Array:-
+Accessing Variables in the yaml file:-
 ----------------------------------
--> To access users from array:
-
-# Returns 'Bob'
-users.bjones.first_name
-
-# Returns '/users/acook'
-users.acook.home_dir
-
--> Variable is defined as Python dictionary
+-> To access users "Bob" :  users.bjones.first_name
+-> to access /users/bjones : users.acook.home_dir
 
 Alternative method for accessing users:
 
-# Returns 'Bob'
-users['bjones']['first_name']
-
-# Returns '/users/acook'
-users['acook']['home_dir']
+-> To access users "Bob" : users['bjones']['first_name']
+-> to access /users/bjones : users['acook']['home_dir']
 
 Ad Hoc Commands:-
 ------------------
@@ -1622,60 +1564,33 @@ Ad Hoc Commands:-
 	-> Allows module arguments
 
 $ ansible all -i hosts -m debug -a "msg='This line will appear as a message'"
-demo.lab.example.com | SUCCESS => {
-    "msg": "This line will appear as a message"
-}
+
 
 Playbooks:-
 ------------
--> You can use your own variables and invoke them in task
+You can use your own variables and invoke them in task. we can do it in 2 ways
+	1. define in the YAML file in "vars" section as below.
+	2. define all variables in a file and invoke that file in the YAML file. 
 
-Example:
--> Define web_package variable with httpd value
--> Called by yum module to install httpd package
-
--> Options for variables in playbooks:
--> Define in vars block at beginning of playbook
--> Pass as arguments by including file in playbook
-
-Playbook Examples:
-------------------
--> In vars block:
-
+In vars section we can define the variables.
+----------------------------------
 - hosts: all
   vars:
     user: joe
     home: /home/joe
-
--> Passed as arguments:
-
-include: extra_args.yml
-  name: joe
-  group: wheel
-
-Variables in Tasks:-
----------------------
--> Call variables in tasks
--> When task runs, variable name replaced with value:
-
-vars:
-  user: joe
-
 tasks:
-  # This line will read: Creates the user joe
-  - name: Creates the user {{ user }}
+  - name: Creates the user {{ user }}	# This line will read: Creates the user joe
     user:
-      # This line will create the user named Joe
-      name: "{{ user }}"
+      name: "{{ user }}"	 # This line will create the user named Joe
+------------------------------------
 
-Using Quotation Marks:-
-------------------------
--> When using variable as first element for value, must use "
-
-Should be written as: with in Quotations "{{  }}"
-
+-> When using variable as first element for value, must use " ". Should be written as: with in Quotations "{{  }}"
+--------------------------
      loop:
        - "{{ foo }}"
+       - "{{ abc }}"
+       - "{{ xyz }}"
+--------------------------
 
 Example: Definition Reuse:-
 --------------------------
@@ -1694,7 +1609,8 @@ Example: Definition Reuse:-
   tasks:
   - name: Print user details records
     debug: msg="User {{ item.key }} full name is {{ item.value.name }}. Home is {{ item.value.home }}"
-    with_dict: "{{users}}"
+    with_dict: "{{ users }}"
+-----------------------------------------
 
 Variable Precedence: 
 ---------------------
@@ -1845,34 +1761,31 @@ Precedence over all other variables
 
 Variable Scope:
 ---------------
--> Scope determined by location in which you declare variable
--> Defines where variable is accessible from
+variable Scope determined by location in which you declare variable. Defines where variable is accessible from
 
--> Three levels:
+ Three are 3 levels
 
 Global	: Set by configuration, environment variables, command line
 Play	: Set by playbook, play, defined by vars, include, include_vars
 Host	: Set at host level, Example: ansible_user defines user to connect with on managed host
 
-Variable Placement:
--------------------
--> Scopes let you determine best variable placement
--> To define variable only for playbook, use vars block
 
 Variable evaluated when playbook is played:
 --------------------------------------------
 vars:
   user: joe
+-----------------------------------------
 
 Host independent of play:
 -------------------------
 -> To make variable available for host independent of play, define as group variable in inventory file:
-
+---------------------------------
 [servers]
 demo.example.com
 
 [servers:vars]
 user: joe
+--------------------------------
 
 Extra-Vars:
 -----------
@@ -1904,7 +1817,7 @@ demo2.example.com
 user=joe
 
 Host Group Variables:
----------------------
+-----------------------------------
 [servers1]
 demo1.example.com
 demo2.example.com
@@ -1919,9 +1832,9 @@ servers2
 
 [servers:vars]
 user=joe
+------------------------------------
 
 -> To define variables for all hosts in group, use host variables
-
 -> To define variables for multiple groups, use group variables
 
 General Value for All Servers:
@@ -1931,7 +1844,7 @@ Sample scenario: Managing two datacenters
 Goal: Define general value for all servers in both datacenters
 
 Recommended: Use group variables
-
+------------------------------------------------
 [datacenter1]
 demo1.example.com
 demo2.example.com
@@ -1942,7 +1855,7 @@ demo4.example.com
 
 [all:vars]
 package=httpd
-
+------------------------------------------------
 
 Value Varying by Datacenter:
 ----------------------------
@@ -1999,14 +1912,11 @@ package=httpd
 
 $ ansible-playbook demo2.exampe.com main.yml -e "package=apache"
 
-Registered Variables:
+Variables: "register"
 ---------------------
--> To capture command’s output, use register statement
--> Output saved into variable
--> Use for debugging purposes or other tasks
+To capture command’s output, use register statement. Output saved into variable. Use for debugging purposes or other tasks
 
 Example: Configuration based on command output
-
 
 Example: Output
 ---
