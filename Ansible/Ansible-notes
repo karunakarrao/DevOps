@@ -1914,11 +1914,10 @@ $ ansible-playbook demo2.exampe.com main.yml -e "package=apache"
 
 Variables: "register"
 ---------------------
-To capture command’s output, use register statement. Output saved into variable. Use for debugging purposes or other tasks
+register variable is used in the tasks, to To capture command’s output. use "register" statement to store the output saved into variable. Use for debugging purposes or other tasks. below is the exmple used for the same. 
 
-Example: Configuration based on command output
-
-Example: Output
+Example: register
+-----------------------------
 ---
 - name: Installs a package and prints the result
   hosts: all
@@ -1928,48 +1927,16 @@ Example: Output
         name: httpd
         state: installed
       register: install_result
-
-	- debug: var=install_result
-
-$ ansible-playbook playbook.yml
-PLAY [Installs a package and prints the result] ****************************
-
-TASK [setup] ***************************************************************
-ok: [demo.example.com]
-
-TASK [Install the package] *************************************************
-ok: [demo.example.com]
-
-TASK [debug] ***************************************************************
-ok: [demo.example.com] => {
-    "install_result": {
-        "changed": false,
-        "msg": "",
-        "rc": 0,
-        "results": [
-            "httpd-2.4.6-40.el7.x86_64 providing httpd is already installed"
-        ]
-    }
-}
-
-PLAY RECAP *****************************************************************
-demo.example.com : ok=3 changed=0 unreachable=0 failed=0
-
+    - debug: var=install_result
+-------------------------------
+	- shell: echo "{{ item }}"
+	  loop:
+	    - one
+	    - two
+	  register: echo
+  ------------------------------
 Tasks and Variables:
 --------------------
--> Tasks included with include executed same as if defined in playbook
--> Variables included with include_vars parsed same as if declared in playbook
--> Using multiple external files for tasks and variables:
--> Lets you build main playbook in modular way
--> Facilitates reuse of elements across playbooks
-
-External Variables in Playbooks:
---------------------------------
--> Variables can be defined externally and included in playbooks
--> Variables defined under own files
--> Provides flexibility
--> Variables can be conditionally imported into environments requiring specific variables
-
 Examples:
 -> dev.yml imported when Ansible configures development servers
 -> prod.yml imported when Ansible configures production environment
@@ -1978,73 +1945,68 @@ Examples:
 
 
 Example: Importing Variables:
--------------------------------
-To import variables, use include_vars:
+-----------------------------
+Module: include
+----------------
+include module is used to call/use other playbook in to current YAML file. with help of this we can call multiple plays with in a YAML file. remember (include_tasks, include_role, import_playbook, import_tasks) that have well established and clear behaviours. This module will still be supported for some time but we are looking at deprecating it in the near future. this can't be used for importing variable files. you import variable file need to use other module call include_vars.
 
+------------------------
+----
+- hosts: localhost
+  tasks:
+    - debug:
+        msg: play1
+
+- name: Include a play after another play
+  include: otherplays.yaml
+-----------------------------
+
+Module: include_vars
+---------------------
+include_vars is a module to load variables from a file dynamically with in a task. and if you want to use this variables in all tasks you must include it in the begining of all tasks. then only the variables defined can be used across the play. other wise we will get error, because YAML is sequential exicution of tasks. until the include_vars are not exicuted it will not fetch the values in to the memory. 
+
+variables.yml
+------------------------
+packages:
+   web_package: httpd
+   db_package: redis
+----------------------
 ---
 - hosts: all
   tasks:
   - name: Includes the tasks file and defines the variables
-    include_vars: variables.yml
+    include_vars: /tmp/variables.yml
 
   - name: Debugs the variables imported
     debug:
       msg: "{{ packages['web_package'] }} and {{ packages.db_package }} have been imported"
+-------------------------
 
-Loops:
+Loop:
 ------
--> Ansible supports use of loops to manage tasks
--> Eliminates need to rewrite tasks that are repeated—DRY (Don’t Repeat Yourself) for modules that support list
+Ansible offers the "loop", "with_<lookup>", and "until" keywords to execute a task multiple times. "loop" will help you to reuse the same code for same tasks to repeat. it Eliminates need to rewrite tasks that are repeated for modules that support list.
 
 Example: If installing multiple packages, loop avoids using yum module multiple times
 
--> Loops require use of arrays
--> You define array and task that iterates over array
--> Loop iterates over values defined in array
--> To pass loop as argument, use item keyword
--> Enables Ansible to parse array
--> Ansible supports number of loop types:
-	Simple loops
-	Lists of hashes
-	Nested loops
-
 Simple Loops:
--------------
--> List of items Ansible reads and iterates over
--> To define simple loop, provide list of items to with_items
-
-Example of play without loop:
-
-yum used twice to install two packages:
-
-- yum:
-    pkg: postfix
-    state: latest
-
-- yum:
-    pkg: dovecot
-    state: latest
-
-Simple Loop Example:
---------------------
--> Rewrite similar tasks with simple loop
--> Only one task needed to install both packages:
-
-- yum:
-    name: "{{ item }}"
-    state: latest
-  loop:
+------------
+---
+- hosts: all
+  tasks:
+  - yum:
+      name: "{{ item }}"
+      state: latest
+    loop:
     - postfix
     - dovecot
+----------------------
 
 Simple Loop Array:
 ------------------
--> Another option: Put packages inside array called loop
+use a vairable and list the array of values and use that in the loop. 
 
 Example: Pass loop array as argument
-
--> Module loops over it to retrieve values:
-
+-----------------------------
 vars:
   mail_services:
     - postfix
@@ -2055,14 +2017,11 @@ tasks:
       name: "{{ item }}"
       state: latest
     loop: "{{ mail_services }}"
+---------------------------
 
 List of Hashes:
 ---------------
--> Arrays passed as arguments can be list of hashes
-
-Example: Pass multidimensional array (array with key/pair values) to user module
-
-Customizes name and group:
+to pass list of arrays, we can pass it as below. 
 
 - user:
     name: {{ item.name }}
@@ -2071,20 +2030,6 @@ Customizes name and group:
   loop:
     - { name: 'jane', groups: 'wheel' }
     - { name: 'joe', groups: 'root' }
-
-register Keyword:
------------------
--> To capture output of module that uses array, use register with array
--> Ansible saves output in variable
--> Useful for reviewing module execution result
-
-Example: Register array content after iteration:
-
-- shell: echo "{{ item }}"
-  loop:
-    - one
-    - two
-  register: echo
 
 Ansible Return Values:
 ----------------------
@@ -2124,43 +2069,37 @@ deprecations	: Key containing list of dictionaries presented to user
 =================================================================================
 Lab-3: Variables Lab:
 =================================================================================
-
--> In this lab, you define and use variables in a playbook. You create a playbook that installs the Apache web server and opens the ports for the service to be reachable. The playbook queries the web server to ensure that it is up and running.
+In this lab, you define and use variables in a playbook. You create a playbook that installs the Apache web server and opens the ports for the service to be reachable. The playbook queries the web server to ensure that it is up and running.
 
 Goals:
 ------
--> Define variables in a playbook and create tasks that include defined variables
--> Gather facts from a host and create tasks that use the gathered facts
--> Define variables and tasks in separate files and use the files in playbooks
+1.  Define variables in a playbook and create tasks that include defined variables
+2.  Gather facts from a host and create tasks that use the gathered facts
+3.  Define variables and tasks in separate files and use the files in playbooks
 
 2. Create Playbook to Set Up Web Services:
 -------------------------------------------
--> In this section, you create a playbook to set up web services on the webservers.
--> Create the variable_test.yml playbook and define the following variables in the vars section:
-	-> web_pkg defines the name of the package to install for the web server
-	-> firewall_pkg defines the name of the firewall package
-	-> web_service defines the name of the web service to manage
-	-> firewall_service defines the name of the firewall service to manage
-	-> python_pkg defines a package to be installed for the uri module
-	-> rule defines the service to open
+In this section, you create a playbook to set up web services on the webservers. Create the variable_test.yml playbook and define the following variables in the vars section. below are the steps involved creating the play
 
--> Create the tasks block and add a first task, which uses the yum module to install the required packages.
--> Add two more tasks to start and enable the httpd and firewalld services.
--> Add a task that creates content in /var/www/html/index.html.
--> Add a task that uses the "firewalld" module to add a rule for the web service.
+	1.  Create the tasks block and add a first task, which uses the yum module to install the required packages.
+	2.  Add two more tasks to start and enable the httpd and firewalld services.
+	3.  Add a task that creates content in /var/www/html/index.html.
+	4.  Add a task that uses the "firewalld" module to add a rule for the web service.
 
 ---------------------------------------------
 $ cat << EOF > variable_test.yml
+---------------------------------------------
+---	
 - name: Install Apache and start the service
   hosts: webservers
   become: yes
   vars:
-    web_pkg: httpd
-    firewall_pkg: firewalld
-    web_service: httpd
-    firewall_service: firewalld
-    python_pkg: python-httplib2
-    rule: http
+    web_pkg: httpd		# web_pkg defines the name of the package to install for the web server
+    firewall_pkg: firewalld	# firewall_pkg defines the name of the firewall package
+    web_service: httpd		# web_service defines the name of the web service to manage
+    firewall_service: firewalld		# firewall_service defines the name of the firewall service to manage
+    python_pkg: python-httplib2		# python_pkg defines a package to be installed for the uri module
+    rule: http			# rule defines the service to open
   tasks:
     - name: Install the required packages
       yum:
@@ -2199,14 +2138,11 @@ EOF
 
 3. Create Playbook for Smoke Test:
 ----------------------------------
--> In this section, you create a new play that queries the web service to ensure that everything is configured correctly.
--> Name your playbook webserver_smoketest.yml.
--> Configure it to run only on localhost.
--> Create a task that uses the uri module to check a URL.
--> In this task, check for a status code of 200 to confirm that the server is running and configured properly.
+this will help to find the above YAML play is working/not. we will check the URL for the content on the servers. and will look for the output is as expected or not.
 
 -------------------------------------
 cat << EOF > webserver_smoketest.yml
+---
 - name: Verify the Apache service
   hosts: localhost
   tasks:
@@ -2225,17 +2161,16 @@ EOF
 =================================================================================
 Lab-4: Variable inclusion: 
 =================================================================================
-
--> In this lab, you manage inclusions in Ansible Playbooks. You create a task file, variable file, and playbook. The variable file defines, in YAML format, a variable used by the playbook. The task file defines the required tasks and includes variables that are passed later on as arguments.
+In this lab, you manage inclusions in Ansible Playbooks. You create a task file, variable file, and playbook. The variable file defines, in YAML format, a variable used by the playbook. The task file defines the required tasks and includes variables that are passed later on as arguments.
 
 -> Goal : Create an Ansible Playbook that uses inclusions
 
 2. Create Task File:
 --------------
--> Create a tasks directory under ~/ansible_implementation.
--> In the tasks directory, create the environment.yml task file.
--> In the playbook, define the two tasks that install and start the web server.
--> Use the "package" variable for the package name, "service" for the service name, and "svc_state" for the service state.
+	1.  Create a tasks directory under ~/ansible_implementation.
+	2.  In the tasks directory, create the environment.yml task file.
+	3.  In the playbook, define the two tasks that install and start the web server.
+	4.  Use the "package" variable for the package name, "service" for the service name, and "svc_state" for the service state.
 
 -------------------------------
 $ mkdir tasks
@@ -2272,25 +2207,26 @@ EOF
 
 4. Create Main Playbook:-
 ------------------------
--> In this section, you create and edit the main playbook, main_playbook.yml, which imports the tasks and variables, and installs and configures the firewalld service.
+In this section, you create and edit the main playbook, main_playbook.yml, which imports the tasks and variables, and installs and configures the firewalld service.
 
--> Create the playbook main_playbook.yml.
--> Add the webservers host group and define a rule variable with a value of http.
--> Define the first task with the include_vars module and the variables.yml variable file.
--> The include_vars module imports extra variables that are used by other tasks in the playbook.
--> Define a task that uses the import_tasks module to include the base environment.yml playbook:
--> Because the three defined variables are used in the base playbook, but are not defined, include a vars block.
--> Set three variables in the vars section:
-	package: httpd
-	service: httpd
-	svc_state: started
+steps:
+	1.  Create the playbook main_playbook.yml.
+	2.  Add the webservers host group and define a rule variable with a value of http.
+	3.  Define the first task with the include_vars module and the variables.yml variable file.
+	4.  The include_vars module imports extra variables that are used by other tasks in the playbook.
+	5.  Define a task that uses the import_tasks module to include the base environment.yml playbook:
+	6.  Because the three defined variables are used in the base playbook, but are not defined, include a vars block.
+	7.  Set three variables in the vars section:
+		package: httpd
+		service: httpd
+		svc_state: started
 
--> Create a task that installs the firewalld package using the firewall_pkg variable.
--> Create a task that starts the firewalld service.
--> Create a task that adds a firewall rule for the HTTP service using the rule variable.
--> Add a task that creates the index.html file for the web server using the copy module:
--> Create the file with the Ansible ansible_fqdn fact, which returns the fully qualified domain name.
--> Include a time stamp in the file using an Ansible fact.
+	8.  Create a task that installs the firewalld package using the firewall_pkg variable.
+	9.  Create a task that starts the firewalld service.
+	10. Create a task that adds a firewall rule for the HTTP service using the rule variable.
+	11. Add a task that creates the index.html file for the web server using the copy module:
+	12. Create the file with the Ansible ansible_fqdn fact, which returns the fully qualified domain name.
+	13. Include a time stamp in the file using an Ansible fact.
 
 ----------------------------------------
  cat << EOF > main_playbook.yml
@@ -2425,76 +2361,32 @@ Question 12: Which of the following is a valid way of defining variables via the
 
 =======================================
 
-Roles Overview:
+Ansible Roles : 
 ----------------
--> Datacenters include variety of host types:
-	-> Web servers
-	-> Database servers
-	-> Hosts containing software development tools
+we can create custom ansible roles as per our needs, or we can use the comunity supported roles developed by the ansible communicty using ansible-galaxy command. this ansible roles are used to reuse the code in multiple places. depends on requirement. and it will separte the tasks, variables, handleres, etc arganized properly so that they can be used in mutiple places.  Roles can split playbooks into smaller playbooks and files
 
--> Playbooks require tasks and handlers to manage these
-	-> Result: Large, complex playbooks
-
--> Roles can split playbooks into smaller playbooks and files
-
-Role Uses:
------------
--> Enable Ansible to load components from external files:
-	-> Tasks
-	-> Handlers
-	-> Variables
-
--> Associate and reference:
-	-> Static files
-	-> Templates
-
--> Files defining roles:
-	-> Given specific names
-	-> Organized in directory structure	
-
--> Roles written as general purpose can be reused
-
-Benefits:
----------
--> Roles promote easy sharing of content
--> Roles can define essential elements of system type:
-	-> Web server
-	-> Database server
-	-> Git repository
-	-> Other purposes
-
--> Roles make larger projects more manageable
--> Administrators can work on different project roles in parallel
-
-Structure: 
------------
--> Role functionality defined by directory structure
-	-> Top-level directory: Defines role name
-	-> Some subdirectories: Contain main.yml file
-	-> files and templates subdirectories: Contain objects referenced by main.yml files
+Role Uses: Enable Ansible to load components from external files. Roles written as general purpose can be reused
 
 Structure Example:
-------------------
-tree command displays user.example directory structure:
 
-$ tree user.example
-user.example/
-├── defaults
-│   └── main.yml
-├── files
-├── handlers
-│   └── main.yml
-├── meta
-│   └── main.yml
-├── README.md
-├── tasks
-│   └── main.yml
-├── templates
-├── tests
-│   ├── inventory
-│   └── test.yml
-└── vars
-└── main.yml
+		$ tree user.example
+		user.example/
+		├── defaults
+		│   └── main.yml
+		├── files
+		├── handlers
+		│   └── main.yml
+		├── meta
+		│   └── main.yml
+		├── README.md
+		├── tasks
+		│   └── main.yml
+		├── templates
+		├── tests
+		│   ├── inventory
+		│   └── test.yml
+		└── vars
+		└── main.yml
 
 Subdirectories:
 ----------------
@@ -2519,40 +2411,29 @@ tests		: Can contain inventory and test.yml playbook
 vars		: main.yml defines role variable values
 
 Variables and Defaults:
--------------------------
--> To define role variables, create vars/main.yml with name/value pairs in hierarchy
-	-> YAML uses role variables like any other variable: {{ VAR_NAME }}
-	-> High priority
-	-> Cannot be overridden by inventory variables
+----------------------
+create vars/main.yml with < name: value > pairs in hierarchy. YAML uses role variables like any other variable: {{ VAR_NAME }}. High priority and it Cannot be overridden by inventory variables
 
--> Use default variables to set default values for included or dependent role variables
-	-> To define default variables, create defaults/main.yml with name/value pairs in hierarchy
-	-> Lowest priority of any variables
-	-> Overridden by any other variable
+Use default variables to set default values for included or dependent role variables. To define default variables, create defaults/main.yml with name: value pairs in hierarchy. Lowest priority of any variables. Overridden by any other variable
 
--> Best practice: Define variable in vars/main.yml or defaults/main.yml
--> Use default variable when role needs value to be overridden
-
--> Simple to use roles in playbooks
+note: Best practice: Define variable in vars/main.yml or defaults/main.yml. Use default variable when role needs value to be overridden
 
 Example:
---------
+----------------------------
 ---
 - hosts: remote.example.com
   roles:
     - role1
     - role2
-
 -----------------------------
 
 Roles in Playbooks:
 -------------------
-
--> For each role, include the following in playbook in this order:
-	-> Tasks
-	-> Handlers
-	-> Variables
-	-> Dependencies
+For each role, include the following in playbook in this order. 
+	1. Tasks
+	2. Handlers
+	3. Variables
+	4. Dependencies
 
 -> Role tasks (copy, script, template, include) reference files, templates, tasks
 -> Ansible searches for items in these locations:
@@ -2566,23 +2447,18 @@ Alternative Syntax:-
 -> role1 same as previous example
 
 If role2 used, default variable values overridden:
-
+---------------------------------------
 ---
 - hosts: remote.example.com
   roles:
     - { role: role1 }
     - { role: role2, var1: val1, var2: val2 }
-
-Dependencies:-
---------------
--> To include roles in playbook based on inclusion of other roles, use dependencies
--> Example: Role defining documentation server depends on role that installs and configures web server
--> Define roles in meta/main.yml in directory hierarchy
-
+---------------------------------------
 ---
 dependencies:
   - { role: apache, port: 8080 }
   - { role: postgres, dbname: serverlist, admin_user: felix }
+---------------------------------------
 
 Dependency Behavior:
 --------------------
@@ -2797,7 +2673,7 @@ $ cat << EOF > roles/app-tier/tasks/main.yml
 -------------------------------------------
 ---
 # tasks file for roles/app-tier
-# Installation of packages based on inventory groupss
+# Installation of packages based on inventory groups
 - name: Install Firewalld
   yum:
    name: firewalld
@@ -3243,30 +3119,19 @@ Ansible Vault:
 
 Ansible Vault Overview :
 ------------------------
-
--> Ansible users sometimes need to store sensitive data
-	Examples:
-		-> Passwords
-		-> API keys for task
+Ansible-vault is used to store the sensitive data. this will be an encrypted file. 
 
 -> Options for data values:
 	-> Store as variables in group_vars or host_vars
 	-> Load by include_vars or vars_files
 
--> Checking in project that includes playbook and variables raises security issue
-	-> Anyone with copy of project can access sensitive data
-
 Data Storage Options:
 ---------------------
 -> Use external key management tool
 
--> Option 1: Privately deployed tool
-	
-	Example: Vault by HashiCorp
+-> Option 1: Privately deployed tool --> Example: Vault by HashiCorp
 
 -> Option 2: SAAS cloud tool
-
-	Examples:
 
 	-> Amazon Web Services' Key Management Service
 	-> Microsoft Azure’s Key Vault
@@ -3275,32 +3140,22 @@ Data Storage Options:
 	-> Use Ansible Vault
 	-> Built into Ansible
 
-File Tasks:
------------
--> To enable Ansible Vault, use ansible-vault
--> Available file tasks:
-	Create
-	Encrypt
-	View
-	Edit
-	Decrypt
-
 File Types:
 -------------
--> Can encrypt any Ansible structured data file:
+what files can be encrypted. any Ansible structured data file can be done. below are the list
 	-> Inventory variables
 	-> Variable files included in playbook
 	-> Variable files passed as argument during playbook execution
 	-> Variables defined in roles
 
-Encrypted Files:
-----------------
-Creating a File
--> To create encrypted file, use ansible-vault create FILENAME
-	-> Enter and confirm new vault password:
-	$ ansible-vault create secret.yml
-	New Vault password: redhat
-	Confirm New Vault password: redhat
+create ansible-vault Files:
+-----------------------
+To create encrypted file, use ansible-vault 	
+
+$ ansible-vault create secret.yml
+
+  New Vault password: redhat
+  Confirm New Vault password: redhat
 
 -> Default: File opens using vim editor
 	-> To use different editor, set and import EDITOR
@@ -3309,12 +3164,15 @@ Creating a File
 -> Default encryption cipher: Advanced Encryption Standard (AES)
 	-> Shared secret-based
 
-Password File:
----------------
--> To enter password, can reference vault password file
-	-> Replaces standard password input:
+create encrypted file using Password File:
+------------------------------------------
+with help of --vault-password-file we don't need to enter the password. we can just pass the password file to the command. vault-pass.txt is a password file contain password information.
 
-	$ ansible-vault create --vault-password-file=vault-pass secret.yml
+	$ ansible-vault create --vault-password-file=vault-pass.txt secret.yml
+	vault-pass.txt
+	----------------
+	Passw0rd
+	----------------
 
 Encrypting a File:
 ------------------
@@ -3478,18 +3336,17 @@ LAB-7: Ansible Vault
 ------------------------------------
 2.1. Create and View Encrypted File:
 ------------------------------------
--> Create an encrypted file called super-secret.yml under ansible_implementation, entering redhat as the vault password when prompted:
+Create an encrypted file called super-secret.yml under ansible_implementation, entering redhat as the vault password when prompted:
 
 $ ansible-vault create super-secret.yml
 Sample Output
 New Vault password: redhat
 Confirm New Vault password: redhat
-
--> In the editor that is launched, add the following to the file:
+----------------------------
 
 This is encrypted.
 
--> Save the file and exit the editor.
+----------------------------
 
 -> Attempt to view the contents of the encrypted super-secret.yml file:
 
@@ -3523,8 +3380,8 @@ This is encrypted.
 -> Edit super-secret.yml, specifying redhat as the vault password when prompted:
 
 $ ansible-vault edit super-secret.yml
-Sample Output
-Vault password: redhat
+	Sample Output
+	Vault password: redhat
 
 -> Add the following to the end of the file:
 
@@ -3535,10 +3392,10 @@ This is also encrypted.
 -> View the content of super-secret.yml, using redhat as the vault password:
 
 $ ansible-vault view super-secret.yml
-Sample Output
-Vault password: redhat
-This is encrypted.
-This is also encrypted.
+	Sample Output
+	Vault password: redhat
+	This is encrypted.
+	This is also encrypted.
 
 ------------------------------------
 2.3. Change Encrypted File Password:
@@ -3597,16 +3454,13 @@ $ ansible-vault create secret.yml
 Sample Output
 New Vault password: redhat
 Confirm New Vault password: redhat
-This opens a file in the default editor, vim.
-
--> Add an associative array variable called newusers, containing key/value pairs for the user names and passwords:
-
+---------------------------------
 newusers:
   - name: ansibleuser1
     pw: redhat
   - name: ansibleuser2
     pw: Re4H1T
-
+---------------------------------
 -> The password is stored as plain text in the pw variable.
 -> Save the file and exit the editor.
 
