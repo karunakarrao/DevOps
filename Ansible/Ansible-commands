@@ -51,14 +51,14 @@ to Remove the same key, we can use the same command with belwo option. State=abs
 $ ansible all -m authorized_key -a "user=devops state=presnet key='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCiR9HQUu8OUr7k8oe+odfvVQgdMNVsHM+dV0oNQnqG+ devops@bastion.0926.internal'" -b
 
 
-lineinfile module:
+lineinfile: module:
 ------------------
  this module check the line present if not we can add. /etc/sudoers is a sudo users list.
 $ ansible all -m lineinfile -a "dest=/etc/sudoers state=present line='devops ALL=(ALL) NOPASSWORD: ALL'" -b
 
 $ ansible all -m command -a "whoami"	--> to check the user at remote host
 
-copy module:
+copy: module:
 ------------
 this module is used to copy the file to remote server, if file present it will update else it will create it. 
 $ ansible all -m copy -a "src=/home/devops/test1.txt dest=/home/devops/"
@@ -133,6 +133,31 @@ to disable collecting ansible facts can be done using gather_facts: no
   
 ---------------------------------------------------------------
 
+Ansible-vault:
+---------------
+--ask-vault-pass
+
+--vault-password-file:
+
+$ ansible-vault create secret.yml	--> to create a new secure file
+(or)
+$ ansible-vault create secret.yml --vault-password-file=./password.txt --> to create a secure file using a password.txt file which contain password
+password.txt
+-----------------------
+Passw0rd
+-----------------------
+
+$ ansible-vault decrypt secret.yml 	--> to decrypt the secure file
+$ ansible-vault encrypt secret.yml	--> to encrypt the existing file
+$ ansible-vault edit secret.yml 	--> to edit the encrypted file
+$ ansible-vault view secret.yml		--> to view the encrypted file
+$ ansible-vault rekey secret.yml	--> to change the password 
+
+$ ansible-vault decrypt super-secret.yml --output=super-secret-decrypted.yml
+$ ansible-vault encrypt super-secret-decrypted.yml --output=super-secret-encrypted.yml
+
+vars_files: module
+------------------
 
 ======================================================================================================
 LAB-1:-
