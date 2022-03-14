@@ -1,3 +1,30 @@
+Kubernetes:
+Kubernetes is a container orchestration tool, to scale, descale, auto-scale, deploy, replicate, loadbalance, failover. its is developed by google.  which is used widely in containerization platfroms. it has global community support.
+
+Kubernetes installtion:
+k8s installtion can be done is different ways depeding on the requirement. it can be done in 2 ways
+    1. Minikube --> for testing, training or local setup we can use it.
+    2. kubeadm  --> for commertial purpose setup, or production grade setup require kubeadm.
+
+Kubernetes-architecture:
+Kuberenetes architecture build on master nodes salve nodes model. in K8S there are several components involved. below are the list of components.
+    Master-Node components: API-Server, ETCD, Controller, Scheduler, Container-runtime, kubelet(agent), kubeproxy(agent)
+    Worker-Node Components: Container-Runtime(Docker), kubelet(agent), kubeproxy
+
+ETCD: 
+etcd is a key/value store. it is a distributed reliable key value store which stores the information of all the kubernetes resources such as nodes, Pods, replicasets, deployments, namespaces, configs, secrets, accounts, roles etc. in multi master environment its stores the data. multiple etcd's spread across the master nodes so all masters can have the information on all the k8s objects in a cluster.
+
+API-server: 
+The Kubernetes API-Server is the front end, this is how the users interact with their Kubernetes cluster using kubectl command. The API (application programming interface) server determines if a request is valid and then processes it. the API is the interface used to manage, create, and configure Kubernetes clusters.
+
+Controller:
+kubernetes controller is manager which controlls various k8s objects. controller is process which monitors various components of k8s inside the controller. it a brain to k8s. it has various controllers inside to monitor different k8s objects. like node controller, deployment controller, namespace controller, job controller, replication controller, and etc.
+
+scheduler:
+
+
+
+
 $ kubectl version --> to check the kubernetes version
 
 $ kubectl explain <Object-name> --> Documentation for resource object (Pod, Replicaset, Deployment, service, etc.)
