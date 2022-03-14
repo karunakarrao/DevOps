@@ -1,4 +1,4 @@
-Kubernetes:
+Kubernetes: Overview
 Kubernetes is a container orchestration tool, to scale, descale, auto-scale, deploy, replicate, loadbalance, failover. its is developed by google.  which is used widely in containerization platfroms. it has global community support.
 
 Kubernetes installtion:
@@ -11,45 +11,109 @@ Kuberenetes architecture build on master nodes salve nodes model. in K8S there a
     Master-Node components: API-Server, ETCD, Controller, Scheduler, Container-runtime, kubelet(agent), kubeproxy(agent)
     Worker-Node Components: Container-Runtime(Docker), kubelet(agent), kubeproxy
 
-ETCD: 
+1). ETCD: 
 etcd is a key/value store. it is a distributed reliable key value store which stores the information of all the kubernetes resources such as nodes, Pods, replicasets, deployments, namespaces, configs, secrets, accounts, roles etc. in multi master environment its stores the data. multiple etcd's spread across the master nodes so all masters can have the information on all the k8s objects in a cluster.
 
-API-server: 
+    $ cat /etc/kubernetes/manifests/etcd.yaml   -->etcd yaml is located 
+    $ cat /etc/systemd/system/      --> all service files are avaiable here
+
+we must specify the certificate path location. the location of certificates are available /etc/kubernetes/pki/etcd
+    -cacert /etc/kubernetes/pki/etcd/ca.crt
+    -cert /etc/kubernetes/pki/etcd/server.crt
+    -key /etc/kubernetes/pki/etcd/server.key
+    
+    $ ps -aux |grep etcd
+    
+2). kube-API-server: 
 The Kubernetes API-Server is the front end, this is how the users interact with their Kubernetes cluster using kubectl command. The API (application programming interface) server determines if a request is valid and then processes it. the API is the interface used to manage, create, and configure Kubernetes clusters.
+    
+    $ cat /etc/kubernetes/manifests/kube-apiserver.yaml   -->etcd yaml is located 
+    $ cat /etc/systemd/system/      --> all service files are avaiable here
+    
+    $ ps -aux |grep kube-apiserver
+    
+3). kube-Controller:
+kubernetes controller is manager which controlls various k8s objects. controller is process which continuosly monitors various components of k8s inside the controller. it a brain to k8s. it has various controllers inside to monitor different k8s objects. like node controller, deployment controller, namespace controller, job controller, replication controller, and etc.
+    Controller check the heart beat of the nodes, if the node heart beat(40sec) is not receive availabe then it mark that node as unreachable.
+    
+    similerly there are other controllers avaible in the controller manager.
+       1. Node controller --> checks the node status and their avialability and the reach in the cluster
+       2. Replication controller --> it will check the replicas defined are avaiable or not, if not will create the new pod
+       3. namespace controller  --> namespace related activities are monitored by this 
+       4. deployment controller
+       5. endpoint controller
+    
+   $ cat /etc/kubernetes/manifests/kube-controller-manager.yaml --> controller YAML file is avaible here
+   $ cat /etc/systemd/system/      --> all service files are avaiable here
+  
+   $ ps -aux | grep kube-controller-manager
+      
+4). kube-scheduler:
+kube-scheduler will deside which pod goes where, mean the scheduler will deside where to create the pod on which node, depends on the criteria. it will send the instructions to the kubelet on that node agent. scheduler just gives the instructions to the kubelet. kubelet is responsible to create the POD on that node.
 
-Controller:
-kubernetes controller is manager which controlls various k8s objects. controller is process which monitors various components of k8s inside the controller. it a brain to k8s. it has various controllers inside to monitor different k8s objects. like node controller, deployment controller, namespace controller, job controller, replication controller, and etc.
+    $ cat /etc/kubernetes/manifests/kube-scheduler.yaml
+    
+    $ ps -aux |grep kube-scheduler  --> process check 
+    
+5). kubelet: 
+kubelet is a agent running on all cluster nodes in kubernetes. which is installed on all the worker-nodes and master-nodes. if we install kubernetes using kubeadm, it will not install kubelet in the nodes, we manually install the kubelet in the nodes.     
 
-scheduler:
+    download the installer and extract it as a servcie kubelet.service.d in path /etc/systemd/system/
+    
+    $ ps -aux |grep kubelet --> process check
+    
+6). kubeproxy:
+with in kubernetes cluster every pod reaches every pod. this can achived with POD network. POD network is an internal network that spans accross all the nodes in the cluster to which all th pods in the cluster. 
 
+kubeproxy is a process runs on each node in k8s cluster. its job is to look for new services. and everytime a new service is created, kubelet creates appropriate rule on each node to forward the trafic to those services to the backend pods. it does with ip table rules. kube-proxy run as daemonset in the k8s cluster.
 
+    kube-proxy.service
+    
+    $ kubectl get pods --namespace kube-system --> to list the pods on namespace kube-system ( -n --> namespace)
+    $ kubectl get daemonsets -n kube-system --> to list daemonsets.
+    
+7). Container Runtime:
+container runtime is software which used to create containers. like docker. 
 
+Kubernetes Objects:
+kubernetes resources are called as kubernetes objects. which are used to setup the kubernetes for application deployment.
 
-$ kubectl version --> to check the kubernetes version
+    1. Pod: --> k8s smallest object. conatiner are created inside the Pods
+    2. ReplicaSet: --> to replicate POD's on k8s cluster. and make sure defined number of replicas avaialbe. 
+    3. ReplicationController: --> same as replicaset
+    4. Deployment: --> to deploy the application 
+    5. Service: --> to expose the deployed services to the external network
+    6. Daemonsets: --> 
+    7. Namespace: --> 
+    8. 
+    
+post installtion of kubernetes we can  use the kubectl command to interact with k8s cluster.
 
-$ kubectl explain <Object-name> --> Documentation for resource object (Pod, Replicaset, Deployment, service, etc.)
-examples:
-    $ kubectl explain pod --> Documentation for POD. to check apiVersion of k8s object.
-    $ kubectl explain replicaset/rs --> Documentation for Replicaset
-    $ kubectl explain replicationcontroller/rc --> Doc. for RC
-    $ kubectl explain deployment/deploy --> doc for deployment
-    $ kubectl explain service/svc --> doc for service
+    $ kubectl version --> to check the kubernetes version
+
+    $ kubectl explain <Object-name> --> Documentation for resource object (Pod, Replicaset, Deployment, service, etc.)
+    examples:
+        $ kubectl explain pod --> Documentation for POD. to check apiVersion of k8s object.
+        $ kubectl explain replicaset/rs --> Documentation for Replicaset
+        $ kubectl explain replicationcontroller/rc --> Doc. for RC
+        $ kubectl explain deployment/deploy --> doc for deployment
+        $ kubectl explain service/svc --> doc for service
 
 Kubernetes objects (Pod,Replicasets,Deployments,service,etc) are created in two types.
     1. imperative --> objects created using command line are called imperative.
     2. declarative --> objects created using yml/programing are called declarative.
 
-POD:
-====
+POD: 
+pod is the smallest object in the k8s. the docker containers are run inside the Pod. In k8s each pod is represented as one host and each pod is allocated with one IP address. once the pod is destroyed its containers its ip is also removed. if new pod is created in place of the pod they will be allocated with new IP address. which is allocated by the kubernetes. kubernetes pod are communicated with help of pod network. its is an internal network with in the cluster. 
+
 Syntax: Imperative way
-$ kubectl run {...} --> only used to create pod object 
-$ kubectl run <Pod-Name> --image=<Pod-image-name>  --> to run a pod 
-Examples:
-$ kubectl run nginx --image=nginx --> creating a nginx pod
-$ kubectl run redis --image=redis --> creating a redis pod
+        $ kubectl run <Pod-Name> --image=<Pod-image-name>  --> kubectl run command is used only for pods. it used to create pods using command-line interface.
+        
+        Examples:
+        $ kubectl run nginx --image=nginx --> creating a nginx pod
+        $ kubectl run redis --image=redis --> creating a redis pod
     
 Syntax: Declarative way
-$ kubectl create -f pod-definition.yaml 
 
 pod-definition.yaml--> POD-definition file in YAML format :
 -----------------------------------------------------------
@@ -65,37 +129,36 @@ spec:
       image: nginx
 -------------------------------------------------------------
 
-$ kubectl get pods --> to list pods running on default namespace
-$ kubectl get pods  -w --> to watch the pod status on fly
-$ kubectl get all --> to list all objects(Pod, Replicasets, Deploylments, services, etc.) running in default namespace
-$ kubectl get pods -n prod1-namespace  -> to list the pods running on the namespace prod1-namespace
-(or)
-$ kubectl get pods --namespace=prod1-namespace
-$ kubectl get all --namespace=kube-system --> to list "kube-system" namespace objects, kubernetes object namespace
+       $ kubectl create -f pod-definition.yaml --> is used to create the pod using YAML file.
 
-examples:
-$ kubectl get nodes
-$ kubectl get pods
-$ kubectl get replicationcontrollers
-$ kubectl get replicasets
-$ kubectl get deployments
-$ kubectl get services
-$ kubectl get namespaces
-$ kubectl get daemonsets
+       $ kubectl get pods        --> to list pods running on default namespace
+       $ kubectl get pods  -w    --> to watch the pod status on fly
+       $ kubectl get all         --> to list all objects(Pod, Replicasets, Deploylments, services, etc.) running in default namespace
+       $ kubectl get pods -n prod1-namespace        --> to list the pods running on the namespace prod1-namespace. insted of -n we can use --namespace
+       $ kubectl get all --namespace=kube-system    --> to list "kube-system" namespace objects, kubernetes object namespace
 
-$ kubectl describe pod <pod-name> --> to see the details of pod and properties
-example:
-$ kubectl describe pod my-pod1
-$ kubectl describe pods
-$ kubectl describe replicaset my-replicaset1
-$ kubectl describe replicasets
-$ kubectl describe deployment my-deployment1
-$ kubectl describe deployments
-$ kubectl describe daemonsets --namespace=kube-system
-$ kubectl describe -n kube-system daemonsets    --> -n is namespace 
+    examples:
+        $ kubectl get nodes
+        $ kubectl get pods
+        $ kubectl get replicationcontrollers
+        $ kubectl get replicasets
+        $ kubectl get deployments
+        $ kubectl get services
+        $ kubectl get namespaces
+        $ kubectl get daemonsets
+
+        $ kubectl describe pod <pod-name> --> to see the details of pod and properties
+    example:
+        $ kubectl describe pod my-pod1
+        $ kubectl describe pods
+        $ kubectl describe replicaset my-replicaset1
+        $ kubectl describe replicasets
+        $ kubectl describe deployment my-deployment1
+        $ kubectl describe deployments
+        $ kubectl describe daemonsets --namespace=kube-system
+        $ kubectl describe -n kube-system daemonsets    --> -n is namespace 
 
 ReplicationController:
-======================
 
 replicationcontroller-definition.yaml --> with help of this YAML file we replicate n times. same pod used in pod-definition.yaml :
 ----------------------------------------------------------------------------------------------------------------------------------
