@@ -1,17 +1,21 @@
 Kubernetes: Overview
+-----------------------------------------------------------------
 Kubernetes is a container orchestration tool, to scale, descale, auto-scale, deploy, replicate, loadbalance, failover. its is developed by google.  which is used widely in containerization platfroms. it has global community support.
 
 Kubernetes installtion:
+-----------------------------------------------------------------
 k8s installtion can be done is different ways depeding on the requirement. it can be done in 2 ways
     1. Minikube --> for testing, training or local setup we can use it.
     2. kubeadm  --> for commertial purpose setup, or production grade setup require kubeadm.
 
 Kubernetes-architecture:
+-----------------------------------------------------------------
 Kuberenetes architecture build on master nodes salve nodes model. in K8S there are several components involved. below are the list of components.
     Master-Node components: API-Server, ETCD, Controller, Scheduler, Container-runtime, kubelet(agent), kubeproxy(agent)
     Worker-Node Components: Container-Runtime(Docker), kubelet(agent), kubeproxy
 
 1). ETCD: 
+-----------------------------------------------------------------
 etcd is a key/value store. it is a distributed reliable key value store which stores the information of all the kubernetes resources such as nodes, Pods, replicasets, deployments, namespaces, configs, secrets, accounts, roles etc. in multi master environment its stores the data. multiple etcd's spread across the master nodes so all masters can have the information on all the k8s objects in a cluster.
 
     $ cat /etc/kubernetes/manifests/etcd.yaml   -->etcd yaml is located 
@@ -25,6 +29,7 @@ we must specify the certificate path location. the location of certificates are 
     $ ps -aux |grep etcd
     
 2). kube-API-server: 
+-----------------------------------------------------------------
 The Kubernetes API-Server is the front end, this is how the users interact with their Kubernetes cluster using kubectl command. The API (application programming interface) server determines if a request is valid and then processes it. the API is the interface used to manage, create, and configure Kubernetes clusters.
     
     $ cat /etc/kubernetes/manifests/kube-apiserver.yaml   -->etcd yaml is located 
@@ -33,10 +38,12 @@ The Kubernetes API-Server is the front end, this is how the users interact with 
     $ ps -aux |grep kube-apiserver
     
 3). kube-Controller:
+-----------------------------------------------------------------
 kubernetes controller is manager which controlls various k8s objects. controller is process which continuosly monitors various components of k8s inside the controller. it a brain to k8s. it has various controllers inside to monitor different k8s objects. like node controller, deployment controller, namespace controller, job controller, replication controller, and etc.
     Controller check the heart beat of the nodes, if the node heart beat(40sec) is not receive availabe then it mark that node as unreachable.
     
     similerly there are other controllers avaible in the controller manager.
+       
        1. Node controller --> checks the node status and their avialability and the reach in the cluster
        2. Replication controller --> it will check the replicas defined are avaiable or not, if not will create the new pod
        3. namespace controller  --> namespace related activities are monitored by this 
@@ -49,6 +56,7 @@ kubernetes controller is manager which controlls various k8s objects. controller
    $ ps -aux | grep kube-controller-manager
       
 4). kube-scheduler:
+-----------------------------------------------------------------
 kube-scheduler will deside which pod goes where, mean the scheduler will deside where to create the pod on which node, depends on the criteria. it will send the instructions to the kubelet on that node agent. scheduler just gives the instructions to the kubelet. kubelet is responsible to create the POD on that node.
 
     $ cat /etc/kubernetes/manifests/kube-scheduler.yaml
@@ -56,6 +64,7 @@ kube-scheduler will deside which pod goes where, mean the scheduler will deside 
     $ ps -aux |grep kube-scheduler  --> process check 
     
 5). kubelet: 
+-----------------------------------------------------------------
 kubelet is a agent running on all cluster nodes in kubernetes. which is installed on all the worker-nodes and master-nodes. if we install kubernetes using kubeadm, it will not install kubelet in the nodes, we manually install the kubelet in the nodes.     
 
     download the installer and extract it as a servcie kubelet.service.d in path /etc/systemd/system/
@@ -63,6 +72,7 @@ kubelet is a agent running on all cluster nodes in kubernetes. which is installe
     $ ps -aux |grep kubelet --> process check
     
 6). kubeproxy:
+-----------------------------------------------------------------
 with in kubernetes cluster every pod reaches every pod. this can achived with POD network. POD network is an internal network that spans accross all the nodes in the cluster to which all th pods in the cluster. 
 
 kubeproxy is a process runs on each node in k8s cluster. its job is to look for new services. and everytime a new service is created, kubelet creates appropriate rule on each node to forward the trafic to those services to the backend pods. it does with ip table rules. kube-proxy run as daemonset in the k8s cluster.
@@ -73,9 +83,11 @@ kubeproxy is a process runs on each node in k8s cluster. its job is to look for 
     $ kubectl get daemonsets -n kube-system --> to list daemonsets.
     
 7). Container Runtime:
+-----------------------------------------------------------------
 container runtime is software which used to create containers. like docker. 
 
 Kubernetes Objects:
+-----------------------------------------------------------------
 kubernetes resources are called as kubernetes objects. which are used to setup the kubernetes for application deployment.
 
     1. Pod: --> k8s smallest object. conatiner are created inside the Pods
@@ -104,6 +116,7 @@ Kubernetes objects (Pod,Replicasets,Deployments,service,etc) are created in two 
     2. declarative --> objects created using yml/programing are called declarative.
 
 POD: 
+-----------------------------------------------------------------
 pod is the smallest object in the k8s. the docker containers are run inside the Pod. In k8s each pod is represented as one host and each pod is allocated with one IP address. once the pod is destroyed its containers its ip is also removed. if new pod is created in place of the pod they will be allocated with new IP address. which is allocated by the kubernetes. kubernetes pod are communicated with help of pod network. its is an internal network with in the cluster. 
 
 Syntax: Imperative way
@@ -147,7 +160,7 @@ spec:
         $ kubectl get namespaces
         $ kubectl get daemonsets
 
-        $ kubectl describe pod <pod-name> --> to see the details of pod and properties
+        $ kubectl describe pod <pod-name> --> to see the details of k8s object and properties
     example:
         $ kubectl describe pod my-pod1
         $ kubectl describe pods
@@ -158,44 +171,50 @@ spec:
         $ kubectl describe daemonsets --namespace=kube-system
         $ kubectl describe -n kube-system daemonsets    --> -n is namespace 
 
-ReplicationController:
+ReplicationController: 
+-----------------------------------------------------------------
+A ReplicationController ensures that a specified number of pod replicas are running. ReplicationController is similer to ReplicaSet. but Replicaset is the next-generation ReplicationController that supports the new set-based label selector. It's mainly used by Deployment as a mechanism to orchestrate pod creation, deletion and updates. Note that we recommend using Deployments instead of directly using Replica Sets, unless you require custom update orchestration or don't require updates at all.
 
-replicationcontroller-definition.yaml --> with help of this YAML file we replicate n times. same pod used in pod-definition.yaml :
+rc-def.yaml --> with help of this YAML file we replicate n times. same pod used in pod-definition.yaml :
 ----------------------------------------------------------------------------------------------------------------------------------
 apiVersion: v1
 kind: ReplicationController
 metadata:
-    name: my-rc
-    labels:
-        app: my-rc-nginx
+  name: nginx
 spec:
-    replicas: 3
-    template:
-        metadata: 
-            name: nginx-pod
-            labels:
-                app: nginx
-        spec: 
-            containers:
-            - name: nignx
-              image: nginx
+  replicas: 3
+  selector:
+    app: nginx
+  template:
+    metadata:
+      name: nginx
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
 ---------------------------------------------------------------------------------------------------------------------------------
-Create: ReplicationController
-=============================
-$ kubectl create -f replicationcontroller-definition.yaml
-$ kubectl get replicaitoncontroller
-(or)
-$ kubectl get rc
-$ kubectl delete rc my-rc1
-$ kubectl describe rc my-rc1
-$ kubectl edit rc my-rc1
-$ kubectl replace -f replicationcontroller-definiton.v2.yaml
+
+        $ kubectl create -f rc-def.yaml --> create using YAML file.
+  (or)  $ kubectl apply -f rc-def.yaml
+        
+        $ kubectl get replicaitoncontroller
+  (or)  $ kubectl get rc
+       
+        $ kubectl delete rc my-rc1
+        $ kubectl describe rc my-rc1
+        $ kubectl edit rc my-rc1
+        $ kubectl replace -f replicationcontroller-definiton.v2.yaml
+
 
 Replicaset:
-===========
-ReplicationController and ReplicaSet are used for similer functionality. ReplicationController is older version, ReplicaSet is the newer version.
+-----------------------------------------------------------------
+A ReplicaSet's purpose is to maintain a set of replica Pods running at any time. ReplicationController and ReplicaSet are used for similer functionality. ReplicationController is older version, ReplicaSet is the newer version. In deployment k8s uses replicasets to replicate the pods.
 
-replicaset-definition.yaml
+replicaset.v1.yaml
 -------------------------------------------------------------------------------------
 apiVersion: apps/v1
 kind: ReplicaSet
@@ -204,6 +223,10 @@ metadata:
     labels:
         app: my-rs-nginx
 spec:
+    replicas: 3
+    selector:
+        matchLabels:
+            app: nginx    
     template:
         metadata: 
             name: nginx-pod
@@ -213,36 +236,40 @@ spec:
             containers:
             - name: nignx
               image: nginx
-    selector:
-        matchLabels:
-            app: nginx    
-    replicas: 5
+              ports:
+              - containerPort: 80
 -----------------------------------------------------------------------------------
-Create: ReplicaSet
-==================
-$ kubectl create -f replicaset-definition.v1.yaml --dry-run=client --> to run the YAML file with out applying the changes
-$ kubectl create -f replicaset-definition.v1.yaml   --> create replicaset
-$ kubectl get replicaset    --> list replicasets
+
+        $ kubectl create -f replicaset.v1.yaml --dry-run=client --> to run the YAML file with out applying the changes
+        $ kubectl create -f replicaset.v1.yaml   --> create replicaset
+
+        $ kubectl get replicaset    --> list replicasets
+(or)    $ kubectl get rs    --> list replicasets 
+
+        $ kubectl describe replicaset my-rs --> describe replicaset properties
+        $ kubectl replace -f replicaset.v2.yaml  --> replace the new app version with latest version
+        $ kubectl scale replicaset my-rs --replicas=10  --> scale up number of replicas 
 (or)
-$ kubectl get rs    --> list replicasets 
-$ kubectl describe replicaset my-rs --> describe replicaset properties
-$ kubectl replace -f replicaset-definition.v2.yaml  --> replace the replicaset with latest version
-$ kubectl scale replicaset my-rs --replicas=10  --> scale up number of replicas 
-(or)
-$ kubectl scale -f replicaset-definition.yaml --replicas=10 --> scale up number of replicas using replicaset definition file
-$ kubectl scale -f replicaset-definition.yaml --replicas=2 --> scale down number of replicas
-$ kubectl edit replicaset my-rs   --> edit the replicaset properties using the 
-$ kubectl explain replicaset|grep -i version
-$ kubectl delete replicaset my-rs --> to delete replicaset my-rs
+        $ kubectl scale -f replicaset.yaml --replicas=10 --> scale up number of replicas using replicaset definition file
+        $ kubectl scale -f replicaset.yaml --replicas=2 --> scale down number of replicas
+        $ kubectl edit replicaset my-rs   --> edit the replicaset properties using the 
+        $ kubectl explain replicaset|grep -i version
+        $ kubectl delete replicaset my-rs --> to delete replicaset my-rs
+auto-scale
+        $ kubectl autoscale rs frontend --max=10 --min=3 --cpu-percent=50 --> to autoscale replicas to desired 
 
 Deployment:
-===========
-$ kubectl create deployment my-deploy --image=nginx --> creating a deployment with single POD
-$ kubectl create deployment my-deploy --image=nginx --replicas=6 --> create a deployment with 6 pod in cluster
-$ kubectl create deployment my-deploy --image=nginx --replicas=6 --dry-run=client -o yaml > my-deploy.yaml --> it will create a yaml of that deployment. 
-$ kubectl get deployment my-deploy -o wide --> deployment details
+-----------------------------------------------------------------
+Deployment will create or modify instances of the pods that hold a containerized application. Deployments can scale the number of replica pods, enable rollout of updated code in a controlled manner, or roll back to an earlier deployment version if necessary. deployment updates can be done in 2 ways
+    1). rolling-update
+    2). recreate 
+by default k8s deployment will use rolling-update as default strategy.
 
-deployment-definition.yaml --> this deployment YAML file creates PODs, Replicasets, Deployment objects
+        $ kubectl create deployment my-deploy --image=nginx --> creating a deployment with single POD
+        $ kubectl create deployment my-deploy --image=nginx --replicas=6 --> create a deployment with 6 pod in cluster
+        $ kubectl create deployment my-deploy --image=nginx --replicas=6 --dry-run=client -o yaml > my-deploy.yaml --> it will create a yaml of that deployment. 
+        
+deployment.yaml --> this deployment YAML file creates PODs, Replicasets, Deployment objects
 -------------------------------------------------------------------------------------------------------
 apiVersion: apps/v1
 kind: Deployment
@@ -263,34 +290,36 @@ spec:
             - name: nginx
               image: nginx
 ------------------------------------------------------------------------------------------------------
-Create: Deployment:
-===================
-$ kubectl create -f deployment-definition.yaml --dry-run=client --> to trial run the YAML file, if will not apply any changes
-$ kubectl create -f deployment-definition.yaml --> to exicute the YAML file.
-(or)
-$ kubectl apply -f deployment-definition.yaml --> 
-$ kubectl get deployment    --> to check deployments available
-(or)
-$ kubectl get deploy --> to check deployments available
-$ kubectl get deployment my-deply --> to check one deployment my-deploy
-$ kubectl get deployment --namespace=dev --> to check the deploymets running on namespace "dev"
-$ kubectl describe deployment my-deploy 
-$ kubectl delete deployment my-deploy
-$ kubectl edit deployment my-deploy --> update the version by editing the running deployment.
+
+        $ kubectl create -f deployment-definition.yaml --dry-run=client --> to trial run the YAML file, if will not apply any changes
+        $ kubectl create -f deployment-definition.yaml --> to exicute the YAML file.
+(or)    $ kubectl apply -f deployment-definition.yaml --> 
+        
+        $ kubectl get deployment    --> to check deployments available
+(or)    $ kubectl get deploy --> to check deployments available
+
+        $ kubectl get deployment my-deply --> to check one deployment my-deploy
+        $ kubectl get deployment --namespace=dev --> to check the deploymets running on namespace "dev"
+        $ kubectl describe deployment my-deploy 
+        $ kubectl delete deployment my-deploy
+        $ kubectl edit deployment my-deploy --> update the version by editing the running deployment.
 
 deployment rollout is done in two ways 
     1. rollingupdate (Default) --> it will bringdown one by one depends on RollingUpdateStrategy defined. 
     2. recreate --> will bringdown all pods at a time, and brinup all 
 
 Update: Deployment
-==================
+-----------------------------------------------------------------
 $ kubectl apply -f deployment-definition.v2.yaml --> to update the latest version of application.
 $ kubectl replace -f deployment-definition.v2.yaml --> updating the app version(nginx to nginx:1.16.2) using the YAML and replace with running deployment.
 $ kubectl replace --force -f deployment-definition.v2.yaml --> this will bring down the existing deployment forcefully and creates the new one.
+
 $ kubectl set image deployment my-deploy nginx=nginx:1.16.1 --> to set the latest nginx image on the running deployment
+
 $ kubectl rollout history deployment my-deploy --> history of the number of deployments
 $ kubectl rollout status deployment my-deploy --> deployment status can be checked. 
 $ kubectl rollout undo deployment my-deploy --> if update is failed for some reason, then rollout the new-version deployment to the old-verison deployment 
+
 $ kubectl scale deployment my-deploy --replicas=10 --> to scale up the deployment
 $ kubectl scale deployment my-deploy --replicas=3 --> to scale down the deployment
 
@@ -298,7 +327,7 @@ Note: remember every time new-verison changed, respective "replicaset" is brough
 will avaiable but not pods will be avaiable in running state. when you do the undo operation thet old replicaset is recreated and new one will go down.
 
 Service:
-========
+-----------------------------------------------------------------
 Service is a k8s object, which exposes the sevice to the outside network. this can be done in two ways. by using the command line parameter "expose" we can expose
 the service to the outside network.
 
