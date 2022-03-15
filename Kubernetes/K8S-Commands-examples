@@ -90,6 +90,8 @@ Kubernetes Objects:
 -----------------------------------------------------------------
 kubernetes resources are called as kubernetes objects. which are used to setup the kubernetes for application deployment.
 
+        $ kubectl api-resources --> to list all kubernetes objects 
+
     1. Pod: --> k8s smallest object. conatiner are created inside the Pods
     2. ReplicaSet: --> to replicate POD's on k8s cluster. and make sure defined number of replicas avaialbe. 
     3. ReplicationController: --> same as replicaset
@@ -440,8 +442,6 @@ status:
     - ip: 192.0.2.127
 ---------------------------------------
 
-
-
 service-definition.yaml
 ---------------------------------------------------------------------------------
 apiVersion: v1
@@ -473,54 +473,61 @@ spec:
         app: nginx
 -----------------------------------------------------------------------------
 
-$ kubectl create -f sevice-definition.yaml --> to create the sevice
-$ kubectl get services  --> to check the services
-$ kubectl get services -o wide --> to see more details 
-$ kubectl delete serivce my-svc --> to delete 
-$ kubectl edit service my-svc --> to edit the service properties
+        $ kubectl create -f sevice-definition.yaml --> to create the sevice
+        $ kubectl get services  --> to check the services
+        $ kubectl get services -o wide --> to see more details 
+        $ kubectl delete serivce my-svc --> to delete 
+        $ kubectl edit service my-svc --> to edit the service properties
 
 NameSpace:
-===========
+-----------------------------------------------------------------
 In Kubernetes, namespaces provides a mechanism for isolating groups of resources(pods, replicasets, deployments, services, etc..) within a single cluster. 
 Names of resources need to be unique within a namespace, but not across mutiple namespaces. In simple terms namespace is a isolated area for a team. 
 
-$ kubectl get namespace --> to list the namespaces avaiable
-
+        $ kubectl get namespace --> to list the namespaces avaiable
+        
+        $ kubectl api-resources --namespaced=true --> k8s objects created in namespace
+        $ kubectl api-resources --namespaced=false --> k8s objects not created in namespace
+        
 Kubernetes starts with four initial namespaces:
-    1. default: The default namespace for objects with no other namespace
-    2. kube-system: The namespace for objects created by the Kubernetes system
-    3. kube-public: This namespace is created automatically and is readable by all users 
-    4. kube-node-lease: This namespace holds Lease objects associated with each node. it allow the "kubelet" to send heartbeats so that master node can detect node failure.
+
+    1). default: The default namespace for objects with no other namespace
+    2). kube-system: The namespace for objects created by the Kubernetes system
+    3). kube-public: This namespace is created automatically and is readable by all users 
+    4). kube-node-lease: This namespace holds Lease objects associated with each node. it allow the "kubelet" to send heartbeats so that master node can detect node failure.
     
-$ kubectl run nginx --image=nginx --namespace=prod1 --> creating a nginx pod in prod1 namespace
-$ kubectl get pods --namespace=prod1 --> to list pods from namespace prod1
-$ kubectl config set-context --current --namespace=prod1 --> to switch from "default" to "prod1" namespace
-$ kubectl config view   --> to see configuration set currently on 
-$ kubectl config view | grep namespace  --> to check the namespace currenlty we are working on
-$ kubectl config get-contexts --> to get th context details with namespace
+        $ kubectl config get-contexts --> to check details for current namespace, cluster information
+        $ kubectl config view   --> to see configuration set currently on 
+        $ kubectl config view | grep namespace  --> to check the namespace currenlty we are working on. if we are default it won't show.
+        
+        $ kubectl run nginx --image=nginx --namespace=prod1 --> creating a nginx pod in prod1 namespace, make sure prod1 namespace is created.
+        $ kubectl get pods --namespace=prod1 --> to list pods from namespace prod1
+       
+        $ kubectl config set-context --current --namespace=prod1 --> to switch from "default" to "prod1" namespace
+        $ kubectl config set-context --current --namespace=kube-system --> switch to kubernetes namespace
 
 When you create a Service, it creates a corresponding DNS entry. This entry is of the form <service-name>.<namespace-name>.svc.cluster.local, which means that if a container 
 only uses <service-name>, it will resolve to the service which is local to a namespace. This is useful for using the same configuration across multiple namespaces such as 
 Development, Staging and Production. If you want to reach across namespaces, you need to use the fully qualified domain name (FQDN).
 
-
-
-$ kubectl create namespace prod1 --> this will create  namespace prod1
-(or)
-prod1-namespace-def.yaml --> yaml file to create namespace prod1
+        $ kubectl create namespace prod1 --> this will create  namespace prod1
+        (or) 
+prod1-namespace-def.yaml --> yaml file to create simple namespace - prod1
 -----------------------------------
 apiVersion: v1
 kind: Namespace
 metadata:
     name: prod1
 ----------------------------------
+
+
 nginx-prod1-definition.yaml --> this will create nginx pod in namespace prod1
 -----------------------------------------------------------------------------------
 apiVersion: v1
 kind: Deployment
 metadata:
     name: nginx-prod1
-    namespace: prod1
+    namespace: prod1    # add namespace in metadata to create the deployment in that namespace.
 spec:
     replicas: 4
     selector:
@@ -534,12 +541,15 @@ spec:
               image: nginx
  -------------------------------------------------------------------------
 
-$ kubectl create -f prod1-namespace-def.yaml --> this yaml file create namespace prod1
-$ kubectl create -f nginx-prod1-definition.yaml --> this will create nginx prod on namespace prod1
-$ kubectl get pods --namespace=prod1 --> to list the prods
-$ kubectl delelte namespace prod1 --> to delete the prod1 namespace
-$ kubectl config get-context --> to check the namespace 
-$ kubectl get namespace --show-labels --> to show labels of all namespaces
+        $ kubectl create -f prod1-namespace-def.yaml --> this yaml file create namespace prod1
+        $ kubectl create -f nginx-prod1-definition.yaml --> this will create nginx prod on namespace prod1
+        
+        $ kubectl get pods --namespace=prod1 --> to list the prods
+        $ kubectl get namespace --show-labels --> to show labels of all namespaces
+        
+        $ kubectl delelte namespace prod1 --> to delete the prod1 namespace
+        
+        $ kubectl config get-context --> to check the namespace 
 
 Namespace: ResourceQuota
 =========================
