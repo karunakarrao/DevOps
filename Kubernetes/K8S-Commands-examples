@@ -310,41 +310,85 @@ deployment rollout is done in two ways
 
 Update: Deployment
 -----------------------------------------------------------------
-$ kubectl apply -f deployment-definition.v2.yaml --> to update the latest version of application.
-$ kubectl replace -f deployment-definition.v2.yaml --> updating the app version(nginx to nginx:1.16.2) using the YAML and replace with running deployment.
-$ kubectl replace --force -f deployment-definition.v2.yaml --> this will bring down the existing deployment forcefully and creates the new one.
+        $ kubectl apply -f deployment-definition.v2.yaml --> to update the latest version of application.
+        $ kubectl replace -f deployment-definition.v2.yaml --> updating the app version(nginx to nginx:1.16.2) using the YAML and replace with running deployment.
+        $ kubectl replace --force -f deployment-definition.v2.yaml --> this will bring down the existing deployment forcefully and creates the new one.
 
-$ kubectl set image deployment my-deploy nginx=nginx:1.16.1 --> to set the latest nginx image on the running deployment
+        $ kubectl set image deployment my-deploy nginx=nginx:1.16.1 --> to set the latest nginx image on the running deployment
 
-$ kubectl rollout history deployment my-deploy --> history of the number of deployments
-$ kubectl rollout status deployment my-deploy --> deployment status can be checked. 
-$ kubectl rollout undo deployment my-deploy --> if update is failed for some reason, then rollout the new-version deployment to the old-verison deployment 
+        $ kubectl rollout history deployment my-deploy --> history of the number of deployments
+        $ kubectl rollout status deployment my-deploy --> deployment status can be checked. 
+        $ kubectl rollout undo deployment my-deploy --> if update is failed for some reason, then rollout the new-version deployment to the old-verison deployment 
 
-$ kubectl scale deployment my-deploy --replicas=10 --> to scale up the deployment
-$ kubectl scale deployment my-deploy --replicas=3 --> to scale down the deployment
+        $ kubectl scale deployment my-deploy --replicas=10 --> to scale up the deployment
+        $ kubectl scale deployment my-deploy --replicas=3 --> to scale down the deployment
 
 Note: remember every time new-verison changed, respective "replicaset" is brought down parallel a new "replicaset" is created with new-verison, the old replicasets
-will avaiable but not pods will be avaiable in running state. when you do the undo operation thet old replicaset is recreated and new one will go down.
+will avaiable but pods will not be avaiable in running state. when you do the undo operation thet old replicaset is recreated and new one will go down.
 
 Service:
 -----------------------------------------------------------------
-Service is a k8s object, which exposes the sevice to the outside network. this can be done in two ways. by using the command line parameter "expose" we can expose
-the service to the outside network.
+Service is a k8s object, which exposes the sevice to the outside network. to expose an application running on a set of Pods as a network service. this can be done in two ways. by using the command line parameter "expose" we can expose the service to the outside network.
 
---> 
+    Publishing Services K8s services to external network is exposed in 3 ways 
+        1). Cluster-IP (Default)
+        2). NodePort
+        3). LoadBalancer
+        
+service.yml
+--------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: MyApp      # this is the MyApp Pod's label app=MyApp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 9376
+--------------------------------
+service-multiport.yml
+--------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: MyApp
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 9376
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 9377
+--------------------------------
 
-ClusterIP: Exposes the Service on a cluster-internal IP. Service only reachable from within the cluster. This is the default ServiceType.
-$ kubectl expose deployment my-deploy --port=80 --> this expose the deployment as a clusterIP. to access URL use clusterIP.
+ClusterIP: 
+-----------------------------------------------------------------
+Exposes the Service on a cluster-internal IP. Cluster-IP Service only reachable from within the cluster. This is the default ServiceType.
+
+    $ kubectl expose deployment my-deploy --port=80 --> this expose the deployment as a clusterIP. to access URL use clusterIP.
+
 example:
     $ kubectl get service -o wide
     NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE     SELECTOR
     my-deploy    ClusterIP   10.101.51.194   <none>        80/TCP    6m56s   app=nginx
     
---> to access the URL use clusterIP ip address 
+to access the URL use clusterIP ip address 
     $  curl http://10.101.51.194
 
-NodePort: Exposes the Service on each Node's IP at a static port (the NodePort). NodePort ranges from port 30000 to 32767.
-$ kubectl expose deployment my-deploy --type=NodePort --port=80 --> expose it as NodePort, to access URL use nodeport with ip.
+NodePort:
+-----------------------------------------------------------------
+Exposes the Service on each Node's IP at a static port (NodePort). NodePort ranges from port 30000 to 32767.
+    
+    $ kubectl expose deployment my-deploy --type=NodePort --port=80 --> expose it as NodePort, to access URL use nodeport with ip.
+
 example: 
     $  kubectl get service
     NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
@@ -352,34 +396,49 @@ example:
     
 --> to access the URL use Node ip address and the NodePort
     $ curl http://localhost:31358
+
 Note: remember the application listen port, should be same as --port other wise we can't access the application.
+--------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  type: NodePort
+  selector:
+    app: MyApp
+  ports:
+      # By default and for convenience, the `targetPort` is set to the same value as the `port` field.
+    - port: 80
+      targetPort: 80
+      # Optional field
+      # By default and for convenience, the Kubernetes control plane will allocate a port from a range (default: 30000-32767)
+      nodePort: 30007
+--------------------------------------
 
-LoadBalancer: Exposes the Service externally using a cloud provider's load balancer. NodePort and ClusterIP Services, to which the external load balancer routes, 
+LoadBalancer:
+-----------------------------------------------------------------
+Exposes the Service externally using a cloud provider's load balancer. NodePort and ClusterIP Services, to which the external load balancer routes, 
 are automatically created. this can only be achived with cloud providers like (Aws, Azure, GCP). 
-
-?????????? pending ????????
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+---------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: MyApp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 9376
+  clusterIP: 10.0.171.239
+  type: LoadBalancer
+status:
+  loadBalancer:
+    ingress:
+    - ip: 192.0.2.127
+---------------------------------------
 
 
 
