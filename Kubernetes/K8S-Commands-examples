@@ -978,12 +978,13 @@ spec:
         memory: "128Mi"
         cpu: "500m"
 -----------------------------------------------------------------
---> if the container exceeds the limit, then K8S will not allow the 
+
+if the container exceeds the limit, then K8S will not allow the pod to use more resources. it will stop the resource limit.
 
 With resource quotas, cluster administrators can restrict resource consumption and creation on a namespace basis. Within a namespace, a Pod or Container can consume as much 
 CPU and memory as defined by the namespace's resource quota. 
 
---> For the POD to pick up those defaults you must have first set those as default values for request and limit by creating a LimitRange in that namespace.
+For the POD to pick up those defaults you must have first set those as default values for request and limit by creating a LimitRange in that namespace.
 
 Memory limits: memory-limits.yaml
 -----------------------------------------------------------------
@@ -1000,7 +1001,7 @@ spec:
     type: Container
 ---------------------------------------------------------------------   
 
-$ kubectl apply -f memory-limits.yaml --namespace=prod1
+        $ kubectl apply -f memory-limits.yaml --namespace=prod1
 
 CPU-Limits: cpu-limits.yaml
 ---------------------------------------------------------------------
@@ -1017,9 +1018,9 @@ spec:
     type: Container
 ------------------------------------------------------------------------
 
-$ kubectl apply -f cpu-limits.yaml --namespace=prod1
+        $ kubectl apply -f cpu-limits.yaml --namespace=prod1
 
-$ kubectl get pod default-mem-demo --output=yaml --namespace=prod1 --> to view detailed information.
+        $ kubectl get pod default-mem-demo --output=yaml --namespace=prod1 --> to view detailed information.
 
 What if you specify a container's limit, but not its request? 
 ---------------------------------------
@@ -1048,21 +1049,17 @@ spec.activeDeadlineSeconds
 spec.tolerations
 
 Daemonset:
-===========
-A DaemonSet ensures that all Nodes run a copy of a Pod. As nodes are added to the cluster, Pods are added to nodes. As nodes are removed from the cluster, 
-those Pods are garbage collected. Deleting a DaemonSet will clean up the Pods it created.
---> Some typical uses of a DaemonSet are:
-    1. running a cluster storage daemon on every node
-    2. running a logs collection daemon on every node
-    3. running a node monitoring daemon on every node
+-------------------------------------------------------------------------------
+A DaemonSet ensures that all Nodes run a copy of a Pod. As nodes are added to the cluster, Pods are added to nodes. As nodes are removed from the cluster, those Pods are garbage collected. Deleting a DaemonSet will clean up the Pods it created.
 
-Daemonsets are like replicasets, the pod defined in daemonset, will create one pod on each node so that it can be avaiable on all nodes in a cluster. when a new node is added
-to the cluster daemonset will create one pod in new node, if the node is removed it will remove the pod on the node. 
+Some typical uses of a DaemonSet are:
+    1). running a cluster storage daemon on every node
+    2). running a logs collection daemon on every node
+    3). running a node monitoring daemon on every node
 
-this is useful when you want to 
-    monitor logs of each node (or) 
-    run services like kubeproxy on each node, (or) 
-    monitoring the node status. etc. in this scenario we use the daemonsets. 
+Daemonsets are like replicasets, the pod defined in daemonset, will create one pod on each node so that it can be avaiable on all nodes in a cluster. when a new node is added to the cluster daemonset will create one pod in new node, if the node is removed it will remove the pod on the node. 
+
+this is useful when you want to monitor logs of each node (or) run services like kubeproxy on each node, (or) monitoring the node status. etc. in this scenario we use the daemonsets. 
 
 kube-proxy-daemonset.yaml
 -------------------------------------------------------------------------------
@@ -1112,13 +1109,14 @@ spec:
 -------------------------------------------------
 
 Static PODs:
-============
-Static Pods are managed directly by the kubelet daemon on a specific node, without the API server observing them. 
-Kubelet daemon will monitor this directory /etc/kubernetes/manifests/ and new pod definition files are exicuted.
+-------------------------------------------------
+Static Pods are managed directly by the kubelet daemon on a specific node, without the API server observing them. Kubelet daemon will monitor this directory /etc/kubernetes/manifests/ and new pod definition files are exicuted.
 
 these pods are not controlled by kubectl but just we can monitor, if you want to delete those pods just have to remove the file from that location. 
-this location can be changed according to over convenence using the file "/var/lib/kubelet/config.yaml". $ ps -ef |grep kubelet -> and change the staticPodPath:
-we can't deploy objects like replicasets, deployments, sevices as a static pods
+
+this location can be changed according to over convenence using the file "/var/lib/kubelet/config.yaml". change the staticPodPath: we can't deploy objects like replicasets, deployments, sevices as a static pods
+
+        $ ps -ef |grep kubelet 
 
 note: all static pods ends with node name 
 
@@ -1136,25 +1134,25 @@ spec:
       image: nginx
 --------------------------------
 
-$ kubectl get pods --all-namespaces
-$ cd /etc/kubernetes/manifests
-$ more /var/lib/kubelet/config.yaml
+        $ kubectl get pods --all-namespaces
+        $ cd /etc/kubernetes/manifests
+        $ more /var/lib/kubelet/config.yaml
 
-all kuberenetes components are placed as static pod onthe system in 
+all kuberenetes components are placed as static pod onthe system in  /etc/kubernetes/manifests
 
-/etc/kubernetes/manifests ➜  ls -ltr
--rw------- 1 root root 1450 Feb 19 10:07 kube-scheduler.yaml
--rw------- 1 root root 3380 Feb 19 10:07 kube-controller-manager.yaml
--rw------- 1 root root 3849 Feb 19 10:07 kube-apiserver.yaml
--rw------- 1 root root 2215 Feb 19 10:07 etcd.yaml
+        /etc/kubernetes/manifests ➜  ls -ltr
+        -rw------- 1 root root 1450 Feb 19 10:07 kube-scheduler.yaml
+        -rw------- 1 root root 3380 Feb 19 10:07 kube-controller-manager.yaml
+        -rw------- 1 root root 3849 Feb 19 10:07 kube-apiserver.yaml
+        -rw------- 1 root root 2215 Feb 19 10:07 etcd.yaml
 
 Note: daemonset and static pods are ignored by kube-scheduler
 
 Monitoring:
-===========
+-----------------------------------------------------------------
 how to monitor the resource consumtion on kubernetes cluster, what would like to monitor, 
-    1. i want to monitor node level health like, CPU, memory, network and disk
-    2. pod and performace 
+    1). i want to monitor node level health like, CPU, memory, network and disk
+    2). pod and performace 
    
 by default k8s not comes with monitoring solution. for that we need to use open source solutions like
     1. Metrix severs
@@ -1166,31 +1164,29 @@ by default k8s not comes with monitoring solution. for that we need to use open 
 we can have i metrix sever for each k8s cluster. it is an in memory monitroing solution. we cant see historical performace. k8s runs and agent on each node is kubelet. kubelet also contain component called cAdviser. which is resposible collecting the node metrix and send it to the metrics sever.
 
 for minikube, we can use 
-$ minikube addons enable metrics-server
+        $ minikube addons enable metrics-server
 
 for other setups
-$ git clone https://github.com/kubernetes-incubator/metrics-server
-$ kubectl create -f ... options.
-
+        $ git clone https://github.com/kubernetes-incubator/metrics-server
+        $ kubectl create -f ... options.
 
 we can view the metrics details using the below
 
-$ kubectl top node 
+        $ kubectl top node 
 
 Multiple Schedulers:
-====================
---> Kubernetes ships with a default scheduler that is described here. If the default scheduler does not suit your needs you can implement your own scheduler. 
-Moreover, you can even run multiple schedulers simultaneously alongside the default scheduler and instruct Kubernetes what scheduler to use for each of your pods.
+-----------------------------------------------------------------
+Kubernetes ships with a default scheduler that is described here. If the default scheduler does not suit your needs you can implement your own scheduler. Moreover, you can even run multiple schedulers simultaneously alongside the default scheduler and instruct Kubernetes what scheduler to use for each of your pods.
 
-Logging :
-=========
+Logging:
+-----------------------------------------------------------------
 to view the logs of the pod, we can view the logs during the execution also
 
-$ kubectl logs -f <pod-name> --> if we have only one pod in a definition file. this methord will work.
-$ kubectl logs -f <pod-name> <container-name> --> if multiple containers are available in the pod.
+        $ kubectl logs -f <pod-name> --> if we have only one pod in a definition file. this methord will work.
+        $ kubectl logs -f <pod-name> <container-name> --> if multiple containers are available in the pod.
 
 Configure Applications:
-========================
+-----------------------------------------------------------------
 Configuring applications comprises of understanding the following concepts:
 
 Configuring Command and Arguments on applications
@@ -1247,7 +1243,7 @@ spec:
 ---------------------------------------------------
 
 ConfigMaps:
-============
+-----------------------------------------------------------------
 A ConfigMap is an API object used to store non-confidential data in key-value pairs. Pods can consume ConfigMaps as environment variables, command-line arguments, 
 or as configuration files in a volume.
 A ConfigMap is not designed to hold large chunks of data. The data stored in a ConfigMap cannot exceed 1 MiB. If you need to store settings that are larger than this limit,
@@ -1261,11 +1257,11 @@ Note: The spec of a static Pod cannot refer to a ConfigMap or any other API obje
 
 step-1: creating configmap:
 ----------------------------
-$ kubectl create configmap mysql-config --from-literal=mysql_port=3306 --from-literal=mysql_db_user=rajesh-db1
-(or)
-$ kubectl create configmap mysql-config \
-> --from-literal=mysql_port=3306 \
-> --from-literal=mysql_db_user=rajesh-db1
+        $ kubectl create configmap mysql-config --from-literal=mysql_port=3306 --from-literal=mysql_db_user=rajesh-db1
+        (or)
+        $ kubectl create configmap mysql-config \
+        > --from-literal=mysql_port=3306 \
+        > --from-literal=mysql_db_user=rajesh-db1
 
 (or)
 ---------------------------------------------
