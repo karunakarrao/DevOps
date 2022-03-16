@@ -1,0 +1,31 @@
+Docker: Overview
+Docker is a Containerization platform. Containerization will encapsulating or packaging up softwares and all its dependencies, so that it can run uniformly and consistently on any infrastructure. 
+
+Docker: Install
+Docker installation on CentOS
+		 
+	 $ sudo yum install -y yum-utils	--> install yum-utils package
+	 $ sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo	--> add repository 
+
+	 $ sudo yum install docker-ce docker-ce-cli containerd.io	-->install 3 components. 
+
+	 $ sudo systemctl start docker	--> start docker as service.
+
+Docker: commands
+
+		$ docker --version	--> docker version
+		$ docker-compose --version	--> 
+		
+		$ docker run hello-world	--> running simple docker image hello-world
+		$ docker ps -a --> to check the hello-world containers
+		
+What is a Container?
+A container is an abstraction at the application layer that packages code and dependencies together. Instead of virtualizing the entire physical machine, containers virtualize the host operating system only.
+
+What is a Docker Image?
+Images are multi-layered self-contained files that act as the template for creating containers. They are like a frozen, read-only copy of a container. Images can be exchanged through registries.
+
+What is a Docker Registry?
+An image registry is a centralized place where you can upload your images and can also download images created by others. Docker Hub is the default public registry for Docker. 
+	link: https://hub.docker.com/
+
