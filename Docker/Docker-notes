@@ -74,7 +74,7 @@ When you wrote --publish 8080:80, any request sent to port 8080 of your host sys
 	$ docker run nginx  --publish 8080:80 --name=my-nginx
 	
 
-Docker commands:
+Docker commands: container handling
 ------------------------------------------------------
 
 $ docker --version	--> version checking
@@ -102,6 +102,56 @@ $ docker kill <container-name/container-ID> 	--> to kill the process
 $ docker ps	--> to list the docker process
 $ docker ps -a 	--> to list all the process which are stopped also
 
-$ docker rm <container-name/container-ID>	--> to remove a container
+$ docker rm <container-name/container-ID>	--> to remove a stopped/Exited container
+
+$ docker exec -it <container-name/container-ID> <command> 	--> -i interactive and -t terminal
+$ docker exec -it my-nginx /bin/bash	--> connecting to running docker conatainer (my-nginx is container name)
+$ docker exec my-nginx uname -a --> to exicute a command to check os details cmd: uname -a
 
 
+
+docker: volumes
+---------------------------------------------------------
+containers are short lived object they are destroyed once the container work is over, but the data it collected also removed once the container is destroied. so to make the data persistant or to use for time to time we need to map the container path to localhost path so that the data is save persistantly.
+
+this is where the --volumes come in to picture.
+
+$ docker run 
+
+
+Docker : Image handling
+------------------------------------------------------
+
+Dockerfiles:
+---------------------------------------------------------------
+to customize the image, we need to lear vision of what you want from the image. 
+make a custom NGINX image, you must have a clear picture of what the final state of the image will be.
+	1. The image should have NGINX pre-installed which can be done using a package manager or can be built from source.
+	2. The image should start NGINX automatically upon running.
+
+step-1: Now, create a new file named Dockerfile in an empty directory custom-nginx. A Dockerfile is a collection of instructions that, once processed by the daemon, results in an image. Content for the Dockerfile is as follow
+-------------------------------------------------------------
+FROM ubuntu:latest
+
+EXPOSE 80
+
+RUN apt-get update && \
+    apt-get install nginx -y && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+CMD ["nginx", "-g", "daemon off;"]
+-------------------------------------------------------------
+
+Images are multi-layered files and in this file, each line (known as instructions) that you've written creates 
+
+FROM: Every valid Dockerfile starts with a FROM instruction. This instruction sets the base image for your resultant image.
+EXPOSE: The EXPOSE instruction is used to indicate the port that needs to be published. 
+RUN: The RUN instruction in a Dockerfile executes a command inside the container shell. 
+CMD: Finally the CMD instruction sets the default command for your image.
+
+to build the image need to use the command build from custom-nginx directory
+
+$ docker build . --> to build the docker image without tags
+$ docker image build --tag custom-nginx:packaged . --> to tag the docker image. REPOSITORY-name is custom-nginx  and  TAG is packaged
+
+$ docker images --> to lis the images.
