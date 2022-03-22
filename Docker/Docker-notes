@@ -89,7 +89,6 @@ $ docker container run -p 8082:80 nginx
 
 $ docker create --name=my-redis	redis	--> to create a redis container with name my-redis
 
-
 $ docker run --name=my-nginx -p 8081:80 --rm nginx	--> to name container as "my-nginx" and --rm to remove the contianer once its stopped. 
 $ docker run -d -p 8082:80 nginx	--> to detach container, it will run in background. to attach again use --attach
 $ docker attach <container-name/container-ID>	--> to attach the detached container
@@ -112,7 +111,7 @@ $ docker exec my-nginx uname -a --> to exicute a command to check os details cmd
 
 docker: volumes
 ---------------------------------------------------------
-containers are short lived object they are destroyed once the container work is over, but the data it collected also removed once the container is destroied. so to make the data persistant or to use for time to time we need to map the container path to localhost path so that the data is save persistantly.
+The --volume or -v option is valid during the container run  & container create commands. containers are short lived object they are destroyed once the container work is over, but the data it collected also removed once the container is destroied. so to make the data persistant or to use for time to time we need to map the container path to localhost path so that the data is save persistantly.
 
 this is where the --volumes come in to picture.
 
@@ -154,4 +153,58 @@ to build the image need to use the command build from custom-nginx directory
 $ docker build . --> to build the docker image without tags
 $ docker image build --tag custom-nginx:packaged . --> to tag the docker image. REPOSITORY-name is custom-nginx  and  TAG is packaged
 
-$ docker images --> to lis the images.
+$ docker images --> to list the images.
+
+$ docker image history <image-name> --> to see the image layers of docker image.
+
+$ docker image prune --force	--> this will delete name less images. 
+
+
+-----------------------------------------------------------------------
+FROM ubuntu:latest
+
+RUN apt-get update && \
+    apt-get install build-essential\ 
+                    libpcre3 \
+                    libpcre3-dev \
+                    zlib1g \
+                    zlib1g-dev \
+                    libssl1.1 \
+                    libssl-dev \
+                    -y && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+COPY nginx-1.19.2.tar.gz .
+
+RUN tar -xvf nginx-1.19.2.tar.gz && rm nginx-1.19.2.tar.gz
+
+RUN cd nginx-1.19.2 && \
+    ./configure \
+        --sbin-path=/usr/bin/nginx \
+        --conf-path=/etc/nginx/nginx.conf \
+        --error-log-path=/var/log/nginx/error.log \
+        --http-log-path=/var/log/nginx/access.log \
+        --with-pcre \
+        --pid-path=/var/run/nginx.pid \
+        --with-http_ssl_module && \
+    make && make install
+
+RUN rm -rf /nginx-1.19.2
+
+CMD ["nginx", "-g", "daemon off;"]
+--------------------------------------------------------------------------
+
+To create a exicutable docker images. use this 
+
+--------------------------------------------------------------------------
+FROM python:3-alpine
+
+WORKDIR /zone
+
+RUN apk add --no-cache git && \
+    pip install git+https://github.com/fhsinchy/rmbyext.git#egg=rmbyext && \
+    apk del git
+
+ENTRYPOINT [ "rmbyext" ]
+---------------------------------------------------------------------------
+
