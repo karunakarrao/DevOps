@@ -127,6 +127,7 @@ to customize the image, we need to lear vision of what you want from the image.
 make a custom NGINX image, you must have a clear picture of what the final state of the image will be.
 	1. The image should have NGINX pre-installed which can be done using a package manager or can be built from source.
 	2. The image should start NGINX automatically upon running.
+How to Ignore Unnecessary Files: .dockerignore,  The .dockerignore file contains a list of files and directories to be excluded from image builds.This .dockerignore file has to be in the build context. Files and directories mentioned here will be ignored by the COPY instruction. But if you do a bind mount, the .dockerignore file will have no effect. 
 
 step-1: Now, create a new file named Dockerfile in an empty directory custom-nginx. A Dockerfile is a collection of instructions that, once processed by the daemon, results in an image. Content for the Dockerfile is as follow
 -------------------------------------------------------------
@@ -150,8 +151,18 @@ CMD: Finally the CMD instruction sets the default command for your image.
 
 to build the image need to use the command build from custom-nginx directory
 
+$ docker login	--> to login to docker hub registory
+$ docker push <Image-repositry-name>:<tag>
+example:
+$ docker image push karna-nginx:latest	--> to push the latest image
+$ docker pull <Image-repositry-name>:<tag>
+$ docker logout	--> to logout from docker registroy
+
 $ docker build . --> to build the docker image without tags
-$ docker image build --tag custom-nginx:packaged . --> to tag the docker image. REPOSITORY-name is custom-nginx  and  TAG is packaged
+
+$ docker image build --tag custom-nginx:packaged . --> to tag the docker image. REPOSITORY-name is custom-nginx  and  TAG is package
+Example:
+$ docker image build --tag my-nginx:latest 	--> to tag the image
 
 $ docker images --> to list the images.
 
@@ -208,3 +219,84 @@ RUN apk add --no-cache git && \
 ENTRYPOINT [ "rmbyext" ]
 ---------------------------------------------------------------------------
 
+to share the docker image online 
+
+$ docker login
+
+Network Manipulation Basics in Docker:
+--------------------------------------------------------------------------
+real life, the majority of projects that you'll have to work with will have more than one container. 
+
+Scenario:1
+Now consider a scenario where you have a notes-api application powered by Express.js and a PostgreSQL database server running in two separate containers.
+These two containers are completely isolated from each other and are oblivious to each other's existence. So how do you connect the two? Won't that be a challenge? you connect them by putting them under a user-defined bridge network. 
+
+$ docker network ls 	--> to list the docker networks 
+
+using above command, You should see three networks in your system. Now look at the DRIVER column of the table here. These drivers are can be treated as the type of network. By default, Docker has five networking drivers.
+	
+1. bridge - The default networking driver in Docker. This can be used when multiple containers are running in standard mode and need to communicate with each other.
+2. host - Removes the network isolation completely. Any container running under a host network is basically attached to the network of the host system.
+3. none - This driver disables networking for containers altogether. I haven't found any use-case for this yet.
+4. overlay - This is used for connecting multiple Docker daemons across computers and is out of the scope of this book.
+5. macvlan - Allows assignment of MAC addresses to containers, making them function like physical devices in a network.
+	
+How to Create a User-Defined Bridge in Docker:
+----------------------------------------------------------------------------
+As you can see, Docker comes with a default bridge network named bridge. Any container you run will be automatically attached to this bridge network. Containers attached to the default bridge network can communicate with each others using IP addresses. 
+
+A user-defined bridge, however, has some extra features over the default one. 
+
+1. User-defined bridges provide automatic DNS resolution between containers: This means containers attached to the same network can communicate with each others using the container name. So if you have two containers named notes-api and notes-db the API container will be able to connect to the database container using the notes-db name.
+
+2. User-defined bridges provide better isolation: All containers are attached to the default bridge network by default which can cause conflicts among them. Attaching containers to a user-defined bridge can ensure better isolation.
+
+3. Containers can be attached and detached from user-defined networks on the fly
+
+Note: Keep in mind, though, that in order for the automatic DNS resolution to work you must assign custom names to the containers. 
+
+$ docker network ls
+
+$ docker network inspect --format='{{range .Containers}}{{.Name}}{{end}}' bridge --> to inspect which container using which network-ID.(bridge/my-network/host)
+
+$ docker network create my-network 	--> this will create a bridge network	
+
+newly created network doesn't have any containers attached to it. two ways of attaching a container to a network. 
+
+$ docker network connect my-network my-nginx 	--> to attach a container to a newly created network  to a running container. 
+(or)
+$ docker run --network=my-network  -p 8081:80 -d --rm nginx --> creating a new container and attaching to newly created network.
+
+$ docker network disconnect my-network my-nginx		--> to Detach Containers from a Network in Docker. we can detach all networks.
+
+$ docker network rm my-network 		--> to remove a network 
+
+----------------------------------
+
+docker container run \
+    --detach \
+    --name=notes-db \
+    --env POSTGRES_DB=notesdb \
+    --env POSTGRES_PASSWORD=secret \
+    --network=notes-api-network \
+    postgres:12
+--------------------------------------
+
+Although the container is running, there is a small problem. Databases like PostgreSQL, MongoDB, and MySQL persist their data in a directory. PostgreSQL uses the /var/lib/postgresql/data directory inside the container to persist data. Now what if the container gets destroyed for some reason? You'll lose all your data. To solve this problem, a named volume can be used.
+
+How to Work with Named Volumes in Docker
+---------------------------------------------------------------------------
+A named volume is very similar to an anonymous volume except that you can refer to a named volume using its name. Volumes are also logical objects in Docker and can be manipulated using the command-line. 
+
+$ docker volume create my-volume1	--> creating new volumes 
+
+$ docker volume ls	--> to list the volumes
+
+$ docker container inspect --format='{{range .Mounts}} {{ .Name }} {{end}}' notes-db	--> volumes attached to container notes-db
+
+How to Access Logs from a Container in Docker
+------------------------------------------------------------------------------
+
+$ docker container logs my-nginx	--> to check the container logs. 
+
+$ docker container create 
