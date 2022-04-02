@@ -786,9 +786,9 @@ In the future K8S plan to offer below 2types also
     3). requiredDuringSchedulingRequiredDuringExecution 
     4). requiredDuringSchedulingIgnoredDuringExecution except that it will evict pods from nodes that cease to satisfy the pods' node affinity requirements.
 
-Scenario-1: nodeSelector & nodeAffinity
+Scenario-1: nodeSelector & affinity
 -----------------------------------------------------------
-Note: If you specify both nodeSelector and nodeAffinity, both must be satisfied for the pod to be scheduled onto a candidate node. below 
+Note: If you specify both nodeSelector and affinity, both must be satisfied for the pod to be scheduled onto a candidate node. below 
 
 pod-affinity-nodeSelector.yaml --> the pod will get schedule on the node only both conditions are statisfied. ( nodeSelector & affinity rule)
 --------------------------------------------------------
@@ -808,7 +808,7 @@ spec:
         -   matchExpressions:
             -   key: env
                 operator: In   # we can use operators In/ NotIn/ Exists/ DoesNotExist/ Gt/ Lt
-                value:  #  the pod can be scheduled onto a node if one of the nodeSelectorTerms can be satisfied.
+                values:          #  the pod can be scheduled onto a node if one of the nodeSelectorTerms can be satisfied.
                 - prod1
                 - prod2
   containers:
@@ -845,12 +845,13 @@ spec:
                 - prod2
       preferredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:  
-          matchExpressions:
-          - key: bu
-            operator: In
-            values:
-            - finance        
-    containers:
+        -  matchExpressions:
+           - key: bu
+             operator: In
+             values:
+             - finance 
+             - business
+  containers:
     - name: nginx
       image: nginx
 ------------------------------------------------------
