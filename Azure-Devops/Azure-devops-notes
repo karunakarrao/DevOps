@@ -1,0 +1,75 @@
+DevOps:
+------------------
+Treditinal Software development life cycle
+  1. plan
+  2. code
+  3. Build 
+  4. Test
+  5. Deploy
+  6. Operate
+  7. monitor
+  
+Bussiness team  --> do 1
+Develpment team --> do 2, 3,4
+operation team  --> do 5, 6, 7
+
+Q. What is Devops? 
+Devops is a culture or practice which fills the gaps between development and opertaions . both teams works together in entire SDLC  to ensure the quality of the product , ablity of the product to work in different environemtns. Lot of tools avaiable to automate this process.
+  1. Fast Delivery
+  2. Reduce time
+  3. Rollout/Rollback
+  4. Quality
+  5. Collaboration
+  6. More Agility
+  7. Easy to use
+  8. Reliable
+  9. Secure
+  
+Q. What is Azure Devops?
+Azure Devops is set of modern services which is used to provide 1. plan smarter 2. collaborate better 3. ship faster . and also Azure devops provides all these features, you can restric as per your role. it maintained by Microsoft. it formerly know as Visual studio team services.
+
+Q. Difference between Azure and Azure Devops?
+Azure is cloud solution, where you will be provided with computing power and store the data securely. where as Azure devops is one of the fetures of Azure. 
+Azure Devops provided 5 sevices 1. boards 2. repos 3. pipelines 4. test plans 5. artifacts.
+1. boards --> its to plan your work
+2. repos  --> to manage the code using git, other 
+3. pipeline --> for deployment of the code
+4. testplan --> for testing the code developed
+5. artifacts  --> collection of packages ready for deployments
+
+Q. Selecting the Azure devops severs in Azure?
+Lot of companies do not want their data to be stored on the cloud providers servers. Azure provides two types of server configration
+  1. cloud
+  2. on-premise 
+ 
+Q. VSTS to Azure devops?
+on september10, 2018 microsoft changed the name VSTS to Azure devops services
+VSTS(Visual Studio team Services) |   Azure Devops
+------------------------------------------------------------------------------
+1.  Build 7 Release               |    Azure Pipelines
+2.  Code                          |    Azure Repos
+3.  work                          |    Azure Boards
+4.  test                          |    Azure test plans
+5.  packages                      |    Azure Artifacts
+
+Q. Azure devops portal?
+https://dev.azure.com --> create your account.  
+1. Azure devops starts with creating your organization, under you create multiple projects. 
+2. creating multiple organization. we can treat organization as an account, bussiness unit, sub-companies, groups, etc...
+3. each organization has one URL and each organization has its own URL.
+4. Organization name should be unique name. once its created in a region we can't change the region details.
+
+Q. What is project ? 
+A project is place where actual product development is done by team. a project provides a repository for source code and a place fo a group of people to plan, track progress and collaborate on builing software solutions. All the data related to software is stored under project. A project provides all main services like repo, boards, pipeline, testplan, artifacts. 
+projects are of two types
+  1. public project --> its publically available to every one.
+  2. private project  --> its private and visible to only to the people who has access. 
+  
+Q. creating a project? 
+to create a project, follow this steps.
+login --> select organization --> create project --> project name, type public/private  -->Advanced -->  select version control--> Git/Team fundation  --> 
+  
+  
+
+
+
