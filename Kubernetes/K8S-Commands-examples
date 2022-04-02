@@ -106,16 +106,20 @@ post installtion of kubernetes we can  use the kubectl command to interact with 
     $ kubectl version --> to check the kubernetes version
 
     $ kubectl explain <Object-name> --> Documentation for resource object (Pod, Replicaset, Deployment, service, etc.)
-    examples:
-        $ kubectl explain pod --> Documentation for POD. to check apiVersion of k8s object.
-        $ kubectl explain replicaset/rs --> Documentation for Replicaset
-        $ kubectl explain replicationcontroller/rc --> Doc. for RC
-        $ kubectl explain deployment/deploy --> doc for deployment
-        $ kubectl explain service/svc --> doc for service
+examples:
+    $ kubectl explain pod --> Documentation for POD. to check apiVersion of k8s object.
+    $ kubectl explain replicaset/rs --> Documentation for Replicaset
+    $ kubectl explain replicationcontroller/rc --> Doc. for RC
+    $ kubectl explain deployment/deploy --> doc for deployment
+    $ kubectl explain service/svc --> doc for service
 
 Kubernetes objects (Pod,Replicasets,Deployments,service,etc) are created in two types.
     1. imperative --> objects created using command line are called imperative.
     2. declarative --> objects created using yml/programing are called declarative.
+
+Container:
+-----------------------------------------------------------------
+Containers are lightweight packages, it pack your application code together with dependencies such as base os, runtimes and libraries required to run your software services. container application exposes its services using a port know as containerPort. 
 
 POD: 
 -----------------------------------------------------------------
@@ -188,11 +192,9 @@ kind: ReplicationController
 metadata:
   name: nginx
 spec:
-  replicas: 3
-  
+  replicas: 3 
   selector:
-    app: nginx
-    
+    app: nginx 
   template:
     metadata:
       name: nginx
@@ -203,20 +205,19 @@ spec:
       - name: nginx
         image: nginx
         ports:
-        - containerPort: 80
+        - containerPort: 80     # port defined in the container for a
 ---------------------------------------------------------------------------------------------------------------------------------
 
-        $ kubectl create -f rc-def.yaml --> create using YAML file.
-  (or)  $ kubectl apply -f rc-def.yaml
-        
-        $ kubectl get replicaitoncontroller
-  (or)  $ kubectl get rc
-       
-        $ kubectl delete rc my-rc1
-        $ kubectl describe rc my-rc1
-        $ kubectl edit rc my-rc1
-        $ kubectl replace -f replicationcontroller-definiton.v2.yaml
+    $ kubectl create -f rc-def.yaml --> create using YAML file.
+(or)$ kubectl apply -f rc-def.yaml
 
+    $ kubectl get replicaitoncontroller
+(or)$ kubectl get rc
+
+    $ kubectl delete rc my-rc1
+    $ kubectl describe rc my-rc1
+    $ kubectl edit rc my-rc1
+    $ kubectl replace -f replicationcontroller-definiton.v2.yaml
 
 Replicaset:
 -----------------------------------------------------------------
@@ -263,7 +264,7 @@ spec:
         $ kubectl edit replicaset my-rs   --> edit the replicaset properties using the 
         $ kubectl explain replicaset|grep -i version
         $ kubectl delete replicaset my-rs --> to delete replicaset my-rs
-auto-scale
+
         $ kubectl autoscale rs frontend --max=10 --min=3 --cpu-percent=50 --> to autoscale replicas to desired 
 
 Deployment:
@@ -299,18 +300,18 @@ spec:
               image: nginx
 ------------------------------------------------------------------------------------------------------
 
-        $ kubectl create -f deployment-definition.yaml --dry-run=client --> to trial run the YAML file, if will not apply any changes
-        $ kubectl create -f deployment-definition.yaml --> to exicute the YAML file.
-(or)    $ kubectl apply -f deployment-definition.yaml --> 
-        
-        $ kubectl get deployment    --> to check deployments available
-(or)    $ kubectl get deploy --> to check deployments available
+    $ kubectl create -f deployment-definition.yaml --dry-run=client --> to trial run the YAML file, if will not apply any changes
+    $ kubectl create -f deployment-definition.yaml  --> to exicute the YAML file.
+(or)$ kubectl apply -f deployment-definition.yaml   --> to create/update using YAML files
 
-        $ kubectl get deployment my-deply --> to check one deployment my-deploy
-        $ kubectl get deployment --namespace=dev --> to check the deploymets running on namespace "dev"
-        $ kubectl describe deployment my-deploy 
-        $ kubectl delete deployment my-deploy
-        $ kubectl edit deployment my-deploy --> update the version by editing the running deployment.
+    $ kubectl get deployment    --> to check deployments available
+(or)$ kubectl get deploy --> to check deployments available
+
+    $ kubectl get deployment my-deply --> to check one deployment my-deploy
+    $ kubectl get deployment --namespace=dev --> to check the deploymets running on namespace "dev"
+    $ kubectl describe deployment my-deploy 
+    $ kubectl delete deployment my-deploy
+    $ kubectl edit deployment my-deploy --> update the version by editing the running deployment.
 
 deployment rollout is done in two ways 
     1. rollingupdate (Default) --> it will bringdown one by one depends on RollingUpdateStrategy defined. 
@@ -318,18 +319,18 @@ deployment rollout is done in two ways
 
 Update: Deployment
 -----------------------------------------------------------------
-        $ kubectl apply -f deployment-definition.v2.yaml --> to update the latest version of application.
-        $ kubectl replace -f deployment-definition.v2.yaml --> updating the app version(nginx to nginx:1.16.2) using the YAML and replace with running deployment.
-        $ kubectl replace --force -f deployment-definition.v2.yaml --> this will bring down the existing deployment forcefully and creates the new one.
+    $ kubectl apply -f deployment-definition.v2.yaml    --> to update the latest version of application.
+    $ kubectl replace -f deployment-definition.v2.yaml  --> updating the app version(nginx to nginx:1.16.2) using the YAML and replace with running deployment.
+    $ kubectl replace --force -f deployment-definition.v2.yaml  --> this will bring down the existing deployment forcefully and creates the new one.
 
-        $ kubectl set image deployment my-deploy nginx=nginx:1.16.1 --> to set the latest nginx image on the running deployment
+    $ kubectl set image deployment my-deploy nginx=nginx:1.16.1 --> to set the latest nginx image on the running deployment
 
-        $ kubectl rollout history deployment my-deploy --> history of the number of deployments
-        $ kubectl rollout status deployment my-deploy --> deployment status can be checked. 
-        $ kubectl rollout undo deployment my-deploy --> if update is failed for some reason, then rollout the new-version deployment to the old-verison deployment 
+    $ kubectl rollout history deployment my-deploy  --> history of the number of deployments
+    $ kubectl rollout status deployment my-deploy   --> deployment status can be checked. 
+    $ kubectl rollout undo deployment my-deploy     --> if update is failed for some reason, then rollout the new-version deployment to the old-verison deployment 
 
-        $ kubectl scale deployment my-deploy --replicas=10 --> to scale up the deployment
-        $ kubectl scale deployment my-deploy --replicas=3 --> to scale down the deployment
+    $ kubectl scale deployment my-deploy --replicas=10  --> to scale up the deployment
+    $ kubectl scale deployment my-deploy --replicas=3   --> to scale down the deployment
 
 Note: remember every time new-verison changed, respective "replicaset" is brought down parallel a new "replicaset" is created with new-verison, the old replicasets
 will avaiable but pods will not be avaiable in running state. when you do the undo operation thet old replicaset is recreated and new one will go down.
@@ -357,6 +358,7 @@ spec:
       port: 80
       targetPort: 9376
 --------------------------------
+
 service-multiport.yml
 --------------------------------
 apiVersion: v1
@@ -458,8 +460,8 @@ spec:
     type: NodePort       # we can use this NodePort/LoadBalancer/ClusterIP
     ports:
     - port: 80           # nginx webserver listens on port: 80 (*), this is Service port
-      targetPort: 80    # targetPort is a nginx POD port
-      nodePort: 30008   # This port is Node port or external access port
+      targetPort: 80     # targetPort is a nginx POD port
+      nodePort: 30008    # This port is Node port or external access port
     selector:
         app: nginx
 ----------------------------------------------------------------------------
@@ -547,15 +549,15 @@ spec:
               image: nginx
  -------------------------------------------------------------------------
 
-        $ kubectl create -f prod1-namespace-def.yaml --> this yaml file create namespace prod1
-        $ kubectl create -f nginx-prod1-definition.yaml --> this will create nginx prod on namespace prod1
-        
-        $ kubectl get pods --namespace=prod1 --> to list the prods
-        $ kubectl get namespace --show-labels --> to show labels of all namespaces
-        
-        $ kubectl delelte namespace prod1 --> to delete the prod1 namespace
-        
-        $ kubectl config get-context --> to check the namespace 
+    $ kubectl create -f prod1-namespace-def.yaml --> this yaml file create namespace prod1
+    $ kubectl create -f nginx-prod1-definition.yaml --> this will create nginx prod on namespace prod1
+
+    $ kubectl get pods --namespace=prod1 --> to list the prods
+    $ kubectl get namespace --show-labels --> to show labels of all namespaces
+
+    $ kubectl delelte namespace prod1 --> to delete the prod1 namespace
+
+    $ kubectl config get-context --> to check the namespace 
 
 Namespace: ResourceQuota
 =========================
@@ -587,7 +589,7 @@ Namespace: ResourceQuota
 
 
 before creating resource quota for namespace, we need to create namespace 
-$ kubectl create namespace prod2
+    $ kubectl create namespace prod2
 
 prod2-ns-resourcequota-def.yaml
 -----------------------------------------------------------------------------
@@ -605,14 +607,17 @@ spec:
     requests.nvidia.com/gpu: 4
 -------------------------------------------------------------------------------
     
-nodename: Manual scheduling
+nodeName: Manual scheduling
 -------------------------------------------------------------------------------
 the kube-scheduler is responsible devide and distribute the work among all the nodes equally, if a new node is created, it will allocate work to it. if you don't want a default scheduler to chose where to create pod on the cluster nodes, specifing the parameter/keyword "nodeName", to create pod on the defined Node name.
 
-every pod has a field called "nodeName" which is by default not set, the scheduler goes to all PODs and looks for this property, if not avaialbe the scheduler will run 
-an algoritham and assign a node to this pod. 
+every pod has a field called "nodeName" which is by default not set, the scheduler goes to all PODs and looks for this property, if not avaialbe the scheduler will run an algoritham and assign a node to this pod. 
 
-if scheduler is down, we can't start the pod, it will go to pending state, to avoid this we can use nodeName parameter specifying the nodeName property. this will only work during the pod creation, to change the pod nodeName during runtime we need to use Binding methord to change nodeName.
+if scheduler is down, we can't start the pod, it will go to pending state, to avoid this we can use nodeName parameter specifying the nodeName property. this will only work during the pod creation, to change the pod nodeName during runtime we need to use Binding methord to change nodeName. 
+
+we can collect nodeName details using 
+
+    $ kubectl get nodes     --> to see the nodes in the cluster and its details.
 
 pod-definition.yaml 
 -----------------------------------------------------------------------------------
@@ -661,11 +666,11 @@ metadata:
         bu: finance
 -------------------------------------------
 
-        $ kubectl get all --selector app=nginx      --> to filter the all k8s objects using selector fields.
-        $ kubectl get pods --selector env=prod
-        $ kubectl get pods --selector env=prod,app=nginx
+    $ kubectl get all --selector app=nginx      --> to filter the all k8s objects using selector fields.
+    $ kubectl get pods --selector env=prod
+    $ kubectl get pods --selector env=prod,app=nginx
 
-        $ kubectl get nodes --show-labels       --> to show labels defined for a node.
+    $ kubectl get nodes --show-labels       --> to show labels defined for a node.
 
 Annotations:
 ------------------------------------------------------------------------------------
@@ -716,7 +721,7 @@ spec:
     containers:
     - name: nginx
       image: nginx
-    tolerations:
+    tolerations:        # this pod will only get created on  node01 
     -   key: "env"
         operator: "Equal"
         value: "UAT"
@@ -726,7 +731,7 @@ spec:
     contianers:
     - name: nginx
       image: nginx
-    tolerations:
+    tolerations:        # this pod has two tolerations its can be created on both node01/node03 depends on the scheduler selection criteria
     -   key: "env"
         operator: "Equal"
         value: "prod"
@@ -739,17 +744,20 @@ spec:
 
 NodeSelector:
 -----------------------------------------------------------------
-NodeSelector is similer to nodeName, where we specify nodename. but here we select the node labels. for example in a cluster few nodes, labeled as "disktype=ssd" then if we 
-use this label with nodeSelector field. that means all the nodes with disktype=ssd are all eligible to create the pod with that labels.
+NodeSelector is similer to nodeName, but nodeSelector uses node labels to schedule the pods. 
+
+for example in a cluster few nodes, labeled as "disktype=ssd" then if we use this label with nodeSelector field. that means all the nodes with disktype=ssd are all eligible to create the pod with that labels.
 
 to apply this property we need to follow 2 steps
 
-step-1: labeling the node with env=prod
+step-1: labeling the node with env=prod :
+---------------------------------------
 
-        $ kubectl label node node01 env=prod    --> to label the node01 as env=prod
-        $ kubectl get node node01 --show-labels --> to show the labels 
+    $ kubectl label node node01 env=prod    --> to create a label to node01 as env=prod
+    $ kubectl get node node01 --show-labels --> to show the labels of node01
 
-step2: creating the pod with nodeSelector field to schedule on it.
+step2: creating the pod with nodeSelector :
+------------------------------------------
 my-pod.yaml    
 -----------------------------------------------
 apiVersion: v1
@@ -778,7 +786,7 @@ In the future K8S plan to offer below 2types also
     3). requiredDuringSchedulingRequiredDuringExecution 
     4). requiredDuringSchedulingIgnoredDuringExecution except that it will evict pods from nodes that cease to satisfy the pods' node affinity requirements.
 
-Scenario-1: nodeSelector and nodeAffinity
+Scenario-1: nodeSelector & nodeAffinity
 -----------------------------------------------------------
 Note: If you specify both nodeSelector and nodeAffinity, both must be satisfied for the pod to be scheduled onto a candidate node. below 
 
@@ -803,7 +811,7 @@ spec:
                 value:  #  the pod can be scheduled onto a node if one of the nodeSelectorTerms can be satisfied.
                 - prod1
                 - prod2
-    containers:
+  containers:
     - name: nginx
       image: nginx
       ports:
