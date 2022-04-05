@@ -67,9 +67,37 @@ projects are of two types
   
 Q. creating a project? 
 to create a project, follow this steps.
-login --> select organization --> create project --> project name, type public/private  -->Advanced -->  select version control--> Git/Team fundation  --> 
+login --> select organization --> create project --> project name, type public/private  -->Advanced -->  select version control--> Git/Team fundation version control  --> select work item process --> basic/scrum/agile/CMMI
   
-  
+Q. what is board in Azure devops? 
+Azure board is on of the service in the azure devops which is used in a project to track the work with kanban board, work with backlogs, team dashboard & reporting.
 
+Q. What is kanban board? 
+A kanban board which will have the details of all work items which you need to be delivered in that project work. a work item is a task, job, bug, improvement or change which need to be delivered in the project. 
 
+Q. what is backlog?
+when we are working in a product development, the BU/responsible person has to create a backlog. the backlog has work-items that need to be finished in the current/upcomming spint. in azure boards we can have all the details of the backlogs.
+
+Q. what is team dashboard?
+is somthing where we will track the team progress on the work-items. its like a reporting area.
+
+Q. uses of azure boards? 
+they are useful to manage and tracking the work of a team members. to track the progress of the sprint. we can manage scrum and sprint using azure boards. get differnet types of reports. 
+
+Q. who will work on azure boards?
+the team need to work on the azure boards. like development team work on managing their work done by development team. PO will responsible to mantain the backlog. stakeholders are added to the project can see the status of team. 
+work item process--> basic, scrum, agile, cmmi
+
+Q. what is a work-item?
+work-item is a work assinged to a person/team. this may consist of small/large units. each work item has few details like title, description, assinged to, completed and etc. when we create a project with basic work item process, it have 3 types of azure boards.
+  1. epic (portfolio )
+  2. issue (products)
+  3. task
+
+epic is a large unit consists of multiple issues. issues consists of mutiple tasks.
+
+example: During the project development, if we have mutiple task like login, logout, authentication,
+
+Q. What is WorkFlow?
+workflow is the process of tracking the work-item progress. basic stages of workflow is like todo--> doing --> done 
 
