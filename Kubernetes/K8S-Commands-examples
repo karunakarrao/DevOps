@@ -1,6 +1,6 @@
 Kubernetes: Overview
 -----------------------------------------------------------------
-Kubernetes is a container orchestration tool, to scale, descale, auto-scale, deploy, replicate, loadbalance, failover. its is developed by google.  which is used widely in containerization platfroms. it has global community support.
+Kubernetes is an Open-Source and container orchestration system for automate software deployment, scale, descale, auto-scale, deploy, replicate, loadbalance, failover. its originally developed by google.  which is used widely in containerization platfroms. it has widely spread global community support. now it maintained by Cloud Native Computing Foundation.
 
 Kubernetes installtion:
 -----------------------------------------------------------------
@@ -16,7 +16,7 @@ Kuberenetes architecture build on master nodes salve nodes model. in K8S there a
 
 1). ETCD: 
 -----------------------------------------------------------------
-etcd is a key/value store. it is a distributed reliable key value store which stores the information of all the kubernetes resources such as nodes, Pods, replicasets, deployments, namespaces, configs, secrets, accounts, roles etc. in multi master environment its stores the data. multiple etcd's spread across the master nodes so all masters can have the information on all the k8s objects in a cluster.
+etcd is a key/value store. it is a distributed reliable key value store which stores the information of all the kubernetes resources such as nodes, Pods, replicasets, deployments, namespaces, configs, secrets, accounts, roles etc. in multi master environment its stores the data. multiple etcd's spread across the master nodes so all masters can have the information on all the k8s objects in a cluster. it also responsible to maintain the logs to avoid conflicts between masters. 
 
     $ cat /etc/kubernetes/manifests/etcd.yaml   -->etcd yaml is located 
     $ cat /etc/systemd/system/      --> all service files are avaiable here
@@ -73,7 +73,7 @@ kubelet is a agent running on all cluster nodes in kubernetes. which is installe
     
 6). kubeproxy:
 -----------------------------------------------------------------
-with in kubernetes cluster every pod reaches every pod. this can achived with POD network. POD network is an internal network that spans accross all the nodes in the cluster to which all th pods in the cluster. 
+kubeproxy is an agent with in kubernetes cluster, every pod reaches every pod. this can achived with POD network. POD network is an internal network that spans accross all the nodes in the cluster to which all th pods in the cluster. 
 
 kubeproxy is a process runs on each node in k8s cluster. its job is to look for new services. and everytime a new service is created, kubelet creates appropriate rule on each node to forward the trafic to those services to the backend pods. it does with ip table rules. kube-proxy run as daemonset in the k8s cluster.
 
