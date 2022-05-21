@@ -39,10 +39,9 @@ The Kubernetes API-Server is the front end, this is how the users interact with 
     
 3). kube-Controller:
 -----------------------------------------------------------------
-kubernetes controller is manager which controlls various k8s objects. controller is process which continuosly monitors various components of k8s inside the controller. it a brain to k8s. it has various controllers inside to monitor different k8s objects. like node controller, deployment controller, namespace controller, job controller, replication controller, and etc.
-    Controller check the heart beat of the nodes, if the node heart beat(40sec) is not receive availabe then it mark that node as unreachable.
-    
-    similerly there are other controllers avaible in the controller manager.
+kubernetes controller is a manager which controlls various k8s objects. controller is process which continuosly monitors various components of k8s inside the controller. it is a brain to k8s cluster. it has various controllers inside to monitor different k8s objects. like node controller, deployment controller, namespace controller, job controller, replication controller, and etc.
+
+Controller check the heart beat of the nodes, if the node heart beat(40sec) is not receive availabe then it mark that node as unreachable. similerly there are other controllers avaible in the controller manager.
        
        1. Node controller --> checks the node status and their avialability and the reach in the cluster
        2. Replication controller --> it will check the replicas defined are avaiable or not, if not will create the new pod
@@ -65,7 +64,7 @@ kube-scheduler will deside which pod goes where, mean the scheduler will deside 
     
 5). kubelet: 
 -----------------------------------------------------------------
-kubelet is a agent running on all cluster nodes in kubernetes. which is installed on all the worker-nodes and master-nodes. if we install kubernetes using kubeadm, it will not install kubelet in the nodes, we manually install the kubelet in the nodes.     
+kubelet is a agent running on all cluster nodes in kubernetes. which is installed on all the worker-nodes and master-nodes. if we install kubernetes using kubeadm, it will not install kubelet in the nodes, we manually install the kubelet in the nodes. kubelet is in general defined as daemonset in k8s cluster. 
 
     download the installer and extract it as a servcie kubelet.service.d in path /etc/systemd/system/
     
@@ -84,7 +83,7 @@ kubeproxy is a process runs on each node in k8s cluster. its job is to look for 
     
 7). Container Runtime:
 -----------------------------------------------------------------
-container runtime is software which used to create containers. like docker. 
+container runtime is software which used to create containers. like docker.
 
 Kubernetes Objects:
 -----------------------------------------------------------------
