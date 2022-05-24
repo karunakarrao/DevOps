@@ -2,6 +2,12 @@ Kubernetes: Overview
 -----------------------------------------------------------------
 Kubernetes is an Open-Source and container orchestration system for automate software deployment, scale, descale, auto-scale, deploy, replicate, loadbalance, failover. its originally developed by google.  which is used widely in containerization platfroms. it has widely spread global community support. now it maintained by Cloud Native Computing Foundation.
 
+there are other tools avaiable in the market, but this is the widly used one. other tools like
+    1. OpenShift
+    2. DockerSwam 
+    3. Azure AKS
+    4. AWS EKS
+
 Kubernetes installtion:
 -----------------------------------------------------------------
 k8s installtion can be done is different ways depeding on the requirement. it can be done in 2 ways
@@ -11,7 +17,7 @@ k8s installtion can be done is different ways depeding on the requirement. it ca
 Kubernetes-architecture:
 -----------------------------------------------------------------
 Kuberenetes architecture build on master nodes salve nodes model. in K8S there are several components involved. below are the list of components.
-    Master-Node components: API-Server, ETCD, Controller, Scheduler, Container-runtime, kubelet(agent), kubeproxy(agent)
+    Master-Node components: Kuber API-Server, ETCD, kube-Controller, kube-Scheduler, Container-runtime, kubelet(agent), kubeproxy(agent)
     Worker-Node Components: Container-Runtime(Docker), kubelet(agent), kubeproxy
 
 1). ETCD: 
@@ -91,20 +97,20 @@ kubernetes resources are called as kubernetes objects. which are used to setup t
 
         $ kubectl api-resources --> to list all kubernetes objects 
 
-    1. Pod: --> k8s smallest object. conatiner are created inside the Pods
-    2. ReplicaSet: --> to replicate POD's on k8s cluster. and make sure defined number of replicas avaialbe. 
-    3. ReplicationController: --> same as replicaset
-    4. Deployment: --> to deploy the application 
-    5. Service: --> to expose the deployed services to the external network
-    6. Daemonsets: --> it is type of pods which are created one on each cluster nodes.
-    7. Namespace: --> is working area in cluster, we can have mutiple namespaces in a cluster, we devide namespaces for 
-    8. 
-    
+1. Pod: --> Is the smallest object is k8s. conatiner are created inside the Pods. 
+2. ReplicaSet: --> to replicate POD's on k8s cluster. and make sure defined number of replicas avaialbe. 
+3. ReplicationController: --> same as replicaset, but replicaset is advanced.
+4. Deployment: --> to deploy the application using deployment..
+5. Service: --> to expose the deployed services to the external network need to create services. 
+6. Daemonsets: --> it is a type of pods which are created one on each cluster nodes. means one pod on one physical server.
+7. Namespace: --> is working area in cluster, we can have mutiple namespaces in a cluster, we devide namespaces as a working are for dev/uat/prod.
+
+
 post installtion of kubernetes we can  use the kubectl command to interact with k8s cluster.
 
     $ kubectl version --> to check the kubernetes version
-
-    $ kubectl explain <Object-name> --> Documentation for resource object (Pod, Replicaset, Deployment, service, etc.)
+    
+    $ kubectl explain <k8s-Object-name> --> Documentation for resource object (Pod, Replicaset, Deployment, service, etc.)
 examples:
     $ kubectl explain pod --> Documentation for POD. to check apiVersion of k8s object.
     $ kubectl explain replicaset/rs --> Documentation for Replicaset
@@ -126,9 +132,11 @@ pod is the smallest object in the k8s. the docker containers are run inside the 
 
 Syntax: Imperative way
 ------------------------
-    $ kubectl run <Pod-Name> --image=<Pod-image-name>  --> kubectl run command is used only for pods. it used to create pods using command-line interface.
+kubectl run command is used only for pods. it used to create POD using command-line interface.
+    
+    $ kubectl run <Pod-Name> --image=<Pod-image-name>  
 
-    Examples:
+Examples:
     $ kubectl run nginx --image=nginx --> creating a nginx pod
     $ kubectl run redis --image=redis --> creating a redis pod
     
@@ -162,7 +170,7 @@ examples:
     $ kubectl get nodes
     $ kubectl get pods
     $ kubectl get replicationcontrollers
-    $ kubectl get replicasets
+    $ kubectl get replicasets 
     $ kubectl get deployments
     $ kubectl get services
     $ kubectl get namespaces
@@ -182,7 +190,9 @@ example:
 
 ReplicationController: 
 -----------------------------------------------------------------
-A ReplicationController ensures that a specified number of pod replicas are running. ReplicationController is similer to ReplicaSet. but Replicaset is the next-generation ReplicationController that supports the new set-based label selector. It's mainly used by Deployment as a mechanism to orchestrate pod creation, deletion and updates. Note that we recommend using Deployments instead of directly using Replica Sets, unless you require custom update orchestration or don't require updates at all.
+A ReplicationController ensures that a specified number of pod replicas are running. ReplicationController is similer to ReplicaSet. but Replicaset is the next-generation ReplicationController that supports the new set-based label "selector". 
+
+It's mainly used by Deployment as a mechanism to orchestrate pod creation, deletion and updates. Note that we recommend using Deployments instead of directly using Replica Sets, unless you require custom update orchestration or don't require updates at all.
 
 rc-def.yaml --> with help of this YAML file we replicate n times. same pod used in pod-definition.yaml :
 ----------------------------------------------------------------------------------------------------------------------------------
@@ -232,7 +242,7 @@ metadata:
         app: my-rs-nginx
 spec:
     replicas: 3
-    selector:
+    selector:           # 
         matchLabels:
             app: nginx    
     template:
@@ -268,9 +278,11 @@ spec:
 
 Deployment:
 -----------------------------------------------------------------
-Deployment will create or modify instances of the pods that hold a containerized application. Deployments can scale the number of replica pods, enable rollout of updated code in a controlled manner, or roll back to an earlier deployment version if necessary. deployment updates can be done in 2 ways
-    1). rolling-update
-    2). recreate 
+Deployment will create or modify pods and its containerized application. Deployments can scale replica PODs, enable rollout of old & update new code in a controlled manner, or roll-back to an earlier deployment version if necessary. deployment updates can be done in 2 ways
+            
+            1). rolling-update
+            2). recreate 
+
 by default k8s deployment will use rolling-update as default strategy.
 
         $ kubectl create deployment my-deploy --image=nginx --> creating a deployment with single POD
