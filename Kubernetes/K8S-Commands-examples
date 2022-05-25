@@ -124,7 +124,7 @@ Kubernetes objects (Pod,Replicasets,Deployments,service,etc) are created in two 
 
 Container:
 -----------------------------------------------------------------
-Containers are lightweight packages, it pack your application code together with dependencies such as base os, runtimes and libraries required to run your software services. container application exposes its services using a port know as containerPort. 
+Containers are lightweight object, it pack your application code together with dependencies such as base OS, runtimes and libraries required to run your software services. containers are isolated evironments which act as indipendent system. container application exposes its services using a port know as containerPort. 
 
 POD: 
 -----------------------------------------------------------------
