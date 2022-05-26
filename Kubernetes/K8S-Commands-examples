@@ -331,9 +331,8 @@ deployment rollout is done in two ways
 Update: Deployment
 -----------------------------------------------------------------
     $ kubectl apply -f deployment-definition.v2.yaml    --> to update the latest version of application.
-    $ kubectl replace -f deployment-definition.v2.yaml  --> updating the app version(nginx to nginx:1.16.2) using the YAML and replace with running deployment.
-    $ kubectl replace --force -f deployment-definition.v2.yaml  --> this will bring down the existing deployment forcefully and creates the new one.
-
+    $ kubectl replace -f deployment-definition.v2.yaml  --> update new version(nginx to nginx:1.16.2) using YAML and replace running deployment.
+    $ kubectl replace --force -f deployment-definition.v2.yaml  --> bring down the existing deployment forcefully and creates the new one.
     $ kubectl set image deployment my-deploy nginx=nginx:1.16.1 --> to set the latest nginx image on the running deployment
 
     $ kubectl rollout history deployment my-deploy  --> history of the number of deployments
