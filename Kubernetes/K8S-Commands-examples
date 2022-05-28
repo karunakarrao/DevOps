@@ -327,7 +327,10 @@ spec:
 deployment rollout is done in two ways 
     1. RollingUpdate (Default) --> it will bringdown one by one depends on RollingUpdateStrategy defined. 
     2. Recreate --> will bringdown all pods at a time, and brinup all 
+    
 -------------------------
+...
+...
 spec: 
   strategy:
     type: RollingUpdate
@@ -371,9 +374,27 @@ Note:  you are running a Deployment with 10 replicas, maxSurge=3, and maxUnavail
 
 Note: remember every time new-verison changed, respective "replicaset" is brought down parallel a new "replicaset" is created with new-verison, the old replicasets. will avaiable but pods will not be avaiable in running state. when you do the undo operation thet old replicaset is recreated and new one will go down.
 
+Q. How to deploy latest version of code on running deployment? 
+scenario-1: we can directly set the latest deployment code image using "set" command as below
+    $ kubectl set deployment my-deploy nginx=nginx:1.16.1  busybox=busybox:1.12 
+    
+Scenario-2: we can edit the deployment using the "edit" command 
+    $ kubectl edit deployment my-deploy --> it will open the running deployment in editing mode and will update the latest version
+    
+Scenario-3: using the deployment .yaml file and update the latest version and apply the changes
+    $ kubectl apply -f deploy.yml
+
+Q. How do you rollback to a specific version on the deployment?
+this can be achived using the rollout command with option --to-revision, and we can move to specific version
+    $ kubectl rollout undo deployment my-deploy --to-revision=2 
+    
+Q. How to check the deployment status and history of deploymentsG ,,?
+    $ kubectl rollout status deployment my-deploy
+    $ kubectl rollout history deployment my-deploy
+
 Service:
 -----------------------------------------------------------------------------------------------------------------------------------------------
-k8s Service will exposes the sevice to the outside network. to expose an application running on a set of Pods as a network service. this can be done in two ways. by using the command line parameter "expose" we can expose the service to the outside network.
+k8s Service will exposes the sevice to the outside network. to expose an application running on a set of Pods as a network service, this can be done in two ways. by using the command line parameter "expose" we can expose the service to the outside network. using the YAML file also we can do it by creatig a service for the same. 
 
     Publishing Services K8s services to external network is exposed in 3 ways 
         1). Cluster-IP (Default)
@@ -391,9 +412,11 @@ spec:
     app: MyApp      # this is the MyApp Pod's label app=MyApp
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 9376
+      port: 80  # service exposes on this 
+      targetPort: 9376 # container exposes services on this port
 --------------------------------
+
+Note: A Service can map any incoming "port" to a "targetPort". By default and for convenience, the targetPort is set to the same value as the port field.
 
 service-multiport.yml
 --------------------------------
@@ -416,8 +439,10 @@ spec:
 --------------------------------
 
 ClusterIP: 
------------------------------------------------------------------
-Exposes the Service on a cluster-internal IP. Cluster-IP Service only reachable from within the cluster. This is the default ServiceType.
+-----------
+when you Exposes the Service by default service type will set as "Cluster-IP". if you use "expose" command and to expose your application, a service is created and application accessing "Endpoints" are created to access the application. this can be seen ($ kubectl describe service <service-name>). 
+
+Note: Cluster-IP Service only reachable from within the cluster. This is the default ServiceType.
 
     $ kubectl expose deployment my-deploy --port=80 --> this expose the deployment as a clusterIP. to access URL use clusterIP.
 
@@ -430,7 +455,7 @@ to access the URL use clusterIP ip address
     $  curl http://10.101.51.194
 
 NodePort:
------------------------------------------------------------------
+---------
 Exposes the Service on each Node's IP at a static port (NodePort). NodePort ranges from port 30000 to 32767.
     
     $ kubectl expose deployment my-deploy --type=NodePort --port=80 --> expose it as NodePort, to access URL use nodeport with ip.
