@@ -106,7 +106,7 @@ kubernetes resources are called as kubernetes objects. which are used to setup t
 7. Namespace: --> is working area in cluster, we can have mutiple namespaces in a cluster, we devide namespaces as a working are for dev/uat/prod.
 
 
-post installtion of kubernetes we can  use the kubectl command to interact with k8s cluster.
+kubectl: is a command to which interact with k8s cluster.
 
     $ kubectl version --> to check the kubernetes version
     
@@ -126,8 +126,9 @@ Container:
 -----------------------------------------------------------------
 Containers are lightweight object, it pack your application code together with dependencies such as base OS, runtimes and libraries required to run your software services. containers are isolated evironments which act as indipendent system. container application exposes its services using a port know as containerPort. 
 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
 POD: 
------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
 pod is the smallest object in the k8s. the docker containers are run inside the Pod. In k8s each pod is represented as one host and each pod is allocated with one IP address. once the pod is destroyed, its containers & its ip is also removed. if new pod is created in place of the pod they will be allocated with new IP address. which is allocated by the kubernetes. kubernetes pod are communicated with help of pod network. its is an internal network with in the cluster. 
 
 Syntax: Imperative way
@@ -147,14 +148,14 @@ pod-definition.yaml--> POD-definition file in YAML format :
 -----------------------------------------------------------
 apiVersion: v1
 kind: Pod
-metadata: 
-    name: nginx-pod
-    labels:
-        app: nginx
-spec: 
-    containers:
-    - name: nignx
-      image: nginx
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80     #container services are exposed with port : 80
 -------------------------------------------------------------
 
    $ kubectl create -f pod-definition.yaml --> is used to create the pod using YAML file.
@@ -165,6 +166,12 @@ spec:
    $ kubectl get all         --> to list all objects(Pod, Replicasets, Deploylments, services, etc.) running in default namespace
    $ kubectl get pods -n prod1-namespace        --> to list the pods running on the namespace prod1-namespace. insted of -n we can use --namespace
    $ kubectl get all --namespace=kube-system    --> to list "kube-system" namespace objects, kubernetes object namespace
+
+Note: by default we see 4 namespaces 
+   1. kube-system --> this is k8s system namespace, where all the k8s cluster pods are avaiable. like etcd, api-server,controller, kubelet and etc.
+   2. default --> this is by default accessable to the kubernetes user
+   3. kube-public --> this is also for public access
+   4. kube-node-lease --> this is also for 
 
 examples:
     $ kubectl get nodes
@@ -188,11 +195,12 @@ example:
     $ kubectl describe daemonsets --namespace=kube-system
     $ kubectl describe -n kube-system daemonsets    --> -n is namespace 
 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
 ReplicationController: 
-------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
 A ReplicationController ensures that a specified number of pod replicas are running. ReplicationController is similer to ReplicaSet. but Replicaset is the next-generation ReplicationController that supports the new set-based label "selector". 
 
-It's mainly used by Deployment as a mechanism to orchestrate pod creation, deletion and updates. Note that we recommend using Deployments instead of directly using Replica Sets, unless you require custom update orchestration or don't require updates at all.
+It's mainly used by Deployment as a mechanism to orchestrate pod creation, deletion and updates. Note that we recommend using Deployments instead of directly using ReplicaSets, unless you require custom update orchestration or don't require updates at all.
 
 rc-def.yaml --> with help of this YAML file we replicate n times. same pod used in pod-definition.yaml :
 ----------------------------------------------------------------------------------------------------------------------------------
@@ -228,8 +236,9 @@ spec:
     $ kubectl edit rc my-rc1
     $ kubectl replace -f replicationcontroller-definiton.v2.yaml
 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
 Replicaset:
--------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
 A ReplicaSet's purpose is to maintain a set of replica Pods running at any time. ReplicationController and ReplicaSet are used for similer functionality. ReplicationController is older version, ReplicaSet is the newer version. In deployment k8s uses replicasets to replicate the pods.
 
 replicaset.v1.yaml
@@ -276,9 +285,10 @@ spec:
 
         $ kubectl autoscale rs frontend --max=10 --min=3 --cpu-percent=50 --> to autoscale replicas to desired 
 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
 Deployment:
-------------------------------------------------------------------------------------------------------------------------------------------------
-Deployment will create or modify pods and its containerized application. Deployments can scale replica PODs, enable rollout of old & update new code in a controlled manner, or roll-back to an earlier deployment version if necessary. deployment updates can be done in 2 ways
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+Deployment will create or modify pods and its containerized application. Deployments can scale PODs, enable rollout of old & update new code in a controlled manner, or roll-back to an earlier deployment version if necessary. deployment updates can be done in 2 ways
             
             1). rolling-update
             2). recreate 
@@ -392,8 +402,9 @@ Q. How to check the deployment status and history of deploymentsG ,,?
     $ kubectl rollout status deployment my-deploy
     $ kubectl rollout history deployment my-deploy
 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
 Service:
------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
 k8s Service will exposes the sevice to the outside network. to expose an application running on a set of Pods as a network service, this can be done in two ways. by using the command line parameter "expose" we can expose the service to the outside network. using the YAML file also we can do it by creatig a service for the same. 
 
     Publishing Services K8s services to external network is exposed in 3 ways 
@@ -408,12 +419,14 @@ kind: Service
 metadata:
   name: my-service
 spec:
+  type: NodePort   #--> NodePort/ClusterIP/LoadBalancer
   selector:
-    app: MyApp      # this is the MyApp Pod's label app=MyApp
+    app: MyApp      #--> this is the MyApp Pod's label app=MyApp
   ports:
     - protocol: TCP
-      port: 80  # service exposes on this 
-      targetPort: 9376 # container exposes services on this port
+      port: 80  #--> service exposes on this 
+      targetPort: 9376 #--> container exposes services on this port
+      nodePort: 32008  #--> nodePort is range from ( 30000-->32767)
 --------------------------------
 
 Note: A Service can map any incoming "port" to a "targetPort". By default and for convenience, the targetPort is set to the same value as the port field.
@@ -439,23 +452,19 @@ spec:
 --------------------------------
 
 ClusterIP: 
------------
-when you Exposes the Service by default service type will set as "Cluster-IP". if you use "expose" command and to expose your application, a service is created and application accessing "Endpoints" are created to access the application. this can be seen ($ kubectl describe service <service-name>). 
+---------------------------------
+When you Exposes the Service the default service type will set as "Cluster-IP". this Service only reachable within the cluster. This is the default ServiceType.
+
+by using "expose" command and to expose the application, a service is created and application accessing "Endpoints" are created. to access the application we use this endpoints. this can be seen ($ kubectl describe service <service-name>). 
 
 Note: Cluster-IP Service only reachable from within the cluster. This is the default ServiceType.
 
     $ kubectl expose deployment my-deploy --port=80 --> this expose the deployment as a clusterIP. to access URL use clusterIP.
-
-example:
-    $ kubectl get service -o wide
-    NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE     SELECTOR
-    my-deploy    ClusterIP   10.101.51.194   <none>        80/TCP    6m56s   app=nginx
-    
-to access the URL use clusterIP ip address 
-    $  curl http://10.101.51.194
+   
+    $  curl http://10.101.51.194 --> to access the URL use clusterIP ip address 
 
 NodePort:
----------
+---------------------------------
 Exposes the Service on each Node's IP at a static port (NodePort). NodePort ranges from port 30000 to 32767.
     
     $ kubectl expose deployment my-deploy --type=NodePort --port=80 --> expose it as NodePort, to access URL use nodeport with ip.
@@ -464,9 +473,8 @@ example:
     $  kubectl get service
     NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
     my-deploy    NodePort    10.104.86.214   <none>        80:31358/TCP   3m10s  
-    
---> to access the URL use Node ip address and the NodePort
-    $ curl http://localhost:31358
+
+    $ curl http://localhost:31358 --> to access the URL use Node ip address and the NodePort
 
 Note: remember the application listen port, should be same as --port other wise we can't access the application.
 --------------------------------------
@@ -479,16 +487,13 @@ spec:
   selector:
     app: MyApp
   ports:
-      # By default and for convenience, the `targetPort` is set to the same value as the `port` field.
     - port: 80
       targetPort: 80
-      # Optional field
-      # By default and for convenience, the Kubernetes control plane will allocate a port from a range (default: 30000-32767)
       nodePort: 30007
 --------------------------------------
 
 LoadBalancer:
------------------------------------------------------------------
+---------------------------------------
 Exposes the Service externally using a cloud provider's load balancer. NodePort and ClusterIP Services, to which the external load balancer routes, 
 are automatically created. this can only be achived with cloud providers like (Aws, Azure, GCP). 
 ---------------------------------------
@@ -548,15 +553,17 @@ spec:
         $ kubectl delete serivce my-svc --> to delete 
         $ kubectl edit service my-svc --> to edit the service properties
 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
 NameSpace:
------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
 In Kubernetes, namespaces provides a mechanism for isolating groups of resources(pods, replicasets, deployments, services, etc..) within a single cluster. 
 Names of resources need to be unique within a namespace, but not across mutiple namespaces. In simple terms namespace is a isolated area for a team. 
 
         $ kubectl get namespace --> to list the namespaces avaiable
+        $ kubectl get namespaces --show-labels --> 
         
-        $ kubectl api-resources --namespaced=true --> k8s objects created in namespace
-        $ kubectl api-resources --namespaced=false --> k8s objects not created in namespace
+        $ kubectl api-resources --namespaced=true --> k8s objects which are created inside namespace
+        $ kubectl api-resources --namespaced=false --> k8s objects which are not created inside namespace
         
 Kubernetes starts with four initial namespaces:
 
@@ -565,8 +572,10 @@ Kubernetes starts with four initial namespaces:
     3). kube-public: This namespace is created automatically and is readable by all users 
     4). kube-node-lease: This namespace holds Lease objects associated with each node. it allow the "kubelet" to send heartbeats so that master node can detect node failure.
     
+kubeconfig file is avaiable in the $HOME/.kube/config --> this is the file which is visible when we exicute the below command
+        $ kubectl config view --> to see kubeconfig file.
+        
         $ kubectl config get-contexts --> to check details for current namespace, cluster information
-        $ kubectl config view   --> to see configuration set currently on 
         $ kubectl config view | grep namespace  --> to check the namespace currenlty we are working on. if we are default it won't show.
         
         $ kubectl run nginx --image=nginx --namespace=prod1 --> creating a nginx pod in prod1 namespace, make sure prod1 namespace is created.
@@ -575,9 +584,7 @@ Kubernetes starts with four initial namespaces:
         $ kubectl config set-context --current --namespace=prod1 --> to switch from "default" to "prod1" namespace
         $ kubectl config set-context --current --namespace=kube-system --> switch to kubernetes namespace
 
-When you create a Service, it creates a corresponding DNS entry. This entry is of the form <service-name>.<namespace-name>.svc.cluster.local, which means that if a container 
-only uses <service-name>, it will resolve to the service which is local to a namespace. This is useful for using the same configuration across multiple namespaces such as 
-Development, Staging and Production. If you want to reach across namespaces, you need to use the fully qualified domain name (FQDN).
+When you create a Service, it creates a corresponding DNS entry. This entry is of the form <service-name>.<namespace-name>.svc.cluster.local, which means that if a container only uses <service-name>, it will resolve to the service which is local to a namespace. This is useful for using the same configuration across multiple namespaces such as Development, Staging and Production. If you want to reach across namespaces, you need to use the fully qualified domain name (FQDN).
 
         $ kubectl create namespace prod1 --> this will create  namespace prod1
         (or) 
@@ -626,6 +633,12 @@ Namespace: ResourceQuota
 ?????????? Pending ???????????
 
 
+example:5
+----------------------
+kubectl create namespace myspace
+kubectl create quota test --hard=count/deployments.apps=2,count/replicasets.apps=4,count/pods=3,count/secrets=4 --namespace=myspace
+kubectl create deployment nginx --image=nginx --namespace=myspace --replicas=2
+kubectl describe quota --namespace=myspace
 
 
 
@@ -670,7 +683,7 @@ spec:
     
 nodeName: Manual scheduling
 -------------------------------------------------------------------------------
-the kube-scheduler is responsible devide and distribute the work among all the nodes equally, if a new node is created, it will allocate work to it. if you don't want a default scheduler to chose where to create pod on the cluster nodes, specifing the parameter/keyword "nodeName", to create pod on the defined Node name.
+kube-scheduler is responsible to devide and distribute the work among all the nodes equally, if a new node is created, it will allocate work to it. if you don't want a default scheduler to chose where to create pod on the cluster nodes, specifing the parameter/keyword "nodeName", to create pod on the defined Node name.
 
 every pod has a field called "nodeName" which is by default not set, the scheduler goes to all PODs and looks for this property, if not avaialbe the scheduler will run an algoritham and assign a node to this pod. 
 
@@ -766,7 +779,9 @@ taints are 3 types
         $ kubectl taint node node02 env=dev:PreferNoSchedule
         $ kubectl taint node node03 env=prod:NoExecute
 
-        $ kubectl desribe node node01|grep taint
+        $ kubectl desribe node node01|grep taint 
+        
+        $ kubectl taint node node01 env=UAT:NoSchedule-  --> this is to remove the taint from a node
 
 to allow the tained nodes to create pods, we need to create the pods with taint tolerations while creating the pod.
 
@@ -802,9 +817,9 @@ spec:
         value: "UAT"
         effect: NoSchedule        
 -----------------------------------------------------------------
-
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
 NodeSelector:
------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
 NodeSelector is similer to nodeName, but nodeSelector uses node labels to schedule the pods. 
 
 for example in a cluster few nodes, labeled as "disktype=ssd" then if we use this label with nodeSelector field. that means all the nodes with disktype=ssd are all eligible to create the pod with that labels.
@@ -1017,15 +1032,16 @@ spec:
 
 Resource Limits:
 -----------------------------------------------------------------
-When a pod placed on a node it will use system resources such as CPU, Memeory, Disk Space. if node doesn't have the sufficient resources the scheduler avoid placing the pod
-on the node it shows insufficient CPU.
+When a pod placed on a node it will use system resources such as CPU, Memeory, Disk Space. if node doesn't have the sufficient resources the scheduler avoid placing the pod on the node it shows insufficient CPU.
 
 Kubernetes doesn't provide default resource limits. This means that unless you explicitly define limits, your containers can consume unlimited CPU and memory. 
 Pods deployed after this LimitRange, without their own CPU or memory limit, will have these limits applied to them automatically.
 
 Note: pod default resource requirement need to set at the namespace level first. like CPU, Memory, DISK.
 
-Note:  we can specify the resource requirement for each pod using resources parameter.it's useful to specify CPU units less than 1CPU or 1000milli using the milliCPU form. 1CPU unit = 1000milli cpu units.
+Note:  we can specify the resource requirement for each pod using resources parameter.it's useful to specify CPU units less than 1CPU or 1000milli using the milliCPU form. 
+
+1CPU unit = 1000milli cpu units.
 
 --------------------------------------------------------------
 apiVersion: v1
