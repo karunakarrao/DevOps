@@ -41,6 +41,14 @@ Docker: commands
 Q. What is a Container?
 -----------------------------------------------------
 A container is a isolated env which will package the softwares and its dependencies requied to run an application on any platform uniformly. this contaienrs are light wight objects.
+
+Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
+		-i --> interactive
+		-t --> terminal
+		-d --> detache
+		-p --> publish 
+		--rm --> remove the container once its stopped
+		attach --> to attach to the running container
 	
 	$ docker ps --> it will show only running containers
 	$ docker ps -a --> to list all stopped and running
@@ -55,6 +63,8 @@ A container is a isolated env which will package the softwares and its dependenc
 	$ docker run -d nginx --> this will create & start & the container run in background
 	$ docker run -it nginx /bin/bash --> this will open a terminal to connect with container 
 	
+	$ docker attach nginx --> to attach to the detached container, to detach (Ctrl+q /Ctrl+p)
+	
 	$ docker exec my-nginx uname -a --> to check the container OS details
 	$ docker exec my-nginx cat /etc/*release* --> this is to check container OS details
 	$ docker exec -it my-nginx /bin/bash --> this is to connect with running nginx 
@@ -63,7 +73,9 @@ A container is a isolated env which will package the softwares and its dependenc
 	$ docker unpause my-nginx my-redis -->it will unpause the containers
 	
 	$ docker rm my-redis --> to delete the container permanently
-		
+	
+	$ docker run -p 8080:80 nginx --> to publish the nginx to external network (-p <host-Port>:<container-port> ) http://host-ip:host-port
+	
 
 Q. What is a Docker Image?
 -----------------------------------------------------
@@ -104,11 +116,11 @@ Full Picture how the Docker works ?
 
 6). Finally Docker daemon runs the container created using the hello-world image outputting the wall of text on your terminal.
 
-How to Publish a Port to access the application ?
+Q. How to Publish a Port to access the application ?
 -----------------------------------------------------
 Containers are isolated environments. Your host system doesn't know anything about what's going on inside a container. Hence, applications running inside a container remain inaccessible from the outside. To allow access from outside of a container, you must publish the appropriate port inside the container to a port on your local network. 
 
-	$ docker run <image-fullname> --publish <host port>:<container port>	--> common syntax for the --publish or -p option is as follows
+	$ docker run <image-fullname> --publish <host-port>:<container-port> --> common syntax for the --publish or -p option is as follows
 
 When you wrote --publish 8080:80, any request sent to port 8080 of your host system will be forwarded to port 80 inside the container. Now to access the application on your browser, visit http://localhost:8080 | http://dockerhost:8080
 
@@ -117,46 +129,46 @@ Note: it is mandate you pass the arguments like --> Usage:  $ docker run [OPTION
 	$ docker run nginx  --publish 8080:80 --name=my-nginx
 	
 
-Docker commands: container handling
+Q. Docker commands: container handling
 ------------------------------------------------------
+	$ docker --version
+	$ docker-compose --version
 
-$ docker --version
-$ docker-compose --version
+	Note: docker image should be specified at the end of the command. other wise docker image will not get created. show options are not avialbe.
+		Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 
-Note: docker image should be specified at the end of the command. other wise docker image will not get created. show options are not avialbe.
-	Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
+	$ docker run -p 8081:80 nginx	--> deploying nginx image
+	(or) $ docker container run -p 8082:80 nginx	
 
-$ docker run -p 8081:80 nginx	--> deploying nginx image
-(or) $ docker container run -p 8082:80 nginx	
+	$ docker create --name=my-redis	redis --> it will create docker container, we need to start the container to use it.
 
-$ docker create --name=my-redis	redis --> it will create docker container, we need to start the container to use it.
+	$ docker run --name=my-nginx -p 8081:80 --rm nginx --> to name container as "my-nginx" and --rm to remove the contianer once its stopped. 
+	$ docker run -d -p 8082:80 nginx --> to detach container, it will run in background. to attach again use --attach
+	$ docker attach <container-name/container-ID>	--> to attach the detached container
 
-$ docker run --name=my-nginx -p 8081:80 --rm nginx --> to name container as "my-nginx" and --rm to remove the contianer once its stopped. 
-$ docker run -d -p 8082:80 nginx --> to detach container, it will run in background. to attach again use --attach
-$ docker attach <container-name/container-ID>	--> to attach the detached container
+	$ docker start <container-name/container-ID>	--> start the stopped container
+	$ docker stop <container-name/container-ID>	--> shuts down a container gracefully 
+	$ docker restart <container-name/container-ID>	--> restart the container
+	$ docker kill <container-name/container-ID> 	--> to kill the process
 
-$ docker start <container-name/container-ID>	--> start the stopped container
-$ docker stop <container-name/container-ID>	--> shuts down a container gracefully 
-$ docker restart <container-name/container-ID>	--> restart the container
-$ docker kill <container-name/container-ID> 	--> to kill the process
+	$ docker ps	--> to list the docker process
+	$ docker ps -a 	--> to list all the process which are stopped also
 
-$ docker ps	--> to list the docker process
-$ docker ps -a 	--> to list all the process which are stopped also
+	$ docker rm <container-name/container-ID>	--> to remove a stopped/Exited container
 
-$ docker rm <container-name/container-ID>	--> to remove a stopped/Exited container
+	$ docker exec -it <container-name/container-ID> <command> 	--> -i interactive and -t terminal
+	$ docker exec -it my-nginx /bin/bash	--> connecting to running docker conatainer (my-nginx is container name)
+	$ docker exec my-nginx uname -a --> to exicute a command to check os details cmd: uname -a
 
-$ docker exec -it <container-name/container-ID> <command> 	--> -i interactive and -t terminal
-$ docker exec -it my-nginx /bin/bash	--> connecting to running docker conatainer (my-nginx is container name)
-$ docker exec my-nginx uname -a --> to exicute a command to check os details cmd: uname -a
-
-docker: volumes
+Q. docker: volumes
 ---------------------------------------------------------
 The --volume or -v option is valid during the container run  & container create commands. containers are short lived object they are destroyed once the container work is over, but the data it collected also removed once the container is destroied. so to make the data persistant or to use for time to time we need to map the container path to localhost path so that the data is save persistantly.
 
 this is where the --volumes come in to picture.
 
-$ docker run 
+	$ docker create 
 
+Q. how update live container publish port?
 
 Docker : Image handling
 ------------------------------------------------------
