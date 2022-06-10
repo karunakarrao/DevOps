@@ -2,7 +2,7 @@ Docker: Overview
 -----------------------------------------------------
 Docker is a Containerization platform. Containerization will encapsulate or package softwares and all its dependencies, so that it can run uniformly and consistently on any infrastructure. 
 
-Docker Architecture:Overview
+Docker: Architecture Overview
 -----------------------------------------------------
 The docker engine consists of 3 componenets.
 	1). Docker Daemon
@@ -20,7 +20,7 @@ You as a user will usually execute commands using the client component. The clie
 
 Docker: Install
 -----------------------------------------------------
-Docker installation on CentOS
+Docker installation on CentOS, when docker install it create a dircectory in /var/lib/docker where all the docker objects are stored. such as containers, images, volumes, network and others. 
 		 
 	 $ sudo yum install -y yum-utils	--> install yum-utils package
 	 $ sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo	--> add repository 
@@ -37,8 +37,16 @@ Docker: commands
 		
 		$ docker run hello-world	--> running simple docker image hello-world
 		$ docker ps -a --> to check the hello-world containers
-		
-Q. What is a Container?
+
+Q. What is a Docker: Registry? (Docker Hub)
+-----------------------------------------------------
+An image registry is a centralized place where you can upload your images and can also download images created by others. Docker Hub is the default public registry for Docker. 
+	link: https://hub.docker.com/
+	
+	$ docker login --> to login to docker repository
+	$ docker logout --> to logout docker repository
+	
+Q. What is a Docker: Container? 
 -----------------------------------------------------
 A container is a isolated env which will package the softwares and its dependencies requied to run an application on any platform uniformly. this contaienrs are light wight objects.
 
@@ -63,7 +71,7 @@ Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 	$ docker run -d nginx --> this will create & start & the container run in background
 	$ docker run -it nginx /bin/bash --> this will open a terminal to connect with container 
 	
-	$ docker attach nginx --> to attach to the detached container, to detach (Ctrl+q /Ctrl+p)
+	$ docker attach my-nginx --> to attach to the detached container, to detach (Ctrl+q /Ctrl+p)
 	
 	$ docker exec my-nginx uname -a --> to check the container OS details
 	$ docker exec my-nginx cat /etc/*release* --> this is to check container OS details
@@ -76,8 +84,8 @@ Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 	
 	$ docker run -p 8080:80 nginx --> to publish the nginx to external network (-p <host-Port>:<container-port> ) http://host-ip:host-port
 	
-
-Q. What is a Docker Image?
+	
+Q. What is a Docker: Image?
 -----------------------------------------------------
 Images are multi-layered self-contained files that act as the template for creating containers. They are like a frozen, read-only copy of a container. Images can be exchanged through registries.
 
@@ -93,16 +101,45 @@ Images are multi-layered self-contained files that act as the template for creat
 	
 	$ docker build
 	
+Q. What is a Docker: Volumes ?
+---------------------------------------------------------
+Containers are short lived object they are destroyed once the container work is over, but the data it collected also removed once the container is destroied. so to make the data persistant or to use for time to time we need to map the container path to localhost path so that the data is save persistantly. this is where the volumes come in to picture.
 
-Q. What is a Docker Registry?
------------------------------------------------------
-An image registry is a centralized place where you can upload your images and can also download images created by others. Docker Hub is the default public registry for Docker. 
-	link: https://hub.docker.com/
+docker uses the storage drivers to do the all the belwo actions when we execute the command. they are mutiple types like AUFS, ZFS, BTRFS, Device Mapper, Overlay, Overlay2 and etc. Depeding on dockerimage base OS respective driver is used to perform this operations. 
+
+	$ docker create volume my-volume --> this will create a volume in the docker-host /var/lib/docker/volumes
 	
-	$ docker login --> to login to docker repository
-	$ docker logout --> to logout docker repository
+	$ docker run -v my-volume:/var/lib/mysql mysql --> mapping persistant volume to the docker contianer. /var/lib/mysql is the mysql default storage location.
 
-Full Picture how the Docker works ?
+	$ docker run -v my-volume2:/var/lib/mysql mysql --> if we didn't create a volume initialy, docker will create the volume automatically.
+
+	$ docker run -v /home/mysql:/var/lib/mysql mysql --> we can map the external location to store the data persistantly
+	
+	$ docker run --mount type=bind,source=/home/mysql,target=/var/lib/mysql mysql --> this way also we can mount the volumes.
+	
+Q. What is Docker: Networking ?
+------------------------------------------
+Docker installtion comes with 3 types of networks
+	1. Bridge (default)
+	2. Host
+	3. None
+	
+	$ docker run nginx --> this will map to default Bridge network.
+	$ docker run nginx --network=host --> to map to host network.
+	$ docker run nginx --network=none --> to map to none network.
+	
+	
+
+Q. Full picture how the Docker Image works?
+--------------------------------------------
+1. To understand DockerImage better, we need to understand how DockerImages are build. DockerImages are build using Dockerfiles. Dockerfiles are contructed in multipule layers ( base(OS), package, dependencies, souce-code(application), endpoint) bind together and builds and image. this image is docker image. 
+
+2. DockerImages are readonly images, means they are act as a template to create a container. so docker uses the same image to create n number of containers.
+
+3. when a container is created, it will create a layer on the DockerImage and 
+
+	
+Q. Full Picture how the Docker container works ?
 -----------------------------------------------------
 1). You execute "docker run hello-world" command where hello-world is the name of an image.
 
@@ -115,6 +152,7 @@ Full Picture how the Docker works ?
 5). Docker daemon then creates a new container from the freshly pulled image.
 
 6). Finally Docker daemon runs the container created using the hello-world image outputting the wall of text on your terminal.
+
 
 Q. How to Publish a Port to access the application ?
 -----------------------------------------------------
@@ -160,15 +198,11 @@ Q. Docker commands: container handling
 	$ docker exec -it my-nginx /bin/bash	--> connecting to running docker conatainer (my-nginx is container name)
 	$ docker exec my-nginx uname -a --> to exicute a command to check os details cmd: uname -a
 
-Q. docker: volumes
----------------------------------------------------------
-The --volume or -v option is valid during the container run  & container create commands. containers are short lived object they are destroyed once the container work is over, but the data it collected also removed once the container is destroied. so to make the data persistant or to use for time to time we need to map the container path to localhost path so that the data is save persistantly.
 
-this is where the --volumes come in to picture.
 
-	$ docker create 
 
-Q. how update live container publish port?
+Q. how to update running container to publish port?
+----------------------------------------------------
 
 Docker : Image handling
 ------------------------------------------------------
@@ -275,7 +309,7 @@ to share the docker image online
 
 $ docker login
 
-Network Manipulation Basics in Docker:
+Q. Docker: Network Manipulation Basics in Docker:
 --------------------------------------------------------------------------
 real life, the majority of projects that you'll have to work with will have more than one container. 
 
