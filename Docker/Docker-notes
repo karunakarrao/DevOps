@@ -1,6 +1,6 @@
 Docker: Overview
 -----------------------------------------------------
-Docker is a Containerization platform. Containerization will encapsulating or packaging up softwares and all its dependencies, so that it can run uniformly and consistently on any infrastructure. 
+Docker is a Containerization platform. Containerization will encapsulate or package softwares and all its dependencies, so that it can run uniformly and consistently on any infrastructure. 
 
 Docker Architecture:Overview
 -----------------------------------------------------
@@ -14,7 +14,9 @@ Docker Client: The client  (docker) is a command-line interface program mostly r
 
 REST API: The REST API acts as a bridge between the daemon and the client. Any command issued using the client passes through the API to finally reach the daemon.
 
-"Docker uses a client-server architecture. The Docker client talks to the Docker daemon, which does the heavy lifting of building, running, and distributing your Docker containers". You as a user will usually execute commands using the client component. The client then use the REST API to reach out to the long running daemon and get your work done.
+"Docker uses a client-server architecture. The Docker client talks to the Docker daemon, which does the heavy lifting of building, running, and distributing your Docker containers".
+
+You as a user will usually execute commands using the client component. The client then use the REST API to reach out to the long running daemon and get your work done.
 
 Docker: Install
 -----------------------------------------------------
@@ -36,18 +38,57 @@ Docker: commands
 		$ docker run hello-world	--> running simple docker image hello-world
 		$ docker ps -a --> to check the hello-world containers
 		
-What is a Container?
+Q. What is a Container?
 -----------------------------------------------------
-A container is an abstraction at the application layer that packages code and dependencies together. Instead of virtualizing the entire physical machine, containers virtualize the host operating system only.
+A container is a isolated env which will package the softwares and its dependencies requied to run an application on any platform uniformly. this contaienrs are light wight objects.
+	
+	$ docker ps --> it will show only running containers
+	$ docker ps -a --> to list all stopped and running
+	
+	$ docker create --name my-nginx nginx --> this will create a nginx container, need to start 
+	$ docker start my-nginx --> to start the newly created nginx 
+	$ docker stop my-nginx --> to stop the nginx, it will be avaiable to restart again
+	$ docker kill my-nginx --> it will obruptly kills the nginx
+	
+	$ docker run nignx --> this will create & start the nginx, and docker daemon will give a unique name to it.
+	$ docker run --name my-nginx nginx --> this will create & start and name the container as my-nginx
+	$ docker run -d nginx --> this will create & start & the container run in background
+	$ docker run -it nginx /bin/bash --> this will open a terminal to connect with container 
+	
+	$ docker exec my-nginx uname -a --> to check the container OS details
+	$ docker exec my-nginx cat /etc/*release* --> this is to check container OS details
+	$ docker exec -it my-nginx /bin/bash --> this is to connect with running nginx 
+	
+	$ docker pause my-nginx my-redis --> it will pause the container
+	$ docker unpause my-nginx my-redis -->it will unpause the containers
+	
+	$ docker rm my-redis --> to delete the container permanently
+		
 
-What is a Docker Image?
+Q. What is a Docker Image?
 -----------------------------------------------------
 Images are multi-layered self-contained files that act as the template for creating containers. They are like a frozen, read-only copy of a container. Images can be exchanged through registries.
 
-What is a Docker Registry?
+	$ docker pull nginx --> will pull the image from docker repository, it will pull only one.
+	$ docker pull redis --> 
+	
+	$ docker push custome-image --> to push you image to the docker repository
+	
+	$ docker images  --> to list the docker images pulled and avaiable
+	$ docker history nginx --> to see image creation steps
+	
+	$ docker rmi nginx --> to remove the nginx image in local repository
+	
+	$ docker build
+	
+
+Q. What is a Docker Registry?
 -----------------------------------------------------
 An image registry is a centralized place where you can upload your images and can also download images created by others. Docker Hub is the default public registry for Docker. 
 	link: https://hub.docker.com/
+	
+	$ docker login --> to login to docker repository
+	$ docker logout --> to logout docker repository
 
 Full Picture how the Docker works ?
 -----------------------------------------------------
@@ -69,7 +110,9 @@ Containers are isolated environments. Your host system doesn't know anything abo
 
 	$ docker run <image-fullname> --publish <host port>:<container port>	--> common syntax for the --publish or -p option is as follows
 
-When you wrote --publish 8080:80, any request sent to port 8080 of your host system will be forwarded to port 80 inside the container. Now to access the application on your browser, visit http://127.0.0.1:8080
+When you wrote --publish 8080:80, any request sent to port 8080 of your host system will be forwarded to port 80 inside the container. Now to access the application on your browser, visit http://localhost:8080 | http://dockerhost:8080
+
+Note: it is mandate you pass the arguments like --> Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 
 	$ docker run nginx  --publish 8080:80 --name=my-nginx
 	
@@ -77,20 +120,19 @@ When you wrote --publish 8080:80, any request sent to port 8080 of your host sys
 Docker commands: container handling
 ------------------------------------------------------
 
-$ docker --version	--> version checking
-$ docker-compose --version	--> 
+$ docker --version
+$ docker-compose --version
 
 Note: docker image should be specified at the end of the command. other wise docker image will not get created. show options are not avialbe.
 	Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 
 $ docker run -p 8081:80 nginx	--> deploying nginx image
-(or)
-$ docker container run -p 8082:80 nginx	
+(or) $ docker container run -p 8082:80 nginx	
 
-$ docker create --name=my-redis	redis	--> to create a redis container with name my-redis
+$ docker create --name=my-redis	redis --> it will create docker container, we need to start the container to use it.
 
-$ docker run --name=my-nginx -p 8081:80 --rm nginx	--> to name container as "my-nginx" and --rm to remove the contianer once its stopped. 
-$ docker run -d -p 8082:80 nginx	--> to detach container, it will run in background. to attach again use --attach
+$ docker run --name=my-nginx -p 8081:80 --rm nginx --> to name container as "my-nginx" and --rm to remove the contianer once its stopped. 
+$ docker run -d -p 8082:80 nginx --> to detach container, it will run in background. to attach again use --attach
 $ docker attach <container-name/container-ID>	--> to attach the detached container
 
 $ docker start <container-name/container-ID>	--> start the stopped container
@@ -106,8 +148,6 @@ $ docker rm <container-name/container-ID>	--> to remove a stopped/Exited contain
 $ docker exec -it <container-name/container-ID> <command> 	--> -i interactive and -t terminal
 $ docker exec -it my-nginx /bin/bash	--> connecting to running docker conatainer (my-nginx is container name)
 $ docker exec my-nginx uname -a --> to exicute a command to check os details cmd: uname -a
-
-
 
 docker: volumes
 ---------------------------------------------------------
