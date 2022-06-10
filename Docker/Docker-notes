@@ -1,9 +1,9 @@
 Docker: Overview
------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
 Docker is a Containerization platform. Containerization will encapsulate or package softwares and all its dependencies, so that it can run uniformly and consistently on any infrastructure. 
 
 Docker: Architecture Overview
------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
 The docker engine consists of 3 componenets.
 	1). Docker Daemon
 	2). Docker client
@@ -19,7 +19,7 @@ REST API: The REST API acts as a bridge between the daemon and the client. Any c
 You as a user will usually execute commands using the client component. The client then use the REST API to reach out to the long running daemon and get your work done.
 
 Docker: Install
------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
 Docker installation on CentOS, when docker install it create a dircectory in /var/lib/docker where all the docker objects are stored. such as containers, images, volumes, network and others. 
 		 
 	 $ sudo yum install -y yum-utils	--> install yum-utils package
@@ -30,7 +30,7 @@ Docker installation on CentOS, when docker install it create a dircectory in /va
 	 $ sudo systemctl start docker	--> start docker as service.
 
 Docker: commands
------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 		$ docker --version	--> docker version
 		$ docker-compose --version	--> 
@@ -39,7 +39,7 @@ Docker: commands
 		$ docker ps -a --> to check the hello-world containers
 
 Q. What is a Docker: Registry? (Docker Hub)
------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
 An image registry is a centralized place where you can upload your images and can also download images created by others. Docker Hub is the default public registry for Docker. 
 	link: https://hub.docker.com/
 	
@@ -47,7 +47,7 @@ An image registry is a centralized place where you can upload your images and ca
 	$ docker logout --> to logout docker repository
 	
 Q. What is a Docker: Container? 
------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
 A container is a isolated env which will package the softwares and its dependencies requied to run an application on any platform uniformly. this contaienrs are light wight objects.
 
 Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
@@ -86,7 +86,7 @@ Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 	
 	
 Q. What is a Docker: Image?
------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
 Images are multi-layered self-contained files that act as the template for creating containers. They are like a frozen, read-only copy of a container. Images can be exchanged through registries.
 
 	$ docker pull nginx --> will pull the image from docker repository, it will pull only one.
@@ -102,7 +102,7 @@ Images are multi-layered self-contained files that act as the template for creat
 	$ docker build
 	
 Q. What is a Docker: Volumes ?
----------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
 Containers are short lived object they are destroyed once the container work is over, but the data it collected also removed once the container is destroied. so to make the data persistant or to use for time to time we need to map the container path to localhost path so that the data is save persistantly. this is where the volumes come in to picture.
 
 docker uses the storage drivers to do the all the belwo actions when we execute the command. they are mutiple types like AUFS, ZFS, BTRFS, Device Mapper, Overlay, Overlay2 and etc. Depeding on dockerimage base OS respective driver is used to perform this operations. 
@@ -118,20 +118,40 @@ docker uses the storage drivers to do the all the belwo actions when we execute 
 	$ docker run --mount type=bind,source=/home/mysql,target=/var/lib/mysql mysql --> this way also we can mount the volumes.
 	
 Q. What is Docker: Networking ?
-------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
 Docker installtion comes with 3 types of networks
-	1. Bridge (default)
+	1. Bridge (default) --> 
 	2. Host
 	3. None
 	
 	$ docker run nginx --> this will map to default Bridge network.
-	$ docker run nginx --network=host --> to map to host network.
-	$ docker run nginx --network=none --> to map to none network.
+	$ docker run --network=host nginx --> to map to host network.
+	$ docker run --network=none nginx `````````````````````````````````````````````````````````````````````````````````````````````````11`1`1--> to map to none network.
 	
+	$ docker network ls
+	$ docker network create --driver bridge --subnet 182.18.10.0/16  my-network1
+	$ docker inspect my-nginx --> to see the network details attached to the container
+
+Note: Docker containers reach each other using container name, this is achived using docker built Embedded DNS, which will resolve all the container names. when we map the containers, we specify the container name. the built in DNS server runs always on 127.0.0.11. 
+
+Bridge: bridge network is the default network for containers created. it ranges from 172.17.x.x. the containers communicate each other using bridge network.
+
+example: scenario1
+----------------------
+In a real life scenario in 3-tire environment, we have web-containers network range (175.17.0.0/16), app-containers network range (182.18.0.0/16) and DB-containers network range (192.19.0.0/16). to deploy containers in differnt networks, first we need to create the respective networks and map them to the containers. if we want to used the other network for database containers we can create a new bridge network and mapp this network to the database containers, so they will be isolated with different network. 
+
+ 	$ docker network create --driver bridge --subnet 175.17.0.0/16 web-network1
+	$ docker network create --driver bridge --subnet 180.17.0.0/16 app-network1
+	$ docker network create --driver bridge --subnet 182.17.0.0/16 db-network1
+	
+	$ docker run -d --network web-network1 nginx
+	$ docker run -d --network 
+	$ docker run --network=my-nginx1 nginx 
+
 	
 
 Q. Full picture how the Docker Image works?
---------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
 1. To understand DockerImage better, we need to understand how DockerImages are build. DockerImages are build using Dockerfiles. Dockerfiles are contructed in multipule layers ( base(OS), package, dependencies, souce-code(application), endpoint) bind together and builds and image. this image is docker image. 
 
 2. DockerImages are readonly images, means they are act as a template to create a container. so docker uses the same image to create n number of containers.
@@ -140,7 +160,7 @@ Q. Full picture how the Docker Image works?
 
 	
 Q. Full Picture how the Docker container works ?
------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
 1). You execute "docker run hello-world" command where hello-world is the name of an image.
 
 2). Docker client reaches out to the daemon, tells it to get the hello-world image and run a container from that.
@@ -155,7 +175,7 @@ Q. Full Picture how the Docker container works ?
 
 
 Q. How to Publish a Port to access the application ?
------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
 Containers are isolated environments. Your host system doesn't know anything about what's going on inside a container. Hence, applications running inside a container remain inaccessible from the outside. To allow access from outside of a container, you must publish the appropriate port inside the container to a port on your local network. 
 
 	$ docker run <image-fullname> --publish <host-port>:<container-port> --> common syntax for the --publish or -p option is as follows
