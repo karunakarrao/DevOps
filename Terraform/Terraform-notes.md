@@ -16,11 +16,25 @@ A. Terraform plugins called **providers** let Terraform interact with cloud plat
 
 Q. How to terraform tracks your infrastructure?
 ------------------------------------------------
-A. Terraform keeps track of your real infrastructure in a state file know as `terraform.tfstate`, which acts as a source of truth for your environment. This file is only created in same directory where `terrafrom apply` executed successful. Terraform uses this state file to determine the changes to make to your infrastructure so that it will match your configuration.
+A. Terraform keeps track of your real infrastructure in a state file know as **`terraform.tfstate`**, which acts as a source of truth for your environment. This file is only created in same directory where **`terrafrom apply`** executed successful. Terraform uses this state file to determine the changes to make to your infrastructure so that it will match your configuration.
+
+Q. Terraform commands ?
+-------------------------
+* `$ terraform version` --> check terrafom version details
+* `$ terraform init` --> initializing terraform 
+* `$ terraform fmt` --> formating the .tf files
+* `$ terraform validate` --> validating the .tf files 
+* `$ terraform plan` --> dry-run the terrafrom code
+* `$ terraform apply` --> applying the configuration changes 
+* `$ terraform apply --auto-approve` --> autoapprove the deployment changes
+* `$ terraform show` --> inspect the current state of configurations 
+* `$ terraform state list` --> state the resources list
+* `$ terraform output` --> print output of `output.tf` file
+
 
 Q. How to install Terraform?
 ----------------------------
-A. Terraform installtion package comes with only one file named as `terraform` which is a binary file. it is responsible to connect with all providers. Once `terrafrom init` is executed it will connect with terrform repository and download the appropriate plug-in. this plugins are used to configure repective providers. 
+A. Terraform installtion package comes with only one file named as **`terraform`** which is a binary file. it is responsible to connect with all providers. Once **`terrafrom init`** is executed it will connect with terrform repository and download the appropriate plug-in. this plugins are used to configure repective providers. 
 
 ### Windows: Installtion 
 -----------------------------
@@ -40,14 +54,17 @@ A. Terraform installtion package comes with only one file named as `terraform` w
 4. verify installtion `$ terraform -help` or `$ terraform -help plan`.
 5. we can also do it `$ touch ~/.bashrc` and `$ terraform -install-autocomplete`.
 
-Q. How to Deploy a Docker image on Windows machine?
-----------------------------------------------------
+Q. How to Deploy a Docker image on Windows machine using terraform?
+--------------------------------------------------------------------
 A. deploying a docker image using terraform, we need to first set prerequisites.
 1. Download DockerDesktop and install using https://docs.docker.com/desktop/windows/install/
-2. create folder 'terraform-docker' and change into it
-3. create file `main.tf` and copy the below content to it.
+2. make sure the DockerDesktop is up and running. otherwise the system will not able to find the docker daemon.
+3. create folder 'terraform-docker' and change into it
+4. create file `main.tf` and copy the below content to it.
 -------------------------------------------------------------
 ```
+# required providers Terraform will use to provision your infrastructure.
+
 terraform {
   required_providers {
     docker = {
@@ -57,9 +74,13 @@ terraform {
   }
 }
 
+# A provider is a plugin that Terraform uses to create and manage your resources.
+
 provider "docker" {
   host    = "npipe:////.//pipe//docker_engine"
 }
+
+# Use resource blocks to define components of your infrastructure. A resource might be a physical or virtual component. Resource blocks have two strings before the block: the resource type and the resource name. In this example, the first resource type is docker_image and the name is nginx. 
 
 resource "docker_image" "nginx" {
   name         = "nginx:latest"
@@ -76,9 +97,93 @@ resource "docker_container" "nginx" {
 }
 ```
 ---------------------------------------------------------------
-4. run `terraform init`, you will observe few plug-ins are getting downloaded
-5. run ` terraform apply`, this will create respective docker containers. 
+4. run **`terraform init`**, you will observe few plug-ins are getting downloaded
+5. run **`terraform apply`**, this will create respective docker containers. 
 6. to check the docker container run `C:\> docker ps`, you will see 1 container running with name **tutorial**
+7. you can access the deployed container using http://localhost:8000 
+
+### Observations: During the setup
+-----------------------------------
+* after executing `C:\> terrafrom init` it create a folder structure inside directory as **`.terraform`** and one file **`.terraform.lock.hcl`**
+* in .terraform folder provider plug-ins are downloaded depends on the code written in main.tf file.
+* running `C:\> terraform apply` this will apply the configurations defined in the .tf files are applied. this create a file **`terraform.tfstate`**.
+* **`terraform.tfstate`** file will maintain the history of your configuration changes, this way terraform will track the changes.
+
+Q. How to Remove Deployed configurations ?
+-------------------------------------------
+* this configuration changes can be rollback using `C:\> terraform destory` command
+* this will remove all the configurations from **terraform.tfstate file**. so that terraform will have track of it
+
+Q. How to update terraform configuration file?
+-----------------------------------------------
+Now update the external port number of docker container. Change the **docker_container.nginx** resource under the provider block in `main.tf` by replacing the `ports.external` value of `8000 with 8080`. This update changes the port number of docker container to serve nginx server. The Docker provider knows that it cannot change the port of a container after it has been created, so Terraform will destroy the old container and create a new one.
+
+* `$ terraform init` and `$ terraform apply` --> to apply the changes. 
+* this will destroy the old container and create a new container in place 
+
+Q. How to set the container-name with defining variables?
+----------------------------------------------------------
+Terraform variables allow you to write configuration that is flexible and easier to re-use. 
+1. Create a new file called **`variables.tf`** in same directory.
+2. write a block defining a new container_name variable. 
+
+variables.tf
+--------------------------------------
+```
+variable "my_container_name" {
+  description = "Value of the name for the Docker container"
+  type        = string
+  default     = "ExampleNginxContainer"
+}
+```
+----------------------------------------
+3. change the `main.tf` file and update the `docker_container` resouce block name field `tutorial` with `var.my_container_name`. changes as below
+
+### from:
+-------------
+```
+resource "docker_container" "nginx" {
+  image = docker_image.nginx.latest
+  name  = "tutorial"
+  ports {
+    internal = 80
+    external = 8000
+```
+--------------
+### To:
+--------------
+```
+resource "docker_container" "nginx" {
+  image = docker_image.nginx.latest
+  name  = var.my_container_name
+  ports {
+    internal = 80
+    external = 8080
+  }
+```
+-----------
+4. run `$ terraform init` and `$ terraform apply` there we can see the value replacement message in red color
+
+Q. How to inspect docker container configuration using ouput.tf?
+-----------------------------------------------------------------
+1. create a new file named **`output.tf`** 
+
+output.tf
+--------------------------
+```
+output "my_container_id" {
+      value = docker_image.nginx.id
+}
+
+output "my_image_id" {
+      value = docker_container.nginx.id
+}
+```
+----------------------------
+2. run the command `$ terraform init` and `$ terraform apply` 
+3. output will be displayed on the terminal
+4. use **`$ terraform ouput`** to print the ouput again.
+5. 
 
 
 
