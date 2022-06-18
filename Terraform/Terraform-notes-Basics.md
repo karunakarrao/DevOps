@@ -14,8 +14,8 @@ Q. How to manage any infrastructure?
 --------------------------------------
 A. Terraform plugins called **providers** let Terraform interact with cloud platforms and other services via their application programming interfaces (APIs). HashiCorp and the Terraform community have written over 1,000 providers to manage resources on Amazon Web Services (AWS), Azure, Google Cloud Platform (GCP), Kubernetes, Helm, GitHub, Splunk, and DataDog, just to name a few. 
 
-Q. How to terraform tracks your infrastructure?
-------------------------------------------------
+Q. How terraform track your infrastructure changes?
+----------------------------------------------------
 A. Terraform keeps track of your real infrastructure in a state file know as **`terraform.tfstate`**, which acts as a source of truth for your environment. This file is only created in same directory where **`terrafrom apply`** executed successful. Terraform uses this state file to determine the changes to make to your infrastructure so that it will match your configuration.
 
 Q. Terraform commands ?
@@ -183,7 +183,6 @@ output "my_image_id" {
 2. run the command `$ terraform init` and `$ terraform apply` 
 3. output will be displayed on the terminal
 4. use **`$ terraform ouput`** to print the ouput again.
-5. 
 
 
 
