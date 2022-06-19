@@ -149,7 +149,67 @@ output "my_instance_public_IP" {
 4. run `$ terraform plan` and **`$ terraform apply`**
 5. check ouput **`$ terraform output`**
 
+Q. How to cloud secure your `terraform.state` & AWS credentials using terraform cloud account?
+----------------------------------------------------------------------------------------------
+1. first we need to create a terraform cloud account using this link https://app.terraform.io/signup/account
+2. authenticate mail confirmation sent to your registered email.
+3. goto terraform cloud and create a **organization**
+4. create a **workspace**, select type of workspace (varsion-control/**api-driven**/CLI-driven)and copy the workspace code in **main.tf** file.
+--------------------------------------------
+```
+terraform {
+  cloud {
+    organization = "jkraob87"
 
+    workspaces {
+      name = "AWS-ec2-workspace"
+    }
+  }
+}
+```
+--------------------------------------------
+5. goto tab variables and specify the AWS credentials so they are secured environment variables.AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY and secure it.
+![image](https://user-images.githubusercontent.com/33980623/174478301-5d32a778-ba1a-4c5e-8950-b53b25ab61fe.png)
+ 
+6. now goto your terminal and run **`$ terraform login`**, this will pop-up window which require login to terraform cloud. it generate a key.
+7. use the generated **Password** and authenticate your account.
+8. now run the **main.tf** file 
+------------------------------------------
+```
+terraform {
+  cloud {
+    organization = "jkraob87"
+    workspaces {
+      name = "AWS-ec2-workspace"
+    }
+  }
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.16"
+    }
+  }
+
+  required_version = ">= 1.2.0"
+}
+
+provider "aws" {
+  region = "us-west-2"
+}
+
+resource "aws_instance" "app_server" {
+  ami           = var.my_ami_type
+  instance_type = var.my_instance_type
+
+  tags = {
+    Name = "updatedinstance"
+  }
+}
+
+```
+----------------------------------------
+9. now run `$ terraform init` and `$ terraform apply`. 
+10. you can we run stats in terraform cloud also.
 
 
 
