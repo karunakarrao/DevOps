@@ -10,7 +10,7 @@ there are other tools avaiable in the market, but this is the widly used one. ot
 
 Kubernetes installtion:
 -----------------------------------------------------------------
-k8s installtion can be done is different ways depeding on the requirement. it can be done in 2 ways
+k8s installtion can be done is different ways depeding on the requirement. it can be done in 2 ways.
 
     1. `minikube` --> for testing, training or local setup we can use it.
     2. `kubeadm`  --> for commertial purpose setup, or production grade setup require kubeadm.
@@ -242,6 +242,7 @@ A ReplicaSet's purpose is to maintain a set of replica Pods running at any time.
 
 replicaset.v1.yaml
 -------------------------------------------------------------------------------------
+```
 apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
@@ -264,6 +265,7 @@ spec:
               image: nginx
               ports:
               - containerPort: 80
+```
 -----------------------------------------------------------------------------------
 
         $ kubectl create -f replicaset.v1.yaml --dry-run=client --> to run the YAML file with out applying the changes
@@ -291,7 +293,7 @@ Deployment: (create, replace, delete, describe, explain, edit, apply, scale, aut
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 Deployment will create or modify pods and its containerized application. Deployments can scale PODs, enable rollout of old & update new code in a controlled manner, or roll-back to an earlier deployment version if necessary. deployment updates can be done in 2 ways
             
-            1). rolling-update
+            1). rollingupdate
             2). recreate 
 
 by default k8s deployment will use rolling-update as default strategy.
@@ -302,6 +304,7 @@ by default k8s deployment will use rolling-update as default strategy.
         
 deployment.yaml --> this deployment YAML file creates PODs, Replicasets, Deployment objects
 -------------------------------------------------------------------------------------------------------
+```
 apiVersion: apps/v1
 kind: Deployment
 metadata: 
@@ -320,34 +323,48 @@ spec:
             containers:
             - name: nginx
               image: nginx
+              ports:
+              - containerPort: 80
+```
 ------------------------------------------------------------------------------------------------------
 
     $ kubectl create -f deployment-definition.yaml --dry-run=client --> to trial run the YAML file, if will not apply any changes
     $ kubectl create -f deployment-definition.yaml  --> to exicute the YAML file.
+    
 (or)$ kubectl apply -f deployment-definition.yaml   --> to create/update using YAML files
-
+    
     $ kubectl get deployment    --> to check deployments available
 (or)$ kubectl get deploy --> to check deployments available
+    $ kubectl get deployment my-deply       --> to check one deployment my-deploy
+    $ kubectl get deployment --namespace=dev    --> to check the deploymets running on namespace "dev"
+    
+    $ubectl describe deployment my-deploy 
+  
 
-    $ kubectl get deployment my-deply --> to check one deployment my-deploy
-    $ kubectl get deployment --namespace=dev --> to check the deploymets running on namespace "dev"
-    $ kubectl describe deployment my-deploy 
     $ kubectl delete deployment my-deploy
+    
     $ kubectl edit deployment my-deploy --> update the version by editing the running deployment.
 
 deployment rollout is done in two ways 
+
     1. RollingUpdate (Default) --> it will bringdown one by one depends on RollingUpdateStrategy defined. 
     2. Recreate --> will bringdown all pods at a time, and brinup all 
     
 -------------------------
+```
 ...
 ...
 spec: 
+  replicas: 5
   strategy:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 25%   
       maxUnavailable: 25%
+  selector:
+  template:
+  ....
+```
 --------------------------
     
 Note: "Pod-template-hash" Do not change this label. This label ensures that child ReplicaSets of a Deployment do not overlap.
