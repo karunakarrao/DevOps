@@ -1,6 +1,6 @@
 Kubernetes: Overview
 -----------------------------------------------------------------
-Kubernetes is an Open-Source and container orchestration system for automate software deployment, scale, descale, auto-scale, deploy, replicate, loadbalance, failover. its originally developed by google.  which is used widely in containerization platfroms. it has widely spread global community support. now it maintained by Cloud Native Computing Foundation.
+Kubernetes is an **Open-Source** and container orchestration system for automate software deployment, scale, descale, auto-scale, deploy, replicate, loadbalance, failover. its originally developed by Google.  which is used widely in containerization platfroms. it has widely spread global community support. now it maintained by **Cloud Native Computing Foundation**.
 
 there are other tools avaiable in the market, but this is the widly used one. other tools like
     1. OpenShift
@@ -11,14 +11,15 @@ there are other tools avaiable in the market, but this is the widly used one. ot
 Kubernetes installtion:
 -----------------------------------------------------------------
 k8s installtion can be done is different ways depeding on the requirement. it can be done in 2 ways
-    1. Minikube --> for testing, training or local setup we can use it.
-    2. kubeadm  --> for commertial purpose setup, or production grade setup require kubeadm.
+
+    1. `minikube` --> for testing, training or local setup we can use it.
+    2. `kubeadm`  --> for commertial purpose setup, or production grade setup require kubeadm.
 
 Kubernetes-architecture:
 -----------------------------------------------------------------
 Kuberenetes architecture build on master nodes salve nodes model. in K8S there are several components involved. below are the list of components.
-    Master-Node components: Kuber API-Server, ETCD, kube-Controller, kube-Scheduler, Container-runtime, kubelet(agent), kubeproxy(agent)
-    Worker-Node Components: Container-Runtime(Docker), kubelet(agent), kubeproxy
+    **Master-Node** components: Kuber API-Server, ETCD, kube-Controller, kube-Scheduler, Container-runtime, kubelet(agent), kubeproxy(agent)
+    **Worker-Node** Components: Container-Runtime(Docker), kubelet(agent), kubeproxy
 
 1). ETCD: 
 -----------------------------------------------------------------
@@ -91,7 +92,7 @@ kubeproxy is a process runs on each node in k8s cluster. its job is to look for 
 -----------------------------------------------------------------
 container runtime is software which used to create containers. like docker.
 
-Kubernetes Objects:
+Kubernetes Objects: `explain`
 -----------------------------------------------------------------
 kubernetes resources are called as kubernetes objects. which are used to setup the kubernetes for application deployment.
 
@@ -106,12 +107,11 @@ kubernetes resources are called as kubernetes objects. which are used to setup t
 7. Namespace: --> is working area in cluster, we can have mutiple namespaces in a cluster, we devide namespaces as a working are for dev/uat/prod.
 
 
-kubectl: is a command to which interact with k8s cluster.
+**`kubectl`** : is a command to which user interact with k8s cluster.
 
     $ kubectl version --> to check the kubernetes version
     
     $ kubectl explain <k8s-Object-name> --> Documentation for resource object (Pod, Replicaset, Deployment, service, etc.)
-examples:
     $ kubectl explain pod --> Documentation for POD. to check apiVersion of k8s object.
     $ kubectl explain replicaset/rs --> Documentation for Replicaset
     $ kubectl explain replicationcontroller/rc --> Doc. for RC
@@ -126,8 +126,10 @@ Container:
 -----------------------------------------------------------------
 Containers are lightweight object, it pack your application code together with dependencies such as base OS, runtimes and libraries required to run your software services. containers are isolated evironments which act as indipendent system. container application exposes its services using a port know as containerPort. 
 
+
+
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-POD: 
+POD: (create, replace, delete, describe, explain, edit )
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 pod is the smallest object in the k8s. the docker containers are run inside the Pod. In k8s each pod is represented as one host and each pod is allocated with one IP address. once the pod is destroyed, its containers & its ip is also removed. if new pod is created in place of the pod they will be allocated with new IP address. which is allocated by the kubernetes. kubernetes pod are communicated with help of pod network. its is an internal network with in the cluster. 
 
@@ -137,15 +139,15 @@ kubectl run command is used only for pods. it used to create POD using command-l
     
     $ kubectl run <Pod-Name> --image=<Pod-image-name>  
 
-Examples:
     $ kubectl run nginx --image=nginx --> creating a nginx pod
     $ kubectl run redis --image=redis --> creating a redis pod
     
 Syntax: Declarative way
 ------------------------
 
-pod-definition.yaml--> POD-definition file in YAML format :
+pod-def.yaml
 -----------------------------------------------------------
+```
 apiVersion: v1
 kind: Pod
 metadata:
@@ -155,55 +157,51 @@ spec:
   - name: nginx
     image: nginx:1.14.2
     ports:
-    - containerPort: 80     #container services are exposed with port : 80
+    - containerPort: 80     # container services are exposed with port : 80
+```
 -------------------------------------------------------------
 
-   $ kubectl create -f pod-definition.yaml --> is used to create the pod using YAML file.
+   $ kubectl create -f pod-def.yaml  --> is used to create the pod using YAML file.
+   $ kubectl replace -f pod-def.v2.yml      --> updating with new version
 
    $ kubectl get pods        --> to list pods running on default namespace
-   $ kubectl get pods -o wide--> to list pods with aditional details
+   $ kubectl get pods -o wide   --> to list pods with aditional details
    $ kubectl get pods  -w    --> to watch the pod status on fly
    $ kubectl get all         --> to list all objects(Pod, Replicasets, Deploylments, services, etc.) running in default namespace
+   
    $ kubectl get pods -n prod1-namespace        --> to list the pods running on the namespace prod1-namespace. insted of -n we can use --namespace
    $ kubectl get all --namespace=kube-system    --> to list "kube-system" namespace objects, kubernetes object namespace
+   
+   $ kubectl get pods --show-labels     --> show labels of all pods
+   
+   $ kubectl get pods -n kube-system --show-labels |grep k8s-app=kube-dns   --> filter the pods from 100's of pods
+   
+   $ kubectl get pods --selector=k8s-app=kube-dns --> selecting pods on selector 
+   
+   $ kubectl describe pod my-pod    --> it will provide pod information
+   $ kubectl edit pod my-pod        --> to edit the Pod on fly
+   
+   $ kubectl delete pod my-pod  --> to delete the pods
+   
+   
+NameSpace:
+-----------------------------
+By default we see 4 namespaces in K8S cluster. 
 
-Note: by default we see 4 namespaces 
-   1. kube-system --> this is k8s system namespace, where all the k8s cluster pods are avaiable. like etcd, api-server,controller, kubelet and etc.
-   2. default --> this is by default accessable to the kubernetes user
-   3. kube-public --> this is also for public access
-   4. kube-node-lease --> this is also for 
+   1. **kube-system** --> this is k8s system namespace, where all the k8s cluster pods are avaiable. like etcd, api-server,controller, kubelet and etc.
+   2. **default** --> this is by default accessable to the kubernetes user
+   3. **kube-public** --> this is also for public access
+   4. **kube-node-lease** -->it holds Lease objects associated with each node. **`kubelet`** to send heartbeats so that the **Master-Node** can detect node failures.
 
-examples:
-    $ kubectl get nodes
-    $ kubectl get pods
-    $ kubectl get replicationcontrollers
-    $ kubectl get replicasets 
-    $ kubectl get deployments
-    $ kubectl get services
-    $ kubectl get namespaces
-    $ kubectl get daemonsets
-
-    $ kubectl describe pod <pod-name> --> to see the details of k8s object and properties
-
-example:
-    $ kubectl describe pod my-pod1
-    $ kubectl describe pods
-    $ kubectl describe replicaset my-replicaset1
-    $ kubectl describe replicasets
-    $ kubectl describe deployment my-deployment1
-    $ kubectl describe deployments
-    $ kubectl describe daemonsets --namespace=kube-system
-    $ kubectl describe -n kube-system daemonsets    --> -n is namespace 
-
----------------------------------------------------------------------------------------------------------------------------------------------------------------
-ReplicationController: 
----------------------------------------------------------------------------------------------------------------------------------------------------------------
-A ReplicationController ensures that a specified number of pod replicas are running. ReplicationController is similer to ReplicaSet. but Replicaset is the next-generation ReplicationController that supports the new set-based label "selector". 
+ReplicationController: (create, replace, delete, describe, explain, edit, apply )
+--------------------------------------------------------------------------------------------------------
+A ReplicationController ensures that a specified number of pod replicas are running. `ReplicationController` is similer to ReplicaSet. but Replicaset is the next-generation ReplicationController that supports the new set-based label "selector". 
 
 It's mainly used by Deployment as a mechanism to orchestrate pod creation, deletion and updates. Note that we recommend using Deployments instead of directly using ReplicaSets, unless you require custom update orchestration or don't require updates at all.
 
-rc-def.yaml --> with help of this YAML file we replicate n times. same pod used in pod-definition.yaml :
+rc-def.yaml
 ----------------------------------------------------------------------------------------------------------------------------------
+```
 apiVersion: v1
 kind: ReplicationController
 metadata:
@@ -222,7 +220,8 @@ spec:
       - name: nginx
         image: nginx
         ports:
-        - containerPort: 80     # port defined in the container for a
+        - containerPort: 80     # port defined in the container to expose 
+```
 ---------------------------------------------------------------------------------------------------------------------------------
 
     $ kubectl create -f rc-def.yaml --> create using YAML file.
@@ -237,9 +236,9 @@ spec:
     $ kubectl replace -f replicationcontroller-definiton.v2.yaml
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-Replicaset:
+Replicaset: (create, replace, delete, describe, explain, edit, apply, scale, autoscale )
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-A ReplicaSet's purpose is to maintain a set of replica Pods running at any time. ReplicationController and ReplicaSet are used for similer functionality. ReplicationController is older version, ReplicaSet is the newer version. In deployment k8s uses replicasets to replicate the pods.
+A ReplicaSet's purpose is to maintain a set of replica Pods running at any time. `ReplicationController` and `ReplicaSet` are used for similer functionality. ReplicationController is older version, ReplicaSet is the newer version. In deployment k8s uses replicasets to replicate the pods.
 
 replicaset.v1.yaml
 -------------------------------------------------------------------------------------
@@ -251,7 +250,7 @@ metadata:
         app: my-rs-nginx
 spec:
     replicas: 3
-    selector:           # 
+    selector:           
         matchLabels:
             app: nginx    
     template:
@@ -273,20 +272,22 @@ spec:
         $ kubectl get replicaset    --> list replicasets
 (or)    $ kubectl get rs    --> list replicasets 
 
-        $ kubectl describe replicaset my-rs --> describe replicaset properties
-        $ kubectl replace -f replicaset.v2.yaml  --> replace the new app version with latest version
+        $ kubectl describe replicaset my-rs         --> describe replicaset properties
+        $ kubectl replace -f replicaset.v2.yaml     --> replace the new app version with latest version
         $ kubectl scale replicaset my-rs --replicas=10  --> scale up number of replicas 
 (or)
-        $ kubectl scale -f replicaset.yaml --replicas=10 --> scale up number of replicas using replicaset definition file
-        $ kubectl scale -f replicaset.yaml --replicas=2 --> scale down number of replicas
+        $ kubectl scale -f replicaset.yaml --replicas=10    --> scale up number of replicas using replicaset definition file
+        $ kubectl scale -f replicaset.yaml --replicas=2     --> scale down number of replicas
+       
         $ kubectl edit replicaset my-rs   --> edit the replicaset properties using the 
         $ kubectl explain replicaset|grep -i version
-        $ kubectl delete replicaset my-rs --> to delete replicaset my-rs
+       
+        $ kubectl delete replicaset my-rs   --> to delete replicaset my-rs
 
         $ kubectl autoscale rs frontend --max=10 --min=3 --cpu-percent=50 --> to autoscale replicas to desired 
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-Deployment:
+Deployment: (create, replace, delete, describe, explain, edit, apply, scale, autoscale, rollout, set, expose )
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 Deployment will create or modify pods and its containerized application. Deployments can scale PODs, enable rollout of old & update new code in a controlled manner, or roll-back to an earlier deployment version if necessary. deployment updates can be done in 2 ways
             
@@ -1334,11 +1335,9 @@ spec:
       value: prod
 ---------------------------------------------------
 
-ConfigMaps:
------------------------------------------------------------------
-A ConfigMap is an API object used to store non-confidential data in key-value pairs. Pods can consume ConfigMaps as environment variables, command-line arguments, 
-or as configuration files in a volume.
-A ConfigMap is not designed to hold large chunks of data. The data stored in a ConfigMap cannot exceed 1 MiB. If you need to store settings that are larger than this limit,
+Q. ConfigMaps: How to create & Inject configMap in k8s ?
+---------------------------------------------------------
+A `ConfigMap` is an K8S object used to store **non-confidential** data in** key-value** pairs. Pods can consume ConfigMaps as environment variables, command-line arguments, or as configuration files in a volume. A ConfigMap is not designed to hold large chunks of data. The data stored in a ConfigMap cannot exceed 1 MiB. If you need to store settings that are larger than this limit,
 you may want to consider mounting a volume or use a separate database or file service
 
 Note: The spec of a static Pod cannot refer to a ConfigMap or any other API objects. The Pod and the ConfigMap must be in the same namespace.
@@ -1418,16 +1417,16 @@ $ kubectl get configmaps --> to list the configmaps
 $ kubectl edit configmap <configmap-name> --> to edit or update the configmap
 $ kubectl delete configmap <configmap-name> --> to delete the configmap
 
-Configuring Secrets:
-====================
-secrets are used to store the sensitive data like passwords and keys. so that they are encripted. hashing format base64
+Q. Secrets: How to use create and inject secrets in k8s ?
+--------------------------------------------------------
+secrets are used to store the sensitive data like passwords and keys. so that they are encripted. key encripting format base64
 
 this involves 2 steps
     1. create secrets
     2. inject it into pod
 
-step-1: creating secrets:
---------------------------
+### step-1: creating secrets:
+------------------------------
 $ kubectl create secret generic my-secret --from-literal=db_host=mysql --from-literal=DB_user=root --from-literal=DB_password=password
 (or)
 
