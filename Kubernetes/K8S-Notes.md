@@ -187,7 +187,10 @@ spec:
 NameSpace:
 -----------------------------
 By default we see 4 namespaces in K8S cluster. 
-
+	
+	$ kubectl api-resources --namespaced=true	--> resources running inside namespace
+	$ kubectl api-resources --namespaced=false	--> resources running outside namespace
+	
    1. **kube-system** --> this is k8s system namespace, where all the k8s cluster pods are avaiable. like etcd, api-server,controller, kubelet and etc.
    2. **default** --> this is by default accessable to the kubernetes user
    3. **kube-public** --> this is also for public access
@@ -425,8 +428,8 @@ Q. How to check the deployment status and history of deployments?
     $ kubectl rollout history deployment my-deploy
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-Service:
----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Service: (create, replace, delete, describe, explain, edit, apply,
+-------------------------------------------------------------------------------------------------------------------------------------------
 k8s Service will exposes the sevice to the outside network. to expose an application running on a set of Pods as a network service, this can be done in two ways. by using the command line parameter **`expose`** we can expose the service to the outside network. using the YAML file also we can do it by creatig a service for the same. 
 
     Publishing Services K8s services to external network is exposed in 3 ways 
@@ -574,7 +577,7 @@ spec:
         $ kubectl edit service my-svc --> to edit the service properties
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-NameSpace:
+NameSpace: (create, get, api-resources, config, 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 In Kubernetes, namespaces provides a mechanism for isolating groups of resources(pods, replicasets, deployments, services, etc..) within a single cluster. 
 Names of resources need to be unique within a namespace, but not across mutiple namespaces. In simple terms namespace is a isolated area for a team. 
@@ -607,8 +610,10 @@ kubeconfig file is avaiable in the $HOME/.kube/config --> this is the file which
 When you create a Service, it creates a corresponding DNS entry. This entry is of the form <service-name>.<namespace-name>.svc.cluster.local, which means that if a container only uses <service-name>, it will resolve to the service which is local to a namespace. This is useful for using the same configuration across multiple namespaces such as Development, Staging and Production. If you want to reach across namespaces, you need to use the fully qualified domain name (FQDN).
 
         $ kubectl create namespace prod1 --> this will create  namespace prod1
-        (or) 
-prod1-namespace-def.yaml --> yaml file to create simple namespace - prod1
+    
+	(or) 
+	
+prod1-namespace-def.yaml
 -----------------------------------
 apiVersion: v1
 kind: Namespace
@@ -763,6 +768,7 @@ metadata:
     $ kubectl get all --selector app=nginx      --> to filter the all k8s objects using selector fields.
     $ kubectl get pods --selector env=prod
     $ kubectl get pods --selector env=prod,app=nginx
+    $ kubectl get pods --show-labels
 
     $ kubectl get nodes --show-labels       --> to show labels defined for a node.
 
@@ -1012,11 +1018,9 @@ profiles:
 Inter-pod affinity and anti-affinity:
 -----------------------------------------------------------------
 
-Inter-pod affinity and anti-affinity allow you to constrain which nodes your pod is eligible to be scheduled based on labels on pods that are already running on the node 
-rather than based on labels on nodes.
+Inter-pod affinity and anti-affinity allow you to constrain which nodes your pod is eligible to be scheduled based on labels on pods that are already running on the node rather than based on labels on nodes.
 
-Note: Inter-pod affinity and anti-affinity require substantial amount of processing which can slow down scheduling in large clusters significantly. We do not recommend 
-using them in clusters larger than several hundred nodes.
+Note: Inter-pod affinity and anti-affinity require substantial amount of processing which can slow down scheduling in large clusters significantly. We do not recommend using them in clusters larger than several hundred nodes.
 
 ------------------------------------------------------------------
 apiVersion: v1
@@ -1049,17 +1053,25 @@ spec:
   - name: with-pod-affinity
     image: k8s.gcr.io/pause:2.0
 -----------------------------------------------------------------
+-------------------------------------------------------------------
+ResourceQuota: limiting the number of k8s objects for a namespace
+------------------------------------------------------------------
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+   name: my-rq-limits
+spec:
+  hard:
+    configmaps: "10"
+    secrets: "20"
+    services: "30"
+---------------------------------------------
+----------------------------------------------------------------------------------------------------------------------
+Resources: Restricting the resouce usage at POD level | 1CPU unit = 1000milli cpu units.| 
+-------------------------------------------------------------------------------------------------------------------------
+When a pod placed on a node it will use system resources such as CPU, Memeory, Disk Space. if node doesn't have the sufficient resources the scheduler avoid placing the pod on the node it shows insufficient CPU. Kubernetes doesn't provide default resource limits. This means that unless you explicitly define limits, your containers can consume unlimited CPU and memory.
 
-Resource Limits:
------------------------------------------------------------------
-When a pod placed on a node it will use system resources such as CPU, Memeory, Disk Space. if node doesn't have the sufficient resources the scheduler avoid placing the pod on the node it shows insufficient CPU.
-
-Kubernetes doesn't provide default resource limits. This means that unless you explicitly define limits, your containers can consume unlimited CPU and memory. 
-Pods deployed after this LimitRange, without their own CPU or memory limit, will have these limits applied to them automatically.
-
-Note: pod default resource requirement need to set at the namespace level first. like CPU, Memory, DISK.
-
-Note:  we can specify the resource requirement for each pod using resources parameter.it's useful to specify CPU units less than 1CPU or 1000milli using the milliCPU form. 
+Note:  we can specify the resource requirement for each pod using resources parameter. it's useful to specify CPU units less than 1CPU or 1000milli using the milliCPU form. 	
 
 1CPU unit = 1000milli cpu units.
 
@@ -1079,25 +1091,21 @@ spec:
       limits:    # maximux limit a pod can consume
         memory: "128Mi"
         cpu: "500m"
-        
-  - name: log-aggregator
-    image: images.my-company.example/log-aggregator:v6
-    resources:
-      requests: # minimum limit a pod can consume
-        memory: "64Mi"
-        cpu: "250m"
-      limits:   # maximux limit a pod can consume
-        memory: "128Mi"
-        cpu: "500m"
 -----------------------------------------------------------------
 
 if the container exceeds the limit, then K8S will not allow the pod to use more resources. it will stop the resource limit.
 
-With resource quotas, cluster administrators can restrict resource consumption and creation on a namespace basis. Within a namespace, a Pod or Container can consume as much 
-CPU and memory as defined by the namespace's resource quota. 
+With resource quotas, cluster administrators can restrict resource consumption and creation on a namespace basis. Within a namespace, a Pod or Container can consume as much CPU and memory as defined by the namespace's resource quota. 
 
 For the POD to pick up those defaults you must have first set those as default values for request and limit by creating a LimitRange in that namespace.
 
+---------------------------------------------------------------------------------------------------------------------------------------
+LimitRange: Restrict POD resource usage limit at NameSpace level
+----------------------------------------------------------------------------------------------------------------------------------------
+Pod resource usage can be restricted using LimitRange, this is the default values set at namespace level. when a Pod created it will by default restrict its limits as defined in the "LimitRange", so when POD usage exceeds its limits. it will not let the system use the system resouces. 
+
+Note: pod default resource requirement need to set at the namespace level first. like CPU, Memory, DISK.
+	
 Memory limits: memory-limits.yaml
 -----------------------------------------------------------------
 apiVersion: v1
@@ -1150,6 +1158,7 @@ spec:
 --------------------------------------
 
 What if you specify a container's request, but not its limit?
+--------------------------------------------------------------
 the container's memory request is set to the value specified in the container's manifest. The container is limited to use no more than 512MiB of memory, 
 which matches the default memory limit for the namespace.
 
@@ -1160,6 +1169,59 @@ spec.initContainers[*].image
 spec.activeDeadlineSeconds
 spec.tolerations
 
+What is the difference between ResourceQuota vs LimitRange?
+--------------------------------------------------------------
+LimitRange and ResourceQuota are objects used to control resource usage by a Kubernetes cluster administrator.
+
+ResourceQuota is for limiting the total resource consumption of a namespace, for example:
+-------------------------------
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: object-counts
+spec:
+  hard:
+    configmaps: "10" 
+    persistentvolumeclaims: "4" 
+    replicationcontrollers: "20" 
+    secrets: "10" 
+    services: "10"
+----------------------------------
+LimitRangeis for managing constraints at a pod and container level within the project.
+----------------------------------------
+apiVersion: "v1"
+kind: "LimitRange"
+metadata:
+  name: "resource-limits" 
+spec:
+  limits:
+    -
+      type: "Pod"
+      max:
+        cpu: "2" 
+        memory: "1Gi" 
+      min:
+        cpu: "200m" 
+        memory: "6Mi" 
+    -
+      type: "Container"
+      max:
+        cpu: "2" 
+        memory: "1Gi" 
+      min:
+        cpu: "100m" 
+        memory: "4Mi" 
+      default:
+        cpu: "300m" 
+        memory: "200Mi" 
+      defaultRequest:
+        cpu: "200m" 
+        memory: "100Mi" 
+      maxLimitRequestRatio:
+        cpu: "10" 
+-------------------------------------
+An individual Pod or Container that requests resources outside of these LimitRange constraints will be rejected, whereas a ResourceQuota only applies to all of the namespace/project's objects in aggregate.
+	
 Daemonset:
 -------------------------------------------------------------------------------
 A DaemonSet ensures that all Nodes run a copy of a Pod. As nodes are added to the cluster, Pods are added to nodes. As nodes are removed from the cluster, those Pods are garbage collected. Deleting a DaemonSet will clean up the Pods it created.
@@ -1220,7 +1282,7 @@ spec:
           image: nginx
 -------------------------------------------------
 
-Static PODs:
+Static PODs: (/etc/kubernetes/manifests | /var/lib/kubelet/config.yaml)
 -------------------------------------------------
 Static Pods are managed directly by the kubelet daemon on a specific node, without the API server observing them. Kubelet daemon will monitor this directory /etc/kubernetes/manifests/ and new pod definition files are exicuted.
 
@@ -1318,16 +1380,17 @@ to pass the arguments similer in the k8s, we use this options
 -----------------------------------------------
 apiVersion: v1
 kind: Pod
-metadata: 
-  name: ubuntu-sleeper-pod
+metadata:
+  name: command-demo
   labels:
-    app: ubuntu-sleeper1
-spec: 
+    purpose: demonstrate-command
+spec:
   containers:
-  - name: ubuntu-sleeper
-    image: ubuntu-sleeper
-    args: ["10"]
-    command: ["sleep 20"]
+  - name: command-demo-container
+    image: debian
+    command: ["printenv"]
+    args: ["HOSTNAME", "KUBERNETES_PORT"]
+  restartPolicy: OnFailure
 ------------------------------------------------
 
 Configuring Environment Variables:
@@ -1356,8 +1419,7 @@ spec:
 
 Q. ConfigMaps: How to create & Inject configMap in k8s ?
 ---------------------------------------------------------
-A `ConfigMap` is an K8S object used to store **non-confidential** data in** key-value** pairs. Pods can consume ConfigMaps as environment variables, command-line arguments, or as configuration files in a volume. A ConfigMap is not designed to hold large chunks of data. The data stored in a ConfigMap cannot exceed 1 MiB. If you need to store settings that are larger than this limit,
-you may want to consider mounting a volume or use a separate database or file service
+A `ConfigMap` is an K8S object used to store **non-confidential** data in** key-value** pairs. Pods can consume ConfigMaps as environment variables, command-line arguments, or as configuration files in a volume. A ConfigMap is not designed to hold large chunks of data. The data stored in a ConfigMap cannot exceed 1 MiB. If you need to store settings that are larger than this limit, you may want to consider mounting a volume or use a separate database or file service
 
 Note: The spec of a static Pod cannot refer to a ConfigMap or any other API objects. The Pod and the ConfigMap must be in the same namespace.
 
