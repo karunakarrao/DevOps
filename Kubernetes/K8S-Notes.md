@@ -477,16 +477,14 @@ ClusterIP:
 ---------------------------------
 When you Exposes the Service the default service type will set as **`Cluster-IP`**. this Service only reachable within the cluster. This is the default ServiceType.
 
-by using "expose" command and to expose the application, a service is created and application accessing "Endpoints" are created. to access the application we use this endpoints. this can be seen ($ kubectl describe service <service-name>). 
+by using "expose" command and to expose the application, a service is created and application accessing "Endpoints" are created. to access the application we use this endpoints. this can be seen ($ kubectl describe service <service-name>).
 
-    `$ kubectl expose deployment my-deploy --port=80 `--> this expose the deployment as a clusterIP. to access URL use clusterIP.
+	`$ kubectl expose deployment my-deploy --port=80 `--> this expose the deployment as a clusterIP. to access URL use clusterIP.
     `$  curl http://10.101.51.194 `--> to access the URL use clusterIP ip address
 
-Note: Cluster-IP Service only reachable from within the cluster. This is the default ServiceType.
-
 NodePort:
----------------------------------------------------------------------
-
+-----------------------------------------------
+	  
 Exposes the Service on each Node's IP at a static port (NodePort). NodePort ranges from port 30000 to 32767.
     
     $ kubectl expose deployment my-deploy --type=NodePort --port=80 --> expose it as NodePort, to access URL use nodeport with ip.
@@ -524,6 +522,7 @@ kind: Service
 metadata:
   name: my-service
 spec:
+  type: LoadBalancer	
   selector:
     app: MyApp
   ports:
@@ -531,7 +530,6 @@ spec:
       port: 80
       targetPort: 9376
   clusterIP: 10.0.171.239
-  type: LoadBalancer
 status:
   loadBalancer:
     ingress:
