@@ -59,7 +59,7 @@ Key process of Continuous Deployment
 
 Q. How to install Jenkins?
 ----------------------------
-Jenkins installtion require Java, we can follow Jenkins documentation to install it. 
+Jenkins installtion on Linux, jenkins require Java, we can follow Jenkins documentation to install it. 
 
 ```
     $ sudo yum install epel-release -y      --> 
@@ -69,10 +69,11 @@ Jenkins installtion require Java, we can follow Jenkins documentation to install
     $ sudo yum install jenkins -y           --> install jenkins
 ```
 
-Important configuration file are available /lib/systemd/system/jenkins.service file and change Jenkins port to 8090 by updating Environment="JENKINS_PORT=" variable value , It should look like this: Environment="JENKINS_PORT=8090"
+Important configuration file are available **`/lib/systemd/system/jenkins.service`** file and change Jenkins port to 8090 by updating Environment="JENKINS_PORT=" variable value , It should look like this: Environment="JENKINS_PORT=8090"
 
 ```
     $ sudo vi /lib/systemd/system/jenkins.service
+    $ sudo systemctl edit jenkins      --> edit Jenkins service file
     $ sudo systemctl start jenkins      --> start Jenkins service 
     $ sudo systemctl status jenkins     --> status check 
     $ sudo systemctl restart jenkins    --> restart jenkins
@@ -105,4 +106,33 @@ To delete any plugin in Jenkins
       2. Go to Installed and search for the desired plugin.
       3. Click on uninstall button for the plugin you want to delete.
 
+Q. How to change the Jenkins default listner port?
+----------------------------------------------------
+by changing the **/lib/systemd/system/jenkins.service** file and edit Environment="JENKINS_PORT=8090" to desired open port. 
+      * by default jenkins listen on port 8080
 
+Q. Important file in Jenkins installtion?
+-----------------------------------------
+1. jenkins service file /etc/systemd/system/jenkins.service
+2. jenkins service file also available in /lib/systemd/system/jenkins.service
+3. jenkins installed files are available in /var/lib/jenkins/config.xml is the main file to take backup of.
+
+Q. How to restart jenkins from web-ui?
+----------------------------------------
+we can do it by using **`jenkins-url/restart`**. this will do the job.
+
+Q. how to use jenkins-cli?
+---------------------------
+java -jar jenkins-cli.jar -s http://localhost:8085 -auth 'admin:Adm!n321' <command>
+
+Q. How to provide limited access to users ?
+--------------------------------------------
+to provide restrictions at user level, we need to install a plugin know as **Role-based Authorization Strategy** need to install 
+
+
+   
+
+   
+   
+
+      
