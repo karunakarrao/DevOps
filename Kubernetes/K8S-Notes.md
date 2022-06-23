@@ -291,9 +291,9 @@ spec:
 
         $ kubectl autoscale rs frontend --max=10 --min=3 --cpu-percent=50 --> to autoscale replicas to desired 
 
----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 Deployment: (create, replace, delete, describe, explain, edit, apply, scale, autoscale, rollout, set, expose )
----------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 Deployment will create or modify pods and its containerized application. Deployments can scale PODs, enable rollout of old & update new code in a controlled manner, or roll-back to an earlier deployment version if necessary. deployment updates can be done in 2 ways
             
             1). rollingupdate
@@ -427,9 +427,9 @@ Q. How to check the deployment status and history of deployments?
     $ kubectl rollout status deployment my-deploy
     $ kubectl rollout history deployment my-deploy
 
----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 Service: (create, replace, delete, describe, explain, edit, apply,
--------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------
 k8s Service will exposes the sevice to the outside network. to expose an application running on a set of Pods as a network service, this can be done in two ways. by using the command line parameter **`expose`** we can expose the service to the outside network. using the YAML file also we can do it by creatig a service for the same. 
 
     Publishing Services K8s services to external network is exposed in 3 ways 
@@ -437,8 +437,9 @@ k8s Service will exposes the sevice to the outside network. to expose an applica
         2). NodePort
         3). LoadBalancer
         
-service.yml
+service-nodeport.yml
 --------------------------------
+```
 apiVersion: v1
 kind: Service
 metadata:
@@ -452,12 +453,14 @@ spec:
       port: 80  #--> service exposes on this 
       targetPort: 9376 #--> container exposes services on this port
       nodePort: 32008  #--> nodePort is range from ( 30000-->32767)
+```      
 --------------------------------
 
 Note: A Service can map any incoming **`port`** to  **`targetPort`**. By default and for convenience, the targetPort is set to the same value as the port field.
 
 service-multiport.yml
 --------------------------------
+```
 apiVersion: v1
 kind: Service
 metadata:
@@ -474,33 +477,33 @@ spec:
       protocol: TCP
       port: 443
       targetPort: 9377
+```   
 --------------------------------
 
-ClusterIP: 
----------------------------------
-When you Exposes the Service the default service type will set as **`Cluster-IP`**. this Service only reachable within the cluster. This is the default ServiceType.
+### ClusterIP: 
+When you Exposes the Service the **default service** type will set as **`Cluster-IP`**. this Service only reachable within the cluster. This is the default ServiceType.
 
-by using "expose" command and to expose the application, a service is created and application accessing "Endpoints" are created. to access the application we use this endpoints. this can be seen ($ kubectl describe service <service-name>).
+by using "expose" command and to expose the application, a service is created and application accessing "Endpoints" are created. to access the application we use this endpoints. this can be seen `$ kubectl describe service <service-name>`
 
 	`$ kubectl expose deployment my-deploy --port=80 `--> this expose the deployment as a clusterIP. to access URL use clusterIP.
-    `$  curl http://10.101.51.194 `--> to access the URL use clusterIP ip address
+    	`$  curl http://10.101.51.194 `--> to access the URL use clusterIP ip address
 
-NodePort:
------------------------------------------------
-	  
+### NodePort:   
 Exposes the Service on each Node's IP at a static port (NodePort). NodePort ranges from port 30000 to 32767.
-    
-    $ kubectl expose deployment my-deploy --type=NodePort --port=80 --> expose it as NodePort, to access URL use nodeport with ip.
-
-example: 
+ 
+``` 
+    $ kubectl expose deployment my-deploy --type=NodePort --port=80 --> expose it as NodePort, to access URL use nodeport with ip. 
     $  kubectl get service
     NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
     my-deploy    NodePort    10.104.86.214   <none>        80:31358/TCP   3m10s  
 
     $ curl http://localhost:31358 --> to access the URL use Node ip address and the NodePort
+```
 
-Note: remember the application listen port, should be same as --port other wise we can't access the application.
+**Note:** remember the application listen port, should be same as --port other wise we can't access the application.
+
 --------------------------------------
+```
 apiVersion: v1
 kind: Service
 metadata:
@@ -513,13 +516,14 @@ spec:
     - port: 80
       targetPort: 80
       nodePort: 30007
+```      
 --------------------------------------
 
-LoadBalancer:
----------------------------------------
-Exposes the Service externally using a cloud provider's load balancer. NodePort and ClusterIP Services, to which the external load balancer routes, 
-are automatically created. this can only be achived with cloud providers like (Aws, Azure, GCP). 
----------------------------------------
+### LoadBalancer:
+Exposes the Service externally using a cloud provider's load balancer. NodePort and ClusterIP Services, to which the external load balancer routes,  are automatically created. this can only be achived with cloud providers like (Aws, Azure, GCP). 
+
+-----------------------
+```
 apiVersion: v1
 kind: Service
 metadata:
@@ -537,10 +541,12 @@ status:
   loadBalancer:
     ingress:
     - ip: 192.0.2.127
+```    
 ---------------------------------------
 
 service-definition.yaml
----------------------------------------------------------------------------------
+-------------------------
+```
 apiVersion: v1
 kind: Service
 metadata:
@@ -548,37 +554,41 @@ metadata:
 spec:
     type: NodePort       # we can use this NodePort/LoadBalancer/ClusterIP
     ports:
-    - port: 80           # nginx webserver listens on port: 80 (*), this is Service port
+    - port: 80           # nginx webserver listens on port 80 this is Service port
       targetPort: 80     # targetPort is a nginx POD port
       nodePort: 30008    # This port is Node port or external access port
     selector:
         app: nginx
-----------------------------------------------------------------------------
+```
+---------------------------
 
 service-clusterip-def.yaml
------------------------------------------------------------------------------
+----------------------------
+```
 apiVersion: v1
 kind: service
 metadata:
     name: my-svc-cluster
 spec:
-    type: ClusterIP  # if type is not specified, by default it uses "CluserIP"
+    type: ClusterIP  	# if type is not specified, by default it uses "CluserIP"
     ports:
-    - port: 80       # this is mandate field, its a service port
-      targetPort: 80 # this is not mandate field, if not specified it will allocate same as port
+    - port: 80       	# this is mandate field, its a service port
+      targetPort: 80 	# this is not mandate field, if not specified it will allocate same as port
     selector:
         app: nginx
------------------------------------------------------------------------------
-
-        $ kubectl create -f sevice-definition.yaml --> to create the sevice
-        $ kubectl get services  --> to check the services
-        $ kubectl get services -o wide --> to see more details 
+```	
+----------------------------
+```
+```
+        $ kubectl create -f sevice-definition.yaml 	--> to create the sevice
+        $ kubectl get services  	--> to check the services
+        $ kubectl get services -o wide 	--> to see more details 
         $ kubectl delete serivce my-svc --> to delete 
-        $ kubectl edit service my-svc --> to edit the service properties
+        $ kubectl edit service my-svc 	--> to edit the service properties
+```
 
----------------------------------------------------------------------------------------------------------------------------------------------------------------
 NameSpace: (create, get, api-resources, config, 
----------------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------
 In Kubernetes, namespaces provides a mechanism for isolating groups of resources(pods, replicasets, deployments, services, etc..) within a single cluster. 
 Names of resources need to be unique within a namespace, but not across mutiple namespaces. In simple terms namespace is a isolated area for a team. 
 
