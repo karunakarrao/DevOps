@@ -7,7 +7,8 @@ Jenkins is one of the most popular automation tool used worldwide for continuous
 
 Q. Why Jenkins?
 -----------------
-When working on a project with different teams, developers often face issues with different teams using different CI tools, version management, and other tools. Setting up a CI/CD toolchain for each new project will lead to certain challenges like:
+When working on a project with different teams, developers often face issues with different teams using different CI tools, version management, and other tools. Setting up a CI/CD toolchain for each new project will lead to certain challenges like
+
     * Slower Releases
     * Manual Builds
     * Non-repeatable processes
@@ -16,7 +17,8 @@ When working on a project with different teams, developers often face issues wit
 Q. Why Jenkins?
 -----------------
 Jenkins is the solution to those challenges. its is an Open-source, 1000+ plugins, Free Paid, Enterprise. Jenkins is free and you don’t have to pay for anything.
-Jenkins can be hosted on a **Virtual Machine**, **container** Or even locally for development purposes. and services like below:
+Jenkins can be hosted on a **Virtual Machine**, **container** Or even locally for development purposes. and services like below.
+
     * Automated builds
     * Automated Tests
     * Automated CI/CD pipelines
@@ -125,12 +127,38 @@ Q. how to use jenkins-cli?
 ---------------------------
 java -jar jenkins-cli.jar -s http://localhost:8085 -auth 'admin:Adm!n321' <command>
 
-Q. How to provide limited access to users ?
---------------------------------------------
+Q. How to provide limited access to users role based  authentication?
+-----------------------------------------------------------------------
 to provide restrictions at user level, we need to install a plugin know as **Role-based Authorization Strategy** need to install 
 
 
-   
+1: Go to Manage Jenkins, then click on Manage and Assign Roles tab.
+2: Click on Manage Roles button and then under the Global Roles section, input your role named developers in Role to add box, then click Add button. Now your role will be visible in matrix.
+3: Then check mark the box under Read section for developers role only.
+4: Now click on Save button on your bottom of the window.
+
+Steps to assign role to the user:
+
+1: Go to Manage Jenkins, then click on Manage and Assign Roles tab..
+2: Click on Assign Roles button, then under the Global Roles section input your user named tony in User/group to add box, then click Add button. Now your user will be visible in matrix.
+3: Then check mark the box under developers section for tony user only.
+4: Now click on Save button on the bottom of the window.
+
+Q. how assign project based metrix authentication?
+---------------------------------------------------
+1: Go to Manage Jenkins, then click on Manage Plugins tab.
+2: Click on Available section and search for Matrix Authorization Strategy plugin.
+3: Then mark the box check and click on Install without restart button.
+4: After that click on Restart Jenkins when installation is complete and no jobs are running.
+
+Steps to enable Project-based Matrix Authorization Strategy:
+
+1: Go to Manage Jenkins, then click on Configure Global Security tab.
+2: Select Project-based Matrix Authorization Strategy under Authorization section.
+3: Click on Add User and enter user name tony. After that it will appear in the matrix.
+4: Enable Read under Overall column, Build and Read under Job column for user tony.
+5: Now click on Save button on your bottom of the page.
+6: Login as tony user into the Jenkins server and build the job named mytest.
 
    
    
