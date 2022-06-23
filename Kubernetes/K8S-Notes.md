@@ -3,6 +3,7 @@ Kubernetes: Overview
 Kubernetes is an **Open-Source** and container orchestration system for automate software deployment, scale, descale, auto-scale, deploy, replicate, loadbalance, failover. its originally developed by Google.  which is used widely in containerization platfroms. it has widely spread global community support. now it maintained by **Cloud Native Computing Foundation**.
 
 there are other tools avaiable in the market, but this is the widly used one. other tools like
+
     1. OpenShift
     2. DockerSwam 
     3. Azure AKS
@@ -12,8 +13,8 @@ Kubernetes installtion:
 -----------------------------------------------------------------
 k8s installtion can be done is different ways depeding on the requirement. it can be done in 2 ways.
 
-    1. `minikube` --> for testing, training or local setup we can use it.
-    2. `kubeadm`  --> for commertial purpose setup, or production grade setup require kubeadm.
+    1. minikube --> for testing, training or local setup we can use it.
+    2. kubeadm  --> for commertial purpose setup, or production grade setup require kubeadm.
 
 Kubernetes-architecture:
 -----------------------------------------------------------------
@@ -28,10 +29,12 @@ etcd is a key/value store. it is a distributed reliable key value store which st
     $ cat /etc/kubernetes/manifests/etcd.yaml   -->etcd yaml is located 
     $ cat /etc/systemd/system/      --> all service files are avaiable here
 
-we must specify the certificate path location. the location of certificates are available /etc/kubernetes/pki/etcd
-    -cacert /etc/kubernetes/pki/etcd/ca.crt
-    -cert /etc/kubernetes/pki/etcd/server.crt
-    -key /etc/kubernetes/pki/etcd/server.key
+we must specify the certificate path location. the location of certificates are available 
+
+  ` $ /etc/kubernetes/pki/etcd \
+    -cacert /etc/kubernetes/pki/etcd/ca.crt \
+    -cert /etc/kubernetes/pki/etcd/server.crt \
+    -key /etc/kubernetes/pki/etcd/server.key ` 
     
     $ ps -aux |grep etcd
     
