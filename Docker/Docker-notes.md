@@ -33,7 +33,7 @@ Docker installation on CentOS, when docker install it create a dircectory in /va
 
 Docker: commands
 -------------------
-
+	$ ps aux 			--> to see process running inside container 
 	$ docker --version		--> docker version
 	$ docker-compose --version	--> docker compose version
 	$ docker run hello-world	--> running simple docker image hello-world
@@ -111,7 +111,14 @@ Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 	$ docker update my-nginx/container-ID
 	$ docker top my-nginx/container-ID 	--> to see process running for that container.
 	
+	
+	$ docker system df
+	$ docker system info
 	$ docker system prune	--> it will remove all stopped, dangling images
+		- all stopped containers
+  		- all networks not used by at least one container
+  		- all dangling images
+  		- all dangling build cache
 	
 	
 Q. What is a Docker: Image?
@@ -137,7 +144,7 @@ Containers are short lived object they are destroyed once the container work is 
 docker uses the storage drivers to do the all the below actions when we execute the command. they are mutiple types like AUFS, ZFS, BTRFS, Device Mapper, Overlay, Overlay2 and etc. Depeding on dockerimage base OS respective driver is used to perform this operations. 
 
 	$ docker create volume my-volume --> this will create a volume in the docker-host /var/lib/docker/volumes
-	
+		
 	$ docker run -v my-volume:/var/lib/mysql mysql --> mapping persistant volume to the docker contianer. /var/lib/mysql is the mysql default storage location.
 
 	$ docker run -v my-volume2:/var/lib/mysql mysql --> if we didn't create a volume initialy, docker will create the volume automatically.
@@ -266,6 +273,7 @@ How to Ignore Unnecessary Files: .dockerignore,  The .dockerignore file contains
 
 step-1: Now, create a new file named Dockerfile in an empty directory custom-nginx. A Dockerfile is a collection of instructions that, once processed by the daemon, results in an image. Content for the Dockerfile is as follow
 -------------------------------------------------------------
+```
 FROM ubuntu:latest
 
 EXPOSE 80
@@ -275,38 +283,42 @@ RUN apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 CMD ["nginx", "-g", "daemon off;"]
--------------------------------------------------------------
+```
+----------------------------------------
 
 Images are multi-layered files and in this file, each line (known as instructions) that you've written creates 
 
-FROM: Every valid Dockerfile starts with a FROM instruction. This instruction sets the base image for your resultant image.
-EXPOSE: The EXPOSE instruction is used to indicate the port that needs to be published. 
-RUN: The RUN instruction in a Dockerfile executes a command inside the container shell. 
-CMD: Finally the CMD instruction sets the default command for your image.
+	FROM: Every valid Dockerfile starts with a FROM instruction. This instruction sets the base image for your resultant image.
+	EXPOSE: The EXPOSE instruction is used to indicate the port that needs to be published. 
+	RUN: The RUN instruction in a Dockerfile executes a command inside the container shell. 
+	CMD: Finally the CMD instruction sets the default command for your image.
 
 to build the image need to use the command build from custom-nginx directory
 
-$ docker login	--> to login to docker hub registory
-$ docker push <Image-repositry-name>:<tag>
-example:
-$ docker image push karna-nginx:latest	--> to push the latest image
-$ docker pull <Image-repositry-name>:<tag>
-$ docker logout	--> to logout from docker registroy
 
-$ docker build . --> to build the docker image without tags
+	$ docker push <Image-repositry-name>:<tag>
+	
+	$ docker login		--> to login to docker hub registory.
+	$ docker logout		--> to logout from docker registroy
+	
+	$ docker image push karna-nginx:latest		--> to push the latest image
+	$ docker pull <Image-repositry-name>:<tag>
+	
 
-$ docker image build --tag custom-nginx:packaged . --> to tag the docker image. REPOSITORY-name is custom-nginx  and  TAG is package
-Example:
-$ docker image build --tag my-nginx:latest 	--> to tag the image
+	$ docker build . 	--> to build the docker image without tags
 
-$ docker images --> to list the images.
+	$ docker image build --tag custom-nginx:packaged . --> to tag the docker image. REPOSITORY-name is custom-nginx  and  TAG is package
 
-$ docker image history <image-name> --> to see the image layers of docker image.
+	$ docker image build --tag my-nginx:latest 	--> to tag the image
 
-$ docker image prune --force	--> this will delete name less images. 
+	$ docker images --> to list the images.
 
+	$ docker image history <image-name> --> to see the image layers of docker image.
+
+	$ docker image prune --force	--> this will delete name less images. 
 
 -----------------------------------------------------------------------
+```
 FROM ubuntu:latest
 
 RUN apt-get update && \
@@ -338,11 +350,13 @@ RUN cd nginx-1.19.2 && \
 RUN rm -rf /nginx-1.19.2
 
 CMD ["nginx", "-g", "daemon off;"]
+```
 --------------------------------------------------------------------------
 
 To create a exicutable docker images. use this 
 
 --------------------------------------------------------------------------
+```
 FROM python:3-alpine
 
 WORKDIR /zone
@@ -352,6 +366,7 @@ RUN apk add --no-cache git && \
     apk del git
 
 ENTRYPOINT [ "rmbyext" ]
+```
 ---------------------------------------------------------------------------
 
 to share the docker image online 
@@ -435,3 +450,16 @@ How to Access Logs from a Container in Docker
 $ docker container logs my-nginx	--> to check the container logs. 
 
 $ docker container create 
+	
+	
+Q. Securing the Docker Daemon (/var/run/docker.sock)?
+-------------------------------------------------------
+this to secure the docker environment from accedental stopping/starting/deleting. it also provide the security from hackers where her/she can attack if they have got access to the docker daemon. 
+	
+	step-1: Fist we need to secure the docker host.
+	-------------------------------------------------
+	1. disable password based authentication
+	2. enable logging using SSH based authentication.
+	3. determine users who need access to servers. 
+	
+	step-2: 
