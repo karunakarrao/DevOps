@@ -15,6 +15,9 @@ k8s installtion can be done is different ways depeding on the requirement. it ca
 
     1. minikube --> for testing, training or local setup we can use it.
     2. kubeadm  --> for commertial purpose setup, or production grade setup require kubeadm.
+    3. kops --> 
+    4. Kubespray --> 
+    
 
 Kubernetes-architecture:
 -----------------------------------------------------------------
@@ -100,6 +103,8 @@ Kubernetes Objects: `explain`
 kubernetes resources are called as kubernetes objects. which are used to setup the kubernetes for application deployment.
 
         $ kubectl api-resources --> to list all kubernetes objects 
+	$ kubectl api-resources --namespaced=true --> k8s objects which are created inside namespace
+        $ kubectl api-resources --namespaced=false --> k8s objects which are not created inside namespace
 
 1. Pod: --> Is the smallest object is k8s. conatiner are created inside the Pods. 
 2. ReplicaSet: --> to replicate POD's on k8s cluster. and make sure defined number of replicas avaialbe. 
@@ -172,14 +177,13 @@ spec:
    $ kubectl get pods  -w    --> to watch the pod status on fly
    $ kubectl get all         --> to list all objects(Pod, Replicasets, Deploylments, services, etc.) running in default namespace
    
-   $ kubectl get pods -n prod1-namespace        --> to list the pods running on the namespace prod1-namespace. insted of -n we can use --namespace
+   $ kubectl get pods -n prod1-namespace --> to list PODs on namespace prod1-namespace. insted of -n we can use --namespace
    $ kubectl get all --namespace=kube-system    --> to list "kube-system" namespace objects, kubernetes object namespace
    
-   $ kubectl get pods --show-labels     --> show labels of all pods
-   
-   $ kubectl get pods -n kube-system --show-labels |grep k8s-app=kube-dns   --> filter the pods from 100's of pods
-   
+   $ kubectl get pods --show-labels --> show labels of all pods
    $ kubectl get pods --selector=k8s-app=kube-dns --> selecting pods on selector 
+   $ kubectl get pods -n kube-system --show-labels | grep k8s-app=kube-dns --> filter the pods from 100's of pods
+
    
    $ kubectl describe pod my-pod    --> it will provide pod information
    $ kubectl edit pod my-pod        --> to edit the Pod on fly
@@ -208,6 +212,7 @@ It's mainly used by Deployment as a mechanism to orchestrate pod creation, delet
 rc-def.yaml
 ----------------------------------------------------------------------------------------------------------------------------------
 ```
+---
 apiVersion: v1
 kind: ReplicationController
 metadata:
@@ -383,8 +388,8 @@ Note: "Pod-template-hash" Do not change this label. This label ensures that chil
     $ kubectl rollout history deployment my-deploy  --> history of the number of deployments
     $ kubectl rollout status deployment my-deploy   --> deployment status can be checked. 
     $ kubectl rollout restart deployment my-deploy  --> to restart the resources. 
-    $ kubectl rollout undo deployment my-deploy     --> if update is failed for some reason, then rollout the new-version to the old-verison 
-    $ kubectl rollout undo deployment/nginx-deployment --to-revision=2 --> rollback to a specific revision by specifying it with --to-revision:
+    $ kubectl rollout undo deployment my-deploy     --> if update is failed  then rollout the new-version to the old-verison 
+    $ kubectl rollout undo deployment/nginx-deployment --to-revision=2 --> rollback to a specific revision with --to-revision
     
 Note: we can see revision version details in the deployment description in annotations field.  By default, 10 old ReplicaSets will be kept, however its ideal value depends on the frequency and stability of new Deployments.
 
@@ -592,8 +597,7 @@ spec:
 
 NameSpace: (create, get, api-resources, config, 
 -----------------------------------------------------
-In Kubernetes, namespaces provides a mechanism for isolating groups of resources(pods, replicasets, deployments, services, etc..) within a single cluster. 
-Names of resources need to be unique within a namespace, but not across mutiple namespaces. In simple terms namespace is a isolated area for a team. 
+In Kubernetes, namespaces provides a mechanism for isolating groups of resources(pods, replicasets, deployments, services, etc..) within a single cluster. Names of resources need to be unique within a namespace, but not across mutiple namespaces. In simple terms namespace is a isolated area for a team. 
 
         $ kubectl get namespace --> to list the namespaces avaiable
         $ kubectl get namespaces --show-labels --> 
@@ -820,7 +824,7 @@ taints are 3 types
 
         $ kubectl desribe node node01|grep taint 
         
-        $ kubectl taint node node01 env=UAT:NoSchedule-  --> this is to remove the taint from a node
+        $ kubectl taint node node01 env=UAT:NoSchedule-  --> this is to remove the taint from a node use "-" at the end. 
 
 to allow the tained nodes to create pods, we need to create the pods with taint tolerations while creating the pod.
 
