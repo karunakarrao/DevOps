@@ -170,7 +170,7 @@ spec:
 -------------------------------------------------------------
 
    $ kubectl create -f pod-def.yaml  --> is used to create the pod using YAML file.
-   $ kubectl replace -f pod-def.v2.yml      --> updating with new version
+   $ kubectl replace -f pod-def.v2.yml  --> updating with new version
 
    $ kubectl get pods        --> to list pods running on default namespace
    $ kubectl get pods -o wide   --> to list pods with aditional details
