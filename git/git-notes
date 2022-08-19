@@ -1,0 +1,133 @@
+Git: (hotfix, release, enhancement, fixes, 
+---------------------------
+
+git --version
+
+git config --list --system
+git config --list --global
+git config --list --local
+git config --list --show-origin
+
+git config --global user.name "karunakar"
+git config --global user.email "karna@gmail.com"
+
+git init
+git add .
+git commit -m " this is the first commit"
+
+git log 
+
+
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main	--> update the branch name to "main"
+git remote add origin https://github.com/karunakarrao/testing.git
+git push -u origin main
+
+
+git remote add origin https://github.com/karunakarrao/testing.git
+git branch -M main
+git push -u origin main
+
+git restore --staged file1 --> got restored
+
+git log
+git log -p -2 --> to view last commited 2 details
+
+git log --stat --> see the log commit msg for each commit
+
+git remote -v
+
+git remote add origin 
+git remote add origin https://github.com/karunakarrao/testing.git
+git remote add karna https://github.com/karunakarrao/testing.git
+
+git remote -v 
+
+pull == fetech + merge
+
+git push origin master --> to push the data to the remote machine. 
+
+git remote show origin 
+
+git branch new-branch --> to create a new branch with name "new-branch"
+git checkout -b new-branch2 --. to create a new branch 
+
+git switch branch --> to switch between branches. 
+
+git switch - --> go bach to old branch name
+
+git remote rename origin paul
+
+-------------------
+TAG:
+-------------------
+to specifyy the release point
+ 
+git tag
+git tag -a v1.0.0 -m "my app version "
+git log
+ 
+git show
+git show v1.0.0 
+
+git push origin v1.0.0
+git push origin --tags
+
+git tag -d v1.0.0
+
+--------------------
+branching:
+--------------------
+git branch branch1 --> to create a branch1
+git checkout branch1 --> to change to branch1
+git switch branch1 --> to change to branch 1
+
+git log --oneline --> to show the log output in oneline. 
+git branch -d hotfix --> to delete the hotfix branch 
+
+git branch --merged
+git branch -v
+
+git branch --no-merged 
+
+git branch --move branch1 branch3
+
+git push --set-upstream origin corrected-branch-name
+
+
+-------------------------
+restore:
+--------------------------
+to restore a delete file
+
+rm test1
+git restore  test1
+
+git restore --staged <filename> --> to restore from staging area
+git reset --soft HEAD^ --> to revert the last commit done
+git reset --soft HEAD~2 --> revert the commits back to 2 commits
+
+git reset --hard HEAD^ --> it will delete completely the latest commit done
+git reset --hard HEAD~3 --> it will delete last 3 commits done.
+
+-------------------------
+stash:
+-------------------------
+
+to stash the git changes, we need to first mv to stage env.
+
+git stash
+git stash show --> shows the information of a stash file
+git stash list --> list of stash files
+
+git stash 
+
+
+	
+
+
+
+
+
