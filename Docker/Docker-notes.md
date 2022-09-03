@@ -11,6 +11,16 @@ The docker engine consists of 3 componenets.
 	
 **Docker Daemon:** The daemon (dockerd) is a process that keeps running in the background and waits for commands from the client. The daemon is capable of managing various Docker objects.
 
+	1. docker objects are stored in this location (containers/images/volumes/networks/etc) : /var/lib/docker 
+	2. docker daemon service is run on ports : 2375(plain)/2376(secure) 
+	3. docker environment variable for accessing remotely : export DOCKER_HOST="tcp://docker-host-ip:2375" --> for secure use 2376
+	4. docker service check : systemctl status docker 
+	5. docker service start : systemctl start docker
+	6. docker service enable: systemctl enable docker
+	7. docker daemon troubleshooting with service logs : journalctl -u docker.service 
+	8. docker configuration files are stored in : /etc/docker/daemon.json 
+	9. docker config reload : systemctl reload docker
+
 **Docker Client:** The client  (docker) is a command-line interface program mostly responsible for transporting commands issued by users.
 
 **REST API:** The REST API acts as a bridge between the daemon and the client. Any command issued using the client passes through the API to finally reach the daemon.
@@ -22,20 +32,23 @@ You as a user will usually execute commands using the client component. The clie
 Docker: Install
 -------------------
 Docker installation on CentOS, when docker install it create a dircectory in /var/lib/docker where all the docker objects are stored. such as containers, images, volumes, network and others. 
+
+docker installtion path are as below 
+	
 		 
 	 $ sudo yum install -y yum-utils	--> install yum-utils package
-	
 	 $ sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo	--> add repository 
-
 	 $ sudo yum install docker-ce docker-ce-cli containerd.io	-->install 3 components. 
-
 	 $ sudo systemctl start docker	--> start docker as service.
+	 $ sudo systemctl enable docker --> enable the docker service on restart
+
 
 Docker: commands
 -------------------
 	$ ps aux 			--> to see process running inside container 
 	$ docker --version		--> docker version
 	$ docker-compose --version	--> docker compose version
+	$ docker system info 		--> docker full information (debug mode/
 	$ docker run hello-world	--> running simple docker image hello-world
 	
 	$ docker ps -a 		--> to check the hello-world containers
@@ -44,8 +57,10 @@ Q. What is a Docker: Registry? (Docker Hub)
 ---------------------------------------------
 An image registry is a centralized place where you can upload your images and can also download images created by others. Docker Hub is the default public registry for Docker. create a docker hub account and login using link: https://hub.docker.com/
 	
-	$ docker login 	--> to login to docker repository
+	$ docker login 	--> to login to docker repository (default: docker hub repository)
 	$ docker logout --> to logout docker repository
+	$ docker login gcr.io	--> to login to GCP repository
+	$ docker login docker.io --> to login to to docker hub repository
 	
 Q. What is a Docker: Container? 
 --------------------------------
@@ -126,7 +141,6 @@ Q. What is a Docker: Image?
 Images are multi-layered self-contained files that act as the template for creating containers. They are like a frozen, read-only copy of a container. Images can be exchanged through registries.
 
 	$ docker pull nginx --> will pull the image from docker repository, it will pull only one.
-	$ docker pull redis --> 
 	
 	$ docker push custome-image --> to push you image to the docker repository
 	
@@ -136,6 +150,10 @@ Images are multi-layered self-contained files that act as the template for creat
 	$ docker rmi nginx --> to remove the nginx image in local repository
 	
 	$ docker build .  --> directory should container `Dockerfile` to build the docker image
+	
+	$ docker image tag httpd:alpine httpd:customv1 --> rename the tagged value with custom name
+	
+	$ docker image tag httpd:alpine gcr.io/company/httpd:customv1 
 	
 Q. What is a Docker: Volumes ?
 -------------------------------
