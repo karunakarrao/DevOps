@@ -14,12 +14,12 @@ The docker engine consists of 3 componenets.
 	1. docker objects are stored in this location (containers/images/volumes/networks/etc) : /var/lib/docker 
 	2. docker daemon service is run on ports : 2375(plain)/2376(secure) 
 	3. docker environment variable for accessing remotely : export DOCKER_HOST="tcp://docker-host-ip:2375" --> for secure use 2376
-	4. docker service check : systemctl status docker 
-	5. docker service start : systemctl start docker
-	6. docker service enable: systemctl enable docker
-	7. docker daemon troubleshooting with service logs : journalctl -u docker.service 
-	8. docker configuration files are stored in : /etc/docker/daemon.json 
-	9. docker config reload : systemctl reload docker
+	4. docker service check : $ systemctl status docker 
+	5. docker service start : $ systemctl start docker
+	6. docker service enable: $ systemctl enable docker
+	7. docker daemon troubleshooting with service logs : $ journalctl -u docker.service 
+	8. docker configuration files are stored in : $ vi /etc/docker/daemon.json 
+	9. docker config reload : $ systemctl reload docker
 
 **Docker Client:** The client  (docker) is a command-line interface program mostly responsible for transporting commands issued by users.
 
@@ -140,6 +140,37 @@ Q. What is a Docker: Image?
 ----------------------------
 Images are multi-layered self-contained files that act as the template for creating containers. They are like a frozen, read-only copy of a container. Images can be exchanged through registries.
 
+during the build process, if we want to avoid the file which we don't want to build, then create a file named .dockerignore file and add the file which need to be ignored during the build process. 
+
+Sample docker image creation using the Dockerfile
+-------------------------------------------------------------
+```
+FROM ubuntu:latest
+
+EXPOSE 80
+
+RUN apt-get update && \
+    apt-get install nginx -y && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+CMD ["nginx", "-g", "daemon off;"]
+```
+----------------------------------------
+
+```
+	FROM	--> define OS prefered for your image
+	RUN	--> for runing a command 
+	COPY	--> copy the file from local to image
+	ADD	--> similer to COPY, but it has some additinal features, it can untar and copy, it can donwload from internet and copy
+	EXPOSE	--> to expose the port for image
+	CMD 	--> the program with container should start when container start
+	ENDPOINT --> similer to CMD, but need to pass the CMD at the end.  
+	ENV	--> image environment variables defined druing the container run
+	WORKDIR	--> define the working directory 
+	VOLUME	--> define mountable directories in image
+	ARG	--> arguments to pass in the image
+```	
+
 	$ docker pull nginx --> will pull the image from docker repository, it will pull only one.
 	
 	$ docker push custome-image --> to push you image to the docker repository
@@ -149,11 +180,23 @@ Images are multi-layered self-contained files that act as the template for creat
 	
 	$ docker rmi nginx --> to remove the nginx image in local repository
 	
-	$ docker build .  --> directory should container `Dockerfile` to build the docker image
+	$ docker build . -t custom-tag1 --> directory should container `Dockerfile` to build the docker image
+	$ docker build https://github.com/karunakarrao/my-nignx  --> to build the image from a git repo
+	$ docker build https://github.com/karunakarrao/my-nginx#branchname --> can also specify the branch 
+	$ docker build https://github.com/karunakarrao/my-nginx:<build-folder-name> --> this way we can pass the directory in a repo
+	$ docker build -f Dockerfile.dev https://github.com/karunakarrao/my-nginx:<build-folder-name> 
 	
 	$ docker image tag httpd:alpine httpd:customv1 --> rename the tagged value with custom name
 	
 	$ docker image tag httpd:alpine gcr.io/company/httpd:customv1 
+	
+	$ docker image save alpine:latest -o alpine.tar  --> to save the image as .tar file and share
+	$ docker image load -i alpine.tar  --> to extract the .tar file 
+	
+	$ docker export <container-name> file1.tar
+	$ docker image import file1.tar newimage:latest
+	
+	
 	
 Q. What is a Docker: Volumes ?
 -------------------------------
