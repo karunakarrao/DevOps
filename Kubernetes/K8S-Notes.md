@@ -21,7 +21,7 @@ k8s installtion can be done is different ways depeding on the requirement. it ca
 
 Kubernetes-architecture:
 -----------------------------------------------------------------
-Kuberenetes architecture build on master nodes salve nodes model. in K8S there are several components involved. below are the list of components.
+Kuberenetes architecture build on master & salve nodes model. in K8S there are several components involved. below are the list of components.
     **Master-Node** components: Kuber API-Server, ETCD, kube-Controller, kube-Scheduler, Container-runtime, kubelet(agent), kubeproxy(agent)
     **Worker-Node** Components: Container-Runtime(Docker), kubelet(agent), kubeproxy
 
@@ -112,7 +112,7 @@ kubernetes resources are called as kubernetes objects. which are used to setup t
 4. Deployment: --> to deploy the application using deployment..
 5. Service: --> to expose the deployed services to the external network need to create services. 
 6. Daemonsets: --> it is a type of pods which are created one on each cluster nodes. means one pod on one physical server.
-7. Namespace: --> is working area in cluster, we can have mutiple namespaces in a cluster, we devide namespaces as a working are for dev/uat/prod.
+7. Namespace: --> in k8s cluster, we can have mutiple namespaces, we devide namespaces as a working are for dev/uat/prod.
 
 
 **`kubectl`** : is a command to which user interact with k8s cluster.
@@ -181,7 +181,7 @@ spec:
    $ kubectl get all --namespace=kube-system    --> to list "kube-system" namespace objects, kubernetes object namespace
    
    $ kubectl get pods --show-labels --> show labels of all pods
-   $ kubectl get pods --selector=k8s-app=kube-dns --> selecting pods on selector 
+   $ kubectl get pods --selector=env=prod --> selecting pods on selector 
    $ kubectl get pods -n kube-system --show-labels | grep k8s-app=kube-dns --> filter the pods from 100's of pods
 
    
@@ -322,6 +322,11 @@ metadata:
     name: my-deploy
 spec:
     replicas: 5
+    strategy:
+    	type: RollingUpdate
+    	rollingUpdate:
+	      maxSurge: 25%   
+      	      maxUnavailable: 25%
     selector:
         matchLabels:
             app: nginx
@@ -349,8 +354,7 @@ spec:
     $ kubectl get deployment my-deply       --> to check one deployment my-deploy
     $ kubectl get deployment --namespace=dev    --> to check the deploymets running on namespace "dev"
     
-    $ubectl describe deployment my-deploy 
-  
+    $ kubectl describe deployment my-deploy 
 
     $ kubectl delete deployment my-deploy
     
@@ -494,7 +498,7 @@ When you Exposes the Service the **default service** type will set as **`Cluster
 by using "expose" command and to expose the application, a service is created and application accessing "Endpoints" are created. to access the application we use this endpoints. this can be seen `$ kubectl describe service <service-name>`
 
 	`$ kubectl expose deployment my-deploy --port=80 `--> this expose the deployment as a clusterIP. to access URL use clusterIP.
-    	`$  curl http://10.101.51.194 `--> to access the URL use clusterIP ip address
+    	`$ curl http://10.101.51.194 `--> to access the URL use clusterIP ip address
 
 ### NodePort:   
 Exposes the Service on each Node's IP at a static port (NodePort). NodePort ranges from port 30000 to 32767.
@@ -508,7 +512,7 @@ Exposes the Service on each Node's IP at a static port (NodePort). NodePort rang
     $ curl http://localhost:31358 --> to access the URL use Node ip address and the NodePort
 ```
 
-**Note:** remember the application listen port, should be same as --port other wise we can't access the application.
+**Note:** remember the application listen port is defined with --port argument, should be same as --port other wise we can't access the application.
 
 --------------------------------------
 ```
@@ -595,13 +599,12 @@ spec:
         $ kubectl edit service my-svc 	--> to edit the service properties
 ```
 
-NameSpace: (create, get, api-resources, config, 
------------------------------------------------------
-In Kubernetes, namespaces provides a mechanism for isolating groups of resources(pods, replicasets, deployments, services, etc..) within a single cluster. Names of resources need to be unique within a namespace, but not across mutiple namespaces. In simple terms namespace is a isolated area for a team. 
+NameSpace: (create, get, api-resources, config ) 
+--------------------------------------------------------------------------------------------------------
+In Kubernetes, namespaces provides a mechanism for isolating groups of resources(pods, replicasets, deployments, services, etc..) within a single cluster. Names of resources need to be unique within a namespace, but not across mutiple namespaces. In simple terms namespace is a isolated area for a team.
 
-        $ kubectl get namespace --> to list the namespaces avaiable
-        $ kubectl get namespaces --show-labels --> 
-        
+	$ kubectl get namespace --> to list the namespaces avaiable
+	$ kubectl get namespaces --show-labels --> it will show labels     
         $ kubectl api-resources --namespaced=true --> k8s objects which are created inside namespace
         $ kubectl api-resources --namespaced=false --> k8s objects which are not created inside namespace
         
@@ -612,35 +615,37 @@ Kubernetes starts with four initial namespaces:
     3). kube-public: This namespace is created automatically and is readable by all users 
     4). kube-node-lease: This namespace holds Lease objects associated with each node. it allow the "kubelet" to send heartbeats so that master node can detect node failure.
     
-kubeconfig file is avaiable in the $HOME/.kube/config --> this is the file which is visible when we exicute the below command
+Note: kubeconfig file is avaiable in the $HOME/.kube/config --> this is the file which is visible when we exicute the below command.
+
         $ kubectl config view --> to see kubeconfig file.
-        
         $ kubectl config get-contexts --> to check details for current namespace, cluster information
         $ kubectl config view | grep namespace  --> to check the namespace currenlty we are working on. if we are default it won't show.
         
-        $ kubectl run nginx --image=nginx --namespace=prod1 --> creating a nginx pod in prod1 namespace, make sure prod1 namespace is created.
+	$ kubectl run nginx --image=nginx --namespace=prod1 --> create nginx pod in prod1 namespace, prod1 namespace should be created.
         $ kubectl get pods --namespace=prod1 --> to list pods from namespace prod1
        
         $ kubectl config set-context --current --namespace=prod1 --> to switch from "default" to "prod1" namespace
         $ kubectl config set-context --current --namespace=kube-system --> switch to kubernetes namespace
 
-When you create a Service, it creates a corresponding DNS entry. This entry is of the form <service-name>.<namespace-name>.svc.cluster.local, which means that if a container only uses <service-name>, it will resolve to the service which is local to a namespace. This is useful for using the same configuration across multiple namespaces such as Development, Staging and Production. If you want to reach across namespaces, you need to use the fully qualified domain name (FQDN).
+When you create a Service, it creates a corresponding DNS entry.This entry is of the form `<service-name>.<namespace-name>.svc.cluster.local`which means that if a container only uses `<service-name>`, it will resolve to the service which is local to a namespace. This is useful for using the same configuration across multiple namespaces such as Development, Staging and Production. If you want to reach across namespaces, you need to use the fully qualified domain name (FQDN).
 
-        $ kubectl create namespace prod1 --> this will create  namespace prod1
-    
-	(or) 
+	$ kubectl create namespace prod1 --> this will create  namespace prod1
+
 	
 prod1-namespace-def.yaml
------------------------------------
+-------------------------
+```	
 apiVersion: v1
 kind: Namespace
 metadata:
     name: prod1
+```
 ----------------------------------
 
 
 nginx-prod1-definition.yaml --> this will create nginx pod in namespace prod1
 -----------------------------------------------------------------------------------
+```
 apiVersion: v1
 kind: Deployment
 metadata:
@@ -657,7 +662,8 @@ spec:
             containers:
             - name: nginx
               image: nginx
- -------------------------------------------------------------------------
+```	      
+-------------------------------------------------------------------------
 
     $ kubectl create -f prod1-namespace-def.yaml --> this yaml file create namespace prod1
     $ kubectl create -f nginx-prod1-definition.yaml --> this will create nginx prod on namespace prod1
@@ -668,9 +674,9 @@ spec:
     $ kubectl delelte namespace prod1 --> to delete the prod1 namespace
 
     $ kubectl config get-context --> to check the namespace 
-
+ 
 Namespace: ResourceQuota
-=========================
+-----------------------------------------------------
 
 ?????????? Pending ???????????
 
