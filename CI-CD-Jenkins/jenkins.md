@@ -64,14 +64,14 @@ Q. How to install Jenkins?
 Jenkins installtion on Linux, jenkins require Java, we can follow Jenkins documentation to install it. 
 
 ```
-    $ sudo yum install epel-release -y      --> 
-    $ sudo yum install java -y              --> java installtion
-    $ sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo --no-check-certificate    --> repo installtion
-    $ sudo rpm --import http://pkg.jenkins.io/redhat-stable/jenkins.io.key      --> jenkin key for validation
-    $ sudo yum install jenkins -y           --> install jenkins
+    $ sudo yum install epel-release -y --> install all dependencies/repos
+    $ sudo yum install java -y  --> java installtion mandate to run jenkins
+    $ sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo --no-check-certificate --> repo add
+    $ sudo rpm --import http://pkg.jenkins.io/redhat-stable/jenkins.io.key  --> jenkin key for validation
+    $ sudo yum install jenkins -y --> install jenkins
 ```
 
-Important configuration file are available **`/lib/systemd/system/jenkins.service`** file and change Jenkins port to 8090 by updating Environment="JENKINS_PORT=" variable value , It should look like this: Environment="JENKINS_PORT=8090"
+Jenkins installation files are availabel in **`/var/lib/jenkins/`**, in this directory we have config.xml and jobs are stored here, to start the jenkins service the configuration file are available **`/lib/systemd/system/jenkins.service`** file and change Jenkins port to 8090 by updating Environment="JENKINS_PORT=" variable value , It should look like this: Environment="JENKINS_PORT=8090"
 
 ```
     $ sudo vi /lib/systemd/system/jenkins.service
@@ -130,7 +130,6 @@ java -jar jenkins-cli.jar -s http://localhost:8085 -auth 'admin:Adm!n321' <comma
 Q. How to provide limited access to users role based  authentication?
 -----------------------------------------------------------------------
 to provide restrictions at user level, we need to install a plugin know as **Role-based Authorization Strategy** need to install 
-
 
 1: Go to Manage Jenkins, then click on Manage and Assign Roles tab.
 2: Click on Manage Roles button and then under the Global Roles section, input your role named developers in Role to add box, then click Add button. Now your role will be visible in matrix.
