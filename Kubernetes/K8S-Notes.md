@@ -1076,9 +1076,14 @@ spec:
   - name: with-pod-affinity
     image: k8s.gcr.io/pause:2.0
 -----------------------------------------------------------------
--------------------------------------------------------------------
+
+
 ResourceQuota: limiting the number of k8s objects for a namespace
 ------------------------------------------------------------------
+It can limit the quantity of k8s objects(pods, configmaps, secrets, deployments, services, etc) that can be created in a namespace by type, as well as the total amount of compute resources that may be consumed by resources in that namespace.
+ 
+-------------------------
+```
 apiVersion: v1
 kind: ResourceQuota
 metadata:
@@ -1088,8 +1093,10 @@ spec:
     configmaps: "10"
     secrets: "20"
     services: "30"
+ ```
 ---------------------------------------------
-----------------------------------------------------------------------------------------------------------------------
+
+
 Resources: Restricting the resouce usage at POD level | 1CPU unit = 1000milli cpu units.| 
 -------------------------------------------------------------------------------------------------------------------------
 When a pod placed on a node it will use system resources such as CPU, Memeory, Disk Space. if node doesn't have the sufficient resources the scheduler avoid placing the pod on the node it shows insufficient CPU. Kubernetes doesn't provide default resource limits. This means that unless you explicitly define limits, your containers can consume unlimited CPU and memory.
@@ -1099,6 +1106,7 @@ Note:  we can specify the resource requirement for each pod using resources para
 1CPU unit = 1000milli cpu units.
 
 --------------------------------------------------------------
+```
 apiVersion: v1
 kind: Pod
 metadata:
@@ -1114,6 +1122,7 @@ spec:
       limits:    # maximux limit a pod can consume
         memory: "128Mi"
         cpu: "500m"
+```
 -----------------------------------------------------------------
 
 if the container exceeds the limit, then K8S will not allow the pod to use more resources. it will stop the resource limit.
@@ -1122,7 +1131,7 @@ With resource quotas, cluster administrators can restrict resource consumption a
 
 For the POD to pick up those defaults you must have first set those as default values for request and limit by creating a LimitRange in that namespace.
 
----------------------------------------------------------------------------------------------------------------------------------------
+
 LimitRange: Restrict POD resource usage limit at NameSpace level
 ----------------------------------------------------------------------------------------------------------------------------------------
 Pod resource usage can be restricted using LimitRange, this is the default values set at namespace level. when a Pod created it will by default restrict its limits as defined in the "LimitRange", so when POD usage exceeds its limits. it will not let the system use the system resouces. 
@@ -1352,13 +1361,13 @@ how to monitor the resource consumtion on kubernetes cluster, what would like to
     2). pod and performace 
    
 by default k8s not comes with monitoring solution. for that we need to use open source solutions like
-    1. Metrix severs
+    1. Metrix severs --> memroy monitoring solution.
     2. prometheus
     3. elastic stack
     4. Datadog
     5. dynatrace
 
-we can have i metrix sever for each k8s cluster. it is an in memory monitroing solution. we cant see historical performace. k8s runs and agent on each node is kubelet. kubelet also contain component called cAdviser. which is resposible collecting the node metrix and send it to the metrics sever.
+we can have i metrix sever for each k8s cluster. it is an in memory monitroing solution. we cant see historical performace. k8s run an agent on each node is kubelet. kubelet also contain component called cAdviser. which is resposible collecting the node metrix and send it to the metrics sever.
 
 for minikube, we can use 
         $ minikube addons enable metrics-server
@@ -1471,6 +1480,7 @@ data:
 ----------------------------------------------
 
 (or)
+
 creating a configmap from a file with multiple env variables
 
 app-env.properties
@@ -1532,6 +1542,7 @@ this involves 2 steps
 ### step-1: creating secrets:
 ------------------------------
 $ kubectl create secret generic my-secret --from-literal=db_host=mysql --from-literal=DB_user=root --from-literal=DB_password=password
+
 (or)
 
 $ kubectl create secret generic my-secret --from-file=secrets.properties.
@@ -1583,6 +1594,7 @@ spec:
 spec:
     containers:
     -   name: nginx
+    
         image: nginx
         env:    # configmap is mapped to a specific contiainer.
         - name: DB_Password
