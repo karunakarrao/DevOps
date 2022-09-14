@@ -14,9 +14,11 @@ The docker engine consists of 3 componenets.
 	1. docker objects are stored in this location (containers/images/volumes/networks/etc) : /var/lib/docker 
 	2. docker daemon service is run on ports : 2375(plain)/2376(secure) 
 	3. docker environment variable for accessing remotely : export DOCKER_HOST="tcp://docker-host-ip:2375" --> for secure use 2376
+	
 	4. docker service check : $ systemctl status docker 
 	5. docker service start : $ systemctl start docker
 	6. docker service enable: $ systemctl enable docker
+	
 	7. docker daemon troubleshooting with service logs : $ journalctl -u docker.service 
 	8. docker configuration files are stored in : $ vi /etc/docker/daemon.json 
 	9. docker config reload : $ systemctl reload docker
@@ -41,17 +43,28 @@ docker installtion path are as below
 	 $ sudo yum install docker-ce docker-ce-cli containerd.io	-->install 3 components. 
 	 $ sudo systemctl start docker	--> start docker as service.
 	 $ sudo systemctl enable docker --> enable the docker service on restart
+	 
+	 $ dockerd	--> to start the docker service manually
+	 $ dockerd --debug	--> starting the docker service in debug mode. 
+	 $ dockerd --debug --host=tcp://192.168.1.10:2375 --> remote docker service (export DOCKER_HOST="tcp://192.168.1.10:2375)
+	 
 
 
-Docker: commands
--------------------
-	$ ps aux 			--> to see process running inside container 
+	$ ps aux |grep docker 		--> to see process running inside container 
 	$ docker --version		--> docker version
 	$ docker-compose --version	--> docker compose version
 	$ docker system info 		--> docker full information (debug mode/
 	$ docker run hello-world	--> running simple docker image hello-world
 	
-	$ docker ps -a 		--> to check the hello-world containers
+	$ docker ps 	--> only running containers list
+	$ docker ps -a 	--> to see all containers (running/stopped/paused/created)
+	$ docker ps -q	--> shows only container-ID
+	$ docker ps -qa --> shows all containers-ID (running/stopped/paused/created)
+	
+	$ docker image ls	--> list docker images
+	$ docker network ls	--> lists docker networks
+	$ docker container ls	--> lists running docker containers
+	$ docker volume ls 	--> lists volumes created
 
 Q. What is a Docker: Registry? (Docker Hub)
 ---------------------------------------------
@@ -70,22 +83,17 @@ A container is a isolated env which will package the softwares and its dependenc
 		
 Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 	
-		-i --> interactive mode
-		-t --> terminal 
-		-d --> detached
-
-		-c --> cpu
-		-m --> memory
-		-l --> labels
-		
-		--rm --> remove the container once its stopped
-		
+		-i 	--> interactive mode
+		-t 	--> terminal 
+		-d 	--> detached
+		-c 	--> cpu
+		-m 	--> memory
+		-l 	--> labels
+		--rm 	--> remove the container once its stopped
 		-v <host-volume>:<container-volume> 	--> volumes
 		-p <Host-port>:<container-port> 	--> publish ( port )
-		-e key1=value1 		--> environment variable
-		
+		-e key1=value1 	--> environment variable
 		--network <network-name> 	--> 
-		
 		attach --> to attach to the running container
 	
 	$ docker ps --> it will show only running containers
@@ -95,15 +103,30 @@ Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 	$ docker --help
 	$ docker <command> --help
 	
-	$ docker create --name my-nginx nginx --> this will create a nginx container, need to start 
-	$ docker start my-nginx --> to start the newly created nginx 
-	$ docker stop my-nginx --> to stop the nginx, it will be avaiable to restart again
-	$ docker kill my-nginx --> it will obruptly kills the nginx
+	$ docker create --name my-nginx nginx --> creates nginx container, named as my-nginx
+	$ docker start my-nginx		--> starts newly created nginx 
+	$ docker stop my-nginx 		--> stop nginx container, it will be avaiable to restart again
+	$ docker kill my-nginx 		--> it will obruptly kills the nginx container
 	
-	$ docker run nignx --> this will create & start the nginx, and docker daemon will give a unique name to it.
-	$ docker run --name my-nginx nginx --> this will create & start and name the container as my-nginx
-	$ docker run -d nginx --> this will create & start & the container run in background
+	$ docker run nignx 	--> it creates & starts nginx container, and docker daemon will give a unique name to it.
+	$ docker run --name my-nginx nginx 	--> it creates & starts nginx container named as my-nginx
+	$ docker run -d nginx 	--> container run in background
 	$ docker run -it nginx /bin/bash --> this will open a terminal to connect with container 
+	
+	$ docker run -p 8080:80 nginx --> publish the nginx to external network (-p <host-Port>:<container-port> ) 
+	$ docker run –p 3306:3306 mysql --> publish mysql port
+	$ docker run –p 192.168.1.5:8000:5000 kodekloud/simple-webapp	--> 
+
+	$ docker run --rm ubuntu cat /etc/*release*	--> remove the docker container once the container exited.
+	
+	$ docker port my-nginx/container-ID	--> to check container ports status
+	$ docker port my-nginx 8080/tcp 
+	$ docker port my-nginx 8080/ud
+	
+	$ docker cp <host-path> <contiainer-id:/container-path> 
+	$ docker cp /tmp/web.conf webapp:/etc/web.conf --> copy file/directories to container from localhost to container 
+		
+	$ docker rename my-nginx app1-nginx --> to rename nginx container from my-nginx to app1-nginx
 	
 	$ docker attach my-nginx --> to attach to the detached container, to detach (Ctrl+q /Ctrl+p)
 	
@@ -115,20 +138,24 @@ Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 	$ docker unpause my-nginx my-redis -->it will unpause the containers
 	
 	$ docker rm my-redis --> to delete the container permanently
-	
-	$ docker run -p 8080:80 nginx --> to publish the nginx to external network (-p <host-Port>:<container-port> ) http://host-ip:host-port
-	
+		
 	$ docker inspect  my-nginx/container-ID --> to see the docker container details.
-	$ docker port my-nginx/container-ID	--> to check container ports status
-	$ docker port my-nginx 8080/tcp 
-	$ docker port my-nginx 8080/udp
+	
+	$ docker logs my-nginx
 	
 	$ docker update my-nginx/container-ID
+	
 	$ docker top my-nginx/container-ID 	--> to see process running for that container.
+	$ docker stats	--> provide the stats of the containers
 	
+	$ docker container stop $(docker container ls -q) --> stop all containers at once
+	$ docker container rm $(docker container ls -aq) --> remove all container at once.
 	
-	$ docker system df
-	$ docker system info
+	$ docker system events --since 60m	--> system events recorded for 60m 
+	
+	$ docker system df	--> docker objects created count and memeory usage
+	$ docker system info	--> docker daemon configuration details.
+	
 	$ docker system prune	--> it will remove all stopped, dangling images
 		- all stopped containers
   		- all networks not used by at least one container
