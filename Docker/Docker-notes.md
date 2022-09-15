@@ -201,8 +201,8 @@ Images are multi-layered self-contained files that act as the template for creat
 
 during the build process, if we want to avoid the file which we don't want to build, then create a file named .dockerignore file and add the file which need to be ignored during the build process. 
 
-Sample docker image creation using the Dockerfile
--------------------------------------------------------------
+Sample docker image creation using the Dockerfile:
+--------------------------------------------------
 ```
 FROM ubuntu:latest
 
@@ -214,9 +214,7 @@ RUN apt-get update && \
 
 CMD ["nginx", "-g", "daemon off;"]
 ```
-----------------------------------------
 
-```
 	FROM	--> define OS prefered for your image
 	RUN	--> for runing a command 
 	COPY	--> copy the file from local to image
@@ -228,7 +226,7 @@ CMD ["nginx", "-g", "daemon off;"]
 	WORKDIR	--> define the working directory 
 	VOLUME	--> define mountable directories in image
 	ARG	--> arguments to pass in the image
-```	
+
 
 pull/push:
 
@@ -261,15 +259,15 @@ save:
 
 	$ docker image save alpine:latest -o alpine.tar  --> to save the image as .tar file and share
 	$ docker image load -i alpine.tar  --> to extract the .tar file 
-
+	
 export/import:
 
 	$ docker export <container-name> file1.tar
 	$ docker image import file1.tar newimage:latest
-
+	
 Q. what is the use of docker namespaces ?
 ------------------------------------------
-Docker containers running on hosted severs are not fully isolated, means they share same kernal. So the containers running on host are given a process-ID. Docker uses namespaces for each container so with in the container only container process are visible. but if we actually see hosted system process, respective process are visible in the hosted system with different PID.  
+Docker uses Namespaces to isolate the containers from the hosted OS, Docker containers running on hosted severs are not fully isolated, means they share same kernal. So the containers running on host are given a process-ID. Docker uses namespaces for each container so with in the container only container process are visible. but if we actually see hosted system process, respective process are visible in the hosted system with different PID.  
 
 Q. What is a Docker: Volumes ?
 -------------------------------
@@ -289,10 +287,10 @@ run:
 	$ docker run -v /home/mysql:/var/lib/mysql mysql --> we can map the external location to store the data persistantly
 	$ docker run --mount type=bind,source=/home/mysql,target=/var/lib/mysql mysql --> this way also we can mount the volumes.
 
-inspect:
+Q. What is **`docker-compose`** ? 
+---------------------------------
+If we deploying fullscale application on docker, we need to have nginx, mangodb, redis, ansible. 
 
-	$ docker volume inspect my-volume1
-	
 Q. What is Docker: Networking ?
 --------------------------------
 Docker installtion comes with 3 types of networks
