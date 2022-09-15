@@ -37,30 +37,32 @@ Docker installation on CentOS, when docker install it create a dircectory in /va
 
 docker installtion path are as below 
 	
-		 
+Install:		 
 	 $ sudo yum install -y yum-utils	--> install yum-utils package
 	 $ sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo	--> add repository 
 	 $ sudo yum install docker-ce docker-ce-cli containerd.io	-->install 3 components. 
 	 $ sudo systemctl start docker	--> start docker as service.
 	 $ sudo systemctl enable docker --> enable the docker service on restart
-	 
+
+Daemon:	 
 	 $ dockerd	--> to start the docker service manually
 	 $ dockerd --debug	--> starting the docker service in debug mode. 
 	 $ dockerd --debug --host=tcp://192.168.1.10:2375 --> remote docker service (export DOCKER_HOST="tcp://192.168.1.10:2375)
-	 
-
-
+	
+Version:	
 	$ ps aux |grep docker 		--> to see process running inside container 
 	$ docker --version		--> docker version
 	$ docker-compose --version	--> docker compose version
 	$ docker system info 		--> docker full information (debug mode/
 	$ docker run hello-world	--> running simple docker image hello-world
-	
+
+Process:	
 	$ docker ps 	--> only running containers list
 	$ docker ps -a 	--> to see all containers (running/stopped/paused/created)
 	$ docker ps -q	--> shows only container-ID
 	$ docker ps -qa --> shows all containers-ID (running/stopped/paused/created)
-	
+
+objects:
 	$ docker image ls	--> list docker images
 	$ docker network ls	--> lists docker networks
 	$ docker container ls	--> lists running docker containers
@@ -70,6 +72,7 @@ Q. What is a Docker: Registry? (Docker Hub)
 ---------------------------------------------
 An image registry is a centralized place where you can upload your images and can also download images created by others. Docker Hub is the default public registry for Docker. create a docker hub account and login using link: https://hub.docker.com/
 	
+Registry:	
 	$ docker login 	--> to login to docker repository (default: docker hub repository)
 	$ docker logout --> to logout docker repository
 	$ docker login gcr.io	--> to login to GCP repository
@@ -102,57 +105,65 @@ Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 	
 	$ docker --help
 	$ docker <command> --help
-	
+
+start/stop:
 	$ docker create --name my-nginx nginx --> creates nginx container, named as my-nginx
 	$ docker start my-nginx		--> starts newly created nginx 
 	$ docker stop my-nginx 		--> stop nginx container, it will be avaiable to restart again
 	$ docker kill my-nginx 		--> it will obruptly kills the nginx container
-	
+
+run:
 	$ docker run nignx 	--> it creates & starts nginx container, and docker daemon will give a unique name to it.
 	$ docker run --name my-nginx nginx 	--> it creates & starts nginx container named as my-nginx
 	$ docker run -d nginx 	--> container run in background
 	$ docker run -it nginx /bin/bash --> this will open a terminal to connect with container 
-	
+
 	$ docker run -p 8080:80 nginx --> publish the nginx to external network (-p <host-Port>:<container-port> ) 
 	$ docker run –p 3306:3306 mysql --> publish mysql port
 	$ docker run –p 192.168.1.5:8000:5000 kodekloud/simple-webapp	--> 
 
+remove:	
 	$ docker run --rm ubuntu cat /etc/*release*	--> remove the docker container once the container exited.
-	
+
+ports:
 	$ docker port my-nginx/container-ID	--> to check container ports status
 	$ docker port my-nginx 8080/tcp 
 	$ docker port my-nginx 8080/ud
-	
+
+copy:
 	$ docker cp <host-path> <contiainer-id:/container-path> 
 	$ docker cp /tmp/web.conf webapp:/etc/web.conf --> copy file/directories to container from localhost to container 
-		
+
+rename:
 	$ docker rename my-nginx app1-nginx --> to rename nginx container from my-nginx to app1-nginx
 	
 	$ docker attach my-nginx --> to attach to the detached container, to detach (Ctrl+q /Ctrl+p)
-	
+
+execute:	
 	$ docker exec my-nginx uname -a --> to check the container OS details
 	$ docker exec my-nginx cat /etc/*release* --> this is to check container OS details
 	$ docker exec -it my-nginx /bin/bash --> this is to connect with running nginx 
-	
+
+pause:
 	$ docker pause my-nginx my-redis --> it will pause the container
 	$ docker unpause my-nginx my-redis -->it will unpause the containers
 	
 	$ docker rm my-redis --> to delete the container permanently
-		
+inspect:		
 	$ docker inspect  my-nginx/container-ID --> to see the docker container details.
-	
+
+logs:	
 	$ docker logs my-nginx
-	
-	$ docker update my-nginx/container-ID
-	
+
+top:	
 	$ docker top my-nginx/container-ID 	--> to see process running for that container.
 	$ docker stats	--> provide the stats of the containers
 	
 	$ docker container stop $(docker container ls -q) --> stop all containers at once
 	$ docker container rm $(docker container ls -aq) --> remove all container at once.
-	
+events:	
 	$ docker system events --since 60m	--> system events recorded for 60m 
-	
+system:	
 	$ docker system df	--> docker objects created count and memeory usage
 	$ docker system info	--> docker daemon configuration details.
 	
