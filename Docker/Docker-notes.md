@@ -267,21 +267,31 @@ export/import:
 	$ docker export <container-name> file1.tar
 	$ docker image import file1.tar newimage:latest
 
+Q. what is the use of docker namespaces ?
+------------------------------------------
+Docker containers running on hosted severs are not fully isolated, means they share same kernal. So the containers running on host are given a process-ID. Docker uses namespaces for each container so with in the container only container process are visible. but if we actually see hosted system process, respective process are visible in the hosted system with different PID.  
+
 Q. What is a Docker: Volumes ?
 -------------------------------
 Containers are short lived object they are destroyed once the container work is over, but the data it collected also removed once the container is destroied. so to make the data persistant or to use for time to time we need to map the container path to localhost path so that the data is save persistantly. this is where the volumes come in to picture.
 
 docker uses the storage drivers to do the all the below actions when we execute the command. they are mutiple types like AUFS, ZFS, BTRFS, Device Mapper, Overlay, Overlay2 and etc. Depeding on dockerimage base OS respective driver is used to perform this operations. 
 
-	$ docker create volume my-volume --> this will create a volume in the docker-host /var/lib/docker/volumes
-		
-	$ docker run -v my-volume:/var/lib/mysql mysql --> mapping persistant volume to the docker contianer. /var/lib/mysql is the mysql default storage location.
-
-	$ docker run -v my-volume2:/var/lib/mysql mysql --> if we didn't create a volume initialy, docker will create the volume automatically.
-
-	$ docker run -v /home/mysql:/var/lib/mysql mysql --> we can map the external location to store the data persistantly
+	$ docker volume ls 
+	$ docker volume create my-volume1 	--> this will create a volume in the docker-host /var/lib/docker/volumes
+	$ docker volume remove my-volume1	--> remove my-volume1
+	$ docker inspect my-volume1		--> inspec the volume details. 
 	
+run: 
+
+	$ docker run -v my-volume:/var/lib/mysql mysql --> volume mapped to docker contianer. /var/lib/mysql default storage location.
+	$ docker run -v my-volume2:/var/lib/mysql mysql --> if we didn't create a volume, docker will create the volume and map.
+	$ docker run -v /home/mysql:/var/lib/mysql mysql --> we can map the external location to store the data persistantly
 	$ docker run --mount type=bind,source=/home/mysql,target=/var/lib/mysql mysql --> this way also we can mount the volumes.
+
+inspect:
+
+	$ docker volume inspect my-volume1
 	
 Q. What is Docker: Networking ?
 --------------------------------
@@ -295,8 +305,8 @@ Docker installtion comes with 3 types of networks
 	$ docker run --network=none nginx --> to map to none network.
 	
 	$ docker network ls
-	$ docker network create --driver bridge --subnet 182.18.10.0/16  my-network1
 	$ docker inspect my-nginx --> to see the network details attached to the container
+	$ docker network create --driver bridge --subnet 182.18.10.0/16  my-network1
 
 Note: Docker containers reach each other using container name, this is achived using docker built Embedded DNS, which will resolve all the container names. when we map the containers, we specify the container name. the built in DNS server runs always on 127.0.0.11. 
 
