@@ -289,7 +289,9 @@ run:
 
 Q. What is **`docker-compose`** ? 
 ---------------------------------
-If we deploying fullscale application on docker, we need to have nginx, mangodb, redis, ansible. 
+If we deploying fullscale application on docker, we need to use mutiple containers like web-server(nginx), in-memorydb(redis), persistant-db(mangodb), orchestration(ansible), etc. So to deploy all containers as a stack we use docker-compose .YAML files. this will deploy the complete application with one command. 
+
+	$ docker-compose up
 
 Q. What is Docker: Networking ?
 --------------------------------
