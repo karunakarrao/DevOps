@@ -291,7 +291,35 @@ Q. What is **`docker-compose`** ?
 ---------------------------------
 If we deploying fullscale application on docker, we need to use mutiple containers like web-server(nginx), in-memorydb(redis), persistant-db(mangodb), orchestration(ansible), etc. So to deploy all containers as a stack we use docker-compose .YAML files. this will deploy the complete application with one command. 
 
-	$ docker-compose up
+docker-compose file must be named as this other wise docker-compose will not notice your configuration file. docker-compose.yml, docker-compose.yaml, compose.yml, compose.yaml
+
+there are 2 versions in docker-compose file, mention the version details in "" like "2" or "3". 
+
+docker-compose.yml 
+-------------------
+```
+version: "3"
+services:
+  redis:
+    image: redis
+  db: 
+    image: postgres
+    environment: 
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+  voting-app:
+    image: eesprit/voting-app-vote
+    ports:
+      - 5000:80
+  result-app:
+    image: eesprit/voting-app-result
+    ports:
+      - 5001:80
+  worker-app:
+    image: eesprit/voting-app-worker
+```
+
+	$ docker-compose up	--> to bringup the application components. 
 
 Q. What is Docker: Networking ?
 --------------------------------
@@ -327,7 +355,7 @@ In a real life scenario in 3-tire environment, we have web-containers network ra
 	
 
 Q. Full picture how the Docker Image works?
------------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------
 1. To understand DockerImage better, we need to understand how DockerImages are build. DockerImages are build using Dockerfiles. Dockerfiles are contructed in multipule layers ( base(OS), package, dependencies, souce-code(application), endpoint) bind together and builds and image. this image is docker image. 
 
 2. DockerImages are readonly images, means they are act as a template to create a container. so docker uses the same image to create n number of containers.
