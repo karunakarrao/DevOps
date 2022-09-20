@@ -334,7 +334,23 @@ Docker installtion comes with 3 types of networks
 	
 	$ docker network ls
 	$ docker inspect my-nginx --> to see the network details attached to the container
-	$ docker network create --driver bridge --subnet 182.18.10.0/16  my-network1
+	
+	$ docker network create --driver bridge --subnet 182.18.10.0/16  my-network1 --> create docker network my-network1
+	$ docker run -itd --name first nginx --> run on default network 
+	$ docker run -itd --name second nginx --> runs on default bridge network
+	$ docker exec first ping second --> ping will not work, in default network containers are isolated 
+	
+	$ docker run -itd --name customfirst --network my-network1 nginx
+	$ docker run -itd --name customsecond --network my-network1 redis
+	$ docker exec customsecond ping customfirst --> ping with in the custom network will work, by default ping is enabled
+	
+	$ docker network connect custom-network1 first --> to establish the connection between 2 networks
+	$ docker exec customfirst ping first --> will work.
+	
+	$ docker network disconnect my-network1 my-nginx1
+	$ docker network disconnect my-network1 first
+	$ docker network rm my-network1
+	
 
 Note: Docker containers reach each other using container name, this is achived using docker built Embedded DNS, which will resolve all the container names. when we map the containers, we specify the container name. the built in DNS server runs always on 127.0.0.11. 
 
