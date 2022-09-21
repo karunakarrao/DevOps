@@ -31,6 +31,20 @@ Q. Terraform commands ?
 * `$ terraform state list` --> state the resources list
 * `$ terraform output` --> print output of `output.tf` file
 
+Q. Important file in terraform
+------------------------------
+.terraform      --> post `terraform init`, it download the plugins and providers to this directory
+.terraform.lock.hcl     --> lock file for terraform setup
+terraform.tfstate   --> post `terraform appply` 
+
+
+Q. different file purpose
+-------------------------
+main.tf	--> Main configuration file containing resource definition
+variables.tf --> Contains variable declarations
+outputs.tf --> Contains outputs from resources
+provider.tf --> Contains Provider definition
+terraform.tf --> Configure Terraform behaviour
 
 Q. How to install Terraform?
 ----------------------------
