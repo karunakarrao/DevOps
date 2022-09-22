@@ -358,4 +358,49 @@ to import the existing resource created in AWS can be maintained using the terra
 
 Q. Workspace : to create similer env like dev,test,uat,prod
 ------------------------------------------------------------
+if we  have used terraform to setup the Dev, environment. we can use this for replicate the UAT, Test, prod similerly. this can be achived using the `$ terraform workspace` command. `$ terraform workspace list`
 
+Lab-1: workspace setup for DEV, PROD environments.
+---------------------------------------------------
+
+main.tf
+---------------
+```
+resource "aws_instance" "webserver" {
+  availability_zone = var.region
+  ami               = var.ami
+  instance_type     = lookup(var.instance_type, terraform.workspace)    # `lookup` funtion to select value based on worksapce
+
+  tags = {
+    "Environment" = "DEV"
+  }
+}
+```
+
+variables.tf
+------------------
+```
+variable "ami" {
+  default = "ami-08c40ec9ead489470"
+}
+variable "instance_type" {
+  type = map(any)
+  default = {
+    "DEV"  = "t2.micro"
+    "PROD" = "t3.micro"
+  }
+}
+variable "region" {
+  default = "us-east-1a"
+}
+```
+2. create the workspace for the DEV and PROD using below command
+3. `$ terraform workspace create "DEV"      --> to create "DEV" workspace
+4. `$ terraform workspace create "PROD"     --> to create "PROD" workspace
+5. `$ terraform workspace list`     --> to list the workspaces we are working on.
+6. `$ terraform workspace select "DEV"      --> to select workspace where we work on.
+7. `$ terraform console`    --> will open a interactive terminal for checking the values. 
+8. ![image](https://user-images.githubusercontent.com/33980623/191747996-61f77579-c7c1-47d1-a7f8-8bde5ba037e4.png)
+
+9. `terraform apply` to apply the changes, now i working on workspace "DEV"
+10. switch to the "PROD" and run the same to apply the "PROD" configuration changes
