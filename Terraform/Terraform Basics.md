@@ -2,7 +2,7 @@ Q. What is Infrastructure as Code?
 -------------------------------------------------
 A. Infrastructure as code (IaC) tools allow you to manage infrastructure with configuration files rather than through a graphical user interface. IaC allows you to build, change, and manage your infrastructure in a safe environment. Configuration file can be reuse and share.
 
-Q. What is IaC as Terraform?
+Q. IaC as Terraform?
 ----------------------------
 A. Terraform is HashiCorp's infrastructure as code tool. It lets you define resources and infrastructure in human-readable, declarative configuration files, and manages your infrastructure's lifecycle. Using Terraform has several advantages over manually managing your infrastructure:
   * Terraform can manage infrastructure on multiple cloud platforms.
@@ -38,7 +38,7 @@ Q. Important file in terraform
 terraform.tfstate   --> post `terraform appply` 
 .terraform.tfstate.lock.info --> while testing `terraform plan` and `terraform apply`, it creates and deletes it.
 
-Q. different file purpose
+Q. Files and its purpose
 -------------------------
 main.tf	--> Main configuration file containing resource definition
 variables.tf --> Contains variable declarations
@@ -46,7 +46,122 @@ outputs.tf --> Contains outputs from resources
 provider.tf --> Contains Provider definition
 terraform.tf --> Configure Terraform behaviour
 
-Q. How to install Terraform?
+variable.tfvars --> 
+
+Q. Variables
+-------------
+Terraform variables are defined in mutiple ways,  using different .tf files like. 
+
+Lab-1: using variables.tf with default values
+----------------------------------------------
+create `variables.tf` file same directory as `main.tf` file. and add the variables in the exmple shown
+
+variables.tf
+-------------
+```
+variable "ami" {
+  default = "ami-0edab43b6fa892279"
+}
+variable "instance_type" {
+  default = "t2.micro"
+}
+```
+main.tf
+-------------
+```
+resource "aws_instance" "webserver" {
+  ami           = var.ami
+  instance_type = var.instance_type
+
+}
+```
+
+Lab-2: using variables.tf with out default values
+-------------------------------------------------
+once you run the `$ terrform apply` command the system will promt for the values to enter dynamical values. 
+
+variables.tf
+-------------
+```
+variable "ami" {
+}
+variable "instance_type" {
+}
+```
+main.tf
+-------------
+```
+resource "aws_instance" "webserver" {
+  ami           = var.ami
+  instance_type = var.instance_type
+
+}
+```
+
+Lab-3: command line arguments to over ride the values
+-----------------------------------------------------
+we can pass "n" number of variables using the option -var as a command line argument.
+variables.tf
+-------------
+```
+variable "ami" {
+}
+variable "instance_type" {
+}
+```
+main.tf
+-------------
+```
+resource "aws_instance" "webserver" {
+  ami           = var.ami
+  instance_type = var.instance_type
+
+}
+```
+
+`$ terraform apply -var "ami=ami-0edab43b6fa892279" -var "instance_type=t2.micro"`
+
+Lab-4: setting as environment variables
+----------------------------------------
+we can export as environment varialbes.
+
+
+$ export TF_VAR_instance_type="t2.micro"
+$ export TF_VAR_ami="ami-0edab43b6fa892279"
+$ terraform apply
+
+Lab-5: define variables in bulk using `variable.tfvars`
+-------------------------------------------------------
+we can name the `variable.tfvars` with any name but extension should be with `.tfvars`. 
+
+variables.tf
+--------------
+```
+variable "ami" {
+}
+variable "instance_type" {
+}
+```
+main.tf
+-------------
+```
+resource "aws_instance" "webserver" {
+  ami           = var.ami
+  instance_type = var.instance_type
+
+}
+```
+variable.tfvars
+------------------
+variables are automatically loaded when the files are create with name `terraform.tfvars`, `*.auto.tfvars`, `terraform.tfvars.json`, `*.auto.tfvars.json` the files are automatically loaded in the env. else we need to use argument `-var-file variable.tfvars`
+```
+ami="ami-0edab43b6fa892279"
+instance_type="t2.micro"
+```
+$ terraform apply -var-file variables.tfvars
+
+
+Q. Install Terraform ?
 ----------------------------
 A. Terraform installtion package comes with only one file named as **`terraform`** which is a binary file. it is responsible to connect with all providers. Once **`terrafrom init`** is executed it will connect with terrform repository and download the appropriate plug-in. this plugins are used to configure repective providers. 
 
@@ -61,15 +176,15 @@ A. Terraform installtion package comes with only one file named as **`terraform`
 7. verify installtion `C:\> terraform -help` or `C:\> terraform -help plan`.
 
 ### Linux: Installtion
-------------------------------
+---------------------------
 1. Download the terrafrom package https://www.terraform.io/downloads and extract in `/usr/local/bin`
 2. update the PATH environment variable using `$ export PATH=$PATH:/usr/local/bin`
 3. check `$ terraform version`, you will get terrafrom version details. 
 4. verify installtion `$ terraform -help` or `$ terraform -help plan`.
 5. we can also do it `$ touch ~/.bashrc` and `$ terraform -install-autocomplete`.
 
-Q. How to Deploy a Docker image on Windows machine using terraform?
---------------------------------------------------------------------
+Lab-1. How to Deploy a Docker image on Windows machine using terraform?
+------------------------------------------------------------------------
 A. deploying a docker image using terraform, we need to first set prerequisites.
 1. Download DockerDesktop and install using https://docs.docker.com/desktop/windows/install/
 2. make sure the DockerDesktop is up and running. otherwise the system will not able to find the docker daemon.
@@ -135,8 +250,8 @@ Now update the external port number of docker container. Change the **docker_con
 * `$ terraform init` and `$ terraform apply` --> to apply the changes. 
 * this will destroy the old container and create a new container in place 
 
-Q. How to set the container-name with defining variables?
-----------------------------------------------------------
+Lab-2. How to set the container-name with defining variables?
+--------------------------------------------------------------
 Terraform variables allow you to write configuration that is flexible and easier to re-use. 
 1. Create a new file called **`variables.tf`** in same directory.
 2. write a block defining a new container_name variable. 
@@ -178,10 +293,10 @@ resource "docker_container" "nginx" {
 -----------
 4. run `$ terraform init` and `$ terraform apply` there we can see the value replacement message in red color
 5. we can also pass environment variables using the command line options like below to over ride the actual values.
-  `terraform apply -var "ami=ami-0edab43b6fa892279" -var "instance_type=t2.micro"`
+  `$ terraform apply -var "ami=ami-0edab43b6fa892279" -var "instance_type=t2.micro"`
 
 
-Q. How to inspect docker container configuration using ouput.tf?
+Lab-3. How to inspect docker container configuration using ouput.tf?
 -----------------------------------------------------------------
 1. create a new file named **`output.tf`** 
 
