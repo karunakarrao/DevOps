@@ -50,7 +50,13 @@ variable.tfvars -->
 
 Q. Variables
 -------------
-Terraform variables are defined in mutiple ways,  using different .tf files like. 
+Terraform variables are defined in mutiple ways,  using different .tf files like. the variable presidence is like below. 
+
+4 Environment Variables 
+3 terraform.tfvars 
+2 `*.auto.tfvars` (alphabetical order)
+1 -var or –var-file (command-line flags) 
+
 
 Lab-1: using variables.tf with default values
 ----------------------------------------------
@@ -132,7 +138,7 @@ $ terraform apply
 
 Lab-5: define variables in bulk using `variable.tfvars`
 -------------------------------------------------------
-we can name the `variable.tfvars` with any name but extension should be with `.tfvars`. 
+we can name the `variable.tfvars` with any name but extension should be with `.tfvars`. variables are automatically loaded when the files are create with name `terraform.tfvars`, `*.auto.tfvars`, `terraform.tfvars.json`, `*.auto.tfvars.json` the files are automatically loaded in the env. else we need to use argument `-var-file variable.tfvars`
 
 variables.tf
 --------------
@@ -153,13 +159,26 @@ resource "aws_instance" "webserver" {
 ```
 variable.tfvars
 ------------------
-variables are automatically loaded when the files are create with name `terraform.tfvars`, `*.auto.tfvars`, `terraform.tfvars.json`, `*.auto.tfvars.json` the files are automatically loaded in the env. else we need to use argument `-var-file variable.tfvars`
 ```
 ami="ami-0edab43b6fa892279"
 instance_type="t2.micro"
 ```
+
 $ terraform apply -var-file variables.tfvars
 
+Output variables:
+------------------
+to present the output after applying the change, we can use the as below in the `main.tf` file. show the output `$ terraform apply` command
+
+```
+output "pub_ip" {
+value = aws_instance.cerberus.public_ip
+description = "print the public IPv4 address"
+}
+```
+
+$ terraform ouput --> to show the output of the defined variables
+$ terraform output pub_ip --> it will present only seleted output field
 
 Q. Install Terraform ?
 ----------------------------
