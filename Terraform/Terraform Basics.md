@@ -33,21 +33,24 @@ Q. Terraform commands ?
 
 Q. Important file in terraform
 ------------------------------
-.terraform      --> post `terraform init`, it download the plugins and providers to this directory
-.terraform.lock.hcl     --> lock file for terraform setup
-terraform.tfstate   --> post `terraform appply` 
-.terraform.tfstate.lock.info --> while testing `terraform plan` and `terraform apply`, it creates and deletes it.
-terrform.tfstate.d     --> while working with workspace it creates this folder structure to store the state file.
+* .terraform      --> post `terraform init`, it download the plugins and providers to this directory
+* .terraform.lock.hcl     --> lock file for terraform setup
+* terraform.tfstate   --> post `terraform appply` 
+* .terraform.tfstate.lock.info --> while testing `terraform plan` and `terraform apply`, it creates and deletes it.
+* terrform.tfstate.d     --> while working with workspace it creates this folder structure to store the state file.
 
 Q. Files and its purpose
 -------------------------
-main.tf	--> Main configuration file containing resource definition
-variables.tf --> Contains variable declarations
-outputs.tf --> Contains outputs from resources
-provider.tf --> Contains Provider definition
-terraform.tf --> Configure Terraform behaviour
+* main.tf	--> Main configuration file containing resource definition
+* variables.tf --> Contains variable declarations
+* outputs.tf --> Contains outputs from resources
+* provider.tf --> Contains Provider definition
+* terraform.tf --> Configure Terraform behaviour
 
-variable.tfvars --> 
+* variable.tfvars  --> 
+* terraform.tfvars  
+* terraform.tfvars.json
+* *.auto.tfvars
 
 Q. Variables
 -------------
