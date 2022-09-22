@@ -319,8 +319,9 @@ Lab-3. How to inspect docker container configuration using ouput.tf?
 -----------------------------------------------------------------
 1. create a new file named **`output.tf`** 
 
-output.tf
---------------------------
+output: to print the output on the stdout 
+------------------------------------------
+terrform output command print the output of the defined variables in the stdout, so that we can have details.
 ```
 output "my_container_id" {
       value = docker_image.nginx.id
@@ -339,4 +340,22 @@ output "my_image_id" {
 
 
 ![image](https://user-images.githubusercontent.com/33980623/174418529-dbdbb647-35db-42e9-9751-86c9ed1d3f77.png)
+
+Q. Debug : Terraform using logging
+---------------------------------
+Terraform provides 5 logging levels such as "info, warning, error, trace, debug". to enable this use the env variable as 
+
+ `$ export TF_LOG=trace` --> change the logging level according to your requirement.
+ `$ export TF_LOG_PATH=/tmp/terraform.log` --> to save to a different path
+ 
+Q. Import : existing resource to terraform 
+-----------------------------------------
+to import the existing resource created in AWS can be maintained using the terrafrom, to do so first we need to import the existing service  to terraform state file. to do so we import the configuration.
+
+ `$ terrform import <<resource_type>>.<<resource_name>> resource_unique_id`
+
+ `$ terraform import aws_instance.webserver-2 i-07ddd739949287d01`
+
+Q. Workspace : to create similer env like dev,test,uat,prod
+------------------------------------------------------------
 
