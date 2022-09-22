@@ -36,7 +36,7 @@ Q. Important file in terraform
 .terraform      --> post `terraform init`, it download the plugins and providers to this directory
 .terraform.lock.hcl     --> lock file for terraform setup
 terraform.tfstate   --> post `terraform appply` 
-
+.terraform.tfstate.lock.info --> while testing `terraform plan` and `terraform apply`, it creates and deletes it.
 
 Q. different file purpose
 -------------------------
@@ -177,6 +177,9 @@ resource "docker_container" "nginx" {
 ```
 -----------
 4. run `$ terraform init` and `$ terraform apply` there we can see the value replacement message in red color
+5. we can also pass environment variables using the command line options like below to over ride the actual values.
+  `terraform apply -var "ami=ami-0edab43b6fa892279" -var "instance_type=t2.micro"`
+
 
 Q. How to inspect docker container configuration using ouput.tf?
 -----------------------------------------------------------------
