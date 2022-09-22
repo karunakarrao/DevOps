@@ -37,6 +37,7 @@ Q. Important file in terraform
 .terraform.lock.hcl     --> lock file for terraform setup
 terraform.tfstate   --> post `terraform appply` 
 .terraform.tfstate.lock.info --> while testing `terraform plan` and `terraform apply`, it creates and deletes it.
+terrform.tfstate.d     --> while working with workspace it creates this folder structure to store the state file.
 
 Q. Files and its purpose
 -------------------------
