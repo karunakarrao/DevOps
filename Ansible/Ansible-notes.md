@@ -1,16 +1,21 @@
 Red Hat Ansible Engine Implementation:
 --------------------------------------
 
-Q. What is Ansible?
-Ansible is an Open source. its built on Python. Ansible is a configuration management and orchestration utility. Ansible Automates and standardizes configuration of remote hosts and virtual machines. we can start and shutdown of applications. we can Performs rolling updates with zero downtime. it support Vagrant and Jenkins.
+**Q. What is Ansible?
 
-Q. What are Ansible Limitations? 
-Ansible cannot audit changes made by other users on system. we can't determine who made change to a file. it does not perform initial minimal installation of system it does not track changes made to files on system. and its does not track which user or process made changes. To track changes, use version control system or Linux® Auditing System
+Ansible is an Open source. its built on **Python**. Ansible is a configuration management and orchestration utility. Ansible Automates and standardizes configuration of remote hosts and virtual machines. we can start and shutdown of applications. we can Performs rolling updates with zero downtime. it support Vagrant and Jenkins.
 
-Q. Ansible Architecture?
-two types of machines in Ansible architecture
+**Q. What are Ansible Limitations? 
+
+Ansible cannot audit changes made by other users on system. **we can't determine who made change to a file.** it does not perform initial minimal installation of system it does not track changes made to files on system. and its does not track which user or process made changes. To track changes, use version control system or Linux® Auditing System
+
+**Q. Ansible Architecture?
+
+there are two types of machines in Ansible architecture
+
 	1. control node (Ansible-master) --> Ansible software installed and maintained on control node. It must be linux OS.
 	2. managed hosts (Ansible-Worker) --> worker nodes can be linux / Windows.
+	
 System administrators login to Ansible-Master and launch Ansible playbook on a specify target host to hosts. SSH used as network transport to communicate with managed hosts Modules refer in playbook copied to managed hosts. and delete once the task is completed. Core modules perform most system administration tasks Users can write custom modules
 
 Q. What are Ansible-Master Components?
