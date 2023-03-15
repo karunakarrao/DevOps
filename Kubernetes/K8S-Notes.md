@@ -2,6 +2,13 @@ Kubernetes: Overview
 -----------------------------------------------------------------
 Kubernetes is an **Open-Source** and container orchestration system for automate software deployment, scale, descale, auto-scale, deploy, replicate, loadbalance, failover. its originally developed by Google.  which is used widely in containerization platfroms. it has widely spread global community support. now it maintained by **Cloud Native Computing Foundation**.
 
+k8s roles change according to your certification and responsibilities. 
+
+	1. KCNA - Kubernetes and Cloud-Native Associate
+	2. CKAD - Certified Kubernetes Application Developer
+	3. CKA - Certified Kubernetes Administrator
+	4. CKSA - Certified Kubernetes Security Specialist
+
 there are other tools avaiable in the market, but this is the widly used one. other tools like
 
     1. OpenShift
