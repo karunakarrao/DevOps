@@ -28,13 +28,13 @@ k8s installtion can be done is different ways depeding on the requirement. it ca
 
 Kubernetes-architecture:
 -----------------------------------------------------------------
-Kuberenetes architecture build on master & salve nodes model. in K8S there are several components involved. below are the list of components.
+Kuberenetes architecture build on master & salve model. In K8S there are several components involved. below are the list of components.
     **Master-Node** components: Kuber API-Server, ETCD, kube-Controller, kube-Scheduler, Container-runtime, kubelet(agent), kubeproxy(agent)
-    **Worker-Node** Components: Container-Runtime(Docker), kubelet(agent), kubeproxy
+    **Worker-Node** Components: Container-Runtime(Docker), kubelet(agent), kubeproxy(agent)
 
 1). ETCD: 
 -----------------------------------------------------------------
-etcd is a key/value store. it is a distributed reliable key value store which stores the information of all the kubernetes resources such as nodes, Pods, replicasets, deployments, namespaces, configs, secrets, accounts, roles etc. in multi master environment its stores the data. multiple etcd's spread across the master nodes so all masters can have the information on all the k8s objects in a cluster. it also responsible to maintain the logs to avoid conflicts between masters. 
+ETCD will stores data in key/value format. it is a distributed reliable key value store which stores the information of all the kubernetes resources such as nodes, Pods, replicasets, deployments, namespaces, configs, secrets, accounts, roles etc. In multi master environment it stores the data across mutiple master nodes, so all masters can have the information on all the k8s objects in a cluster. It also responsible to maintain the logs to avoid conflicts between masters. 
 
     $ cat /etc/kubernetes/manifests/etcd.yaml   -->etcd yaml is located 
     $ cat /etc/systemd/system/      --> all service files are avaiable here
@@ -92,7 +92,7 @@ kubelet is a agent running on all cluster nodes in kubernetes. which is installe
     
 6). kubeproxy:
 -----------------------------------------------------------------
-kubeproxy is an agent with in kubernetes cluster, every pod reaches every pod. this can achived with POD network. POD network is an internal network that spans accross all the nodes in the cluster to which all th pods in the cluster. 
+kubeproxy is an agent with in the kubernetes cluster, every pod reaches every pod. this can achived with POD networking. POD network is an internal network that spans accross all the nodes in the cluster to which all th pods in the cluster. 
 
 kubeproxy is a process runs on each node in k8s cluster. its job is to look for new services. and everytime a new service is created, kubelet creates appropriate rule on each node to forward the trafic to those services to the backend pods. it does with ip table rules. kube-proxy run as daemonset in the k8s cluster.
 
@@ -109,31 +109,56 @@ Kubernetes Objects: `explain`
 -----------------------------------------------------------------
 kubernetes resources are called as kubernetes objects. which are used to setup the kubernetes for application deployment.
 
-        $ kubectl api-resources --> to list all kubernetes objects 
+	$ kubectl api-resources --> to list all kubernetes objects 
 	$ kubectl api-resources --namespaced=true --> k8s objects which are created inside namespace
-        $ kubectl api-resources --namespaced=false --> k8s objects which are not created inside namespace
+	$ kubectl api-resources --namespaced=false --> k8s objects which are not created inside namespace
 
-1. Pod: --> Is the smallest object is k8s. conatiner are created inside the Pods. 
-2. ReplicaSet: --> to replicate POD's on k8s cluster. and make sure defined number of replicas avaialbe. 
-3. ReplicationController: --> same as replicaset, but replicaset is advanced.
-4. Deployment: --> to deploy the application using deployment..
-5. Service: --> to expose the deployed services to the external network need to create services. 
-6. Daemonsets: --> it is a type of pods which are created one on each cluster nodes. means one pod on one physical server.
-7. Namespace: --> in k8s cluster, we can have mutiple namespaces, we devide namespaces as a working are for dev/uat/prod.
+1. Pod		 	 --> Is the smallest object is k8s. conatiner are created inside the Pods. 
+2. ReplicaSet 		 --> to replicate POD's on k8s cluster. and make sure defined number of replicas avaialbe. 
+3. ReplicationController --> same as replicaset, but replicaset is advanced.
+4. Deployment		 --> to deploy the application using deployment..
+5. Service 		 --> to expose the deployed services to the external network need to create services. 
+6. Daemonsets		 --> this pods created one for each cluster node. means one pod on one physical server.
+7. Namespace		 --> k8s cluster, we can have mutiple namespaces, we devide namespaces as a working are for dev/uat/prod.
+8. bindings
+9. configmaps                  
+10. endpoints                   
+11. events                      
+12. limitranges                 
+13. persistentvolumeclaims      
+14. pods                        
+15. podtemplates                
+16. replicationcontrollers      
+17. resourcequotas              
+18. secrets                     
+19. serviceaccounts             
+20. services                            
+21. daemonsets                  
+22. deployments                 
+23. replicasets                 
+24. statefulsets                   
+25. cronjobs                    
+26. jobs                                                   
+27. events                      
+28. ingresses                   
+29. networkpolicies             
+30. poddisruptionbudgets        
+31. rolebindings                
+32. roles    
 
 
-**`kubectl`** : is a command to which user interact with k8s cluster.
+**`kubectl`** : is a command, users use this command to interact with k8s cluster.
 
     $ kubectl version --> to check the kubernetes version
     
     $ kubectl explain <k8s-Object-name> --> Documentation for resource object (Pod, Replicaset, Deployment, service, etc.)
     $ kubectl explain pod --> Documentation for POD. to check apiVersion of k8s object.
     $ kubectl explain replicaset/rs --> Documentation for Replicaset
-    $ kubectl explain replicationcontroller/rc --> Doc. for RC
+    $ kubectl explain replicationcontroller/rc --> doc. for RC
     $ kubectl explain deployment/deploy --> doc for deployment
     $ kubectl explain service/svc --> doc for service
 
-Kubernetes objects (Pod,Replicasets,Deployments,service,etc) are created in two types.
+Kubernetes objects are created in two types.
     1. imperative --> objects created using command line are called imperative.
     2. declarative --> objects created using yml/programing are called declarative.
 
@@ -143,10 +168,10 @@ Containers are lightweight object, it pack your application code together with d
 
 
 
----------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 POD: (create, replace, delete, describe, explain, edit, run )
----------------------------------------------------------------------------------------------------------------------------------------------------------------
-pod is the smallest object in the k8s. the docker containers are run inside the Pod. In k8s each pod is represented as one host and each pod is allocated with one IP address. once the pod is destroyed, its containers & its ip is also removed. if new pod is created in place of the pod they will be allocated with new IP address. which is allocated by the kubernetes. kubernetes pod are communicated with help of pod network. its is an internal network with in the cluster. 
+-------------------------------------------------------------------------------------------
+pod is the smallest object in the k8s. the docker containers are run inside the Pod. In k8s each pod is represented as one host and each pod is allocated with one IP address. once the pod is destroyed, its containers & its ip is also removed. if new pod is created in place of old pod they will be allocated with new IP address which is allocated by the kubernetes. kubernetes pod are communicated with help of pod network. its is an internal network with in the cluster.  
 
 Syntax: Imperative way
 ------------------------
@@ -197,24 +222,28 @@ spec:
    
    $ kubectl delete pod my-pod  --> to delete the pods
    
-   
+-------------------------------------------------------------------------------------------
 NameSpace:
------------------------------
-By default we see 4 namespaces in K8S cluster. 
+-------------------------------------------------------------------------------------------
+Namespaces provides a mechanism for isolating groups of resources within a single cluster. Names of resources need to be unique within a namespace, but not across namespaces. By default we see 4 namespaces in K8S cluster. 
 	
-	$ kubectl api-resources --namespaced=true	--> resources running inside namespace
-	$ kubectl api-resources --namespaced=false	--> resources running outside namespace
-	
-   1. **kube-system** --> this is k8s system namespace, where all the k8s cluster pods are avaiable. like etcd, api-server,controller, kubelet and etc.
-   2. **default** --> this is by default accessable to the kubernetes user
-   3. **kube-public** --> this is also for public access
+   1. **kube-system** --> This namespace is for objects created by the Kubernetes system. Like etcd, api-server,controller, kube-scheduler, kubelet and etc.
+   2. **default** --> Kubernetes includes this namespace so that you can start using your new cluster without first creating a namespace.
+   3. **kube-public** --> This namespace is readable by all clients (including those not authenticated). This namespace is mostly reserved for cluster usage
    4. **kube-node-lease** -->it holds Lease objects associated with each node. **`kubelet`** to send heartbeats so that the **Master-Node** can detect node failures.
 
+	$ kubectl api-resources --namespaced=true	--> resources defined inside namespace
+	$ kubectl api-resources --namespaced=false	--> resources defined outside namespace
+	
+	
+-------------------------------------------------------------------------------------------
 ReplicationController: (create, replace, delete, describe, explain, edit, apply )
---------------------------------------------------------------------------------------------------------
-A ReplicationController ensures that a specified number of pod replicas are running. `ReplicationController` is similer to ReplicaSet. but Replicaset is the next-generation ReplicationController that supports the new set-based label "selector". 
+-------------------------------------------------------------------------------------------
+A ReplicationController ensures that a specified number of pod replicas are running. `ReplicationController` is similer to ReplicaSet. but Replicaset is the next-generation for ReplicationController that supports the new set-based label "selector". 
 
-It's mainly used by Deployment as a mechanism to orchestrate pod creation, deletion and updates. Note that we recommend using Deployments instead of directly using ReplicaSets, unless you require custom update orchestration or don't require updates at all.
+It's mainly used by Deployment as a mechanism to orchestrate pod creation, deletion and updates. 
+
+Note:  that we recommend using Deployments instead of directly using ReplicaSets, unless you require custom update orchestration or don't require updates at all.
 
 rc-def.yaml
 ----------------------------------------------------------------------------------------------------------------------------------
