@@ -68,6 +68,8 @@ Controller check the heart beat of the nodes, if the node heart beat(40sec) is n
        3. namespace controller  --> namespace related activities are monitored by this 
        4. deployment controller
        5. endpoint controller
+       6. job controller
+       7. ServiceAccount controller
     
    $ cat /etc/kubernetes/manifests/kube-controller-manager.yaml --> controller YAML file is avaible here
    $ cat /etc/systemd/system/      --> all service files are avaiable here
@@ -92,6 +94,8 @@ kubelet is a agent running on all cluster nodes in kubernetes. which is installe
     
 6). kubeproxy:
 -----------------------------------------------------------------
+kube-proxy is a network proxy that runs on each node in your cluster, implementing part of the Kubernetes Service concept. kube-proxy maintains network rules on nodes. These network rules allow network communication to your Pods from network sessions inside or outside of your cluster.
+
 kubeproxy is an agent with in the kubernetes cluster, every pod reaches every pod. this can achived with POD networking. POD network is an internal network that spans accross all the nodes in the cluster to which all th pods in the cluster. 
 
 kubeproxy is a process runs on each node in k8s cluster. its job is to look for new services. and everytime a new service is created, kubelet creates appropriate rule on each node to forward the trafic to those services to the backend pods. it does with ip table rules. kube-proxy run as daemonset in the k8s cluster.
@@ -171,7 +175,7 @@ Containers are lightweight object, it pack your application code together with d
 -------------------------------------------------------------------------------------------
 POD: (create, replace, delete, describe, explain, edit, run )
 -------------------------------------------------------------------------------------------
-pod is the smallest object in the k8s. the docker containers are run inside the Pod. In k8s each pod is represented as one host and each pod is allocated with one IP address. once the pod is destroyed, its containers & its ip is also removed. if new pod is created in place of old pod they will be allocated with new IP address which is allocated by the kubernetes. kubernetes pod are communicated with help of pod network. its is an internal network with in the cluster.  
+pod is the smallest object in the k8s. the containers are run inside the Pod. In k8s each pod is represented as one host and each pod is allocated with one IP address. once the pod is destroyed, its containers & its ip is also removed. if new pod is created in place of old pod they will be allocated with new IP address which is allocated by the kubernetes. kubernetes pod are communicated with help of pod network. its is an internal network with in the cluster.  
 
 Syntax: Imperative way
 ------------------------
@@ -185,7 +189,7 @@ kubectl run command is used only for pods. it used to create POD using command-l
 Syntax: Declarative way
 ------------------------
 
-pod-def.yaml
+pod-def.yaml 
 -----------------------------------------------------------
 ```
 apiVersion: v1
@@ -282,10 +286,12 @@ spec:
     $ kubectl edit rc my-rc1
     $ kubectl replace -f replicationcontroller-definiton.v2.yaml
 
----------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 Replicaset: (create, replace, delete, describe, explain, edit, apply, scale, autoscale )
----------------------------------------------------------------------------------------------------------------------------------------------------------------
-A ReplicaSet's purpose is to maintain a set of replica Pods running at any time. `ReplicationController` and `ReplicaSet` are used for similer functionality. ReplicationController is older version, ReplicaSet is the newer version. In deployment k8s uses replicasets to replicate the pods.
+-------------------------------------------------------------------------------------------
+A ReplicaSet's purpose is to maintain a set of replica Pods running at any given time. `ReplicationController` and `ReplicaSet` are used for similer functionality. ReplicationController is older version, ReplicaSet is the newer version. In deployment k8s uses replicasets to replicate the pods. 
+
+Note: ReplicaSet can own a non-homogenous set of Pods. it means if the `matchLabels` is condition is met with other pods the pods get destroyed by this replicaset controller to maintain the desired count. so careful while defining the labels. 
 
 replicaset.v1.yaml
 -------------------------------------------------------------------------------------
@@ -335,10 +341,47 @@ spec:
 
         $ kubectl autoscale rs frontend --max=10 --min=3 --cpu-percent=50 --> to autoscale replicas to desired 
 
+ReplicaSet as a Horizontal Pod Autoscaler:(HPA)
+------------------------------------------------
+A ReplicaSet can also be a target for **Horizontal Pod Autoscalers** (HPA). That is, a ReplicaSet can be auto-scaled by an HPA.
 
+**HPA:** (Horizontal scaling)
+-------------------------------
+In Kubernetes, a HorizontalPodAutoscaler automatically updates a workload resource (such as a Deployment or StatefulSet), with the aim of automatically scaling the workload to match demand. Horizontal scaling means that the response to increased load is to deploy more Pods. Horizontal pod autoscaling does not apply to objects that can't be scaled (for example: a DaemonSet.). 
+
+**VPA:** (Vertical scaling)
+-------------------------------
+This is different from **vertical scaling**, which for Kubernetes would mean assigning more resources (for example: memory or CPU) to the Pods that are already running for the workload
+
+hpa-rs.yaml
+-----------------------------------
+```
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: frontend-scaler
+spec:
+  scaleTargetRef:
+    kind: ReplicaSet
+    name: frontend
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 50
+  
+```
+----------------------------------
+
+Note: autoscaling can be done using the command `autoscale` or as shown above we can use the hpa-rs.yaml 
+
+
+---------------------------------------------------------------------------------------------------------------
 Deployment: (create, replace, delete, describe, explain, edit, apply, scale, autoscale, rollout, set, expose )
 ---------------------------------------------------------------------------------------------------------------
-Deployment will create or modify pods and its containerized application. Deployments can scale PODs, enable rollout of old & update new code in a controlled manner, or roll-back to an earlier deployment version if necessary. deployment updates can be done in 2 ways
+A Deployment provides declarative updates for Pods and ReplicaSets. Deployment will create or modify pods and its containerized application. Deployments can scale PODs, enable rollout of old & update new code in a controlled manner, or roll-back to an earlier deployment version if necessary. 
+
+Do not overlap labels or selectors with other controllers (including other Deployments and StatefulSets). Kubernetes doesn't stop you from overlapping, and if multiple controllers have overlapping selectors those controllers might conflict and behave unexpectedly.
+
+deployment updates can be done in 2 ways
             
             1). rollingupdate
             2). recreate 
