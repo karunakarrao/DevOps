@@ -682,7 +682,7 @@ spec:
         $ kubectl delete serivce my-svc --> to delete 
         $ kubectl edit service my-svc 	--> to edit the service properties
 ```
-
+--------------------------------------------------------------------------------------------------------
 NameSpace: (create, get, api-resources, config ) 
 --------------------------------------------------------------------------------------------------------
 In Kubernetes, namespaces provides a mechanism for isolating groups of resources(pods, replicasets, deployments, services, etc..) within a single cluster. Names of resources need to be unique within a namespace, but not across mutiple namespaces. In simple terms namespace is a isolated area for a team.
@@ -729,16 +729,18 @@ metadata:
 
 nginx-prod1-definition.yaml --> this will create nginx pod in namespace prod1
 -----------------------------------------------------------------------------------
+
 ```
 apiVersion: v1
 kind: Deployment
 metadata:
     name: nginx-prod1
-    namespace: prod1    # add namespace in metadata to create the deployment in that namespace.
+    namespace: prod1    # add namespace in metadata to create the deployment in that namespace
 spec:
     replicas: 4
     selector:
-        matchLabels: nginx
+        matchLabels: 
+	  app: nginx
     template:
         metadata:
             name: nginx
@@ -746,8 +748,9 @@ spec:
             containers:
             - name: nginx
               image: nginx
-```	      
--------------------------------------------------------------------------
+	      
+```
+------------------------------------------------------------
 
     $ kubectl create -f prod1-namespace-def.yaml --> this yaml file create namespace prod1
     $ kubectl create -f nginx-prod1-definition.yaml --> this will create nginx prod on namespace prod1
@@ -758,9 +761,10 @@ spec:
     $ kubectl delelte namespace prod1 --> to delete the prod1 namespace
 
     $ kubectl config get-context --> to check the namespace 
- 
+    
+----------------------------------------------------------------------------------------- 
 Namespace: ResourceQuota
------------------------------------------------------
+-----------------------------------------------------------------------------------------
 
 ?????????? Pending ???????????
 
@@ -812,7 +816,8 @@ spec:
     limits.memory: 2Gi
     requests.nvidia.com/gpu: 4
 -------------------------------------------------------------------------------
-    
+
+-------------------------------------------------------------------------------
 nodeName: Manual scheduling
 -------------------------------------------------------------------------------
 kube-scheduler is responsible to devide and distribute the work among all the nodes equally, if a new node is created, it will allocate work to it. if you don't want a default scheduler to chose where to create pod on the cluster nodes, specifing the parameter/keyword "nodeName", to create pod on the defined Node name.
@@ -827,6 +832,7 @@ we can collect nodeName details using
 
 pod-definition.yaml 
 -----------------------------------------------------------------------------------
+```
 apiVersion: v1
 kind: Pod
 metadata: 
@@ -840,10 +846,12 @@ spec:
       image: nginx
       ports:
         - containerPort: 8080
+```
 ------------------------------------------------------------------------------------     
 
 pod-bind-runtime.yaml --> this file will change the pod nodeName during runtime. but below file need to convert into JSON format. pass it as a command line option.
 -------------------------------------------------------------------------------------
+```
 apiVersion: v1
 kind: Binding
 metadata: 
@@ -852,8 +860,9 @@ target:
     apiVersion: v1
     kind: Node
     name: node01
+```
+    
 ------------------------------------------------------------------------------------
-
 Labels & Selectors:
 ------------------------------------------------------------------------------------
 Labels and selectors are the properties attached to each k8s objects(Pods, deployments, services, etc..). they use to group kubernetes objects/resources to gether. labels and annotations are attached in metadata section in YAML file. Labels can be used to select objects and to find collections of objects that satisfy certain conditions. 
@@ -861,6 +870,7 @@ Labels and selectors are the properties attached to each k8s objects(Pods, deplo
 Annotations are not used as labels they identify the object details like name, phone number, author, etc.
 
 -----------------------------------------
+```
 apiVersion:v1
 kind: Pod
 metadata:
@@ -870,6 +880,7 @@ metadata:
         env: prod
         tire: frontend
         bu: finance
+```
 -------------------------------------------
 
     $ kubectl get all --selector app=nginx      --> to filter the all k8s objects using selector fields.
@@ -878,12 +889,15 @@ metadata:
     $ kubectl get pods --show-labels
 
     $ kubectl get nodes --show-labels       --> to show labels defined for a node.
-
+    
+------------------------------------------------------------------------------------
 Annotations:
 ------------------------------------------------------------------------------------
 Annotations are used to record details like name, build, email, phonenumber, other information. this information is not used to filter the k8s objects. they are used for
 information purpose only. 
+
 ------------------------------------
+```
 apiVersion: v1
 kind: Pod
 metadata:
@@ -894,8 +908,10 @@ metadata:
         name: karunakar
         email: sample@xyz.com
         phone: 999999999
+```
 ------------------------------------
 
+------------------------------------------------------------------------------------
 Taint & Tolerations:
 ------------------------------------------------------------------------------------
 Taints and tolerations work together to ensure that pods are not scheduled onto inappropriate nodes. One or more taints are applied to a node. this marks that the node should not accept any pods that do not tolerate the taints. 
@@ -920,6 +936,7 @@ to allow the tained nodes to create pods, we need to create the pods with taint 
 
 pod-tolaration.yaml
 ----------------------------------------------------------------
+```
 apiVersion: v1
 kind: Pod
 metadata: 
@@ -935,7 +952,9 @@ spec:
         operator: "Equal"
         value: "UAT"
         effect: NoSchedule
+```
 -----------------------------------------------------------------
+```
 spec:
     contianers:
     - name: nginx
@@ -949,26 +968,32 @@ spec:
         operator: "Equal"
         value: "UAT"
         effect: NoSchedule        
+```
 -----------------------------------------------------------------
---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------
 NodeSelector:
---------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------
 NodeSelector is similer to nodeName, but nodeSelector uses node labels to schedule the pods. 
 
-for example in a cluster few nodes, labeled as "disktype=ssd" then if we use this label with nodeSelector field. that means all the nodes with disktype=ssd are all eligible to create the pod with that labels.
+for example in a cluster few nodes, labeled as "disktype=ssd" then if we use this label with nodeSelector field. that means all the nodes with disktype=ssd are all eligible to create the pods in that node.
 
 to apply this property we need to follow 2 steps
 
 step-1: labeling the node with env=prod :
 ---------------------------------------
 
-    $ kubectl label node node01 env=prod    --> to create a label to node01 as env=prod
+    $ kubectl label node node01 env=prod	--> to create a label to node01 as env=prod
+    $ kubectl label node node01 env-		--> delete the label using "-" 
     $ kubectl get node node01 --show-labels --> to show the labels of node01
 
 step2: creating the pod with nodeSelector :
 ------------------------------------------
+
 my-pod.yaml    
 -----------------------------------------------
+```
 apiVersion: v1
 kind: Pod
 metadata:
@@ -979,10 +1004,10 @@ spec:
     containers:
     - name: nginx
       image: nginx
+```
 -----------------------------------------------
 
-      $ kubectl create -f my-pod.yaml
-
+-----------------------------------------------------------------
 NodeAffinity:
 -----------------------------------------------------------------
 Node affinity is conceptually similar to nodeSelector. it allows you to constrain which nodes your pod is eligible to be scheduled on, based on labels on the node.
