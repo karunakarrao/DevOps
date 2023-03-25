@@ -250,7 +250,7 @@ It's mainly used by Deployment as a mechanism to orchestrate pod creation, delet
 Note:  that we recommend using Deployments instead of directly using ReplicaSets, unless you require custom update orchestration or don't require updates at all.
 
 rc-def.yaml
-----------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------
 ```
 ---
 apiVersion: v1
@@ -273,7 +273,7 @@ spec:
         ports:
         - containerPort: 80     # port defined in the container to expose 
 ```
----------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------
 
     $ kubectl create -f rc-def.yaml --> create using YAML file.
 (or)$ kubectl apply -f rc-def.yaml
@@ -345,11 +345,11 @@ ReplicaSet as a Horizontal Pod Autoscaler:(HPA)
 ------------------------------------------------
 A ReplicaSet can also be a target for **Horizontal Pod Autoscalers** (HPA). That is, a ReplicaSet can be auto-scaled by an HPA.
 
-**HPA:** (Horizontal scaling)
+**HPA:** (Horizontal Pod scaling)
 -------------------------------
 In Kubernetes, a HorizontalPodAutoscaler automatically updates a workload resource (such as a Deployment or StatefulSet), with the aim of automatically scaling the workload to match demand. Horizontal scaling means that the response to increased load is to deploy more Pods. Horizontal pod autoscaling does not apply to objects that can't be scaled (for example: a DaemonSet.). 
 
-**VPA:** (Vertical scaling)
+**VPA:** (Vertical Pod scaling)
 -------------------------------
 This is different from **vertical scaling**, which for Kubernetes would mean assigning more resources (for example: memory or CPU) to the Pods that are already running for the workload
 
@@ -519,15 +519,20 @@ Q. How to check the deployment status and history of deployments?
     $ kubectl rollout history deployment my-deploy
 
 
+---------------------------------------------------------------------------------
 Service: (create, replace, delete, describe, explain, edit, apply,
-----------------------------------------------------------------------
-k8s Service will exposes the sevice to the outside network. to expose an application running on a set of Pods as a network service, this can be done in two ways. by using the command line parameter **`expose`** we can expose the service to the outside network. using the YAML file also we can do it by creatig a service for the same. 
+---------------------------------------------------------------------------------
+
+In Kubernetes, a Service is a method for exposing a network application that is running as one or more Pods. for each servcie in k8s given a IP address, so its  also has its own IP address.  The set of Pods targeted by a Service is usually determined by a selector that you define in POD definition as labels.
 
     Publishing Services K8s services to external network is exposed in 3 ways 
-        1). Cluster-IP (Default)
-        2). NodePort
-        3). LoadBalancer
-        
+    
+        1). Cluster-IP (Default) --> Service only reachable within the cluster
+        2). NodePort --> Exposes the Service on each Node's static port. port range 30000 - 32767
+        3). LoadBalancer -->
+ 
+example: suppose you have a set of Pods that each POD listen on TCP port 9376 and are labelled as app=MyApp. You can define a Service to publish that TCP listener
+ 
 service-nodeport.yml
 --------------------------------
 ```
@@ -543,11 +548,11 @@ spec:
     - protocol: TCP
       port: 80  #--> service exposes on this 
       targetPort: 9376 #--> container exposes services on this port
-      nodePort: 32008  #--> nodePort is range from ( 30000-->32767)
+      nodePort: 32008  #--> nodePort is on node, Port range from ( 30000-->32767)
 ```      
 --------------------------------
 
-Note: A Service can map any incoming **`port`** to  **`targetPort`**. By default and for convenience, the targetPort is set to the same value as the port field.
+Note: A Service can map any incoming **`port`** to  **`targetPort`**. By default and for convenience, the targetPort is set to the same value as the port field. id you didn't specify the targetPort, system will consider port & targetPort both are same. 
 
 service-multiport.yml
 --------------------------------
