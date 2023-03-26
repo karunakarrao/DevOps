@@ -100,3 +100,38 @@ $ kubectl
 $ kubectl expose pod nginx 
 $ kubectl get pods 
 $ kubectl describe pod my-pod 
+
+-----------
+apiVersion:
+kind:
+metadata:
+  name:
+  labels:
+    app:
+    env:
+  namespace:
+  annotations:
+    author:
+    email:
+    phone:
+spec:
+  replicas:
+  nodeName:
+  nodeSelector:
+    env: UAT1
+  tolerations:
+  containers:
+  volumes:
+
+
+---------------------------------------------------------
+NameSpace:
+---------------------------------------------------------
+
+$ kubectl get namespace
+$ kubectl config view
+$ kubectl config get-contexts
+$ kubectl config set-context --current --namespace kube-system --> default namespace to kube-system namespace
+$ kubectl create namespace dev  --> creates "dev" namespace with default values
+
+
