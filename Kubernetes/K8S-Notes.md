@@ -779,27 +779,6 @@ kubectl create deployment nginx --image=nginx --namespace=myspace --replicas=2
 kubectl describe quota --namespace=myspace
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 before creating resource quota for namespace, we need to create namespace 
     $ kubectl create namespace prod2
 
@@ -1352,6 +1331,7 @@ spec:
     replicationcontrollers: "20" 
     secrets: "10" 
     services: "10"
+    
 ----------------------------------
 LimitRangeis for managing constraints at a pod and container level within the project.
 ----------------------------------------
@@ -1554,7 +1534,7 @@ Configuring Environment Variables
 Configuring Secrets
 
 ---------------------------------------------------------------------------------------------------
-Commands and Arguments in docker
+Commands and Arguments in k8s pod
 ---------------------------------------------------------------------------------------------------
 
 
@@ -1585,8 +1565,9 @@ spec:
   restartPolicy: OnFailure
 ------------------------------------------------
 
+-------------------------------------------------------------------------------------------------
 Configuring Environment Variables:
-----------------------------------
+-------------------------------------------------------------------------------------------------
 --> if the docker require, any environment variable we specify them with option "-e key=value". similarly in k8s we specify the values as below.
 
 pod-definition.yaml
@@ -1607,28 +1588,29 @@ spec:
       value: large
     - name: APP_MODE
       value: prod
+      
 ---------------------------------------------------
 
+-------------------------------------------------------------------------------------------------
 Q. ConfigMaps: How to create & Inject configMap in k8s ?
----------------------------------------------------------
+-------------------------------------------------------------------------------------------------
 A `ConfigMap` is an K8S object used to store **non-confidential** data in** key-value** pairs. Pods can consume ConfigMaps as environment variables, command-line arguments, or as configuration files in a volume. A ConfigMap is not designed to hold large chunks of data. The data stored in a ConfigMap cannot exceed 1 MiB. If you need to store settings that are larger than this limit, you may want to consider mounting a volume or use a separate database or file service
 
 Note: The spec of a static Pod cannot refer to a ConfigMap or any other API objects. The Pod and the ConfigMap must be in the same namespace.
 
---> there are 2 steps involved in setting up the configmaps.
+there are 2 steps involved in setting up the configmaps.
+
     step-1. create configMap
     step-2. inject configMap
 
 step-1: creating configmap:
 ----------------------------
-        $ kubectl create configmap mysql-config --from-literal=mysql_port=3306 --from-literal=mysql_db_user=rajesh-db1
-        (or)
-        $ kubectl create configmap mysql-config \
-        > --from-literal=mysql_port=3306 \
-        > --from-literal=mysql_db_user=rajesh-db1
 
-(or)
+$ kubectl create configmap mysql-config --from-literal=mysql_port=3306 --from-literal=mysql_db_user=rajesh-db1
+
+my-configmap.yaml
 ---------------------------------------------
+```
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -1637,7 +1619,10 @@ metadata:
 data:
     mysql_port: 3306
     mysql_db_user: rajesh-db1
+```
 ----------------------------------------------
+
+$ kubectl create -f my-configmap.yaml
 
 (or)
 
@@ -1649,6 +1634,7 @@ APP_COLOR: RED
 APP_NAME: rajesh
 APP_DB_NAME: DB1
 APP_DB_USER: db-user1
+
 ------------------------------------------------
 
 $ kubectl create configmap app-env-config --from-file: app-env.properties
@@ -1671,6 +1657,7 @@ spec:
         envFrom:    # configmap is mapped to a specific contiainer.
         -   configMapRef:
             -   name: mysql-config  # mapping complete configmap
+	    
 -------------------------------------------------------------
 
 only one variable from configmap also can be used
@@ -1686,6 +1673,14 @@ spec:
             name: app-env-config      #configmap name 
             key: APP_COLOR
 -------------------------------------------------------------
+
+volumes:
+- name: app-config-valume
+  configMap:
+    name: app-config
+
+-------------------------------------------------------
+
 
 $ kubectl get configmaps --> to list the configmaps
 $ kubectl edit configmap <configmap-name> --> to edit or update the configmap
