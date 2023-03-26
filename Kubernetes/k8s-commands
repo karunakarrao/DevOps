@@ -2,6 +2,11 @@
 --------------------------------------------------------------------------------------------------
 Kubernetes Objects:
 --------------------------------------------------------------------------------------------------
+K8s important paths:
+--------------------
+/etc/kubernetes/manifests/      --> all kubernetes YAML files are stored
+/var/lib/kubelet/        --> 
+~/.kube/config      --> user permission and access keys are available here 
 
 kubectl : 
 ---------------------------------------------------------------
@@ -115,11 +120,21 @@ metadata:
     email:
     phone:
 spec:
-  replicas:
-  nodeName:
+  type: NodePort/ClusterIP/LoadBalancer
+  replicas: 3
+  nodeName: controlplane
   nodeSelector:
     env: UAT1
   tolerations:
+  - key:"env"
+    operator: "Equal"
+    value: "UAT1"
+    effect: "NoSchedule"
+  strategy:
+    type: RollingUpdate/Recreate
+    rollingupdate:
+      maxSurge: 25%
+      maxUnavialable: 25%
   containers:
   volumes:
 
