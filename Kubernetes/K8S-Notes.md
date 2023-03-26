@@ -1202,9 +1202,14 @@ spec:
 -----------------------------------------------------------------------------------
 Resource Limits:
 -----------------------------------------------------------------------------------
-Each node has a set of resouces such as CPU, Memory, DISK. similerly every pod will cosume some resources like CPU, MEM, DISK. the kube-scheduler will check for the resouces required to run the pod or not, then i will place the pod. if sufficient resources are not available then it goes to pending state. 
+When a pod placed on a node it will use system resources such as CPU, Memeory, Disk Space. if node doesn't have the sufficient resources the kube-scheduler avoid placing the pod on the node it shows insufficient CPU. Kubernetes doesn't provide default resource limits. This means that unless you explicitly define limits, your containers can consume unlimited CPU and memory.
+
+Note:  we can specify the resource requirement for each pod using resources parameter. it's useful to specify CPU units less than 1CPU or 1000milli using the milliCPU form. 	
 
 default values k8s will consider as 0.5-CPU, 256mi-MEM, DISK
+
+For the POD to pick up those default values, first you need to set default values by creating a `LimitRange` in namespace.
+
 
 1 CPU   = 1000m CPU (milli) 
 0.1 CPU = 100m CPU
@@ -1212,21 +1217,36 @@ default values k8s will consider as 0.5-CPU, 256mi-MEM, DISK
 1Mi MEM = 1024Ki
 1Ki MEM = 1024bytes
 
-
-
-
-
-
 pod-def-resource-limit.yaml
 ------------------------------------
-----
-
-
+```
+---
+apiVersion: v1
+kind: Pod
+metadata:
+	name: my-pod
+	labels:
+	  app: my-pod
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    ports:
+    	- containerPort: 80
+    resources:
+    	requests:
+  	  memory: "1Gi"
+	  cpu: 0.5
+	limits:
+	  memory: "2Gi"
+	  cpu: 1
+```
+-----------------------
 
 -----------------------------------------------------------------------------------
 ResourceQuota: limiting the number of k8s objects for a namespace
 -----------------------------------------------------------------------------------
-It can limit the quantity of k8s objects(pods, configmaps, secrets, deployments, services, etc) that can be created in a namespace by type, as well as the total amount of compute resources that may be consumed by resources in that namespace.
+It can limit the number of k8s objects(pods, configmaps, secrets, deployments, services, etc) that can be created in a namespace.
  
 -------------------------
 ```
@@ -1236,50 +1256,18 @@ metadata:
    name: my-rq-limits
 spec:
   hard:
+    cpu: "1000"
+    memory: "20Gi"
+    pods: "10"
     configmaps: "10"
     secrets: "20"
-    services: "30"
+    services: "30"/
  ```
 ---------------------------------------------
 
-
-Resources: Restricting the resouce usage at POD level | 1CPU unit = 1000milli cpu units.| 
--------------------------------------------------------------------------------------------------------------------------
-When a pod placed on a node it will use system resources such as CPU, Memeory, Disk Space. if node doesn't have the sufficient resources the scheduler avoid placing the pod on the node it shows insufficient CPU. Kubernetes doesn't provide default resource limits. This means that unless you explicitly define limits, your containers can consume unlimited CPU and memory.
-
-Note:  we can specify the resource requirement for each pod using resources parameter. it's useful to specify CPU units less than 1CPU or 1000milli using the milliCPU form. 	
-
-1CPU unit = 1000milli cpu units.
-
---------------------------------------------------------------
-```
-apiVersion: v1
-kind: Pod
-metadata:
-  name: frontend
-spec:
-  containers:
-  - name: app
-    image: images.my-company.example/app:v4
-    resources:
-      requests: # minimum limit a pod can consume
-        memory: "64Mi"
-        cpu: "250m"
-      limits:    # maximux limit a pod can consume
-        memory: "128Mi"
-        cpu: "500m"
-```
------------------------------------------------------------------
-
-if the container exceeds the limit, then K8S will not allow the pod to use more resources. it will stop the resource limit.
-
-With resource quotas, cluster administrators can restrict resource consumption and creation on a namespace basis. Within a namespace, a Pod or Container can consume as much CPU and memory as defined by the namespace's resource quota. 
-
-For the POD to pick up those defaults you must have first set those as default values for request and limit by creating a LimitRange in that namespace.
-
-
+-----------------------------------------------------------------------------------------
 LimitRange: Restrict POD resource usage limit at NameSpace level
-----------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 Pod resource usage can be restricted using LimitRange, this is the default values set at namespace level. when a Pod created it will by default restrict its limits as defined in the "LimitRange", so when POD usage exceeds its limits. it will not let the system use the system resouces. 
 
 Note: pod default resource requirement need to set at the namespace level first. like CPU, Memory, DISK.
@@ -1399,10 +1387,15 @@ spec:
         cpu: "10" 
 -------------------------------------
 An individual Pod or Container that requests resources outside of these LimitRange constraints will be rejected, whereas a ResourceQuota only applies to all of the namespace/project's objects in aggregate.
-	
+
+-----------------------------------------------------------------------------------------	
 Daemonset:
--------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 A DaemonSet ensures that all Nodes run a copy of a Pod. As nodes are added to the cluster, Pods are added to nodes. As nodes are removed from the cluster, those Pods are garbage collected. Deleting a DaemonSet will clean up the Pods it created.
+
+usecases: monitoring agent/ log collecter/
+
+example: kube-proxy, kubelet, weave-net, 
 
 Some typical uses of a DaemonSet are:
     1). running a cluster storage daemon on every node
@@ -1415,6 +1408,7 @@ this is useful when you want to monitor logs of each node (or) run services like
 
 kube-proxy-daemonset.yaml
 -------------------------------------------------------------------------------
+```
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -1439,7 +1433,9 @@ spec:
                 ....
                 ....
                 ....
+```
 ---------------------------------------------------------------
+```
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -1458,10 +1454,12 @@ spec:
       containers:
         - name: nginx
           image: nginx
+```
 -------------------------------------------------
 
+-----------------------------------------------------------------------------------------
 Static PODs: (/etc/kubernetes/manifests | /var/lib/kubelet/config.yaml)
--------------------------------------------------
+-----------------------------------------------------------------------------------------
 Static Pods are managed directly by the kubelet daemon on a specific node, without the API server observing them. Kubelet daemon will monitor this directory /etc/kubernetes/manifests/ and new pod definition files are exicuted.
 
 these pods are not controlled by kubectl but just we can monitor, if you want to delete those pods just have to remove the file from that location. 
@@ -1474,6 +1472,7 @@ note: all static pods ends with node name
 
 simple-static-pod.yaml
 -------------------------------
+```
 apiVersion: v1
 kind: Pod
 metadata:
@@ -1484,6 +1483,7 @@ spec:
   containers:
     - name: nginx
       image: nginx
+```
 --------------------------------
 
         $ kubectl get pods --all-namespaces
@@ -1500,20 +1500,30 @@ all kuberenetes components are placed as static pod onthe system in  /etc/kubern
 
 Note: daemonset and static pods are ignored by kube-scheduler
 
-Monitoring:
+-------------------------------------------------------------------------------------------------------
+Multiple Schedulers:
 -----------------------------------------------------------------
-how to monitor the resource consumtion on kubernetes cluster, what would like to monitor, 
-    1). i want to monitor node level health like, CPU, memory, network and disk
-    2). pod and performace 
-   
+Kubernetes ships with a default scheduler that is described here. If the default scheduler does not suit your needs you can implement your own scheduler. Moreover, you can even run multiple schedulers simultaneously alongside the default scheduler and instruct Kubernetes what scheduler to use for each of your pods.
+
+-------------------------------------------------------------------------------------------------------
+Monitoring:
+-------------------------------------------------------------------------------------------------------
+we like to monitor node level metrix such as resource consumtion on k8s,  on node level metrics, how many nodes in the cluster ? how many are healthy? , performance metrics like CPU, MEMORY, DISK, Network utilization. Pod level metrix such as CPU consumtion for each pod performancd and etc. 
+
 by default k8s not comes with monitoring solution. for that we need to use open source solutions like
+
     1. Metrix severs --> memroy monitoring solution.
     2. prometheus
     3. elastic stack
     4. Datadog
     5. dynatrace
+    
+------------------------------------------------------------------------------------------------------
+Metrix server: monitoring utility
+------------------------------------------------------------------------------------------------------
+we can have i metrix sever for each k8s cluster. it is an in memory monitroing solution. we cant see historical performace. so we need to relay on other softwares for this. 
 
-we can have i metrix sever for each k8s cluster. it is an in memory monitroing solution. we cant see historical performace. k8s run an agent on each node is kubelet. kubelet also contain component called cAdviser. which is resposible collecting the node metrix and send it to the metrics sever.
+k8s run an agent on each node is kubelet. kubelet also contain a sub component called cAdviser(container Adviser). which is resposible collecting the node metrix and send it to the metrics sever.
 
 for minikube, we can use 
         $ minikube addons enable metrics-server
@@ -1525,13 +1535,11 @@ for other setups
 we can view the metrics details using the below
 
         $ kubectl top node 
+	$ kubectl top pod
 
-Multiple Schedulers:
------------------------------------------------------------------
-Kubernetes ships with a default scheduler that is described here. If the default scheduler does not suit your needs you can implement your own scheduler. Moreover, you can even run multiple schedulers simultaneously alongside the default scheduler and instruct Kubernetes what scheduler to use for each of your pods.
-
+---------------------------------------------------------------------------------------------------
 Logging:
------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 to view the logs of the pod, we can view the logs during the execution also
 
         $ kubectl logs -f <pod-name> --> if we have only one pod in a definition file. this methord will work.
@@ -1545,8 +1553,14 @@ Configuring Command and Arguments on applications
 Configuring Environment Variables
 Configuring Secrets
 
+---------------------------------------------------------------------------------------------------
+Commands and Arguments in docker
+---------------------------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------------------------
 Configuring Command and Arguments on applications:
---------------------------------------------------
+---------------------------------------------------------------------------------------------------
 we use the docker images in k8s. so when we use the images where it require inputs how are we pass them
 
 docker uses 2 parameters in docker images 
