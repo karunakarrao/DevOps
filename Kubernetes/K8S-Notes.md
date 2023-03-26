@@ -531,7 +531,7 @@ In Kubernetes, a Service is a method for exposing a network application that is 
     
         1). Cluster-IP (Default) --> Service only reachable within the cluster
         2). NodePort --> Exposes the Service on each Node's static port. port range 30000 - 32767
-        3). LoadBalancer -->
+        3). LoadBalancer --> Exposes the Service externally using a cloud provider's load balancer.
  
 example: suppose you have a set of Pods that each POD listen on TCP port 9376 and are labelled as app=MyApp. You can define a Service to publish that TCP listener
  
@@ -1012,22 +1012,32 @@ spec:
 -----------------------------------------------------------------
 NodeAffinity:
 -----------------------------------------------------------------
-Node affinity is conceptually similar to nodeSelector. it allows you to constrain which nodes your pod is eligible to be scheduled on, based on labels on the node.
+Node affinity is conceptually similar to nodeSelector. it allows you to constrain which nodes your pod is eligible to be scheduled on, based on labels on the node. You can use In, NotIn, Exists, DoesNotExist, Gt and Lt.
 
 there are 2 types of nodeAffinity 
+
     1). requiredDuringSchedulingIgnoredDuringExecution 
     2). preferredDuringSchedulingIgnoredDuringExecution
 
+requiredDuringScheduling: The scheduler can't schedule the Pod unless the rule is met.
+preferredDuringScheduling: The scheduler tries to find a node that meets the rule. If a matching node is not available, still schedules the Pod. You can specify a weight between 1 and 100 for each instance of the preferredDuringSchedulingIgnoredDuringExecution affinity type.
+
 In the future K8S plan to offer below 2types also
+
     3). requiredDuringSchedulingRequiredDuringExecution 
-    4). requiredDuringSchedulingIgnoredDuringExecution except that it will evict pods from nodes that cease to satisfy the pods' node affinity requirements.
+    4). requiredDuringSchedulingIgnoredDuringExecution 
+    
+    except that it will evict pods from nodes that case to satisfy the pods' node affinity requirements.
+    
+Note: In the preceding types, `IgnoredDuringExecution` means that if the node labels change after Kubernetes schedules the Pod, the Pod continues to run.
 
 Scenario-1: nodeSelector & affinity
 -----------------------------------------------------------
-Note: If you specify both nodeSelector and affinity, both must be satisfied for the pod to be scheduled onto a candidate node. below 
+Note: If you specify both nodeSelector and affinity, both must be satisfied for the pod to be scheduled onto a candidate node. 
 
 pod-affinity-nodeSelector.yaml --> the pod will get schedule on the node only both conditions are statisfied. ( nodeSelector & affinity rule)
 --------------------------------------------------------
+```
 apiVersion: v1
 kind: Pod
 metadata:
@@ -1043,8 +1053,8 @@ spec:
         nodeSelectorTerms:
         -   matchExpressions:
             -   key: env
-                operator: In   # we can use operators In/ NotIn/ Exists/ DoesNotExist/ Gt/ Lt
-                values:          #  the pod can be scheduled onto a node if one of the nodeSelectorTerms can be satisfied.
+                operator: In     # we can use operators In/ NotIn/ Exists/ DoesNotExist/ Gt/ Lt
+                values:          # the pod can be scheduled onto a node if one of the nodeSelectorTerms can be satisfied.
                 - prod1
                 - prod2
   containers:
@@ -1054,6 +1064,7 @@ spec:
       - port: 80
         targetport: 80
         nodePort: 30008
+```
 -----------------------------------------------------------
 
 Scenario-2: nodeSelectorTerms
@@ -1188,9 +1199,33 @@ spec:
     image: k8s.gcr.io/pause:2.0
 -----------------------------------------------------------------
 
+-----------------------------------------------------------------------------------
+Resource Limits:
+-----------------------------------------------------------------------------------
+Each node has a set of resouces such as CPU, Memory, DISK. similerly every pod will cosume some resources like CPU, MEM, DISK. the kube-scheduler will check for the resouces required to run the pod or not, then i will place the pod. if sufficient resources are not available then it goes to pending state. 
 
+default values k8s will consider as 0.5-CPU, 256mi-MEM, DISK
+
+1 CPU   = 1000m CPU (milli) 
+0.1 CPU = 100m CPU
+1Gi MEM = 1024Mi MEM
+1Mi MEM = 1024Ki
+1Ki MEM = 1024bytes
+
+
+
+
+
+
+pod-def-resource-limit.yaml
+------------------------------------
+----
+
+
+
+-----------------------------------------------------------------------------------
 ResourceQuota: limiting the number of k8s objects for a namespace
-------------------------------------------------------------------
+-----------------------------------------------------------------------------------
 It can limit the quantity of k8s objects(pods, configmaps, secrets, deployments, services, etc) that can be created in a namespace by type, as well as the total amount of compute resources that may be consumed by resources in that namespace.
  
 -------------------------
