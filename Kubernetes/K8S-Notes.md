@@ -166,11 +166,10 @@ Kubernetes objects are created in two types.
     1. imperative --> objects created using command line are called imperative.
     2. declarative --> objects created using yml/programing are called declarative.
 
+-----------------------------------------------------------------
 Container:
 -----------------------------------------------------------------
 Containers are lightweight object, it pack your application code together with dependencies such as base OS, runtimes and libraries required to run your software services. containers are isolated evironments which act as indipendent system. container application exposes its services using a port know as containerPort. 
-
-
 
 -------------------------------------------------------------------------------------------
 POD: (create, replace, delete, describe, explain, edit, run )
@@ -474,6 +473,8 @@ Note: "Pod-template-hash" Do not change this label. This label ensures that chil
     $ kubectl rollout undo deployment my-deploy     --> if update is failed  then rollout the new-version to the old-verison 
     $ kubectl rollout undo deployment/nginx-deployment --to-revision=2 --> rollback to a specific revision with --to-revision
     
+    $ kubectl annotate deployment my-deploy1 kubernetes.io/change-cause="image updated to 1.16.1" --> history 
+    
 Note: we can see revision version details in the deployment description in annotations field.  By default, 10 old ReplicaSets will be kept, however its ideal value depends on the frequency and stability of new Deployments.
 
 example: o/p
@@ -494,7 +495,8 @@ Note:  you are running a Deployment with 10 replicas, maxSurge=3, and maxUnavail
 
     $ kubectl scale deployment my-deploy --replicas=10  --> to scale up the deployment
     $ kubectl scale deployment my-deploy --replicas=3   --> to scale down the deployment
-
+    $ kubectl autoscale deployment/nginx-deployment --min=10 --max=15 --cpu-percent=80
+    
 Note: remember every time new-verison changed, respective "replicaset" is brought down parallel a new "replicaset" is created with new-verison, the old replicasets. will avaiable but pods will not be avaiable in running state. when you do the undo operation thet old replicaset is recreated and new one will go down.
 
 Q. How to deploy latest version of code on running deployment?
