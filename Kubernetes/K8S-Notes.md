@@ -986,7 +986,7 @@ step-1: labeling the node with env=prod :
 
     $ kubectl label node node01 env=prod	--> to create a label to node01 as env=prod
     $ kubectl label node node01 env-		--> delete the label using "-" 
-    $ kubectl get node node01 --show-labels --> to show the labels of node01
+    $ kubectl get node node01 --show-labels 	--> to show the labels of node01
 
 step2: creating the pod with nodeSelector :
 ------------------------------------------
