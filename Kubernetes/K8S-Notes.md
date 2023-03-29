@@ -473,7 +473,7 @@ Note: "Pod-template-hash" Do not change this label. This label ensures that chil
     $ kubectl rollout undo deployment my-deploy     --> if update is failed  then rollout the new-version to the old-verison 
     $ kubectl rollout undo deployment/nginx-deployment --to-revision=2 --> rollback to a specific revision with --to-revision
     
-    $ kubectl annotate deployment my-deploy1 kubernetes.io/change-cause="image updated to 1.16.1" --> history 
+    $ kubectl annotate deployment my-deploy1 kubernetes.io/change-cause="image updated to 1.16.1" --> update rollout history 
     
 Note: we can see revision version details in the deployment description in annotations field.  By default, 10 old ReplicaSets will be kept, however its ideal value depends on the frequency and stability of new Deployments.
 
@@ -1659,9 +1659,9 @@ spec:
             -   name: mysql-config  # mapping complete configmap
 	    
 -------------------------------------------------------------
-
 only one variable from configmap also can be used
--------------------------------------------------------------
+--------------------------------------------------------
+```
 spec:
   containers:
   - name: nginx
@@ -1670,23 +1670,21 @@ spec:
     -  name: APP_COLOR
        valueFrom:
          configMapKeyRef:
-            name: app-env-config      #configmap name 
+            name: app-env-config
             key: APP_COLOR
--------------------------------------------------------------
-
+```
+```
 volumes:
 - name: app-config-valume
   configMap:
     name: app-config
-
--------------------------------------------------------
-
-
+```
 $ kubectl get configmaps --> to list the configmaps
-$ kubectl edit configmap <configmap-name> --> to edit or update the configmap
-$ kubectl delete configmap <configmap-name> --> to delete the configmap
+$ kubectl edit configmap configmap-name --> to edit or update the configmap
+$ kubectl delete configmap configmap-name --> to delete the configmap
 
-Q. Secrets: How to use create and inject secrets in k8s ?
+----------------------------------------------------------
+Secrets:
 --------------------------------------------------------
 secrets are used to store the sensitive data like passwords and keys. so that they are encripted. key encripting format base64
 
@@ -1703,12 +1701,14 @@ $ kubectl create secret generic my-secret --from-literal=db_host=mysql --from-li
 $ kubectl create secret generic my-secret --from-file=secrets.properties.
 
 before creating the secret file, we need to convert values in to encripted format. like
-$ echo -n "root" |base64
+
+$ echo -n "root" |base64 
 cm9vdA==
 $ echo -n "password" |base64
 cGFzc3dvcmQ=
 $ echo -n "mqsql" |base64
 bXFzcWw=
+
 ------------------------------
 $ echo -n "cm9vdA==" |base64 --decode --> to decript the value
 $ echo -n "cGFzc3dvcmQ=" |base64 --decode
@@ -1745,6 +1745,7 @@ spec:
         envFrom:    # configmap is mapped to a specific contiainer.
         - secretRef:
           - name: my-secret  # mapping complete configmap
+	  
 -------------------------------
 spec:
     containers:
@@ -1757,9 +1758,77 @@ spec:
             secretKeyRef:
                 name: my-secret  # secret configmap file
                 key: DB_Password
-                
-                
 -----------------------------------------------------------------------------
+Secrets are not encrypted, so it is not safer in that sense. However, some best practices around using secrets make it safer.
+
+Not checking-in secret object definition files to source code repositories.
+Enabling Encryption at Rest for Secrets so they are stored encrypted in ETCD.
+
+Also the way kubernetes handles secrets. Such as:
+
+A secret is only sent to a node if a pod on that node requires it.
+Kubelet stores the secret into a tmpfs so that the secret is not written to disk storage.
+Once the Pod that depends on the secret is deleted, kubelet will delete its local copy of the secret data as well.
+
+----------------------------------------------------------------------------------------
+Multi-Container PODS:
+----------------------------------------------------------------------------------------
+Pods what co-exist with one or more pods called multi container pods, this pods will get destroied and created together. they even use same space. 
+
+multi-pod.yaml
+-----------------------------
+```
+apiVersion: v1
+kind: Pod
+metadata::
+  name: simple-webapp
+  labels:
+    app: simple-webapp
+spec:
+  containers:
+  - name: simple-webapp
+    image: simple-webapp
+    ports:
+    - containerPort: 80
+  - name: log-agent
+    image: log-agent
+```
+-----------------------------
+There are 3 common patterns, when it comes to designing multi-container PODs. The first and what we just saw with the logging service example is known as a side car pattern. The others are the adapter and the ambassador pattern.
+
+But these fall under the CKAD curriculum and are not required for the CKA exam. So we will be discuss these in more detail in the CKAD course.
+
+----------------------------------------------------------------------------------------
+Init container:
+----------------------------------------------------------------------------------------
+In a multi-container pod, each container is expected to run a process that stays alive as long as the POD’s lifecycle. For example in the multi-container pod that we talked about earlier that has a web application and logging agent, both the containers are expected to stay alive at all times. The process running in the log agent container is expected to stay alive as long as the web application is running. If any of them fails, the POD restarts.
+
+But at times you may want to run a process that runs to completion in a container. For example a process that pulls a code or binary from a repository that will be used by the main web application. That is a task that will be run only one time when the pod is first created. Or a process that waits for an external service or database to be up before the actual application starts. That’s where initContainers comes in.
+
+An initContainer is configured in a pod like all other containers, except that it is specified inside a initContainers section, like this:
+
+------------------------------------
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app: myapp
+spec:
+  containers:
+  - name: myapp-container
+    image: busybox:1.28
+    command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+  initContainers:
+  - name: init-myservice
+    image: busybox
+    command: ['sh', '-c', 'git clone <some-repository-that-will-be-used-by-application> ;']
+```
+-------------------------------------------------
 
 
 
+----------------------------------------------------------------------------------------
+Init container:
+----------------------------------------------------------------------------------------
