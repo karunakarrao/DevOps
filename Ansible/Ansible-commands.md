@@ -32,17 +32,18 @@ Ansible searches for its config file(ansible.cfg) in below order in system. Firs
 ------------------------------------------------
 Ansible commands:
 ------------------------------------------------
-
 $ ansible --verison --> to check the ansible version.
 
-Module avaiable:
------------------
 $ ansible-doc -l  --> to list the modules 
-$ ansible-doc module-name --> to see the ansible module synapsis/syntax
-  example:
-   $ ansible-doc yum
-   $ ansible-doc copy
+$ ansible-doc -l |more 	--> to see page by page
 
+**example:**
+	$ ansible-doc yum
+	$ ansible-doc aws_s3
+  	$ ansible-doc ec2
+   	$ ansible-doc copy
+
+$ 
 Ping/Pong status check:
 -----------------------
 $ ansible all -m ping 	--> ad-hoc command to ping all the severs avaiable in 
