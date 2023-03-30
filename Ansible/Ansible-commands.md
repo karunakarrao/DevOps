@@ -1,23 +1,23 @@
 -----------------------------------------------------------------------------
 Ansible installtion & Configuration files :
 -----------------------------------------------------------------------------
-/etc/ansible/ansible.cfg --> main ansible configuration file
-/etc/ansible/hosts  	 --> default host inventory file
-/usr/bin/ansible	 --> ansible binaries are available here
-/usr/lib/python2.7/site-packages/ansible/modulescd  --> ansible modules are available here
+	/etc/ansible/ansible.cfg --> main ansible configuration file
+	/etc/ansible/hosts  	 --> default host inventory file
+	/usr/bin/ansible	 --> ansible binaries are available here
+	/usr/lib/python2.7/site-packages/ansible/modulescd  --> ansible modules are available here
 
 ------------------------------------------------------------------------------
 Ansible installation Binaries:
 ------------------------------------------------------------------------------
-ansible binaries are installed in /usr/bin.
-$ ansible 
-$ ansible-doc
-$ ansible-playbook
-$ ansible-glaxy
-$ ansible-vault
-$ ansible-config
-$ ansible-pull
-$ ansible-console
+	ansible binaries are installed in /usr/bin.
+	$ ansible 
+	$ ansible-doc
+	$ ansible-playbook
+	$ ansible-glaxy
+	$ ansible-vault
+	$ ansible-config
+	$ ansible-pull
+	$ ansible-console
 
 --------------------------------------------------------------------------------
 Ansible configuration loading order:
@@ -32,10 +32,10 @@ Ansible searches for its config file(ansible.cfg) in below order in system. Firs
 ------------------------------------------------
 Ansible commands:
 ------------------------------------------------
-$ ansible --verison --> to check the ansible version.
+	$ ansible --verison --> to check the ansible version.
 
-$ ansible-doc -l  --> to list the modules 
-$ ansible-doc -l |more 	--> to see page by page
+	$ ansible-doc -l  --> to list the modules 
+	$ ansible-doc -l |more 	--> to see page by page
 
 **example:**
 	$ ansible-doc yum
@@ -43,27 +43,25 @@ $ ansible-doc -l |more 	--> to see page by page
   	$ ansible-doc ec2
    	$ ansible-doc copy
 
-$ 
 Ping/Pong status check:
 -----------------------
-$ ansible all -m ping 	--> ad-hoc command to ping all the severs avaiable in 
-$ ansible all -m command -a uptime  --> to check server uptime on all inventory hosts
-$ ansible all -m copy -a "src=~/src/file1 dest=~/dest/file1" --> copy the source file to destination.
-$ ansible localhost -m command -a uptime --> to check the server uptime on localhost using ansible command
+	$ ansible all -m ping -i inventory	--> ad-hoc command to ping all the severs avaiable in 
+	$ ansible all -m command -a uptime -i inventory --> to check server uptime on all inventory hosts
+	$ ansible all -m copy -a "src=~/src/file1 dest=~/dest/file1" -i inventory --> copy the source file to destination.
+	$ ansible localhost -m command -a uptime -i inventory --> to check the server uptime on localhost using ansible command
 
-to make the custom inventory file as a default, we can have a copy of the ansible.cfg file in home directory. and modify field #inventory with new path. so you don't have to 
-use the parameter -i for each command. 
+to make the custom inventory file as a default, we can have a copy of the ansible.cfg file in home directory. and modify field #inventory with new path. so you don't have to use the parameter -i for each command. 
 
 list host inventory:
 --------------------
-$ ansible all -m ping -i inventory  --> to check the ping status for inventory file hosts.
-$ ansible all --list-hosts --> to list the hosts
-$ ansible all --list --> to list the hosts.
+	$ ansible all -m ping -i inventory  --> to check the ping status for inventory file hosts.
+	$ ansible all --list-hosts --> to list the hosts
+	$ ansible all --list --> to list the hosts.
 
 creating users on worker nodes:
 -------------------------------
-$ ansible all -m user -a "user=devops" -i inventory	--> to create new user "devops"
-$ ansible all -m command -a "id -a devops" 	--> to check user "devops" details.
+	$ ansible all -m user -a "user=devops" -i inventory	--> to create new user "devops"
+	$ ansible all -m command -a "id -a devops" 	--> to check user "devops" details.
 
 authorized_key module: public key 
 ----------------------------------------------
