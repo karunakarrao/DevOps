@@ -1946,8 +1946,86 @@ $ kubeadm version
 
 Note: first we need to upgrade `kubeadm`, 
 
+$ kubectl drain controlplane
 $ sudo apt-get upgrade -y kubeadm=1.12.0-00 --> upgrade the `kubeadm`
+$ kubeadm upgrade plan
 $ kubeadm upgrade apply v1.12.0	
+$ kubeadm get nodes 
 
-$ kubeadm get nodes
+still teh versions details are not reflected as kubelet is still not done upgrade.
 
+$ sudo apt-get upgrade -y kubelet=1.12.0-00
+$ systemctl restart kubelet
+$ kubectl get nodes --> there you can see the master node got upgraded. 
+
+Upgrading the K8s cluster using `kubeadm`: Ubuntu 
+----------------------------------------------------
+
+step-1: determine which version to upgrade
+------------------------------------------
+	
+	$ apt update
+	$ apt-cache madison kubeadm 
+
+step-2: Upgrading control plane nodes
+--------------------------------------
+The upgrade procedure on control plane nodes should be executed one node at a time. Pick a control plane node that you wish to upgrade first. It must have the `/etc/kubernetes/admin.conf` file
+	
+	$ apt-mark unhold kubeadm && \
+ 	  apt-get update && apt-get install -y kubeadm=1.26.0-00 && \
+ 	  apt-mark hold kubeadm
+	$ kubeadm version
+	$ kubeadm upgrade plan
+	
+Note: kubeadm upgrade also automatically renews the certificates that it manages on this node. To opt-out of certificate renewal the flag --certificate-renewal=false can be used. For more information see the certificate management guide.	
+
+Note: If kubeadm upgrade plan shows any component configs that require manual upgrade, users must provide a config file with replacement configs to kubeadm upgrade apply via the --config command line flag. Failing to do so will cause kubeadm upgrade apply to exit with an error and not perform an upgrade.
+	
+	$ sudo kubeadm upgrade apply v1.26.0-00	--> successful completion of 1st master use same  steps for other masters.
+	$ sudo kubeadm upgrade node --> instead apply use node
+
+step-3: upgrade the `kubelet` `kubectl` component
+--------------------------------------------------
+before 	upgrading the `kubelet` drain the controlplane node and install the `kubelet`
+	
+	$ kubectl drain controlplane --ignore-daemonsets
+	$ apt-mark unhold kubelet kubectl && \
+	  apt-get update && apt-get install -y kubelet=1.26.0-00 kubectl=1.26.0-00 && \
+	  apt-mark hold kubelet kubectl
+	$ sudo systemctl daemon-reload
+	$ sudo systemctl restart kubelet
+	$ sudo uncordon controlplane
+	$ kubectl get nodes	--> check the k8s version 
+
+step-4: Upgrade worker nodes 
+-----------------------------------------
+to upgrade the worker node it should done 1 worker node at a time. ssh to the worker node and run the commands in node01 host.
+
+upgrade `kubeadm` in worker node
+	$ apt-mark unhold kubeadm && \
+	  apt-get update && apt-get install -y kubeadm=1.26.0-00 && \
+	  apt-mark hold kubeadm
+
+upgrade the `kubelet` configuration	
+	$ sudo kubeadm upgrade node
+
+drain the worker node node01
+	$ kubectl drain node01 --ignore-daemonsets
+
+upgrade `kubelet` and `kubectl` commands
+	$ apt-mark unhold kubelet kubectl && \
+	  apt-get update && apt-get install -y kubelet=1.26.0-00 kubectl=1.26.0-00 && \
+	  apt-mark hold kubelet kubectl
+	
+restart the `kubelet` services	
+	$ sudo systemctl daemon-reload
+	$ sudo systemctl restart kubelet
+	
+uncordon the worker node, so it start scheduing the new nodes
+	$ kubectl uncordon node01
+	
+	
+	
+$ kubeadm token list
+$ systemctl status kubelet
+$ journalctl -xeu kubelet --> view the service logs with 
