@@ -2024,8 +2024,41 @@ restart the `kubelet` services
 uncordon the worker node, so it start scheduing the new nodes
 	$ kubectl uncordon node01
 	
+	$ kubeadm token list	
+	$ systemctl status kubelet --> `kubelet` service status check 
+	$ journalctl -xeu kubelet --> view the service logs with 
+
+------------------------------------------------------------------------------------------
+Backup and Restore Methods: 
+------------------------------------------------------------------------------------------
+In k8s what components are required to take backups, 
+
+	1. Resource Configurations 
+	2. ETCD
+	3. Persistant volumes.
+	
+saving the all resources and all objects in a cluster backup
+	$ kubectl get all --all-namespaces -o yaml >all-deploy-service.yaml
+
+while configuring the ETCD, we have defined the data storage location as `--data-dir=/var/lib/etcd`. this need to take backup. using the below command. 	
+	
+	$ ETCDCTL_API=3 etcdctl snapshot save snapshot.db
+	$ ETCDCTL_API=3 etcdctl snapshot status snapshot.db
+	
+to restore the backup, first need to stop the kube-api-server 
+	$ service kube-apiserver stop 
+	$ ETCDCTL_API=3 etcdctl snapshot restore --data-dir /var/lib/etcd-from-backup/snapshot.db
+	
+edit the etcd.service file with new `--data-dir` path and restart the service
+	$ systemctl daemon-reload
+	$ service etcd restarted
+	
+Note: every time you use the etcd command we have pass the server.crt, ca.crt, key file and access url, then only it will work. 
+	$ 
+	  --advertise-client-urls=https://10.1.64.10:2379
+	  --cert-file=/etc/kubernetes/pki/etcd/server.crt
+	  --trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+	  --key-file=/etc/kubernetes/pki/etcd/server.key
+	  
 	
 	
-$ kubeadm token list
-$ systemctl status kubelet
-$ journalctl -xeu kubelet --> view the service logs with 
