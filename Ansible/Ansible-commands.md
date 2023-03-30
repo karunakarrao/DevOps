@@ -1,20 +1,44 @@
-ansible-config files:
+-----------------------------------------------------------------------------
+Ansible installtion & Configuration files :
+-----------------------------------------------------------------------------
 /etc/ansible/ansible.cfg --> main ansible configuration file
-/etc/ansible/hosts  --> default host inventory file
-Ansible searches for file to use in this order. First file found is used, all others ignored
+/etc/ansible/hosts  	 --> default host inventory file
+/usr/bin/ansible	 --> ansible binaries are available here
+/usr/lib/python2.7/site-packages/ansible/modulescd  --> ansible modules are available here
+
+------------------------------------------------------------------------------
+Ansible installation Binaries:
+------------------------------------------------------------------------------
+ansible binaries are installed in /usr/bin.
+$ ansible 
+$ ansible-doc
+$ ansible-playbook
+$ ansible-glaxy
+$ ansible-vault
+$ ansible-config
+$ ansible-pull
+$ ansible-console
+
+--------------------------------------------------------------------------------
+Ansible configuration loading order:
+--------------------------------------------------------------------------------
+Ansible searches for its config file(ansible.cfg) in below order in system. First file found is used, all others paths ignored.
+	
 	1st. ANSIBLE_CONFIG (environment variable, if set)
 	2nd. ansible.cfg (in current directory)
 	3rd.  ~/.ansible.cfg (in home directory)
 	4th. /etc/ansible/ansible.cfg
 
-Version:
-----------------
+------------------------------------------------
+Ansible commands:
+------------------------------------------------
+
 $ ansible --verison --> to check the ansible version.
 
 Module avaiable:
 -----------------
 $ ansible-doc -l  --> to list the modules 
-$ ansible-doc <module-name> --> to see the ansible module synapsis/syntax
+$ ansible-doc module-name --> to see the ansible module synapsis/syntax
   example:
    $ ansible-doc yum
    $ ansible-doc copy
