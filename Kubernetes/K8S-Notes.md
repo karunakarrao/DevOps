@@ -1684,8 +1684,8 @@ $ kubectl edit configmap configmap-name --> to edit or update the configmap
 $ kubectl delete configmap configmap-name --> to delete the configmap
 
 ----------------------------------------------------------
-Secrets:
---------------------------------------------------------
+Secrets: Generic
+----------------------------------------------------------
 secrets are used to store the sensitive data like passwords and keys. so that they are encripted. key encripting format base64
 
 this involves 2 steps
@@ -1695,13 +1695,12 @@ this involves 2 steps
 ### step-1: creating secrets:
 ------------------------------
 $ kubectl create secret generic my-secret --from-literal=db_host=mysql --from-literal=DB_user=root --from-literal=DB_password=password
-
 (or)
-
 $ kubectl create secret generic my-secret --from-file=secrets.properties.
 
-before creating the secret file, we need to convert values in to encripted format. like
+before creating the secret file, we need to convert values in to encripted format. below we use base64 to encripy our data.
 
+-----------------------------
 $ echo -n "root" |base64 
 cm9vdA==
 $ echo -n "password" |base64
@@ -1710,9 +1709,11 @@ $ echo -n "mqsql" |base64
 bXFzcWw=
 
 ------------------------------
+
 $ echo -n "cm9vdA==" |base64 --decode --> to decript the value
 $ echo -n "cGFzc3dvcmQ=" |base64 --decode
 
+-------------------------------
 secret.yaml
 --------------------------
 apiVersion: v1
@@ -1723,6 +1724,7 @@ data:
     DB_user: cm9vdA==
     DB_Password: cGFzc3dvcmQ=
     DB_Host: bXFzcWw=
+    
 ---------------------------
 
 $ kubectl create -f secret.yaml
@@ -1730,8 +1732,8 @@ $ kubectl get secrets my-secret
 $ kubectl get secrets my-secret -o wide --> to show the output in yaml file
 $ kubectl describe secrets my-secret
 
-step-2: injecting in to pod
-----------------------------
+step-2: injecting configMap in to the pod :
+--------------------------------------------
 apiVersion: v1
 kind: Pod
 metadata: 
@@ -1746,11 +1748,12 @@ spec:
         - secretRef:
           - name: my-secret  # mapping complete configmap
 	  
--------------------------------
+-------------------------------------------
+Injecting configMap specific eliment in to the pod:
+----------------------------------------------------
 spec:
     containers:
     -   name: nginx
-    
         image: nginx
         env:    # configmap is mapped to a specific contiainer.
         - name: DB_Password
@@ -1758,17 +1761,58 @@ spec:
             secretKeyRef:
                 name: my-secret  # secret configmap file
                 key: DB_Password
+		
 -----------------------------------------------------------------------------
 Secrets are not encrypted, so it is not safer in that sense. However, some best practices around using secrets make it safer.
 
-Not checking-in secret object definition files to source code repositories.
-Enabling Encryption at Rest for Secrets so they are stored encrypted in ETCD.
+Not checking-in secret object definition files to source code repositories. Enabling Encryption at Rest for Secrets so they are stored encrypted in ETCD. Also the way kubernetes handles secrets as below
+	1. A secret is only sent to a node if a pod on that node requires it.
+	2. Kubelet stores the secret into a tmpfs so that the secret is not written to disk storage.
+	3. Once the Pod that depends on the secret is deleted, kubelet will delete its local copy of the secret data as well.
 
-Also the way kubernetes handles secrets. Such as:
+----------------------------------------------------------
+Secrets: Encrypting Secret Data at Rest usting ETCD 
+----------------------------------------------------------
+We can encrypt secrets using ETCD. to encryption using ETCD, check `etcdctl` is available or not. otherwise install it.
+	
+	$ sudo apt-get install etcd-client
+	$ etcdctl
 
-A secret is only sent to a node if a pod on that node requires it.
-Kubelet stores the secret into a tmpfs so that the secret is not written to disk storage.
-Once the Pod that depends on the secret is deleted, kubelet will delete its local copy of the secret data as well.
+step-1: check REST encryption is enabled or not
+-------------------------------------------------
+first thing to encrypt dats using ETCD, we need to check the REST encription is enabled or not in kube-api-server. The kube-apiserver process accepts an argument `--encryption-provider-config` that controls how API data is encrypted in etcd. to verify the option is enabled or not by looking in to kube-apiserver config.
+	
+	$ kubectl -n kube-system describe pod kube-apiserver-controlplane 
+
+Step-2: create configuration for REST encryption
+-------------------------------------------------
+apiVersion: apiserver.config.k8s.io/v1
+kind: EncryptionConfiguration
+resources:
+  - resources:
+      - secrets
+      - configmaps
+      - pandas.awesome.bears.example
+    providers:
+      - aescbc:
+          keys:
+            - name: key1
+              secret: <BASE 64 ENCODED SECRET>
+      - identity: {}
+	      
+---------------------------------------------------------
+
+
+first create a secret:
+-----------------------
+	$ kubectl create secret generic my-secret1 --from-literal mykey=mypassword1 
+	$ kubectl describe secret my-secret1
+	$ kubectl get secret my-secret1 -o yaml >my-secret1.yaml
+
+
+
+
+
 
 ----------------------------------------------------------------------------------------
 Multi-Container PODS:
@@ -1826,8 +1870,33 @@ spec:
     command: ['sh', '-c', 'git clone <some-repository-that-will-be-used-by-application> ;']
 ```
 -------------------------------------------------
+When a POD is first created the initContainer is run, and the process in the initContainer must run to a completion before the real container hosting the application starts.
 
+You can configure multiple such initContainers as well, like how we did for multi-pod containers. In that case each init container is run one at a time in sequential order.
 
+If any of the initContainers fail to complete, Kubernetes restarts the Pod repeatedly until the Init Container succeeds.
+
+-------------------------------------------
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app: myapp
+spec:
+  containers:
+  - name: myapp-container
+    image: busybox:1.28
+    command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+  initContainers:
+  - name: init-myservice
+    image: busybox:1.28
+    command: ['sh', '-c', 'until nslookup myservice; do echo waiting for myservice; sleep 2; done;']
+  - name: init-mydb
+    image: busybox:1.28
+    command: ['sh', '-c', 'until nslookup mydb; do echo waiting for mydb; sleep 2; done;']
+```
 
 ----------------------------------------------------------------------------------------
 Init container:
