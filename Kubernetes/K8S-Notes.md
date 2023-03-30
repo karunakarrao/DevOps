@@ -2054,11 +2054,23 @@ edit the etcd.service file with new `--data-dir` path and restart the service
 	$ service etcd restarted
 	
 Note: every time you use the etcd command we have pass the server.crt, ca.crt, key file and access url, then only it will work. 
-	$ 
-	  --advertise-client-urls=https://10.1.64.10:2379
-	  --cert-file=/etc/kubernetes/pki/etcd/server.crt
-	  --trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
-	  --key-file=/etc/kubernetes/pki/etcd/server.key
+	$ ETCDCTL_API=3 etcdctl snapshot save snapshot.db \
+	  --endpoints=https://10.1.64.10:2379 \
+	  --cert=/etc/kubernetes/pki/etcd/server.crt \
+	  --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+	  --key=/etc/kubernetes/pki/etcd/server.key \
 	  
-	
-	
+---------------------------------------------------------	  
+working with ETCDCTL:
+---------------------------------------------------------
+`etcdctl` is a command line client for etcd. the ETCD key-value database is deployed as a static pod on the master. The version used is v3. To make use of etcdctl for tasks such as back up and restore, make sure that you set the ETCDCTL_API to 3. You can do this by exporting the variable ETCDCTL_API prior to using the etcdctl client. 
+
+This can be done as follows: $ export ETCDCTL_API=3	
+
+$ etcdctl snapshot save -h --> and keep a note of the mandatory global options.Since our ETCD database is TLS-Enabled, the following options are mandatory:
+
+–cacert                verify certificates of TLS-enabled secure servers using this CA bundle
+–cert                    identify secure client using this TLS certificate file
+–endpoints=[127.0.0.1:2379] This is the default as ETCD is running on master node and exposed on localhost 2379.
+–key                  identify secure client using this TLS key file
+
