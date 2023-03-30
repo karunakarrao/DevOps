@@ -1899,5 +1899,55 @@ spec:
 ```
 
 ----------------------------------------------------------------------------------------
-Init container:
+OS Upgrade :
 ----------------------------------------------------------------------------------------
+before you proced to deploy any upgrades, we must empty the node then apply the upgrades. 
+	
+	$ kubectl drain node01	--> i will move all k8s service to other nodes in cluster
+	$ kubectl uncordon node01  --> post paching, we need to remove drain tag using this command. so its starts taking tasks
+	$ kubectl cordon node01 --> just to make it non schedulable node
+
+-----------------------------------------------------------
+Kubernetes Software vesrions:
+-----------------------------------------------------------
+kubernetes API versions, software releases are of 3 parts. example: v1.11.3, v1(major).11(minor).3(patch). this is the k8s versions are released. there are also releases like alpha & beta versions. 
+
+--------------------------------------------
+kubenetes Cluster upgrade strategies: 
+--------------------------------------------
+kube-apiserver is the primary component that communicate with others resources, so the versions should folow as follows. k8s supports only the latest 3 versions. if we upgrade from v1.10 to v1.13, the recommunded aproch is to upgrade 1 by 1 higher versions. means we need to upgrade frist from v1.10 to v1.11 then v1.11 to v1.12 then v1.12 to v1.13.
+
+
+Software 		Versions supports
+-----------------------------------------------
+kube-apiserver		v1.10
+control-manager		v1.9 | v1.10
+kube-scheduler		v1.9 | v1.10
+kubelet			v1.8 | v1.9 | v1.10
+kubeproxy		v1.8 | v1.9 | v1.10
+kubectl			v1.9 | v1.10| v1.11
+ETCD cluster
+core DNS
+
+Kubernetes cluster upgrade using `kubeadm` as production setup
+----------------------------------------------------------------
+upgrade can be done in 2 steps, 1st upgrade master node, then upgrade the worker nodes. the master going to doen't effect the running application running in workernode, but the k8s services are not accessable as we bringdown the k8s api-server & schedulesrs. 
+
+strategy-1: bring down all with downtime, and bringup all post upgrade. 
+strategy-2: bringing down 1 by 1 and bringing up parallel, it doesn't require downtime
+strategy-3: adding new nodes to the cluster with new softwares and move the objects to new node and decomission the old one.
+
+kubeadm - upgrade
+------------------------------
+kubeadm will upgarde the k8s componets, but we must upgrade manually for kubelet as kubeadm will not do that.
+
+$ kubeadm upgrade plan
+$ kubeadm version
+
+Note: first we need to upgrade `kubeadm`, 
+
+$ sudo apt-get upgrade -y kubeadm=1.12.0-00 --> upgrade the `kubeadm`
+$ kubeadm upgrade apply v1.12.0	
+
+$ kubeadm get nodes
+
