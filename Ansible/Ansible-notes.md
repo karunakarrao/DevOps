@@ -1800,17 +1800,20 @@ Variable evaluated when playbook is played:
 --------------------------------------------
 vars:
   user: joe
+  
 -----------------------------------------
 
 Host independent of play:
 -------------------------
 -> To make variable available for host independent of play, define as group variable in inventory file:
+
 ---------------------------------
 [servers]
 demo.example.com
 
 [servers:vars]
 user: joe
+
 --------------------------------
 
 Extra-Vars:
@@ -1858,6 +1861,7 @@ servers2
 
 [servers:vars]
 user=joe
+
 ------------------------------------
 
 -> To define variables for all hosts in group, use host variables
@@ -1881,6 +1885,7 @@ demo4.example.com
 
 [all:vars]
 package=httpd
+
 ------------------------------------------------
 
 Value Varying by Datacenter:
@@ -1960,6 +1965,7 @@ Example: register
 	    - one
 	    - two
 	  register: echo
+	  
   ------------------------------
 Tasks and Variables:
 --------------------
@@ -1996,6 +2002,7 @@ variables.yml
 packages:
    web_package: httpd
    db_package: redis
+   
 ----------------------
 ---
 - hosts: all
