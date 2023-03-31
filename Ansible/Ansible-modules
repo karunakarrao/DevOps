@@ -86,6 +86,8 @@ cron:
 ---
 - name: 
   hosts: all
+  any_errors_fatal: true --> if any task failed it will delete 
+  max_fail_percentage: 30
   tasks:
   - name: cron job schedule
     cron: 
@@ -134,7 +136,25 @@ mariadb> CREATE USER 'ecomuser'@'localhost' IDENTIFIED BY 'ecompassword';
 mariadb> GRANT ALL PRIVILEGES ON *.* TO 'ecomuser'@'localhost';
 mariadb> FLUSH PRIVILEGES;
 
-
-
+Blocks:
+----------------------------------------
+- block:
+  - name: install mysql
+    yum: name=mysql state=present
+  - name: start mysql servvice
+    service: name=mysql-serverr state=started
+  become_user: db-user
+  when: ansible_facts['distribution'] == 'centos'
+  rescue:
+   - mail:
+       to:
+       subject: 
+       body: DB install failed at {{ ansible_failed_task.name }} 
+  always:
+  - mail:
+      to: 
+      subject
+      body: 
+   ignore_errors: yes
 
       
