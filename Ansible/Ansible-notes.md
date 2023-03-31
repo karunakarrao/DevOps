@@ -138,7 +138,7 @@ Ansible plugin "local" is an another connection plug-in for Linux applications. 
 winrm: Allows Microsoft Windows machines to be managed hosts.
 docker: Allows Ansible to treat Docker containers as managed hosts without using SSH. this feature introduced in Ansible 2
 
-Note: pywinrm Python module must be installed on Linux control node to support winrm
+Note: `pywinrm` Python module must be installed on Linux control node to support winrm
 
 **Q. What is Ansible Configuration file?**
 
@@ -305,8 +305,7 @@ examples:
 
 **Q. uses of Module: Shell ?**
 	
-"command" module lets you quickly run remote commands on managed hosts. Not processed by shell on managed hosts. Cannot access shell environment variables. Cannot perform shell operations. To run commands that require shell processing, use shell module. Pass commands to run as arguments to module. Ansible runs command remotely
-shell commands processed through shell ans we Can use shell environment variables.
+"command" module lets you quickly run remote commands on managed hosts. Not processed by shell on managed hosts. Cannot access shell environment variables. Cannot perform shell operations. To run commands that require shell processing, use shell module. Pass commands to run as arguments to module. Ansible runs command remotelyshell commands processed through shell ans we Can use shell environment variables.
 
 Connection Settings:
 After reading parameters, Ansible makes connections to managed host. 
@@ -317,11 +316,10 @@ Defined by remote_user setting under [defaults] section in /etc/ansible/ansible.
 		# remote_user = root
 
 Remote Operations:
-Default: remote_user parameter commented out in /etc/ansible/ansible.cfg. With parameter undefined, commands connect to managed hosts using same remote user account 
-as one on Ansible-Master running command. After making SSH connection to managed host, specified module performs operation. After operation completed, 
-output displayed on Ansible-Master. Operation restricted by limits on permissions of remote user who initiated it
+Default: remote_user parameter commented out in /etc/ansible/ansible.cfg. With parameter undefined, commands connect to managed hosts using same remote user account as one on Ansible-Master running command. After making SSH connection to managed host, specified module performs operation. After operation completed, output displayed on Ansible-Master. Operation restricted by limits on permissions of remote user who initiated it
 
-Q. what is Privilege Escalation:
+**Q. what is Privilege Escalation:**
+
 After connecting to managed host, Ansible can switch to another user before executing operation. Example: Using sudo, can run ad hoc command with root privilege
 	-> Only if connection to managed host authenticated by nonprivileged remote user
 	-> Settings to enable privilege escalation located under [privilege_escalation] section of ansible.cfg:
@@ -330,17 +328,20 @@ After connecting to managed host, Ansible can switch to another user before exec
 		#become_user=root
 		#become_ask_pass=False
 
-Q. how to Enabling Privilege Escalation?
+**Q. how to Enabling Privilege Escalation?**
+
 Privilege escalation not enabled by default, To enable, uncomment become parameter and define as True in ansible.cfg file.
 	become=True
 	
 Enabling privilege escalation makes become_method, become_user, and become_ask_pass parameters available. Applies even if commented out in /etc/ansible/ansible.cfg
+
 Predefined internally within Ansible. Predefined values:
 	become_method=sudo
 	become_user=root
 	become_ask_pass=False
 
-Q. Command Line Options for ansible?
+**Q. Command Line Options for ansible?**
+
 Configure settings for remote host connections and privilege escalation in /etc/ansible/ansible.cfg. 
 Alternative: Define using options in ad hoc commands. Command line options take precedence over configuration file settings
 	-> inventory -i
@@ -607,22 +608,20 @@ Playbook Variables:-
 --------------------
 we can define variables in inventory.txt file, as below. if the variables are specific to a single host, or to a group of hosts
 	
-	1. Variable are specific to a single host. on web1 we are installing "httpd" on web2 we are installing "tomcat"
-		[web]
-		web1 ansible_host=172.20.1.100 ansible_ssh_pass=Passw0rd ansible_user=root webserver=httpd
-		web2 ansible_host=172.20.1.101 ansible_ssh_pass=Passw0rd ansible_user=root webserver=tomcat
+1. Variable are specific to a single host. on web1 we are installing "httpd" on web2 we are installing "tomcat"
+	[web]
+	web1 ansible_host=172.20.1.100 ansible_ssh_pass=Passw0rd ansible_user=root webserver=httpd
+	web2 ansible_host=172.20.1.101 ansible_ssh_pass=Passw0rd ansible_user=root webserver=tomcat
 
-	2. Defining variables for a specific group. to do so [group-name:vars]. this means variables defined in vars section 
-		[web]
-		web1 ansible_host=172.20.1.100 ansible_ssh_pass=Passw0rd ansible_user=root 
-		web2 ansible_host=172.20.1.101 ansible_ssh_pass=Passw0rd ansible_user=root 
-		
-		[web:vars] 	# syntax to define group variables [group-name:vars]
-		webserver=httpd
+2. Defining variables for a specific group. to do so [group-name:vars]. this means variables defined in vars section 
+	[web]
+	web1 ansible_host=172.20.1.100 ansible_ssh_pass=Passw0rd ansible_user=root 
+	web2 ansible_host=172.20.1.101 ansible_ssh_pass=Passw0rd ansible_user=root 
 
+	[web:vars] 	# syntax to define group variables [group-name:vars]
+	webserver=httpd
 
-
-2. Dynamic Host Inventory:-
+2. Dynamic Host Inventory:
 ---------------------------
 Host inventory information can be dynamically generated.
 	-> Public and private cloud providers
@@ -802,7 +801,7 @@ Name Attribute:-
 -> Especially useful in playbook with multiple plays
 	name: my first play
 
-Host Attribute:-
+Hosts Attribute:-
 -----------------
 -> Defines set of managed hosts on which to perform tasks
 -> Integral component to play
@@ -929,6 +928,7 @@ tasks:
         service: name=httpd enabled=true state=started
       - name: second service task
         service: name=sshd enabled=true state=started
+	
 ------------------------------
 
 Example: Playbook with Multiple Plays
@@ -1103,6 +1103,7 @@ TASK [setup] ***************************************************************
 ok: [demo1.example.com]
 
 TASK [Prints various Ansible facts] ****************************************
+
 ok: [demo1.example.com] => {
     "msg": "The default IPv4 address of demo1.example.com is
             172.25.250.10"
@@ -1170,8 +1171,7 @@ Disabling Facts:
 
 Custom Facts:-
 -------------
-custom facts are the facts defined by the user depends on the requirement. Create and push custom facts to managed hosts. once they are pushed they are Integrated 
-and read by setup. Save custom facts file in /etc/ansible/facts.d with file extentions .fact this is for Ansible to find facts.
+custom facts are the facts defined by the user depends on the requirement. Create and push custom facts to managed hosts. once they are pushed they are Integrated and read by setup. Save custom facts file in `/etc/ansible/facts.d` directory with file extentions `.fact` this is for Ansible to find facts.
 Example: uses of custome facts.
 		-> System value based on custom script
 		-> Value based on program execution
@@ -1380,6 +1380,7 @@ appdb1.0926.internal
 [webservers:vars]
 ansible_user = devops
 ansible_ssh_private_key_file = /home/devops/.ssh/id_rsa
+
 ----------
 
 2. Gather Facts:
@@ -1522,6 +1523,7 @@ Ansible does not use facts
 Things that are discovered about remote nodes
 The source of truth
 User-defined variables
+
 ---------------------------------
 
 Loops, Variables, and Return Values:-
@@ -1602,7 +1604,7 @@ In vars section we can define the variables.
   vars:
     user: joe
     home: /home/joe
-tasks:
+  tasks:
   - name: Creates the user {{ user }}	# This line will read: Creates the user joe
     user:
       name: "{{ user }}"	 # This line will create the user named Joe
