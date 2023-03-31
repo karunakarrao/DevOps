@@ -6,7 +6,7 @@ Ansible installtion & Configuration files :
 	/usr/bin/ansible	 --> ansible binaries are available here
 	/usr/lib/python2.7/site-packages/ansible/modulescd  --> ansible modules are available here
 	
-	/etc/ansible/facts.d/custom.fact
+	/etc/ansible/facts.d/custom.fact	--> for defining the custom facts 
 ------------------------------------------------------------------------------
 Ansible installation Binaries:
 ------------------------------------------------------------------------------
@@ -69,13 +69,28 @@ Ansible commands: ansible (-a, -b, -C, -e, -i, -m, -o, -t, -v, -vvv, -k, -s, -u,
 
 	$ ansible-doc -l  --> to list the modules 
 	$ ansible-doc -l |more 	--> to see page by page
+	$ ansible-doc -s copy
+	
+	$ ansible-config dump |grep -i ROLE 
+	$ ansible-config list
+	$ ansible-config view
+	
 
+	$ ansible-playbook play1.yaml --tags "install"
+	$ ansible-playbook play1.yaml --skip-tags "upgrade"
+	$ ansible-playbook play1.yaml --start-at-task "start httpd server"
+	
+	
 **example:**
 	$ ansible-doc yum
 	$ ansible-doc aws_s3
   	$ ansible-doc ec2
    	$ ansible-doc copy
 
+SSH keys:
+-------------------------------------
+	$ ssh -i id_rsa user@hostname
+	
 Ping/Pong status check:
 -----------------------
 	$ ansible all -m ping -i inventory	--> ad-hoc command to ping all the severs 
