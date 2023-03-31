@@ -19,6 +19,7 @@ Ansible installation Binaries:
 	$ ansible-config
 	$ ansible-pull
 	$ ansible-console
+	$ ansible-inventory
 
 --------------------------------------------------------------------------------
 Ansible configuration loading order:
@@ -70,6 +71,8 @@ Ansible commands: ansible (-a, -b, -C, -e, -i, -m, -o, -t, -v, -vvv, -k, -s, -u,
 	$ ansible-doc -l  --> to list the modules 
 	$ ansible-doc -l |more 	--> to see page by page
 	$ ansible-doc -s copy
+	
+	$ ansible-inventory -i inventory/ -y
 	
 	$ ansible-config dump |grep -i ROLE 
 	$ ansible-config list
