@@ -29,9 +29,27 @@ Ansible searches for its config file(ansible.cfg) in below order in system. Firs
 	3rd.  ~/.ansible.cfg (in home directory)
 	4th. /etc/ansible/ansible.cfg
 
-------------------------------------------------
-Ansible commands:
-------------------------------------------------
+---------------------------------------------------------------------------------------------
+Ansible commands: ansible (-a, -b, -C, -e, -i, -m, -o, -t, -v, -vvv, -k, -s, -u, -U, -K)
+---------------------------------------------------------------------------------------------
+-m  --> module
+-C, --check --> check 
+-i ---> inventory
+-a arguments/instructions
+--list-hosts 
+-o --> one line output
+-e --> extra vars
+--syntax-check 
+-t, --tree --> log output to this directory
+-v, --verbose
+-vvvv --> enable debugging
+-s, --sudo --> run operations with sudo 
+-b, --become 
+-K, --ask-become-pass 
+-u --> remote user
+-U --> sudo user
+
+---------------------------------------------------
 	$ ansible --verison --> to check the ansible version.
 
 	$ ansible-doc -l  --> to list the modules 
@@ -45,7 +63,7 @@ Ansible commands:
 
 Ping/Pong status check:
 -----------------------
-	$ ansible all -m ping -i inventory	--> ad-hoc command to ping all the severs avaiable in 
+	$ ansible all -m ping -i inventory	--> ad-hoc command to ping all the severs 
 	$ ansible all -m command -a uptime -i inventory --> to check server uptime on all inventory hosts
 	$ ansible all -m copy -a "src=~/src/file1 dest=~/dest/file1" -i inventory --> copy the source file to destination.
 	$ ansible localhost -m command -a uptime -i inventory --> to check the server uptime on localhost using ansible command
