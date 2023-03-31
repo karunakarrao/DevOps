@@ -5,7 +5,8 @@ Ansible installtion & Configuration files :
 	/etc/ansible/hosts  	 --> default host inventory file
 	/usr/bin/ansible	 --> ansible binaries are available here
 	/usr/lib/python2.7/site-packages/ansible/modulescd  --> ansible modules are available here
-
+	
+	/etc/ansible/facts.d/custom.fact
 ------------------------------------------------------------------------------
 Ansible installation Binaries:
 ------------------------------------------------------------------------------
@@ -33,10 +34,15 @@ Ansible searches for its config file(ansible.cfg) in below order in system. Firs
 Inventory file arguments
 ---------------------------------------------------------------------------------------------
 ansible_connection
+ansible_host
+ansible_port
 ansible_user
 ansible_password
+ansible_ssh_private_key_file
 ansible_become
+ansible_become_user
 ansible_become_method
+ansible_ssh_private_key_file
 
 ---------------------------------------------------------------------------------------------
 Ansible commands: ansible (-a, -b, -C, -e, -i, -m, -o, -t, -v, -vvv, -k, -s, -u, -U, -K)
