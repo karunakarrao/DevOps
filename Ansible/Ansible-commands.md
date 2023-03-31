@@ -30,6 +30,15 @@ Ansible searches for its config file(ansible.cfg) in below order in system. Firs
 	4th. /etc/ansible/ansible.cfg
 
 ---------------------------------------------------------------------------------------------
+Inventory file arguments
+---------------------------------------------------------------------------------------------
+ansible_connection
+ansible_user
+ansible_password
+ansible_become
+ansible_become_method
+
+---------------------------------------------------------------------------------------------
 Ansible commands: ansible (-a, -b, -C, -e, -i, -m, -o, -t, -v, -vvv, -k, -s, -u, -U, -K)
 ---------------------------------------------------------------------------------------------
 -m  --> module
