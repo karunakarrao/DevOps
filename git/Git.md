@@ -148,18 +148,25 @@ rebase will combine number of commits your wish to combine can be bind to gether
     
 cherry-pick:
 -------------------------------------------
+if you don't want to apply all the commits just want to pick a specific commit. then use the cherry-pick
+
     $ git log master --oneline
     $ git cherry-pick commit-id
     
 revert commit:
 -------------------------------------------
+to revert the commited changes. 
+
     $ git revert commit-id
-    $ git revert HEAD~0
-    $ git reset --soft HEAD~1
-    $ get reset --hard HEAD~1
+    $ git revert HEAD~0 
+    
+    $ git reset --soft HEAD~1   --> it will not delete the data
+    $ get reset --hard HEAD~1   --> it will delete the data
  
 stash
 ------------------------------------------
+if you don't want to commit the changes you made, but switch to other branch and do changes use the stash command, we can have may stashes. access and apply stashed changes as below 
+
     $ git stash
     $ git stash pop
     $ git stash list
@@ -168,7 +175,8 @@ stash
 
 reflog:
 -----------------------------------------   
-even afterr hard reset also we can revert the deleted changes. 
+even afterr hard reset also we can revert the deleted changes. use the reflog 
+
     $ git reflog
     $ git reset --hard reflog-id
     
