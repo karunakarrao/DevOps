@@ -16,8 +16,7 @@ When working on a project with different teams, developers often face issues wit
 
 Q. Why Jenkins?
 -----------------
-Jenkins is the solution to those challenges. its is an Open-source, 1000+ plugins, Free Paid, Enterprise. Jenkins is free and you don’t have to pay for anything.
-Jenkins can be hosted on a **Virtual Machine**, **container** Or even locally for development purposes. and services like below.
+Jenkins is the solution to those challenges. its is an Open-source, 1000+ plugins, Free Paid, Enterprise. Jenkins is free and you don’t have to pay for anything. Jenkins can be hosted on a **Virtual Machine**, **container** Or even locally for development purposes. and services like below.
 
     * Automated builds
     * Automated Tests
@@ -32,9 +31,10 @@ There are challenges in software development like **slower releses, manual build
 
 Q. What is CI & CD?
 ----------------------
-**Continuous Integration( CI )** is a process in which the code is merged from multiple contributors and added to a single repository. In simple words, CI is a process to take the code package it and send it to the CD for further processing. **Continuous Deployment( CD )** is an automated process in which the code is taken from the repository and deployed to the system.
+**Continuous Integration( CI )** is a process in which the code is merged from multiple contributors and added to a single repository. In simple words, CI is a process, take the code, package it, test it, done security checks and  send it to the CD for further processing. 
+**Continuous Deployment( CD )** is an automated process in which the code is taken from the repository and deployed to the system.
 
-CI/CD in simple words is a process to take a code, package it up and deploy it to a system that can be serverless, a VM, or a container.
+CI/CD in simple words is a process that takes the code, package, test, done security check and deploy it to a system that can be serverless, a VM, or a container.
 
       * CI – Continuous Integration
       * CD – Continuous Delivery
@@ -43,15 +43,15 @@ CI/CD in simple words is a process to take a code, package it up and deploy it t
 Q. What are the Key process  of CI?
 ------------------------------------
 Key Processes of Continuous Integration
-      * Package up the code
+      * Package the code
       * Test the code (run unit tests, integration tests, etc)
       * Run security checks against the code
       
 Q. what is Continuous delivery/deployment?
 --------------------------------------------
-The basic difference between Continuous Delivery and Continuous Deployment is that in Continuous Delivery to deploy the code after the CI process you have to manually trigger it via some button to deploy on the system whereas in Continuous Deployment this process is automatic. 
+The basic difference between Continuous Delivery and Continuous Deployment is that in Continuous Delivery to deploy the code after the CI process you have to manually trigger it via some button to deploy on the system whereas in Continuous Deployment this process is automatic with out manual intervention.
 
-source code --> package code --> build code --> 
+source code --> package code --> build code --> test code --> run security checks --> deploy code -->
 
 Q. what are the key process of CD?
 -----------------------------------
@@ -63,23 +63,19 @@ Q. How to install Jenkins?
 ----------------------------
 Jenkins installtion on Linux, jenkins require Java, we can follow Jenkins documentation to install it. 
 
-```
     $ sudo yum install epel-release -y --> install all dependencies/repos
     $ sudo yum install java -y  --> java installtion mandate to run jenkins
-    $ sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo --no-check-certificate --> repo add
+    $ sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo --no-check-certificate
     $ sudo rpm --import http://pkg.jenkins.io/redhat-stable/jenkins.io.key  --> jenkin key for validation
     $ sudo yum install jenkins -y --> install jenkins
-```
 
 Jenkins installation files are availabel in **`/var/lib/jenkins/`**, in this directory we have config.xml and jobs are stored here, to start the jenkins service the configuration file are available **`/lib/systemd/system/jenkins.service`** file and change Jenkins port to 8090 by updating Environment="JENKINS_PORT=" variable value , It should look like this: Environment="JENKINS_PORT=8090"
 
-```
     $ sudo vi /lib/systemd/system/jenkins.service
     $ sudo systemctl edit jenkins      --> edit Jenkins service file
     $ sudo systemctl start jenkins      --> start Jenkins service 
     $ sudo systemctl status jenkins     --> status check 
     $ sudo systemctl restart jenkins    --> restart jenkins
-```
 
 Q. what is the use of Jenkins plug-ins ?
 -----------------------------------------
