@@ -15,6 +15,7 @@ Its the central repository that is accessable for all the developers/users, deve
 Git installtion:
 ------------------------------------------------------------------------------
 go to git install document and follow the instructions
+
     $ sudo apt-get update
     $ sudo apt-get install git-all
     $ sudo apt-get install git-man
@@ -24,6 +25,7 @@ go to git install document and follow the instructions
 Wokring with local repository:
 ------------------------------------------------------------------------------
 for creating a local repository run  ` git init `, this will create a local repository in your local machine. this also create a .git folder inside the repo which will track your git repo activity. 
+
     $ git init
     $ touch hello.sh
     $ git status  --> shows untracked files + modified files. 
@@ -37,16 +39,19 @@ Remove from Unstaged area:
 
 Remove from stagging area:
 ---------------------------
+
     $ git restore --staged hello.v2.sh  --> remove updated file from stagging area. 
     $ git rm --cached hello.sh --> remove untracked files from stagging area
         
-during the 1st setup git need to know who you are, who is commiting the changes. 
+during the 1st setup git need to know who you are, who is commiting the changes.
+
     $ git config user.name "karna"
     $ git config user.email "karna@gmail.com"
   
 .gitignore file:
 ----------------------------
 this file will not track the unwanted file, so that you avoid commiting the file to git repository. you just add the neme of such files in this file. so they will not apear in the staging area. 
+
     $ vi my-ideas.txt
     $ vi .gitignore
     ----------------------
@@ -56,6 +61,7 @@ this file will not track the unwanted file, so that you avoid commiting the file
 logs:
 -----------------------------
 to see the git commit history 
+
     $ git log
     $ git log --oneline 
     $ git log --name-only
@@ -63,6 +69,7 @@ to see the git commit history
 branch:
 -------------------------------------
 branches are used to 
+
     $ git branch            --> list branches 
     $ git branch -a         --> both local and remote branch information.
     $ git branch feature    --> creates feature branch
@@ -92,11 +99,13 @@ push repo:
     $ git remote add origin Remote_repo_URL.git  --> to add remote repo to local repo and naming the repo as "origin"
     $ git push origin master
     
-Note: in realtime scenario we will not push our code to master branch, insted we push to our branch then raise a PR request to merge the changes in to master branch.    
+Note: in realtime scenario we will not push our code to master branch, insted we push to our branch then raise a PR request to merge the changes in to master branch. 
+
     $ git push origin my_branch
     
 Clone repo:
 ----------------------------------------
+
     $ git clone remote_repo_URL.git
     $ git log 
     $ git config --global user.name=max
@@ -128,6 +137,7 @@ fork the git repo then clone the repo do the changes, push the changes to your f
 rebase:
 ------------------------------------------
 rebase will combine number of commits your wish to combine can be bind to gether. 
+
     $ git checkout master   --> first checkout master branch
     $ git pull origin master    --> pull remote repo changees to master 
     $ git checkout my-changes   --> change to your working branch
