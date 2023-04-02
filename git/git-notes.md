@@ -1,9 +1,19 @@
+
+Git Install:
+--------------------------------------------------------
+$ sudo apt-get update
+$ sudo apt-get install git-all -y
+$ sudo apt-get install git-man --> git documentations 
+
+--------------------------------------------------------
 Git: (hotfix, release, enhancement, fixes, 
----------------------------
+--------------------------------------------------------
 
 git --version	--> to check GIT version
 
-
+-----------------------------------------------------------------------
+config:
+-----------------------------------------------------------------------
 git config --global user.name "karunakar"	--> to set global user
 git config --global user.email "karna@gmail.com" --> to se global email	
 
@@ -12,8 +22,11 @@ git config --list --global
 git config --list --local
 git config --list --show-origin
 
+-----------------------------------------------------------------------
+remote:
+-----------------------------------------------------------------------
 git remote -v 	--> to check github remote repo info
-git remote add origin <git-hub- repo URL.git> --> to add a git repo here
+git remote add origin GitHub_Rep_URL.git --> to add a git repo here
 git remote -d origin --> to delete the origin 
 git remote rename origin paul --> to rename the origin name to paul
 git remote rename origin karna-origin --> to change the name.
@@ -22,6 +35,9 @@ git remote add origin https://github.com/karunakarrao/testing.git
 git remote add karna https://github.com/karunakarrao/testing.git
 git remote show origin --> to show the origin details
 
+-----------------------------------------------------------------------
+init:
+-----------------------------------------------------------------------
 git init  --> to initialize a folder as a git repo
 git add README.md --> to add files to  staging area. 
 git commit -m "first commit" --> to commit the stagged file
@@ -79,7 +95,7 @@ git push --set-upstream origin corrected-branch-name
 restore:
 --------------------------
 rm test1
-git restore  test1
+git restore  test1 
 
 git restore --staged <filename> --> to restore from staging area
 git reset --soft HEAD^ --> to revert the last commit done
