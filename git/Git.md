@@ -115,4 +115,48 @@ we can fetch the latest changes made to remote repo to local repo using `fetch` 
 merge conflict:
 ----------------------------------------
 both developers are upto date with remote repo, they started working on same file, if 2 developers are working on the same file script.sh, both try to commit the changes done on script.sh file in remote master. then we  see merge conflict. this can be addressed by modifing the file manually. 
-    $ 
+    
+    $ git push origin master --> you failed to push your changes to remote repo, then you pull new changes
+    $ git pull origin master --> then you merge both changees locally and commit the changes and push the changes.
+    
+fork:
+-----------------------------------------
+in opensource git projects, thousands of contributers are there, so every one can't be the contributer to the project. so you can fork the project and do the changes, and you can create pull request. if the owner of project think your changes are worth while they can approve the changes. and merge in to the project.
+
+fork the git repo then clone the repo do the changes, push the changes to your forked repo then raise a pull request to thee main repo. thanks how the read permission users can contribute to the repo.
+
+rebase:
+------------------------------------------
+rebase will combine number of commits your wish to combine can be bind to gether. 
+    $ git checkout master   --> first checkout master branch
+    $ git pull origin master    --> pull remote repo changees to master 
+    $ git checkout my-changes   --> change to your working branch
+    $ git rebase master         --> get uptodate with master branch in your local working branch 
+    $ git rebase -i HEAD~3      --> 
+    
+cherry-pick:
+-------------------------------------------
+    $ git log master --oneline
+    $ git cherry-pick commit-id
+    
+revert commit:
+-------------------------------------------
+    $ git revert commit-id
+    $ git revert HEAD~0
+    $ git reset --soft HEAD~1
+    $ get reset --hard HEAD~1
+ 
+stash
+------------------------------------------
+    $ git stash
+    $ git stash pop
+    $ git stash list
+    $ git stash show stash-id
+    $ git statsh pop
+
+reflog:
+-----------------------------------------   
+even afterr hard reset also we can revert the deleted changes. 
+    $ git reflog
+    $ git reset --hard reflog-id
+    
