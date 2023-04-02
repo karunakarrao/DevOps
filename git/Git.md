@@ -118,7 +118,9 @@ we can fetch the latest changes made to remote repo to local repo using `fetch` 
 
     $ git fetch origin master --> this will update origin/master branch in local repo
     $ git merge origin/master --> to merge changes to local master branch
+    
  (or)   
+ 
     $ git pull origin sarah --> both fetch + merge are run with pull command.
     
 merge conflict:
