@@ -3,7 +3,7 @@ Jenkins: (CD/CI)
 
 Q. What is Jenkins? 
 -----------------------
-Jenkins is one of the most popular automation tool used worldwide for continuous integration and continuous delivery. Jenkins is a free and open-source automation server that enables developers to build, integrate, and test code automatically as soon as it is committed to the source repository.
+Jenkins is one of the most popular automation tool, that used worldwide for continuous integration and continuous delivery and Continuous Deployment. Jenkins is a free and open-source automation tool that enables developers to package, build, integrate, and test code automatically as soon as it is committed to the source repository. it perform security checks and deploy the code.
 
 Q. Why Jenkins?
 -----------------
@@ -49,9 +49,9 @@ Key Processes of Continuous Integration
       
 Q. what is Continuous delivery/deployment?
 --------------------------------------------
-The basic difference between Continuous Delivery and Continuous Deployment is that in Continuous Delivery to deploy the code after the CI process you have to manually trigger it via some button to deploy on the system whereas in Continuous Deployment this process is automatic with out manual intervention.
+The basic difference between Continuous Delivery and Continuous Deployment is that in Continuous Delivery to deploy the code after the CI process, you have to manually trigger it via some button to deploy on the system whereas in Continuous Deployment this process is automatic with out manual intervention.
 
-source code --> package code --> build code --> test code --> run security checks --> deploy code -->
+source code --> package code --> build code --> test code --> run security checks --> deploy code -->VM/Docker
 
 Q. what are the key process of CD?
 -----------------------------------
