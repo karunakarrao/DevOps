@@ -31,6 +31,8 @@ for creating a local repository run  ` git init `, this will create a local repo
     $ git status  --> shows untracked files + modified files. 
     $ git add hello.sh  --> add to stagging area
     $ git commit -m "hello world script" --> commit your changes. 
+    
+    $ git reset --soft HEAD~1 --> keep the changes in file but delete the commit entry
     $ git reset --hard HEAD~1 --> to delete the commited chagnes 
 
 Remove from Unstaged area:
@@ -143,7 +145,7 @@ rebase will combine number of commits your wish to combine can be bind to gether
     $ git checkout master   --> first checkout master branch
     $ git pull origin master    --> pull remote repo changees to master 
     $ git checkout my-changes   --> change to your working branch
-    $ git rebase master         --> get uptodate with master branch in your local working branch 
+    $ git rebase master         --> get up to date with master branch in your local working branch 
     $ git rebase -i HEAD~3      --> 
     
 cherry-pick:
