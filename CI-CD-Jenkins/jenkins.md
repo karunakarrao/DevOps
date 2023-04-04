@@ -157,7 +157,53 @@ Installing the plugin "Role-based Authorization Strategy", this allow Jenkins ad
    |-> Install plugin "Role-based Authorization strategy
       |-> Goto Globalsecurity ->Authorization section
          |-> enable "RoleBased Strategy" 
-            |-> Now it will show in the manage Jenkins page
+            |-> Now it will show in the manage Jenkins page as "Manage and Assign roles"
+
+Q. Assinging project based metrix Authorization strategy:
+----------------------------------------------------------
+this will allow user to do only the limited authorizations required for that user. for this we install plugin  "Project-based Matrix Authorization Strategy" and add the user provide required permissions what he can do. then save apply. the user can only see the given permissions with his user credentials
+
+Q. Administering Jenkins:
+-------------------------
+**Backup:** 
+Backing the Jenkins is full/snapshot. which files to backup? $JENKINS_HOME && config.xml && Jobs. so its mandetory to backup the JENKINS_HOME directory. Backup jenkins can be done in different ways 
+   
+   1. Filesystem backup 
+   2. Plugin backup (ThinBackup )
+   3. shell scripts that backsup. (https://github.com/sue445/jenkins-backup-script)
+
+backup using ThinBackup plugin, goto --> Manange jenkins --> tools & Actions --> thinkbackup --> add the backup settings --> create backup.
+
+**Restore:** 
+Restore the backup that has taken from plugin ThinBackup. goto--> Thinbackup --> restore --> select restore date --> select check box "Restore Plugin" --> click restore. 
+      
+      $ systemctl restart jenkins
+      
+**Monitor:** 
+we can monitor the system using the plugins such as "Prometheus and graphana" or "Datadog" or other. install plugin prometheus metrix. install Prometheus and Grafana on the same machine called jenkins-server. 
+
+   configure Prometheus --> /etc/prometheus/prometheus.yaml --> add jenkins in Targets. as below
+```
+scrape_configs:
+  - job_name: 'Prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:9090']
+  - job_name: 'jenkins'
+    metrics_path: /prometheus/
+    static_configs:
+      - targets: ['localhost:8085']   # -targets: ['jenkins-IP:Jenkins-listen-port']
+```
+restart the prometheus 
+
+   $ systemctl restart prometheus 
+   $ service prometheus restart/status/
+   $ 
+
+**Scale:**
+**manage:**
+
+
 
 Q. How to provide limited access to users role based  authentication?
 -----------------------------------------------------------------------
