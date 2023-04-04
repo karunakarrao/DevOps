@@ -203,7 +203,80 @@ restart the prometheus
 **Scale:**
 **manage:**
 
+Q. What is a jenkinsFile:
+--------------------------
+Jenkins file is a text file that provide set of instruction what to do with the code. jenkins file is a way to define pipeline.
+   1. free style
+   2. pipeline (single stage pipeline)
+   3. multi-pipeline (multi stage jenkinsfile is called multi line pipeline)  
+        
+Example:
+```
+pipeline{  
+    Agent any  
+    stages{
+        stage("build") {
+            steps{
+                echo"This is the build step"
+            }
+        }
+        stage("test"){
+            steps{
+                echo"This is the test step"
+            }
+        }
+        stage("deploy"){
+            steps{
+                echo"This is the deployment stage"
+            }
+        }
+    }
+}
+```
+multi-stage pipeline:
+----------------------
+```
+pipeline {
+    agent {
+        label {
+            label 'master'
+            customWorkspace "${JENKINS_HOME}/${BUILD_NUMBER}/"
+        }
+    }
+    environment {
+        Go111MODULE='on'
+    }
+    stages {
+        stage('Git clone') {
+            steps {
+                git 'https://github.com/kodekloudhub/go-webapp-sample.git'
+            }
+        }
+        stage('docker image') {
+            steps {
+                script {
+                    image = docker.build('adminturneddevops/go-webapp-sample')
+                }
+            }
+        }
+        stage('Run container') {
+            steps {
+                script {
+                    image = docker.build('adminturneddevops/go-webapp-sample')
+                    sh "docker run -p 8090:8000 -d adminturneddevops/go-webapp-sample"
+                }
+            }
+        }
+    }
+}
+```
+Q. Build Agent:
+----------------
+Build agent are worker agent for Jenkins server, Build servers/agent are used to perform build, test, security checks, and many more. this way the load on the Jenkins server is less, and we can scale the Build agents according to our need. we can deploy the agents in container platform also. 
 
+Q. Adding a BUild server:
+-------------------------
+For adding build agent install plugin "SSH Build Agent"
 
 Q. How to provide limited access to users role based  authentication?
 -----------------------------------------------------------------------
