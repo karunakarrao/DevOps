@@ -270,6 +270,91 @@ pipeline {
     }
 }
 ```
+
+Multi-stage pipeline:
+---------------------
+```
+pipeline {
+    agent none
+    
+    stages {
+        stage('Build Dev') {
+			agent {
+				label {
+					label 'Dev'
+					customWorkspace "/opt/go-app"
+				}
+			}
+            steps {
+                sh 'git pull '    
+            }
+        }
+        stage('Build Test') {
+			agent {
+				label {
+					label 'Dev'
+					customWorkspace "/opt/go-app"
+				}
+			}		
+            steps {
+                sh 'go test ./...'    
+            }
+        }
+        stage('Build Deploy') {
+			agent {
+				label {
+					label 'Dev'
+					customWorkspace "/opt/go-app"
+				}
+			}		
+            steps {
+                script {
+                    withEnv ( ['JENKINS_NODE_COOKIE=do_not_kill'] ) {
+                    sh 'go run main.go &'
+                    } 
+                }
+            }
+        }
+		stage('Build prod') {
+			agent {
+				label {
+					label 'Prod'
+					customWorkspace "/opt/go-app"
+				}
+			}		
+            steps {
+                sh 'git pull '    
+            }
+        }
+        stage('Build Test-prod') {
+			agent {
+				label {
+					label 'Prod'
+					customWorkspace "/opt/go-app"
+				}
+			}
+            steps {
+                sh 'go test ./...'    
+            }
+        }
+        stage('Build Deploy-prod') {
+			agent {
+				label {
+					label 'Prod'
+					customWorkspace "/opt/go-app"
+				}
+			}
+            steps {
+                script {
+                    withEnv ( ['JENKINS_NODE_COOKIE=do_not_kill'] ) {
+                    sh 'go run main.go &'
+                    }    
+                }
+            }
+        }
+    }
+}
+```
 Q. Build Agent:
 ----------------
 Build agent are worker agent for Jenkins server, Build servers/agent are used to perform build, test, security checks, and many more. this way the load on the Jenkins server is less, and we can scale the Build agents according to our need. we can deploy the agents in container platform also. 
@@ -314,6 +399,15 @@ pipeline {
     }
 }
 ```
+
+Q. Blue Ocean :
+-----------------
+Blue ocean will improve the jenkins Ui, to invoke Blue Ocean install plugin "Blue Ocean". to acces blue Ocean use the below URL
+   https://Jenkins_URL/blue
+
+Q. Jenkins security:
+--------------------
+
 
 Q. How to provide limited access to users role based  authentication?
 -----------------------------------------------------------------------
