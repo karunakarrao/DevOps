@@ -276,7 +276,44 @@ Build agent are worker agent for Jenkins server, Build servers/agent are used to
 
 Q. Adding a BUild server:
 -------------------------
-For adding build agent install plugin "SSH Build Agent"
+For adding build agent install plugin "SSH Build Agent". create a credentials for the new build agent. 
+Goto --> manage Jenkins --> manage credentials --> select domain --> create new credentials --> create 
+Goto --> manage jenkins --> manage nodes and clouds --> New Node --> add required details.--> create node.
+
+for creating pipeline jobs need to install the plugin pipeline.
+```
+pipeline {
+    agent {
+       label "node01"
+    }
+    stages {
+        stage('Hello') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+    }
+}
+```
+
+Q. Docker as build agent:
+----------------------------
+
+```
+pipeline {
+    agent {
+       docker { image 'golang:latest'}
+    }
+    stages {
+        stage('Hello') {
+            steps {
+                git 'https://github.com/AdminTurnedDevOps/go-webapp-sample.git'
+                echo 'Hello World'
+            }
+        }
+    }
+}
+```
 
 Q. How to provide limited access to users role based  authentication?
 -----------------------------------------------------------------------
