@@ -2,7 +2,7 @@
 
 Git:  
 ------------------------------------------------------------------------------
-Git is an opensource, distributed version control system.
+Git is an opensource, distributed version control system. which help you maintain your code and its versions. 
 
 Local Repository:
 ------------------------------------------------------------------------------
@@ -30,7 +30,10 @@ for creating a local repository run  ` git init `, this will create a local repo
     $ touch hello.sh
     $ git status  --> shows untracked files + modified files. 
     $ git add hello.sh  --> add to stagging area
-    $ git commit -m "hello world script" --> commit your changes. 
+    $ git commit -m "hello world script" --> commit your changes.
+    
+    $ git diff --color-words hello.sh --> diff b/w untracked modified-file vs actual-file
+    $ git diff --cached --color-words hello.sh --> diff b/w stagged modified-file vs actual-file
     
     $ git reset --soft HEAD~1 --> keep the changes in file but delete the commit entry
     $ git reset --hard HEAD~1 --> to delete the commited chagnes 
@@ -85,8 +88,10 @@ branches are used to
 merge:
 --------------------------------------
 merges are of 2 types
-    1. fastforward merge
-    2. no-fastforward merge
+
+    1. fastforward merge: this type of merge happen when the `Master` branch has no commits, and merging `feature` branch into master then the git will select "Fastforward merge". 
+    
+    2. no-fastforward merge: this type of merge happen when the `master` branch has commits, and mergeing `feature` branch also has commits, this time Git will select "No fastForward merge".
     
     $ git checkout master
     $ git merge feature/signup  --> merge branch feature/signup in master branch.
@@ -144,10 +149,11 @@ rebase will combine number of commits your wish to combine can be bind to gether
 
     $ git checkout master   --> first checkout master branch
     $ git pull origin master    --> pull remote repo changees to master 
-    $ git checkout my-changes   --> change to your working branch
-    $ git rebase master         --> get up to date with master branch in your local working branch 
-    $ git rebase -i HEAD~3      --> 
-    
+    $ git checkout feature   --> change to your working branch
+    $ git rebase master         --> get up to date with master branch in your local working branch(feature) 
+    $ git rebase -i HEAD~3      --> it will merge latest 3 commits in to 1 single commit.
+    $ git reset --hard ORIG_HEAD   --> this will reset back to previous state.
+        
 cherry-pick:
 -------------------------------------------
 if you don't want to apply all the commits just want to pick a specific commit. then use the cherry-pick
