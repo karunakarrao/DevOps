@@ -126,6 +126,7 @@ java -jar jenkins-cli.jar -s http://localhost:8085 -auth 'admin:Adm!n321' <comma
 Q. Jenkins-UI :
 ----------------
 Jenkins Dashbaord:
+```
    |-> New Item --> FreeStyle, pipelie, Multipipeline, 
    |-> people
    |-> Build History
@@ -133,7 +134,8 @@ Jenkins Dashbaord:
    |-> Myview
    |-> Lockable Resource
    |-> New View
-   
+```
+
 Q. Managing Users in Jenkins:
 -----------------------------
 We can manage users in the jenkins and create roles for the users and restric them what they can do and what they can't do. this can be achived with a plugin known as "Role Based Authentication". this plugin allow the admin to create roles for the users and restrict their access. 
@@ -142,22 +144,29 @@ Manage Jenkins --> Manage users --> create new user --> login credentials.
 
 Manage Jenkins --> Manage Plugin --> install Plugin--> Role based Authentication Plugin --> Manage and Assign Roles section will appear--> from here you give permissions to the users. 
 
+Q. Jenkins Dashboard :
+-----------------------
+![image](https://user-images.githubusercontent.com/33980623/230021738-5ea6d3dc-15f7-446b-809f-9a63f9e101d2.png)
+
 Q. Managing system configuration:
 ---------------------------------
 In system configuration section
+```
    |-> Configure system --> Jenkins server configurations. setting paths, environments, etc.
    |-> Global Tool configuration --> Maven, JDK, information avaiable here
    |-> manage plugins   --> Install, Update, Delete plugins
    |-> manage nodes and clouds --> jenkins nodes list
-
+```
 Q. Install role-based authentication strategy:
 -----------------------------------------------
 Installing the plugin "Role-based Authorization Strategy", this allow Jenkins admin can assign roles to the users in jenkins. post install must enable RoleBased Strategy in Global Security section.
 
+```
    |-> Install plugin "Role-based Authorization strategy
       |-> Goto Globalsecurity ->Authorization section
          |-> enable "RoleBased Strategy" 
             |-> Now it will show in the manage Jenkins page as "Manage and Assign roles"
+```
 
 Q. Assinging project based metrix Authorization strategy:
 ----------------------------------------------------------
@@ -213,19 +222,19 @@ Jenkins file is a text file that provide set of instruction what to do with the 
 Example:
 ```
 pipeline{  
-    Agent any  
-    stages{
+    agent any  
+    stages {
         stage("build") {
-            steps{
+            steps {
                 echo"This is the build step"
             }
         }
-        stage("test"){
+        stage("test") {
             steps{
                 echo"This is the test step"
             }
         }
-        stage("deploy"){
+        stage("deploy") {
             steps{
                 echo"This is the deployment stage"
             }
@@ -355,15 +364,17 @@ pipeline {
     }
 }
 ```
+
 Q. Build Agent:
 ----------------
 Build agent are worker agent for Jenkins server, Build servers/agent are used to perform build, test, security checks, and many more. this way the load on the Jenkins server is less, and we can scale the Build agents according to our need. we can deploy the agents in container platform also. 
 
 Q. Adding a BUild server:
 -------------------------
-For adding build agent install plugin "SSH Build Agent". create a credentials for the new build agent. 
-Goto --> manage Jenkins --> manage credentials --> select domain --> create new credentials --> create 
-Goto --> manage jenkins --> manage nodes and clouds --> New Node --> add required details.--> create node.
+For adding build agent install plugin "SSH Build Agent". create a credentials for the new build agent. similerly we need to create use in the linux server. 
+
+	Goto --> manage Jenkins --> manage credentials --> select domain --> create new credentials --> create 
+	Goto --> manage jenkins --> manage nodes and clouds --> New Node --> add required details.--> create node.
 
 for creating pipeline jobs need to install the plugin pipeline.
 ```
