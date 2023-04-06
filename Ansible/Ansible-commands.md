@@ -199,12 +199,23 @@ facts:
 to collect the managed host facts like OS,Os version, network info, ip info, and much more\.. etc...
 $ ansible web1 -m setup -i inventory --> to collect facts. 
 
+
 to disable collecting ansible facts can be done using gather_facts: no
----------------------------------------------------------------
+-----------------------------------------------------------------------
+```
 ---
 - hosts: large_farm
   gather_facts: no  # to avoid ansilbe collecting facts.
-  
+```
+(or)
+
+/etc/ansible/ansible.cfg --> change the value accordingly
+gathering = implicit/explicit --> `implicit` it will gather facts | `explicit` it will not gather facts.
+
+(or)
+
+$ ANSIBLE_GATHERING=explicit ansible-playbook play1 -i inventory  --> command line gather facts disable
+
 ---------------------------------------------------------------
 
 Ansible-vault:
