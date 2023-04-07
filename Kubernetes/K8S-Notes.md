@@ -18,7 +18,7 @@ there are other tools avaiable in the market, but this is the widly used one. ot
 
 Kubernetes installtion:
 -----------------------------------------------------------------
-k8s installtion can be done is different ways depeding on the requirement. it can be done in 2 ways.
+k8s installtion can be done is different ways depeding on the requirement.
 
     1. minikube --> for testing, training or local setup we can use it.
     2. kubeadm  --> for commertial purpose setup, or production grade setup require kubeadm.
@@ -607,9 +607,7 @@ kind: Service
 metadata:
   name: my-service
 spec:
-  type: NodePort
-  selector:
-    app: MyApp
+  
   ports:
     - port: 80
       targetPort: 80
@@ -784,6 +782,7 @@ before creating resource quota for namespace, we need to create namespace
 
 prod2-ns-resourcequota-def.yaml
 -----------------------------------------------------------------------------
+```
 apiVersion: v1
 kind: ResourceQuota
 metadata:
@@ -796,6 +795,7 @@ spec:
     limits.cpu: "2"
     limits.memory: 2Gi
     requests.nvidia.com/gpu: 4
+ ```   
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
@@ -940,7 +940,7 @@ spec:
     contianers:
     - name: nginx
       image: nginx
-    tolerations:        # this pod has two tolerations its can be created on both node01/node03 depends on the scheduler selection criteria
+    tolerations:  # pod has two tolerations, depends on the scheduler selection criteria
     -   key: "env"
         operator: "Equal"
         value: "prod"
@@ -1225,7 +1225,7 @@ spec:
 -----------------------------------------------------------------------------------
 ResourceQuota: limiting the number of k8s objects for a namespace
 -----------------------------------------------------------------------------------
-It can limit the number of k8s objects(pods, configmaps, secrets, deployments, services, etc) that can be created in a namespace.
+It can limit the number of k8s objects/resources that can be created in a namespace. this can be done 
  
 -------------------------
 ```
@@ -1259,9 +1259,9 @@ metadata:
   name: mem-limit-range
 spec:
   limits:
-  - default:
+  - default:	# defines default limits
       memory: 512Mi
-    defaultRequest:
+    defaultRequest: # defines default requests
       memory: 256Mi
     type: Container
 ---------------------------------------------------------------------   
@@ -1541,7 +1541,7 @@ Commands and Arguments in k8s pod
 ---------------------------------------------------------------------------------------------------
 Configuring Command and Arguments on applications:
 ---------------------------------------------------------------------------------------------------
-we use the docker images in k8s. so when we use the images where it require inputs how are we pass them
+we use the docker images in k8s. so when we use the images where it require inputs how are we pass them using `command` and `args`.  The command and arguments that you define cannot be changed after the Pod is created.
 
 docker uses 2 parameters in docker images 
     1. CMD sleep 5  --> defined input, if not specified it will use the existing value 5, other wise $ docker run ubuntu-sleep sleep 10 
@@ -1594,7 +1594,7 @@ spec:
 -------------------------------------------------------------------------------------------------
 Q. ConfigMaps: How to create & Inject configMap in k8s ?
 -------------------------------------------------------------------------------------------------
-A `ConfigMap` is an K8S object used to store **non-confidential** data in** key-value** pairs. Pods can consume ConfigMaps as environment variables, command-line arguments, or as configuration files in a volume. A ConfigMap is not designed to hold large chunks of data. The data stored in a ConfigMap cannot exceed 1 MiB. If you need to store settings that are larger than this limit, you may want to consider mounting a volume or use a separate database or file service
+A `ConfigMap` is an K8S object used to store **non-confidential** data in **key-value** pairs. Pods can consume ConfigMaps as environment variables, command-line arguments, or as configuration files in a volume. A ConfigMap is not designed to hold large chunks of data. The data stored in a ConfigMap cannot exceed 1 MiB. If you need to store larger chunks of data, you may want to consider mounting a `volume` or use a separate database or file service
 
 Note: The spec of a static Pod cannot refer to a ConfigMap or any other API objects. The Pod and the ConfigMap must be in the same namespace.
 
@@ -1765,7 +1765,7 @@ spec:
 -----------------------------------------------------------------------------
 Secrets are not encrypted, so it is not safer in that sense. However, some best practices around using secrets make it safer.
 
-Not checking-in secret object definition files to source code repositories. Enabling Encryption at Rest for Secrets so they are stored encrypted in ETCD. Also the way kubernetes handles secrets as below
+Not checking-in secret object definition files to source code repositories. Enabling Encryption at REST for Secrets so they are stored encrypted in ETCD. Also the way kubernetes handles secrets as below
 	1. A secret is only sent to a node if a pod on that node requires it.
 	2. Kubelet stores the secret into a tmpfs so that the secret is not written to disk storage.
 	3. Once the Pod that depends on the secret is deleted, kubelet will delete its local copy of the secret data as well.
@@ -1801,7 +1801,7 @@ resources:
       - identity: {}
 	      
 ---------------------------------------------------------
-
+	$ head -c 32 /dev/urandom | base64 --> randam encryption and use it in config file.
 
 first create a secret:
 -----------------------
