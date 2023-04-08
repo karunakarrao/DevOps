@@ -70,18 +70,16 @@ Controller check the heart beat of the nodes, if the node heart beat(40sec) is n
        5. endpoint controller
        6. job controller
        7. ServiceAccount controller
-    
+
    $ cat /etc/kubernetes/manifests/kube-controller-manager.yaml --> controller YAML file is avaible here
    $ cat /etc/systemd/system/      --> all service files are avaiable here
-  
    $ ps -aux | grep kube-controller-manager
-      
+   
 4). kube-scheduler:
 -----------------------------------------------------------------
 kube-scheduler will deside which pod goes where, mean the scheduler will deside where to create the pod on which node, depends on the criteria. it will send the instructions to the kubelet on that node agent. scheduler just gives the instructions to the kubelet. kubelet is responsible to create the POD on that node.
 
     $ cat /etc/kubernetes/manifests/kube-scheduler.yaml
-    
     $ ps -aux |grep kube-scheduler  --> process check 
     
 5). kubelet: 
@@ -117,38 +115,38 @@ kubernetes resources are called as kubernetes objects. which are used to setup t
 	$ kubectl api-resources --namespaced=true --> k8s objects which are created inside namespace
 	$ kubectl api-resources --namespaced=false --> k8s objects which are not created inside namespace
 
-1. Pod		 	 --> Is the smallest object is k8s. conatiner are created inside the Pods. 
-2. ReplicaSet 		 --> to replicate POD's on k8s cluster. and make sure defined number of replicas avaialbe. 
-3. ReplicationController --> same as replicaset, but replicaset is advanced.
-4. Deployment		 --> to deploy the application using deployment..
-5. Service 		 --> to expose the deployed services to the external network need to create services. 
-6. Daemonsets		 --> this pods created one for each cluster node. means one pod on one physical server.
-7. Namespace		 --> k8s cluster, we can have mutiple namespaces, we devide namespaces as a working are for dev/uat/prod.
-8. bindings
-9. configmaps                  
-10. endpoints                   
-11. events                      
-12. limitranges                 
-13. persistentvolumeclaims      
-14. pods                        
-15. podtemplates                
-16. replicationcontrollers      
-17. resourcequotas              
-18. secrets                     
-19. serviceaccounts             
-20. services                            
-21. daemonsets                  
-22. deployments                 
-23. replicasets                 
-24. statefulsets                   
-25. cronjobs                    
-26. jobs                                                   
-27. events                      
-28. ingresses                   
-29. networkpolicies             
-30. poddisruptionbudgets        
-31. rolebindings                
-32. roles    
+	1. Pod		 	 --> Is the smallest object is k8s. conatiner are created inside the Pods. 
+	2. ReplicaSet 		 --> to replicate POD's on k8s cluster. and make sure defined number of replicas avaialbe. 
+	3. ReplicationController --> same as replicaset, but replicaset is advanced.
+	4. Deployment		 --> to deploy the application using deployment..
+	5. Service 		 --> to expose the deployed services to the external network need to create services. 
+	6. Daemonsets		 --> this pods created one for each cluster node. means one pod on one physical server.
+	7. Namespace		 --> k8s cluster have mutiple namespaces, we devide namespaces as a working are for dev/uat/prod.
+	8. bindings
+	9. configmaps                  
+	10. endpoints                   
+	11. events                      
+	12. limitranges                 
+	13. persistentvolumeclaims      
+	14. pods                        
+	15. podtemplates                
+	16. replicationcontrollers      
+	17. resourcequotas              
+	18. secrets                     
+	19. serviceaccounts             
+	20. services                            
+	21. daemonsets                  
+	22. deployments                 
+	23. replicasets                 
+	24. statefulsets                   
+	25. cronjobs                    
+	26. jobs                                                   
+	27. events                      
+	28. ingresses                   
+	29. networkpolicies             
+	30. poddisruptionbudgets        
+	31. rolebindings                
+	32. roles    
 
 
 **`kubectl`** : is a command, users use this command to interact with k8s cluster.
@@ -163,6 +161,7 @@ kubernetes resources are called as kubernetes objects. which are used to setup t
     $ kubectl explain service/svc --> doc for service
 
 Kubernetes objects are created in two types.
+
     1. imperative --> objects created using command line are called imperative.
     2. declarative --> objects created using yml/programing are called declarative.
 
@@ -275,10 +274,12 @@ spec:
 ----------------------------------------------------------------------------------------------
 
     $ kubectl create -f rc-def.yaml --> create using YAML file.
-(or)$ kubectl apply -f rc-def.yaml
+(or)
+	$ kubectl apply -f rc-def.yaml
 
     $ kubectl get replicaitoncontroller
-(or)$ kubectl get rc
+(or)
+	$ kubectl get rc
 
     $ kubectl delete rc my-rc1
     $ kubectl describe rc my-rc1
@@ -324,12 +325,11 @@ spec:
         $ kubectl create -f replicaset.v1.yaml   --> create replicaset
 
         $ kubectl get replicaset    --> list replicasets
-(or)    $ kubectl get rs    --> list replicasets 
+	    $ kubectl get rs    --> list replicasets 
 
         $ kubectl describe replicaset my-rs         --> describe replicaset properties
         $ kubectl replace -f replicaset.v2.yaml     --> replace the new app version with latest version
         $ kubectl scale replicaset my-rs --replicas=10  --> scale up number of replicas 
-(or)
         $ kubectl scale -f replicaset.yaml --replicas=10    --> scale up number of replicas using replicaset definition file
         $ kubectl scale -f replicaset.yaml --replicas=2     --> scale down number of replicas
        
@@ -433,9 +433,7 @@ spec:
     $ kubectl get deployment --namespace=dev    --> to check the deploymets running on namespace "dev"
     
     $ kubectl describe deployment my-deploy 
-
     $ kubectl delete deployment my-deploy
-    
     $ kubectl edit deployment my-deploy --> update the version by editing the running deployment.
 
 deployment rollout is done in two ways 
@@ -479,6 +477,7 @@ Note: we can see revision version details in the deployment description in annot
 
 example: o/p
 -------------------------------------------
+```
   $ kubectl describe deployments.apps nginx-deployment 
     Name:               nginx-deployment
     Namespace:          default
@@ -489,6 +488,7 @@ example: o/p
     Replicas:           3 desired | 3 updated | 3 total | 3 available | 0 unavailable
     StrategyType:       Recreate
     MinReadySeconds:    0
+```
 ---------------------------------------------
 
 Note:  you are running a Deployment with 10 replicas, maxSurge=3, and maxUnavailable=2. RollingUpdate Deployments support running multiple versions of an application at the same time. When you or an autoscaler scales a RollingUpdate Deployment that is in the middle of a rollout (either in progress or paused), the Deployment controller balances the additional replicas in the existing active ReplicaSets (ReplicaSets with Pods) in order to mitigate risk. This is called proportional scaling.
@@ -1784,8 +1784,9 @@ first thing to encrypt dats using ETCD, we need to check the REST encription is 
 	
 	$ kubectl -n kube-system describe pod kube-apiserver-controlplane 
 
-Step-2: create configuration for REST encryption
--------------------------------------------------
+Step-2: create configuration for REST encryption : enc.yaml
+------------------------------------------------------------
+```
 apiVersion: apiserver.config.k8s.io/v1
 kind: EncryptionConfiguration
 resources:
@@ -1799,9 +1800,12 @@ resources:
             - name: key1
               secret: <BASE 64 ENCODED SECRET>
       - identity: {}
-	      
+```      
 ---------------------------------------------------------
 	$ head -c 32 /dev/urandom | base64 --> randam encryption and use it in config file.
+	
+edit the kube-apiserver pod definition file and update the `enc.yaml` file and `--encryption-provider-config=/etc/kubernetes/enc/enc.yaml` and update the `valumeMounts` and `valumes` and restart the kube-apiserver
+
 
 first create a secret:
 -----------------------
@@ -1809,7 +1813,13 @@ first create a secret:
 	$ kubectl describe secret my-secret1
 	$ kubectl get secret my-secret1 -o yaml >my-secret1.yaml
 
+to read the secret files, use the below command and check. 
 
+	$ ETCDCTL_API=3 etcdctl \
+   		--cacert=/etc/kubernetes/pki/etcd/ca.crt   \
+   		--cert=/etc/kubernetes/pki/etcd/server.crt \
+   		--key=/etc/kubernetes/pki/etcd/server.key  \
+   		get /registry/secrets/default/secret1 | hexdump -C
 
 
 
@@ -1897,6 +1907,12 @@ spec:
     image: busybox:1.28
     command: ['sh', '-c', 'until nslookup mydb; do echo waiting for mydb; sleep 2; done;']
 ```
+-----------------------------------------------------------------
+
+----------------------------------------------------------------------------
+Self Healing Applications:
+----------------------------------------------------------------------------
+Kubernetes supports self-healing applications through ReplicaSets and Replication Controllers. The replication controller helps in ensuring that a POD is re-created automatically when the application within the POD crashes. It helps in ensuring enough replicas of the application are running at all times.
 
 ----------------------------------------------------------------------------------------
 OS Upgrade :
@@ -1952,7 +1968,7 @@ $ kubeadm upgrade plan
 $ kubeadm upgrade apply v1.12.0	
 $ kubeadm get nodes 
 
-still teh versions details are not reflected as kubelet is still not done upgrade.
+still teh versions details are not reflected as `kubelet` is still not upgraded.
 
 $ sudo apt-get upgrade -y kubelet=1.12.0-00
 $ systemctl restart kubelet
@@ -2074,3 +2090,54 @@ $ etcdctl snapshot save -h --> and keep a note of the mandatory global options.S
 –endpoints=[127.0.0.1:2379] This is the default as ETCD is running on master node and exposed on localhost 2379.
 –key                  identify secure client using this TLS key file
 
+Example: Backup and restore:
+----------------------------
+	$ kubectl config
+	$ kubectl config get-clusters	--> list the clusters in k8s
+	$ kubectl config use-context cluster1 --> switch between clusters.
+	$ kubectl get nodes
+	
+--------------------------------------------------------------------------------------
+kubernetes Security:
+--------------------------------------------------------------------------------------
+1. password based authentication disabled
+2. SSH key based authentication enabled
+
+Who can access the K8s cluster?
+	1. Files
+	2. Files
+	3. cetificates
+	4. external authentication providers - LDAP
+	5. service accounts
+
+What they can do?
+	1. RBAC authorization
+	2. ABAC authorization
+	3. Node authorization
+	4. Webhook mode
+
+all components in cluster such as api-server, etcd, kubelet, kube-controller, kube-scheduler are communicated with certificates. 
+
+![image](https://user-images.githubusercontent.com/33980623/230711667-11f27cee-50c2-42e6-8ae1-4951b7c74fd1.png)
+
+Note: all user access are managed by kube-apiserver. 
+
+Authentication mechanisum in K8s:
+----------------------------------
+Authentication mechanisum can be achived in different ways, 
+	1. Static password file
+	2. staic token file
+	3. certificates
+	4. identification services (third party)
+	
+View certificate details:
+-------------------------
+	$ openssl x509 -in /etc/kubernetes/pki/apiserver.crt -text 
+	$ journalctl -u etcd.service -l --> use this to inspect the logs
+	
+Note: if the kube-apiserver is down then, check the `docker ps -a` and `docker logs id`
+
+---------------------------------------------------------------------------------
+kubeconfig:
+---------------------------------------------------------------------------------
+the kubeconfig file resides on $HOME/.kube/config. this file wil 
