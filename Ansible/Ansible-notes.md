@@ -159,6 +159,7 @@ ansible-config utility allows users to see all available configuration settings 
 	
 	
 **Q. What are Ansible Prerequisites?**
+
 Ansible-Master: Ansible uses agentless architecture. Differs from other configuration management utilities like Puppet, Chef. 
 	1. Software installs on Ansible-master 
 		Only requirement: Python version 2.6 or later 
@@ -176,7 +177,7 @@ Managed Hosts: No special Ansible agent needed on ansible-worker nodes.
 		-> Password authentication for each connection becomes unwieldy as number of managed hosts increases
 		-> Key-based authentication preferable in enterprise environments
 
-**Q. How Ansible uses SSH Key-Based Authentication? **
+**Q. How Ansible uses SSH Key-Based Authentication?**
 
 To authenticate ssh logins without password, use public key authentication. SSH lets users authenticate using private/public key scheme.
 	Two keys generated: private and public
@@ -215,6 +216,7 @@ To see modules available on Ansible-Master, run ansible-doc with -l option. Modu
 	
 	$ ansible-doc -l	--> to list all the default modules available 
 	$ ansible-doc yum	--> detail doc for a module yum/firewalld/service/copy 
+	$ ansible-doc -s yum 	--> synapsys
 
 **Q. Types of Module comes with ansible?**
 
@@ -548,6 +550,7 @@ Example:
 -> Host inventory defines two host groups: webservers and db-servers
 -> SSH on web2.example.com configured to listen on port 1234
 -> Ansible must log in to host as ftaylor
+
 ------------------------------------------------------------------------------------------
 	[webservers]
 	localhost  ansible_connection=local
