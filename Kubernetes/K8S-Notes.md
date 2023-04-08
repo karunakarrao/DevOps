@@ -2140,4 +2140,80 @@ Note: if the kube-apiserver is down then, check the `docker ps -a` and `docker l
 ---------------------------------------------------------------------------------
 kubeconfig:
 ---------------------------------------------------------------------------------
-the kubeconfig file resides on $HOME/.kube/config. this file wil 
+the kubeconfig file resides on $HOME/.kube/config. this file will tell you which user is authorized to connect which namespace. this is how the kubeconfig file works.
+
+	$ kubectl config view
+	$ kubectl config use-context
+	$ kubectl config --kubeconfig=/root/my-kube-config use-context research
+	$ kubectl config --kubeconfig=/root/my-kube-config current-context
+
+-----------------------------------------------------------------------------------
+Authorization: --authorization-mode=Node,RBAC,Webhook
+-----------------------------------------------------------------------------------
+there are various types
+	1. Node 
+	2. ABAC (Atribute based authorization )
+	3. RBAC
+	4. Webhooks
+
+RBAC: Role-based access control (RBAC) is a method of regulating access to computer or network resources based on the roles. To enable RBAC, start the API server with the --authorization-mode flag set to a comma-separated list that includes RBAC.
+
+Webhook: to outsource the authorization we use webhooks. the third-party tools like `Open-policy-agent`. 
+
+------------------------------------------------------------------------------------
+RBAC: Role based access control
+------------------------------------------------------------------------------------
+To create roles and assing the roles, we need to create role based YAML file. then binding the user to that role using role-binding YAML file. 
+
+how to create roles ?
+	
+	$ kubectl create role developer --resource pods --verb=list,create,delete	-->developer role created
+	$ kubectl create rolebinding dev-user-binding --user dev-user --role developer --> dev-user added to developer role
+
+developer-role.yaml
+--------------------------------------
+```
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+	name: developer		# creating "developer" role
+rules:
+	- apiGroups: [""]
+	  resources: ["pods"]
+	  verbs: ["list", "get", "create", "update"]
+	- apiGroups: [""]
+	  resources: ["ConfigMap"]
+	  verbs: ["create"]
+```
+---------------------------------------
+
+devuser1-developer-binding.yaml
+-----------------------------------
+```
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+	name: devuser-developer-binding
+subjects:
+- 	kind: User
+	name: dev-user
+	apiGroup: rbac.authorization.k8s.io
+roleRef:
+	kind: Role
+	name: developer
+	apiGroup: rbac.authorization.k8s.io
+```
+---------------------------------
+
+	$ kubectl create -f developer-role.yaml
+	$ kubectl create -f devuser1-developer-binding.yaml 
+	
+	$ kubectl get roles
+	$ kubectl get rolebindings
+	
+	$ kubectl describe role developer
+
+Q: how to check what access i have?
+-------------------------------------------
+	$ kubectl auth con-i create deployments
+	$ 
