@@ -2426,7 +2426,7 @@ spec:
 
 $ kubectl get persistantvolumes 
 	 
-	 
+----------------------------------------	 
 ```
 apiVersion: v1
 kind: Pod
@@ -2444,8 +2444,42 @@ spec:
       persistentVolumeClaim:
         claimName: myclaim
 ```
+----------------------------------------
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:alpine
+    ports:
+      containerPort: 80
+    volumeMounts:
+      - mountPath: /var/www/html
+        name: local-pvc
+  volumes:
+  - persistentVolumeClaim:
+      claimName: local-pvc
+      
+------------------------------------------
+
+
 	$ kubectl exec webapp -- cat /log/app.log
 
 --------------------------------------------------------------------------------------------------------------
 StorageClasses:
 --------------------------------------------------------------------------------------------------------------
+Storage classes are used to provision the PersitentVolumes dynamically. 
+
+---------------------------------
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: delayed-volume-sc
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+
+----------------------------------
