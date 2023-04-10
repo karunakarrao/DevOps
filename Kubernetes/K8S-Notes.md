@@ -2217,3 +2217,235 @@ Q: how to check what access i have?
 -------------------------------------------
 	$ kubectl auth con-i create deployments
 	$ 
+
+----------------------------------------------------------------------------------------------
+Clusterrole & clusterrolebinding
+----------------------------------------------------------------------------------------------
+clusterroles are the roles defined for the cluster level authorization. clusterrolebinding are the users who has access to cluster roles. 
+
+	$ kubectl create clusterrole storage-admin --resource persistentvolumes --resource storageclasses --verb get,watch,list,create,delete
+	$ kubectl create clusterrolebinding michelle-storage-admin --clusterrole storage-admin --user michelle
+	$ kubectl edit clusterrolebindings.rbac.authorization.k8s.io storage-admin
+   	$ kubectl edit clusterrole storage-admin 
+        $ kubectl edit clusterrolebindings.rbac.authorization.k8s.io michelle-storage-admin 
+
+------------------------------------------------------------------------------------------------
+ServiceAccounts:
+------------------------------------------------------------------------------------------------
+serviceaccounts are used to provide access to the applications that required permission on k8s to work.
+
+service accounts are of 2 types, 
+	1. useraccount (admins accessing the k8sclusters admin activities (or) developer accessing k8s for developer activity)
+	2. service account (applications like (promitheous/jenkins/etc) access to k8s given using service accounts)
+	
+	$ kubectl create serviceaccount account-1
+	$ kubectl get serviceaccount
+	$ kubectl descrbe serviceaccount account-1
+	$ kubectl create token dashboard-sa
+	$ kubectl describe secret token-name --> found in the account describe command
+
+Note: while creating the service accounts a token must be created, this token is used for the extenal application authentication. this tokens are encrypted secrets. serviceaccount tokens can be used as voulme mounts, if the application is deployed on the k8s cluster. 
+
+for every namespace a default serviceaccount is created. this can be viewed from pod describe.
+
+------------------------------------------------------------------------------------------------
+imageSecurity:
+------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------------------------
+NetworkPolicies:
+------------------------------------------------------------------------------------------------
+Network traffic flow in 2 ways. 
+	
+	1. ingress Traffic
+	2. egress traffic
+
+Ingress Traffic: if the traffic comming into the application is called ingress-traffic
+Egress Traffic: if the traffic going from the application is called egress-traffic.
+
+Network polices: in the k8s by default all the PODS comminicates to all the PODS in the POD network. This is not ideal for critical application. so we need to restric the pods traffic it should communitcate with. thats where this network-policies are used. 
+
+--------------------------------
+```
+apiVersion:
+kind: NetworkPolicy
+metadata:
+	name:
+spec:
+	podSelector:
+		matchLabels:
+			app: db-pod
+	policyTypes:
+	-Ingress
+	ingress:
+	- from:
+	  - ipBlock: 
+	  	  cidr: 192.168.1.10/32		
+	  - podSelector:
+		  matchLabels:
+			app: app-pod
+	    namespaceSelector:
+		  matchLabels:
+			app: prod                  
+	  ports:
+	  - protocol: TCP
+	    port: 3306
+```
+--------------------------------
+Note: what we mention in `policyType` that trafic only restricted. rest are by default communicate with all pods in cluster. 
+
+Note: NetworkPolicies are implimented how we havee configured them. Solutions that support network policies like(Kube-router,calico,romana,Weave-net). Solutions that didnt'support networkpolicies(fa
+
+Note: if we try to take backup of the db pod into external server which isnot part of k8s cluster, then we use `ipBlock` to enable the trafic.
+
+---------------------------------------------------------------------------------------------
+Volumes:
+---------------------------------------------------------------------------------------------
+docker containers are transient in nature, that means once the job is done they are destroied. so that the data stored in the container is lost once destroied. to persist data by the container we attach volumes to it. 
+
+---------------------------------------
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: random-number
+spec:
+  containers:
+  - name: alpine
+    image: alpinee
+	command: ["/bin/sh","-c"]
+	args: ["shuf -i 0-100 -n 1 >> /opt/number.out;"]
+	volumeMounts:
+	- mountPath: /opt
+	  name: data-volume
+  volumes:
+  - name: data-volume
+    hostPath:
+	  path: /data
+	  type: Directory
+```
+---------------------------------------
+  volumes:
+  - name: data-volume
+  	awsElasticBlockStore:
+		volumeID: volume-id
+		fsType: ext4
+--------------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: webapp
+spec:
+  containers:
+  - name: event-simulator
+    image: kodekloud/event-simulator
+    env:
+    - name: LOG_HANDLERS
+      value: file
+    volumeMounts:
+    - mountPath: /log
+      name: log-volume
+
+  volumes:
+  - name: log-volume
+    hostPath:
+      # directory location on host
+      path: /var/log/webapp
+      # this field is optional
+      type: Directory
+	  
+-----------------------------------------------------------------------------------------------------------------
+PersistantVolumes:
+-----------------------------------------------------------------------------------------------------------------
+A PersistentVolume (PV): is a piece of storage in the cluster that has been provisioned by an administrator or dynamically provisioned using Storage Classes. It is a resource in the cluster just like a node is a cluster resource. 
+
+---------------------------------------------------------
+```
+apiVersion: v1
+kind: PersistantVolume
+metadata:
+  name: pv-vol1
+spec:
+ accessModes:
+   - ReadWriteOnce
+ capacity:
+   storage: 1Gi
+ awsElasticBlockStore:
+   volumeID: volume-id
+   fsType: ext4  
+```
+---------------------------------------------------------
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-log
+spec:
+  accessModes: 
+  - ReadWriteMany
+  capacity:
+    storage: 100Mi
+  hostPath:
+    path: /pv/log
+	
+--------------------------------------------------------
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: claim-log-1
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+	  storage: 50Mi
+	  
+------------------------
+  
+  
+
+$ kubectl create -f pv-definition.yaml
+
+A PersistentVolumeClaim (PVC): is a request for storage by a user. It is similar to a Pod. Pods consume node resources and PVCs consume PV resources. Pods can request specific levels of resources (CPU and Memory). Claims can request specific size and access modes (e.g., they can be mounted ReadWriteOnce, ReadOnlyMany or ReadWriteMany,
+
+------------------------------------
+```
+apiVersion: v1
+kind: PersistantVolumeClaim
+metadata:
+  name: pv-vol1
+spec:
+ accessModes:
+   - ReadWriteOnce
+ resources:
+   requests:
+     storage: 500Mi
+```
+-----------------------------------
+
+$ kubectl get persistantvolumes 
+	 
+	 
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  containers:
+    - name: myfrontend
+      image: nginx
+      volumeMounts:
+      - mountPath: "/var/www/html"
+        name: mypd
+  volumes:
+    - name: mypd
+      persistentVolumeClaim:
+        claimName: myclaim
+```
+	$ kubectl exec webapp -- cat /log/app.log
+
+--------------------------------------------------------------------------------------------------------------
+StorageClasses:
+--------------------------------------------------------------------------------------------------------------
