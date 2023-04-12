@@ -2483,3 +2483,75 @@ provisioner: kubernetes.io/no-provisioner
 volumeBindingMode: WaitForFirstConsumer
 
 ----------------------------------
+
+-------------------------------------------------------------------------------------------------------------------
+Networking Basics: Linux
+-------------------------------------------------------------------------------------------------------------------
+Q. What is Switching and Routing?
+
+Switching: A network is an interface to connect one or more systems together. to connect one are more systems locally we use switches. a switch will create a network to connect both systems/computers together. systems that are in same network can only reach each other and ping each other.  /etc/network/interfaces file for persist the changes. 
+
+	$ ip link
+	$ ip addr
+	$ ip addr add 192.168.1.10/24 dev eth0
+
+Routing: there are 2 different networks A & B like A=`192.168.1.0` & B=`192.168.2.0`. to connect both networks together we use Router. the devices in network must know what is the `gateway` to connect with in diff network. the gateways for network A is `192.168.1.1` and for network B is `192.168.2.1`. this `gateways` need to be configured accross all network devices.  
+
+	$ route
+	$ ip route add 192.168.2.0/24 via 192.168.1.1 --> in Network A devices
+	$ ip route add 192.168.1.0/24 via 192.168.2.1 --> In Network B devices
+	
+Gateway: is a door to connect with other network devices. for network A - 192.168.1.1 is the door. for network B - 192.168.2.1 is the door. 
+
+Similerly if the network need to connect with Internet, need to add the internet ip `172.217.194.0/24` in all network devices. 
+	
+	$ ip route add 172.217.194.0/24 via 192.168.1.1 --> In network A devices
+	$ ip route add 172.217.194.0/24 via 192.168.2.1 --> In network B devices
+	
+Q. What is the Default Gateway?
+
+Default Gateway: Each device in the network configured with Gateway, so they know how to connect with other network devices. if you want the external network to connect your devices. then create a Default gateway which will connect to the all network using the gateway IP. you see 0.0.0.0 added in gateway that mean allow.
+
+	$ ip route add default via 192.168.1.1 --> In network A
+	$ ip route add default via 192.168.2.1 --> In network B
+
+example: if there are 3 systems A-->B-->C. A connect B & B connect C. if A want to connect C, it should connect through B. we need to tell A connect via B to C, similerly tell C to connect via B to A.
+	
+	$ ip route add 192.168.2.0/24 via 192.168.1.6
+	$ ip route add 192.168.1.0/24 via 192.168.2.6
+	$ ping 192.168.2.5  --> still not able to send packages. 
+	
+Note: by default packets sends to other network devices are disabled in the Linux so we need to enable it via /etc/sysctl.conf.
+
+	$ cat /proc/sys/net/ipv4/ip_forwarrd --> set to 1
+	$ /etc/sysct.conf --> net.ipv4.ip_forward=1
+
+--------------------------------------------------------------------------------------------
+DNS: Domain Name Search
+--------------------------------------------------------------------------------------------
+Name Resolution: we give a name to host B=192.168.1.11 as DB. and provide a entry in the /etc/hosts file. you can name as you wish. its just a alias name for the ip. insted of using IP each time we can just use hostname. this can also done with DNS server entry for resolving the IP address with hostname. 
+	
+	$ ping 192.168.1.11
+	$ ping db
+	$ ping 
+
+DNS server where the host DNS name entries are refered. insted of maintaining in /etc/hosts locally all organization servers look in the DNS server. so its like a central server where all servers lookup for the DNS names. to use the DNS server in your local system need to create a DNS-server entry inthe `/etc/resolv.conf` as below.
+
+	$ cat /etc/resolv.conf	--> Nameserver/DNS server entry are available here.
+	-----------------------
+	nameserver	192.168.1.100	--> 192.168.1.100 is the DNS server 
+	nameserver 	8.8.8.8
+	search		mycompany.com 	prod.mycom
+	-----------------------
+	$ cat /etc/nsswitch.conf --> DNS name lookup order can be changed. 1st, 2nd where to lookup the entry
+	
+	$ ping mycompany.com
+	
+	$ nslookup www.google.com	--> nslookup Query only DNS server. not in the local entry in /etc/hosts file.
+	$ dig www.google.com		--> similer to nslookup
+	
+nameserver that maintain by google. that has all names added is 8.8.8.8.  DNS server solutions out there, in this lecture we will focus on a particular one – CoreDNS.
+
+--------------------------------------------------------------------------------------------------------
+Network Namespaces:
+--------------------------------------------------------------------------------------------------------
