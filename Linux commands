@@ -1,0 +1,4 @@
+$ netstat -nplt|grep kube-scheduler --> to list all ports open and listing in the system. 
+$ netstat -npa|grep etcd  --> listing the client connections 
+$ ip address show type bridge   --> it will show only the bridge interface in the network
+
