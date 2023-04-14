@@ -205,3 +205,16 @@ kubens
 To switch back to previous namespace:
 
 kubens –
+
+Questions:
+---------------------------------------------------------------------------
+Q. How to identify the dns solution implimented in the cluster? 
+    $ kubectl -n kube-system describe  services
+Q. Where is the configuration file located for configuring the CoreDNS service?
+    $ kubectl describe deployments.apps 
+Q. How is the Corefile passed into the CoreDNS POD?
+Run the command: kubectl get cm -n kube-system and look at the coredns ConfigMap. It's passed through the ConfigMap volume in the deployment.
+Q. What is the root domain/zone configured for this kubernetes cluster?
+Run the command: kubectl describe configmap coredns -n kube-system and look for the entry after kubernetes.
+Q. How to query a pod to get some output?
+kubectl exec -it hr -- nslookup mysql.payroll > /root/CKA/nslookup.out
