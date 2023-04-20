@@ -206,6 +206,20 @@ To switch back to previous namespace:
 
 kubens –
 
+controlplane ~ ➜  cat freeze-app.sh 
+nohup kubectl exec --namespace=kube-public curl -- wget -qO- http://webapp-service.default.svc.cluster.local:8080/freeze &
+
+controlplane ~ ➜  cat curl-test.sh 
+for i in {1..20}; do
+   kubectl exec --namespace=kube-public curl -- sh -c 'test=`wget -qO- -T 2  http://webapp-service.default.svc.cluster.local:8080/ready 2>&1` && echo "$test OK" || echo "Failed"';
+   echo ""
+done
+controlplane ~ ➜  cat crash-app.sh 
+kubectl exec --namespace=kube-public curl -- wget -qO- http://webapp-service.default.svc.cluster.local:8080/crash
+
+controlplane ~ ➜  
+
+
 Questions:
 ---------------------------------------------------------------------------
 Q. How to identify the dns solution implimented in the cluster? 
