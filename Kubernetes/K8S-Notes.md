@@ -2560,11 +2560,95 @@ Network Namespaces:
 ---------------------------------------------------------------------------------------------------------
 Readyness Probe:
 ---------------------------------------------------------------------------------------------------------
+ ```
+ readinessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 3
+      periodSeconds: 3
+```
+---------------------------------
+It is used to indicate if the container is ready to serve traffic or not i.e.proof of being ready to use. It checks dependencies like database connections or other services your container is depending on to fulfill its work. In the given example, until the request returns Success, it won't serve any traffic(by removing the Pod’s IP address from the endpoints of all Services that match the Pod). Kubernetes relies on the readiness probes during rolling updates, it keeps the old container up and running until the new service declares that it is ready to take traffic. If not provided the default state is Success.
 
+Healthcheck (readiness):
+-------------------------
+Ping the app every 10 seconds to make sure it's healthy (ie. accepting HTTP requests). If fail two subsequent pings, cordone it off (prevents cascades). Must pass two subsequent health checks before can accept traffic again.
+
+-------------------------
+```
+readinessProbe:
+  successThreshold: 2
+  failureThreshold: 2
+  periodSeconds: 10
+  timeoutSeconds: 5
+  httpGet:
+    path: /management/health
+    port: web-traffic
+```
+-------------------------
 ---------------------------------------------------------------------------------------------------------
 Liveness Probe:
----------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+It is used to indicate if the container has started and is alive or not i.e. proof of being avaliable. In the given example, if the request fails, it will restart the container. If not provided the default state is Success.
 
+-------------------------
+```
+ livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 3
+      periodSeconds: 3
+```
+----------------------------
+App has Died (liveliness):
+--------------------------
+If app fails 3 consecutive health checks, 30 seconds apart, reboot the container. Maybe app got into an unrecoverable state like Java ran out of heap memory.
+
+-------------------------
+```
+livenessProbe:
+  successThreshold: 1
+  failureThreshold: 3
+  periodSeconds: 30
+  timeoutSeconds: 5
+  httpGet:
+    path: /management/health
+    port: web-traffic
+```
+-------------------------
+  
 ---------------------------------------------------------------------------------------------------------
 Startup Probe:
 ---------------------------------------------------------------------------------------------------------
+It is used to indicate if the application inside the Container has started. If a startup probe is provided, all other probes are disabled. In the given example, if the request fails, it will restart the container. Once the startup probe has succeeded once, the liveness probe takes over to provide a fast response to container deadlocks. If not provided the default state is Success.
+
+-------------------------
+```
+startupProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 3
+      periodSeconds: 3
+```
+------------------------------
+
+App Initialization (startup):
+-------------------------------
+Spring app that is slow to start - anywhere between 30-120 seconds. Don't want other probes to run until app is started. Check it every 10 seconds (give up after 5 sec) for up to 180s before k8s gets into a crash loop.
+
+-------------------------
+```
+startupProbe:
+  successThreshold: 1
+  failureThreshold: 18
+  periodSeconds: 10
+  timeoutSeconds: 5
+  httpGet:
+    path: /management/health
+    port: web-traffic
+```
+-------------------------
+
