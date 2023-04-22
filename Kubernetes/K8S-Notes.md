@@ -2472,17 +2472,81 @@ spec:
 --------------------------------------------------------------------------------------------------------------
 StorageClasses:
 --------------------------------------------------------------------------------------------------------------
-Storage classes are used to provision the PersitentVolumes dynamically. 
+Storage classes are used to provision the PersitentVolumes dynamically. that means you don't have to manually create each time when the application require to map the PV to PVC volumes. the storage class dynamically creates PV volumes required for the POD according to the PVC claim resources properties defined. 
+
+If no `reclaimPolicy` is specified when a StorageClass object is created, it will default to Delete.
+
+Note: If you choose to use WaitForFirstConsumer, do not use nodeName in the Pod spec to specify node affinity. If nodeName is used in this case, the scheduler will be bypassed and PVC will remain in pending state. Instead, you can use node selector for hostname in this case as shown below.
 
 ---------------------------------
+```
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-storageclass-1
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-pvc-1
+spec:
+  accessModes:
+	- ReadWriteOnce
+  storageClassName: local-storageclass-1
+  resources:
+    requests:
+	storage: 500Mi
+
+---
+apiVersion: v1
+kind: Pod
+metadata: 
+	name: my-pod
+spec:
+  containers:
+	- name: nginx
+	  image: nginx
+	  ports:
+		- containerPort: 80
+	  volumeMounts:
+	  - mountPath:
+		name: my-pod-v1
+  volumes:
+	- name: my-volume1
+	  persistantVolumeClaim:
+		claimName: my-pvc-1
+```
+---------------------------------
+```
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: delayed-volume-sc
-provisioner: kubernetes.io/no-provisioner
+provisioner: kubernetes.io/no-provisioner	# local provisioning 
 volumeBindingMode: WaitForFirstConsumer
+...
+------------------------
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: standard
+provisioner: kubernetes.io/aws-ebs	# AWS provisioning
+parameters:
+  type: gp2
+reclaimPolicy: Retain
+allowVolumeExpansion: true
+mountOptions:
+  - debug
+volumeBindingMode: Immediate
+...
 
+```
 ----------------------------------
 
 -------------------------------------------------------------------------------------------------------------------
@@ -2528,7 +2592,7 @@ Note: by default packets sends to other network devices are disabled in the Linu
 	$ /etc/sysct.conf --> net.ipv4.ip_forward=1
 
 --------------------------------------------------------------------------------------------
-DNS: Domain Name Search
+DNS: Domain Name Server
 --------------------------------------------------------------------------------------------
 Name Resolution: we give a name to host B=192.168.1.11 as DB. and provide a entry in the /etc/hosts file. you can name as you wish. its just a alias name for the ip. insted of using IP each time we can just use hostname. this can also done with DNS server entry for resolving the IP address with hostname. 
 	
@@ -2560,6 +2624,9 @@ Network Namespaces:
 ---------------------------------------------------------------------------------------------------------
 Readyness Probe:
 ---------------------------------------------------------------------------------------------------------
+It is used to indicate if the container is ready to serve traffic or not i.e.proof of being ready to use. It checks dependencies like database connections or other services your container is depending on to fulfill its work. In the given example, until the request returns Success, it won't serve any traffic(by removing the Pod’s IP address from the endpoints of all Services that match the Pod). Kubernetes relies on the readiness probes during rolling updates, it keeps the old container up and running until the new service declares that it is ready to take traffic. If not provided the default state is Success.
+
+-----------------------
  ```
  readinessProbe:
       httpGet:
@@ -2569,7 +2636,6 @@ Readyness Probe:
       periodSeconds: 3
 ```
 ---------------------------------
-It is used to indicate if the container is ready to serve traffic or not i.e.proof of being ready to use. It checks dependencies like database connections or other services your container is depending on to fulfill its work. In the given example, until the request returns Success, it won't serve any traffic(by removing the Pod’s IP address from the endpoints of all Services that match the Pod). Kubernetes relies on the readiness probes during rolling updates, it keeps the old container up and running until the new service declares that it is ready to take traffic. If not provided the default state is Success.
 
 Healthcheck (readiness):
 -------------------------
