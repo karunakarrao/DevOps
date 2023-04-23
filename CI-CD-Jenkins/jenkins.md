@@ -1,5 +1,6 @@
-Jenkins: (CD/CI)
-=================
+
+Jenkins: (CD/CI):
+==================================================================
 
 Q. What is Jenkins? 
 -----------------------
@@ -31,10 +32,10 @@ There are challenges in software development like **slower releses, manual build
 
 Q. What is CI & CD?
 ----------------------
-**Continuous Integration( CI )** is a process in which the code is merged from multiple contributors and added to a single repository. In simple words, CI is a process, take the code, package it, test it, done security checks and  send it to the CD for further processing. 
+**Continuous Integration( CI )** is a process in which the code is merged from multiple contributors and added to a single repository. In simple words, CI is a process, take the code and package it, test it, do security checks and  send it to the CD for further processing. 
 **Continuous Deployment( CD )** is an automated process in which the code is taken from the repository and deployed to the system.
 
-CI/CD in simple words is a process that takes the code, package, test, done security check and deploy it to a system that can be serverless, a VM, or a container.
+CI/CD in simple words is a process that takes the code, package, test, do security check and deploy it to a system that can be serverless, a VM, or a container.
 
       * CI – Continuous Integration
       * CD – Continuous Delivery
@@ -108,7 +109,7 @@ Q. How to change the Jenkins default listner port?
 ----------------------------------------------------
 by changing the **/lib/systemd/system/jenkins.service** file and edit Environment="JENKINS_PORT=8090" to desired open port. 
       * by default jenkins listen on port 8080
-
+ 
 Q. Important file in Jenkins installtion?
 -----------------------------------------
 1. jenkins service file /etc/systemd/system/jenkins.service
@@ -141,8 +142,9 @@ Q. Managing Users in Jenkins:
 We can manage users in the jenkins and create roles for the users and restric them what they can do and what they can't do. this can be achived with a plugin known as "Role Based Authentication". this plugin allow the admin to create roles for the users and restrict their access. 
 
 Manage Jenkins --> Manage users --> create new user --> login credentials.
-
-Manage Jenkins --> Manage Plugin --> install Plugin--> Role based Authentication Plugin --> Manage and Assign Roles section will appear--> from here you give permissions to the users. 
+Manage Jenkins --> Manage Plugin --> install Plugin--> Role based Authorization Plugin.
+Manage Jenkins --> security section --> configure global security --> authorization --> Role based strategy
+Goto --> manage jenkins --> Manage and Assign Roles section will appear--> from here you give permissions to the users. 
 
 Q. Jenkins Dashboard :
 -----------------------
