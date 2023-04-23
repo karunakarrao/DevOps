@@ -27,31 +27,30 @@ Wokring with local repository:
 for creating a local repository run  ` git init `, this will create a local repository in your local machine. this also create a .git folder inside the repo which will track your git repo activity. 
 
     $ git init
-    $ touch hello.sh
-    $ git status  --> shows untracked files + modified files. 
-    $ git add hello.sh  --> add to stagging area
-    $ git commit -m "hello world script" --> commit your changes.
+    $ touch hello.sh    ---------------> Create a file 
+    $ git status  ---------------------> shows untracked files + modified files. 
+    $ git add hello.sh  ---------------> add to stagging area
+    $ git commit -m "hello world script" -----> commit your changes locally
     
-    $ git diff --color-words hello.sh --> diff b/w untracked modified-file vs actual-file
+    $ git diff --color-words hello.sh -----------> diff b/w untracked modified-file vs actual-file
     $ git diff --cached --color-words hello.sh --> diff b/w stagged modified-file vs actual-file
     
-    $ git reset --soft HEAD~1 --> keep the changes in file but delete the commit entry
-    $ git reset --hard HEAD~1 --> to delete the commited chagnes 
-
-Remove from Unstaged area:
----------------------------
-     $ git restore hello.v1.sh  --> revert the changes from original file before stagging area.
-
-Remove from stagging area:
----------------------------
-
-    $ git restore --staged hello.v2.sh  --> remove updated file from stagging area. 
-    $ git rm --cached hello.sh --> remove untracked files from stagging area
-        
+    $ git reset --soft HEAD~1 --------> keep the changes in file but delete the commit entry
+    $ git reset --hard HEAD~1 --------> to delete the commited chagnes 
+    
+config:
+---------------------------------
 during the 1st setup git need to know who you are, who is commiting the changes.
 
     $ git config user.name "karna"
     $ git config user.email "karna@gmail.com"
+
+restore:
+---------------------------
+    $ git restore hello.v1.sh  --> revert the changes from original file before stagging area.
+
+    $ git restore --staged hello.v2.sh  --> remove updated file from stagging area. 
+    $ git rm --cached hello.sh --> remove untracked files from stagging area
   
 .gitignore file:
 ----------------------------
@@ -93,7 +92,7 @@ merges are of 2 types
     
     2. no-fastforward merge: this type of merge happen when the `master` branch has commits, and mergeing `feature` branch also has commits, this time Git will select "No fastForward merge".
     
-    $ git checkout master
+    $ git checkout master   ------> goto master branch 
     $ git merge feature/signup  --> merge branch feature/signup in master branch.
     
     $ git log --name-only
@@ -104,24 +103,24 @@ push repo:
     $ git remote --> to list remote repo available
     $ git remote -v --> full remote repo details
     $ git remote add origin Remote_repo_URL.git  --> to add remote repo to local repo and naming the repo as "origin"
-    $ git push origin master
+    $ git push origin master    --> to push the changes to the remote master repository
     
 Note: in realtime scenario we will not push our code to master branch, insted we push to our branch then raise a PR request to merge the changes in to master branch. 
 
-    $ git push origin my_branch
+    $ git push origin my_branch --> pushing the changes to my_branch and raising the PR for to Merge into master branch. 
     
 Clone repo:
 ----------------------------------------
 
     $ git clone remote_repo_URL.git
-    $ git log 
+    
     $ git config --global user.name=max
     $ git config --global user.email=max@example.com
     $ git config --list-all
     
 Pull & fetch repo:
 ----------------------------------------
-we can fetch the latest changes made to remote repo to local repo using `fetch` / `pull`. if we fetch the data it will be on origin/master, to merge the changes with master branch need to run 
+we can fetch the latest changes made to remote repo to local repo using `fetch` / `pull`. if we fetch the data it will be on origin/master, to merge the changes with master branch need to run merge.
 
     $ git fetch origin master --> this will update origin/master branch in local repo
     $ git merge origin/master --> to merge changes to local master branch
@@ -129,6 +128,9 @@ we can fetch the latest changes made to remote repo to local repo using `fetch` 
  (or)   
  
     $ git pull origin sarah --> both fetch + merge are run with pull command.
+    
+    $ git clone git_url.git --single-branch --> clone only the remote primary HEAD (default: origin/master)
+    $ git clone git_url.git --branch branch_name --single-branch --> clone a specific branch
     
 merge conflict:
 ----------------------------------------
@@ -141,18 +143,19 @@ fork:
 -----------------------------------------
 in opensource git projects, thousands of contributers are there, so every one can't be the contributer to the project. so you can fork the project and do the changes, and you can create pull request. if the owner of project think your changes are worth while they can approve the changes. and merge in to the project.
 
-fork the git repo then clone the repo do the changes, push the changes to your forked repo then raise a pull request to thee main repo. thanks how the read permission users can contribute to the repo.
+fork the git repo then clone the repo to do the changes, push the changes to your forked repo then raise a pull request to thee main repo. thanks how the read permission users can contribute to the repo.
 
 rebase:
 ------------------------------------------
 rebase will combine number of commits your wish to combine can be bind to gether. 
 
-    $ git checkout master   --> first checkout master branch
-    $ git pull origin master    --> pull remote repo changees to master 
+    $ git checkout master    --> first checkout master branch
+    $ git pull origin master --> pull remote changes to local master branch
     $ git checkout feature   --> change to your working branch
-    $ git rebase master         --> get up to date with master branch in your local working branch(feature) 
-    $ git rebase -i HEAD~3      --> it will merge latest 3 commits in to 1 single commit.
-    $ git reset --hard ORIG_HEAD   --> this will reset back to previous state.
+    $ git rebase master      --> get upto-date with master branch in your local working branch(feature) 
+    
+    $ git rebase -i HEAD~3   --> it will merge latest 3 commits in to 1 single commit.
+    $ git reset --hard ORIG_HEAD   --> this will revert the above step and reset back to previous state.
         
 cherry-pick:
 -------------------------------------------
@@ -175,11 +178,11 @@ stash
 ------------------------------------------
 if you don't want to commit the changes you made, but switch to other branch and do changes use the stash command, we can have may stashes. access and apply stashed changes as below 
 
-    $ git stash
-    $ git stash pop
-    $ git stash list
-    $ git stash show stash-id
-    $ git statsh pop
+    $ git stash     --> it will store as cache in that branch
+    $ git stash pop --> to revert the stash.
+    $ git stash list    --> list all the stashed files
+    $ git stash show stash-id   --> to see the change in that stash-id
+    $ git statsh pop stash-id   --> to unstash the changes uisng stash-id
 
 reflog:
 -----------------------------------------   
