@@ -1,3 +1,7 @@
+
+### What is a Container?
+A container will pack your application and its dependencies,libraries,OS together so that it can be deployed/run accross any platform without worrying the underlying OS.
+
 Docker: Overview :
 --------------------
 Docker is a Containerization platform. Containerization will encapsulate or package softwares and all its dependencies, so that it can run uniformly and consistently on any infrastructure. 
@@ -8,16 +12,18 @@ The docker engine consists of 3 componenets.
 	1). Docker Daemon
 	2). Docker client
 	3). REST API
+
+![Picture1-15](https://user-images.githubusercontent.com/33980623/234473946-a618580d-8b8f-4705-a100-6f6f98f4049e.png)
 	
 **Docker Daemon:** The daemon (dockerd) is a process that keeps running in the background and waits for commands from the client. The daemon is capable of managing various Docker objects.
 
 	1. docker objects are stored in this location (containers/images/volumes/networks/etc) : /var/lib/docker 
 	2. docker daemon service is run on ports : 2375(plain)/2376(secure) 
-	3. docker environment variable for accessing remotely : export DOCKER_HOST="tcp://docker-host-ip:2375" --> for secure use 2376
+	3. docker environment variable for accessing remotely : export DOCKER_HOST="tcp://docker-host-ip:2375" --> secure use 2376
 	
-	4. docker service check : $ systemctl status docker 
-	5. docker service start : $ systemctl start docker
-	6. docker service enable: $ systemctl enable docker
+	4. docker service check : 	$ systemctl status docker 
+	5. docker service start : 	$ systemctl start docker
+	6. docker service enable: 	$ systemctl enable docker
 	
 	7. docker daemon troubleshooting with service logs : $ journalctl -u docker.service 
 	8. docker configuration files are stored in : $ vi /etc/docker/daemon.json 
@@ -33,11 +39,10 @@ You as a user will usually execute commands using the client component. The clie
 
 Docker: Install
 -------------------
-Docker installation on CentOS, when docker install it create a dircectory in /var/lib/docker where all the docker objects are stored. such as containers, images, volumes, network and others. 
-
-docker installtion path are as below 
+Docker installation on CentOS, when docker install it create a dircectory in /var/lib/docker where all the docker objects are stored. such as containers, images, volumes, network and others.  
 	
 Install:
+----------------------------
 
 	 $ sudo yum install -y yum-utils	--> install yum-utils package
 	 $ sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo	--> add repository 
@@ -46,13 +51,13 @@ Install:
 	 $ sudo systemctl enable docker --> enable the docker service on restart
 
 Daemon:
-
+-----------------------------
 	 $ dockerd	--> to start the docker service manually
 	 $ dockerd --debug	--> starting the docker service in debug mode. 
 	 $ dockerd --debug --host=tcp://192.168.1.10:2375 --> remote docker service (export DOCKER_HOST="tcp://192.168.1.10:2375)
 	
 Version:
-
+-----------------------------
 	$ ps aux |grep docker 		--> to see process running inside container 
 	$ docker --version		--> docker version
 	$ docker-compose --version	--> docker compose version
@@ -60,14 +65,14 @@ Version:
 	$ docker run hello-world	--> running simple docker image hello-world
 
 Process:
-
+-----------------------------
 	$ docker ps 	--> only running containers list
 	$ docker ps -a 	--> to see all containers (running/stopped/paused/created)
-	$ docker ps -q	--> shows only container-ID
+	$ docker ps -q	--> shows only container-ID of running process
 	$ docker ps -qa --> shows all containers-ID (running/stopped/paused/created)
 
 objects:
-
+-----------------------------
 	$ docker image ls	--> list docker images
 	$ docker network ls	--> lists docker networks
 	$ docker container ls	--> lists running docker containers
@@ -113,14 +118,14 @@ Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 	$ docker <command> --help
 
 start/stop:
-
+-----------------------------
 	$ docker create --name my-nginx nginx --> creates nginx container, named as my-nginx
 	$ docker start my-nginx		--> starts newly created nginx 
 	$ docker stop my-nginx 		--> stop nginx container, it will be avaiable to restart again
 	$ docker kill my-nginx 		--> it will obruptly kills the nginx container
 
 run:
-
+-----------------------------
 	$ docker run nignx 	--> it creates & starts nginx container, and docker daemon will give a unique name to it.
 	$ docker run --name my-nginx nginx 	--> it creates & starts nginx container named as my-nginx
 	$ docker run -d nginx 	--> container run in background
@@ -131,61 +136,70 @@ run:
 	$ docker run –p 192.168.1.5:8000:5000 kodekloud/simple-webapp	--> 
 
 remove:
-
+-----------------------------
 	$ docker run --rm ubuntu cat /etc/*release*	--> remove the docker container once the container exited.
 
 ports:
-
+-----------------------------
 	$ docker port my-nginx/container-ID	--> to check container ports status
 	$ docker port my-nginx 8080/tcp 
 	$ docker port my-nginx 8080/ud
 
 copy:
-
-	$ docker cp <host-path> <contiainer-id:/container-path> 
+-----------------------------
+	$ docker cp <local file path> <contiainer-id:/container-path> 
 	$ docker cp /tmp/web.conf webapp:/etc/web.conf --> copy file/directories to container from localhost to container 
 
 rename:
-
+-----------------------------
 	$ docker rename my-nginx app1-nginx --> to rename nginx container from my-nginx to app1-nginx
 
 attach:	
+-----------------------------
+to attach to the detached container, first your container must enable the interactive terminal(-it) then only you can reattach to the attached container with out stopping the container.
 
-	$ docker attach my-nginx --> to attach to the detached container, to detach (Ctrl+q /Ctrl+p)
+	$ docker run -it -d nginx --> start container like this.
+	$ docker attach my-nginx --> to attach to the detached container, to detach (Ctrl+p + Ctrl+q )
 
 execute:	
-
+-----------------------------
 	$ docker exec my-nginx uname -a --> to check the container OS details
 	$ docker exec my-nginx cat /etc/*release* --> this is to check container OS details
 	$ docker exec -it my-nginx /bin/bash --> this is to connect with running nginx 
 
-pause:
+pause: 
+-----------------------------
+you can't perform any operation during this time, the container running but it will be in paused state. 
 
 	$ docker pause my-nginx my-redis --> it will pause the container
 	$ docker unpause my-nginx my-redis -->it will unpause the containers
 	$ docker rm my-redis --> to delete the container permanently
 
-inspect:		
-
+inspect:	
+-----------------------------
 	$ docker inspect  my-nginx/container-ID --> to see the docker container details.
 
 logs:	
-
+-----------------------------
 	$ docker logs my-nginx
 
-top:	
-
+top:
+-----------------------------
 	$ docker top my-nginx/container-ID 	--> to see process running for that container.
 	$ docker stats	--> provide the stats of the containers
+	
+	$ docker stop $(docker ps -q) --> it stops all containers running
+	$ docker rm $(docker ps -aq) --> it will remove all containers in stopped state.
+	
 	$ docker container stop $(docker container ls -q) --> stop all containers at once
 	$ docker container rm $(docker container ls -aq) --> remove all container at once.
 
 events:	
-
+-----------------------------
 	$ docker system events --since 60m	--> system events recorded for 60m 
 
 system:	
-
+-----------------------------
 	$ docker system df	--> docker objects created count and memeory usage
 	$ docker system info	--> docker daemon configuration details.
 	$ docker system prune	--> it will remove all stopped, dangling images
@@ -219,7 +233,7 @@ CMD ["nginx", "-g", "daemon off;"]
 	RUN	--> for runing a command 
 	COPY	--> copy the file from local to image
 	ADD	--> similer to COPY, but it has some additinal features, it can untar and copy, it can donwload from internet and copy
-	EXPOSE	--> to expose the port for image
+	EXPOSE	--> to expose the container port
 	CMD 	--> the program with container should start when container start
 	ENDPOINT --> similer to CMD, but need to pass the CMD at the end.  
 	ENV	--> image environment variables defined druing the container run
@@ -229,39 +243,39 @@ CMD ["nginx", "-g", "daemon off;"]
 
 
 pull/push:
-
+---------------------
 	$ docker pull nginx --> will pull the image from docker repository, it will pull only one.
 	$ docker push custome-image --> to push you image to the docker repository
 
 history:
-
+---------------------
 	$ docker images  --> to list the docker images pulled and avaiable
 	$ docker history nginx --> to see image creation steps
 
 remove:
-
+---------------------
 	$ docker rmi nginx --> to remove the nginx image in local repository
 
 build:
-
+---------------------
 	$ docker build . -t custom-tag1 --> directory should container `Dockerfile` to build the docker image
 	$ docker build https://github.com/karunakarrao/my-nignx  --> to build the image from a git repo
 	$ docker build https://github.com/karunakarrao/my-nginx#branchname --> can also specify the branch 
-	$ docker build https://github.com/karunakarrao/my-nginx:<build-folder-name> --> this way we can pass the directory in a repo
+	$ docker build https://github.com/karunakarrao/my-nginx:<build-folder-name> --> this way we can pass the directory
 	$ docker build -f Dockerfile.dev https://github.com/karunakarrao/my-nginx:<build-folder-name> 
 
 tag:
-
+---------------------
 	$ docker image tag httpd:alpine httpd:customv1 --> rename the tagged value with custom name
 	$ docker image tag httpd:alpine gcr.io/company/httpd:customv1 
 
 save:
-
+---------------------
 	$ docker image save alpine:latest -o alpine.tar  --> to save the image as .tar file and share
 	$ docker image load -i alpine.tar  --> to extract the .tar file 
 	
 export/import:
-
+---------------------
 	$ docker export <container-name> file1.tar
 	$ docker image import file1.tar newimage:latest
 	
