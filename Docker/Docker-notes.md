@@ -258,14 +258,21 @@ remove:
 
 build:
 ---------------------
-	$ docker build . -t custom-tag1 --> directory should container `Dockerfile` to build the docker image
+create a Dockerfile, then build the docker file using the below
+
+	$ docker build . --> this will build the image with out any tags or name for your build
+	$ docker image tag container-ID my_custom_nginx:latest --> this will add tags to the image
+	$ docker build . -t custom-tag1 --> directory should contain `Dockerfile` to build the docker image
+	
 	$ docker build https://github.com/karunakarrao/my-nignx  --> to build the image from a git repo
 	$ docker build https://github.com/karunakarrao/my-nginx#branchname --> can also specify the branch 
 	$ docker build https://github.com/karunakarrao/my-nginx:<build-folder-name> --> this way we can pass the directory
+	
 	$ docker build -f Dockerfile.dev https://github.com/karunakarrao/my-nginx:<build-folder-name> 
 
 tag:
 ---------------------
+	$ docker image tag container-ID custom_name:custom_tag
 	$ docker image tag httpd:alpine httpd:customv1 --> rename the tagged value with custom name
 	$ docker image tag httpd:alpine gcr.io/company/httpd:customv1 
 
@@ -289,14 +296,16 @@ Containers are short lived object they are destroyed once the container work is 
 
 docker uses the storage drivers to do the all the below actions when we execute the command. they are mutiple types like AUFS, ZFS, BTRFS, Device Mapper, Overlay, Overlay2 and etc. Depeding on dockerimage base OS respective driver is used to perform this operations. 
 
+volumes:
+-----------------------------
 	$ docker volume ls 
 	$ docker volume create my-volume1 	--> this will create a volume in the docker-host /var/lib/docker/volumes
 	$ docker volume remove my-volume1	--> remove my-volume1
 	$ docker inspect my-volume1		--> inspec the volume details. 
 	
 run: 
-
-	$ docker run -v my-volume:/var/lib/mysql mysql --> volume mapped to docker contianer. /var/lib/mysql default storage location.
+-----------------------------
+	$ docker run -v my-volume:/var/lib/mysql mysql --> volume mapped to container default storage location "/var/lib/mysql".
 	$ docker run -v my-volume2:/var/lib/mysql mysql --> if we didn't create a volume, docker will create the volume and map.
 	$ docker run -v /home/mysql:/var/lib/mysql mysql --> we can map the external location to store the data persistantly
 	$ docker run --mount type=bind,source=/home/mysql,target=/var/lib/mysql mysql --> this way also we can mount the volumes.
