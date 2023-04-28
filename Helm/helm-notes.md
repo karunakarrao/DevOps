@@ -5,25 +5,55 @@ The is the package manager for Kubernetes, Helm Charts help you define, install,
 
 A release is single instaltion of an application. with in each release we can have multiple revisions. each revision is like a snapshot of an application. what ever the change made to the charts there will be one more revision created. changes like replicas, upgrades, etc. 
 
-helm chart in a public reposistory. helm save the data of revisions and release as a metadata, and save it in the k8s cluster in secrets. 
+Helm Charts:
+----------------------------------
+helm charts are the deployment file of a specific application like my-sql,nginx,ingress,mariadb and etc. this charts are available in Artifacthub.io where all the publishers will publish their charts, we can install thouse charts and use for our need for a public reposistory. helm save the data of revisions and release as a metadata, and save it in the k8s cluster in secrets. 
 
-Helm Charts: (repos: Appscode, TrueCharts, Bitnami, Communityoperations)
+Helm Installtion:
+-------------------------------------------------------------------------
+Install helm use the below commands provided in the helm portal
+
+        $ curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+        $ chmod 700 get_helm.sh
+        $ ./get_helm.sh
+
+Helm Componenets:
+-------------------------------------------------------------------------
+Helm is a package management tool installed as a script, when you pull/install a helm chart it consists of a directory structure as shown in the below. there are few important files like values.yaml, chart.yaml, templates/, charts/ and etc.
+
+        $ helm install my-wordpress bitnami/wordpress --version 16.0.1  --> it will deploy the helm chart on K8s platform
+        $ helm pull bitnami/wordpress   --> it will pull a tar file on the local machine
+        $ helm pull --untar bitnami/wordpress   --> it will untar the file also as shown below
+        
+example:
+  |-> Hello-world-chart
+    |-> templates/  --> templates directory
+    |-> values.yaml
+    |-> chart.yaml
+    |-> License
+    |-> ReadMe.md
+    |-> Charts/ --> dependency charts.
+    
+Helm Charts lifecycle: (repos: Appscode, TrueCharts, Bitnami, Communityoperations)
 -------------------------------------------------------------------------
 For all the helm charts we have a hub know as Artifacthub.io 
 
-after downloading the required helm charts from the repository any repo, we can modify the requirements according to the need our application need.  always need to do is to change the values of the values.yml. this is called templating. this is the settings file for the charts to deploy.
+after downloading the required helm charts from the repo, we can modify the charts according to the our application need.  always need to do is to change the values of the values.yml. this is called templating. this is the settings file for the charts to deploy.
 
     $ helm install wordpress  --> Revision:1
     $ helm upgrade wordpress  --> Revision:2
     $ helm rollback wordpress --> Revision: 3
+    
+    $ helm uninstall wordpress  --> it will uninstall the helm chart
 
 when ever a chart is applied a release is created. 
-
-    $ helm install [release-name] [chartname]
-
+    
+    $ helm list --> to list the releases 
+    $ helm history my-wordpress1    --> to see the revisions created for this release
+    
 example:
-    $ helm install my-site bitnami/wordpress
-    $ helm install my-second-site bitnami/wordpress
+    $ helm install my-site1 bitnami/wordpress
+    $ helm install my-second-site1 bitnami/wordpress
 
     $ helm install hello-world
 
