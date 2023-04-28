@@ -1,3 +1,12 @@
+
+
+
+
+
+
+
+
+
 Kubernetes: Overview
 -----------------------------------------------------------------
 Kubernetes is an **Open-Source** and container orchestration system for automate software deployment, scale, descale, auto-scale, deploy, replicate, loadbalance, failover. its originally developed by Google.  which is used widely in containerization platfroms. it has widely spread global community support. now it maintained by **Cloud Native Computing Foundation**.
