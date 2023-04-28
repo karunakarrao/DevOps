@@ -1,74 +1,95 @@
 
-Helm:
+Helm: 
 ---------------------------------
-
-helm connected using the CLI mode. 
-
-helm is the command to connect with the helm charts. 
-
-When a chart is applied to the cluster a release is created for that. 
+The is the package manager for Kubernetes, Helm Charts help you define, install, and upgrade even the most complex Kubernetes application. helm connected using the CLI mode. `helm` is the command to connect with the helm charts. charts are collection of files/objects definitions that have the instruction required for your application to run. When a chart is applied to the cluster a release is created for that. 
 
 A release is single instaltion of an application. with in each release we can have multiple revisions. each revision is like a snapshot of an application. what ever the change made to the charts there will be one more revision created. changes like replicas, upgrades, etc. 
 
-helm chart in a public reposistory.
+helm chart in a public reposistory. helm save the data of revisions and release as a metadata, and save it in the k8s cluster in secrets. 
 
-helm save the data of revisions and release as a metadata available in the k8s cluster in secrets
+Helm Charts: (repos: Appscode, TrueCharts, Bitnami, Communityoperations)
+-------------------------------------------------------------------------
+For all the helm charts we have a hub know as Artifacthub.io 
 
+after downloading the required helm charts from the repository any repo, we can modify the requirements according to the need our application need.  always need to do is to change the values of the values.yml. this is called templating. this is the settings file for the charts to deploy.
 
-Helm Charts:
---------------------------
-after downloading the required helm charts from the repository, we can modify the requirements according to the need we have.
-
-this is called templating .
-
-alwasy need to do si to change the values of the values.yml
-
-this is the settings file for the charts to deploy.
-
+    $ helm install wordpress  --> Revision:1
+    $ helm upgrade wordpress  --> Revision:2
+    $ helm rollback wordpress --> Revision: 3
 
 when ever a chart is applied a release is created. 
 
-$ helm install [release-name] [chartname]
+    $ helm install [release-name] [chartname]
 
+example:
+    $ helm install my-site bitnami/wordpress
+    $ helm install my-second-site bitnami/wordpress
 
-
-$ helm install my-site bitnami/wordpress
-
-artifacthub.io --> has all the repo listed here.
-
-$ helm install hello-world
+    $ helm install hello-world
 
 helm charts
 -------------
-values.yaml
+values.yaml --> used for variables reference in the actual k8s objects definition file. value templating
+chart.yaml  --> used for chart information and versions and details. 
+
 chart.yaml
+-------------------------------------------------------------
+```
+apiVersion: v2
+appVersion: 5.8.1
+version: 12.1.27
+name: wordpress
+description: 
+type: application
+dependencies:
+  - condition: 
+```
+-----------------------------------------------
+
+A chart directory may have mutiple file in it. as shown below
+
+example:
+  |-> Hello-world-chart
+    |-> templates/  --> templates directory
+    |-> values.yaml
+    |-> chart.yaml
+    |-> License
+    |-> ReadMe.md
+    |-> Charts/ --> dependency charts.
 
 
-$ helm --help
-$ helm repo --help
-$ helm repo update --help
+All operation are run using helm cli. 
 
-$ helm search wordpress
-$ helm search hub wordpress
+    $ helm --help
+    $ helm repo --help
+    $ helm repo update --help
 
-$ helm repo add bitnami https://charts.bitnami.com/bitnami 
-$ helm search repo wordpress 
-$ heml repo list
+    $ helm search wordpress
+    $ helm search hub wordpress
 
-$ helm install my-release bitnami/wordpress
-$ helm install --values custom-values.yml my-release bitnami/wordpress
-$ helm list
+    $ helm repo add bitnami https://charts.bitnami.com/bitnami 
+    $ helm search repo wordpress 
+    $ helm repo list
+    $ helm repo update
 
-$ kubectl get svc --namespace default -w my-release-wordpress
+    $ helm install my-release bitnami/wordpress
+    $ helm install --values custom-values.yml my-release bitnami/wordpress --> replace values with customvalues
+    $ helm list
 
-$ helm uninstall my-release
+    $ kubectl get svc --namespace default -w my-release-wordpress
 
-$ helm pull bitnami/wordpress
-$ helm pull --untar bitnami/wordpress
-$ tar -zxvf wordpress.tar
+    $ helm uninstall my-release
 
-$ helm repo list
-$ helm repo remove hashicorp
+if you don't want to directly install the helm charts, we can pull the chart then modify the chart and install the chart. 
+
+    $ helm pull bitnami/wordpress
+    $ helm pull --untar bitnami/wordpress
+    $ helm install my-release ./wordpress
+
+    $ tar -zxvf wordpress.tar
+
+    $ helm repo list
+    $ helm repo remove hashicorp
 
 helm upgrade:
 --------------------------------
@@ -111,4 +132,14 @@ echo Password: $(kubectl get secret --namespace default my-release-wordpress -o 
 
 
 there we modify the value.yml file which reflects the data. A simple task. The charge is applied to your customer, they release. Why the need for an additional? Why can't you just say? The. My site. I mean, what? And need the release. So why not just use this sort of like helping? Without. Simple reason why it needs more. So we can look. A second. Independent. Even though they're the same releases. Now this can be useful in a lot of scenarios. And another reason for what? Team. They're different. Website. Once they get something working correctly on the development side. The same way. Let those. Because. Very basic. What if we want to deploy? Ready for? Thousands of stocks and readily available in different home repositories. There are different providers who are hosting. Community operators. And you don't have to go to interview. All of these repositories now have. Single location.
+
+### Q. Difference between Helm2 vs Helm3?
+Tailer:     In helm2 there is a middle-men component known as "Tailer" which will communicate with K8S cluster. later it was removed in Helm3 due to security reasons and access issues with the K8s cluster. there are limits can be set using RBAC. 
+
+3-way strategic merge patch:    in Helm 2 if a deployed application has been modified manually with out using the helm charts, then that is been not recorded as a version. where as in Helm3 there a check will use that live object commpared with current and old chart. this is how it will come to know the changes. 
+
+
+
+
+
 
