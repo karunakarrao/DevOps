@@ -341,15 +341,50 @@ services:
   worker-app:
     image: eesprit/voting-app-worker
 ```
+----------------------------
+```
+version: 2
+services:
+	redis:
+		image: redis
+		networks: 
+			- back-end
+	db:
+		image: postgres:9.4
+		networks: 
+			- back-end
+	vote:
+		image: voting-app
+		depends_on: 
+			- redis
+		networks: 
+			- front-end
+			- back-end
+	result:
+		image: result
+		depends_on: 
+			- db
+		networks: 
+			- front-end
+			- back-end
+networks: 
+	- front-end
+	- back-end
+```
+-------------------
 
 	$ docker-compose up	--> to bringup the application components. 
 
 Q. What is Docker: Networking ?
 --------------------------------
 Docker installtion comes with 3 types of networks
-	1. Bridge (default) --> 
+	1. Bridge (default) --> network 
 	2. Host
 	3. None
+	
+Bridge:  Is the default network that a conatiner will attach to. this network 172.17.0.1 range. 
+Host: container ports are attached to Host 
+None: no network created to that containers.
 	
 	$ docker run nginx --> this will map to default Bridge network.
 	$ docker run --network=host nginx --> to map to host network.
@@ -363,7 +398,7 @@ Docker installtion comes with 3 types of networks
 	$ docker run -itd --name second nginx --> runs on default bridge network
 	$ docker exec first ping second --> ping will not work, in default network containers are isolated 
 	
-	$ docker run -itd --name customfirst --network my-network1 nginx
+	$ docker run -itd --name customfirst --network my-network1 nginx 
 	$ docker run -itd --name customsecond --network my-network1 redis
 	$ docker exec customsecond ping customfirst --> ping with in the custom network will work, by default ping is enabled
 	
@@ -374,8 +409,7 @@ Docker installtion comes with 3 types of networks
 	$ docker network disconnect my-network1 first
 	$ docker network rm my-network1
 	
-
-Note: Docker containers reach each other using container name, this is achived using docker built Embedded DNS, which will resolve all the container names. when we map the containers, we specify the container name. the built in DNS server runs always on 127.0.0.11. 
+Note: Docker containers reach each other using container name, this is achived using docker built Embedded DNS, which will resolve all the container names. when we map the containers, we specify the container name. the built in DNS server runs always on 127.0.0.11 
 
 Bridge: bridge network is the default network for containers created. it ranges from 172.17.x.x. the containers communicate each other using bridge network.
 
@@ -403,7 +437,7 @@ Q. Full picture how the Docker Image works?
 
 	
 Q. Full Picture how the Docker container works ?
------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 1). You execute "docker run hello-world" command where hello-world is the name of an image.
 
 2). Docker client reaches out to the daemon, tells it to get the hello-world image and run a container from that.
@@ -418,7 +452,7 @@ Q. Full Picture how the Docker container works ?
 
 
 Q. How to Publish a Port to access the application ?
------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------
 Containers are isolated environments. Your host system doesn't know anything about what's going on inside a container. Hence, applications running inside a container remain inaccessible from the outside. To allow access from outside of a container, you must publish the appropriate port inside the container to a port on your local network. 
 
 	$ docker run <image-fullname> --publish <host-port>:<container-port> --> common syntax for the --publish or -p option is as follows
@@ -460,9 +494,6 @@ Q. Docker commands: container handling
 	$ docker exec -it <container-name/container-ID> <command> 	--> -i interactive and -t terminal
 	$ docker exec -it my-nginx /bin/bash	--> connecting to running docker conatainer (my-nginx is container name)
 	$ docker exec my-nginx uname -a --> to exicute a command to check os details cmd: uname -a
-
-
-
 
 Q. how to update running container to publish port?
 ----------------------------------------------------
@@ -585,8 +616,8 @@ Q. Docker: Network Manipulation Basics in Docker:
 real life, the majority of projects that you'll have to work with will have more than one container. 
 
 Scenario:1
-Now consider a scenario where you have a notes-api application powered by Express.js and a PostgreSQL database server running in two separate containers.
-These two containers are completely isolated from each other and are oblivious to each other's existence. So how do you connect the two? Won't that be a challenge? you connect them by putting them under a user-defined bridge network. 
+------------
+Now consider a scenario where you have a notes-api application powered by Express.js and a PostgreSQL database server running in two separate containers. These two containers are completely isolated from each other and are oblivious to each other's existence. So how do you connect the two? Won't that be a challenge? you connect them by putting them under a user-defined bridge network. 
 
 $ docker network ls 	--> to list the docker networks 
 
