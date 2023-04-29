@@ -1,4 +1,4 @@
-## Q. Q. How to setup Sonarqube with Postgres database using docker containers?
+## Q. How to setup Sonarqube with Postgres database using docker containers?
 
       $ docker network create sonarqube_network
       $ docker run --name postgres  -e POSTGRES_USER=root -e POSTGRES_PASSWORD=Test12345  -p 5432:5432 --network sonarqube_network -d postgres
