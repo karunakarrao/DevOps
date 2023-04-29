@@ -48,3 +48,7 @@ volumes:
   postgresql_data:
 ```
 -----------------------------------------------------------------------
+
+
+### Q. How to setup Setup PostgreSQL on Windows with Docker
+https://elanderson.net/2018/02/setup-postgresql-on-windows-with-docker/
