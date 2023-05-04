@@ -17,17 +17,17 @@ The docker engine consists of 3 componenets.
 	
 **Docker Daemon:** The daemon (dockerd) is a process that keeps running in the background and waits for commands from the client. The daemon is capable of managing various Docker objects.
 
-	1. docker objects are stored in this location (containers/images/volumes/networks/etc) : /var/lib/docker 
-	2. docker daemon service is run on ports : 2375(plain)/2376(secure) 
-	3. docker environment variable for accessing remotely : export DOCKER_HOST="tcp://docker-host-ip:2375" --> secure use 2376
+	docker objects are stored in this location (containers/images/volumes/networks/etc) : /var/lib/docker 
+	docker daemon service is run on ports : 2375(plain)/2376(secure) 
+	docker environment variable for accessing remotely : export DOCKER_HOST="tcp://docker-host-ip:2375" --> secure use 2376
 	
-	4. docker service check : 	$ systemctl status docker 
-	5. docker service start : 	$ systemctl start docker
-	6. docker service enable: 	$ systemctl enable docker
+	$ systemctl status docker 
+	$ systemctl start docker
+	$ systemctl enable docker
 	
-	7. docker daemon troubleshooting with service logs : $ journalctl -u docker.service 
-	8. docker configuration files are stored in : $ vi /etc/docker/daemon.json 
-	9. docker config reload : $ systemctl reload docker
+	$ journalctl -u docker.service --> docker daemon troubleshooting with service logs
+	$ vi /etc/docker/daemon.json --> docker configuration files are stored in
+	$ systemctl reload docker --> docker config reload
 
 **Docker Client:** The client  (docker) is a command-line interface program mostly responsible for transporting commands issued by users.
 
