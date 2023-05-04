@@ -6,6 +6,8 @@ Q. What is Jenkins?
 -----------------------
 Jenkins is one of the most popular automation tool, that used worldwide for continuous integration and continuous delivery and Continuous Deployment. Jenkins is a free and open-source automation tool that enables developers to package, build, integrate, and test code automatically as soon as it is committed to the source repository. it perform security checks and deploy the code.
 
+Alternate options for Jenkins: GitLab CI/CD, Travis IC, Circle CI, Bamboo, TeamCity, Go CD, Codeship, Azure DevOps, Jenins X, Drone.
+
 Q. Why Jenkins?
 -----------------
 When working on a project with different teams, developers often face issues with different teams using different CI tools, version management, and other tools. Setting up a CI/CD toolchain for each new project will lead to certain challenges like
@@ -70,7 +72,16 @@ Jenkins installtion on Linux, jenkins require Java, we can follow Jenkins docume
     $ sudo rpm --import http://pkg.jenkins.io/redhat-stable/jenkins.io.key  --> jenkin key for validation
     $ sudo yum install jenkins -y --> install jenkins
 
-Jenkins installation files are availabel in **`/var/lib/jenkins/`**, in this directory we have config.xml and jobs are stored here, to start the jenkins service the configuration file are available **`/lib/systemd/system/jenkins.service`** file and change Jenkins port to 8090 by updating Environment="JENKINS_PORT=" variable value , It should look like this: Environment="JENKINS_PORT=8090"
+Jenkins installation files are available in **`/var/lib/jenkins/`**, in this directory we have config.xml and jobs are stored here, to start the jenkins service the configuration file are available **`/lib/systemd/system/jenkins.service`** file and change Jenkins port to 8090 by updating Environment="JENKINS_PORT=" variable value , It should look like this: Environment="JENKINS_PORT=8090"
+
+Under the Jenkins directory there are mutiple files are available
+	/var/lib/jenkins
+		|-> config.xml
+		|-> users/
+		|-> nodes/
+		|-> plugins/
+		|-> jobs/
+		|-> secrets/
 
     $ sudo vi /lib/systemd/system/jenkins.service
     $ sudo systemctl edit jenkins      --> edit Jenkins service file
@@ -136,6 +147,9 @@ Jenkins Dashbaord:
    |-> Lockable Resource
    |-> New View
 ```
+Q. how to add secrets in Jenkins
+----------------------------------
+Goto --> manage jenkins --> security --> manage credentials --> select domain --> add credentials -> credential type and add.
 
 Q. Managing Users in Jenkins:
 -----------------------------
