@@ -44,12 +44,21 @@ during the 1st setup git need to know who you are, who is commiting the changes.
 
     $ git config user.name "karna"
     $ git config user.email "karna@gmail.com"
+    
+    $ git config --global user.name "karna"
+    $ git config --global user.email "karna@gmail.com"
+    
+    $ git config --list
+    $ git config --global/--local --list
+       
+Note: `git config --global` will set values for all your repositories. it saves configurations in `~/.gitconfig` directory
+`git config` with out `--global` option this will limit for that git repository it self. it saves configurations in `~/.git` directory
 
 restore:
 ---------------------------
     $ git restore hello.v1.sh  --> revert the changes from original file before stagging area.
-
     $ git restore --staged hello.v2.sh  --> remove updated file from stagging area. 
+    
     $ git rm --cached hello.sh --> remove untracked files from stagging area
   
 .gitignore file:
@@ -75,10 +84,12 @@ branch:
 branches are used to 
 
     $ git branch            --> list branches 
-    $ git branch -a         --> both local and remote branch information.
+    $ git branch -a         --> lists local and remote branches
     $ git branch feature    --> creates feature branch
+    
     $ git checkout feature  --> checkout feature
     $ git checkout -b hotfix    --> creates branch hotfix + checkout hotfix
+    
     $ git branch -d feature     --> delete branch feature
     $ git log --graph --decorate    --> to see branch commit history
     $ git branch -M main        --> current branch is renamed to "main"
