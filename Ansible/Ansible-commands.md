@@ -6,7 +6,7 @@ Ansible installtion & Configuration files :
 	/usr/bin/ansible	 --> ansible binaries are available here
 	/usr/lib/python2.7/site-packages/ansible/modulescd  --> ansible modules are available here
 	
-	/etc/ansible/facts.d/custom.fact	--> for defining the custom facts 
+	/etc/ansible/facts.d/custom.fact	--> for defining the custom facts
 ------------------------------------------------------------------------------
 Ansible installation Binaries:
 ------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ Ansible searches for its config file(ansible.cfg) in below order in system. Firs
 	
 	1st. ANSIBLE_CONFIG (environment variable, if set)
 	2nd. ansible.cfg (in current directory)
-	3rd.  ~/.ansible.cfg (in home directory)
+	3rd. ~/.ansible.cfg (in home directory)
 	4th. /etc/ansible/ansible.cfg
 
 ---------------------------------------------------------------------------------------------
@@ -60,36 +60,42 @@ Ansible commands: ansible (-a, -b, -C, -e, -i, -m, -o, -t, -v, -vvv, -k, -s, -u,
 -v, --verbose
 -vvvv --> enable debugging
 -s, --sudo --> run operations with sudo 
--b, --become 
+-b, --become
 -K, --ask-become-pass 
 -u --> remote user
 -U --> sudo user
 
----------------------------------------------------
+
+ansible:
+----------------------------------------------------
 	$ ansible --verison --> to check the ansible version.
 
+ansible-doc:
+----------------------------------------------------
 	$ ansible-doc -l  --> to list the modules 
-	$ ansible-doc -l |more 	--> to see page by page
+	$ ansible-doc -l | more --> to see page by page
 	$ ansible-doc -s copy
-	
+	$ ansible-doc yum 
+	$ ansible-doc aws_s3
+  	$ ansible-doc ec2 
+   	$ ansible-doc copy
+
+ansible-inventory:
+----------------------------------------------------
 	$ ansible-inventory -i inventory/ -y
-	
+
+ansible-config:
+----------------------------------------------------
 	$ ansible-config dump |grep -i ROLE 
 	$ ansible-config list
 	$ ansible-config view
 	
-
+ansible-playbook:
+----------------------------------------------------
 	$ ansible-playbook play1.yaml --tags "install"
 	$ ansible-playbook play1.yaml --skip-tags "upgrade"
 	$ ansible-playbook play1.yaml --start-at-task "start httpd server"
 	
-	
-**example:**
-	$ ansible-doc yum
-	$ ansible-doc aws_s3
-  	$ ansible-doc ec2
-   	$ ansible-doc copy
-
 SSH keys:
 -------------------------------------
 	$ ssh -i id_rsa user@hostname
