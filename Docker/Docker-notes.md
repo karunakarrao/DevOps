@@ -1,5 +1,5 @@
-
-### What is a Container?
+What is a Container?
+----------------------
 A container will pack your application and its dependencies,libraries,OS together so that it can be deployed/run accross any platform without worrying the underlying OS.
 
 Docker: Overview :
@@ -17,13 +17,15 @@ The docker engine consists of 3 componenets.
 	
 **Docker Daemon:** The daemon (dockerd) is a process that keeps running in the background and waits for commands from the client. The daemon is capable of managing various Docker objects.
 
-	docker objects are stored in this location (containers/images/volumes/networks/etc) : /var/lib/docker 
-	docker daemon service is run on ports : 2375(plain)/2376(secure) 
-	docker environment variable for accessing remotely : export DOCKER_HOST="tcp://docker-host-ip:2375" --> secure use 2376
+docker objects like (containers/images/volumes/networks/etc) are stored in this location  : ` /var/lib/docker `
+
+docker daemon service is run on ports : `2375(plain) / 2376(secure)`
+
+docker environment variable for accessing remotely : `export DOCKER_HOST="tcp://docker-host-ip:2375"` --> secure use 2376
 	
-	$ systemctl status docker 
-	$ systemctl start docker
-	$ systemctl enable docker
+	$ systemctl status docker --> To check the Docker service status RUNNING/NOT
+	$ systemctl start docker  --> To Start the docker service	
+	$ systemctl enable docker  --> To enable the service to auto start post system reboot, it will add and entry in /etc/systemd/system.
 	
 	$ journalctl -u docker.service --> docker daemon troubleshooting with service logs
 	$ vi /etc/docker/daemon.json --> docker configuration files are stored in
@@ -660,7 +662,7 @@ $ docker network disconnect my-network my-nginx		--> to Detach Containers from a
 $ docker network rm my-network 		--> to remove a network 
 
 ----------------------------------
-
+```
 docker container run \
     --detach \
     --name=notes-db \
@@ -668,6 +670,7 @@ docker container run \
     --env POSTGRES_PASSWORD=secret \
     --network=notes-api-network \
     postgres:12
+ ```   
 --------------------------------------
 
 Although the container is running, there is a small problem. Databases like PostgreSQL, MongoDB, and MySQL persist their data in a directory. PostgreSQL uses the /var/lib/postgresql/data directory inside the container to persist data. Now what if the container gets destroyed for some reason? You'll lose all your data. To solve this problem, a named volume can be used.
