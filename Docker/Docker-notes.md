@@ -28,10 +28,10 @@ docker environment variable for accessing remotely : `export DOCKER_HOST="tcp://
 	$ systemctl enable docker  --> To enable the service to auto start post system reboot, it will add and entry in /etc/systemd/system.
 	
 	$ journalctl -u docker.service --> docker daemon troubleshooting with service logs
-	$ vi /etc/docker/daemon.json --> docker configuration files are stored in
+	$ vi /etc/docker/daemon.json --> docker configurations are stored in daemon.json
 	$ systemctl reload docker --> docker config reload
 
-**Docker Client:** The client  (docker) is a command-line interface program mostly responsible for transporting commands issued by users.
+**Docker Client:** The client  (docker) is a command-line interface program mostly responsible for transporting commands issued by the users.
 
 **REST API:** The REST API acts as a bridge between the daemon and the client. Any command issued using the client passes through the API to finally reach the daemon.
 
@@ -41,12 +41,12 @@ You as a user will usually execute commands using the client component. The clie
 
 Docker: Install
 -------------------
-Docker installation on CentOS, when docker install it create a dircectory in /var/lib/docker where all the docker objects are stored. such as containers, images, volumes, network and others.  
+Docker installation on CentOS, when docker install it create a dircectory in `/var/lib/docker` where all the docker objects are stored. such as containers, images, volumes, network and others.  
 	
 Install:
 ----------------------------
 
-	 $ sudo yum install -y yum-utils	--> install yum-utils package
+	 $ sudo yum install -y yum-utils  --> install yum-utils package
 	 $ sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo	--> add repository 
 	 $ sudo yum install docker-ce docker-ce-cli containerd.io	-->install 3 components. 
 	 $ sudo systemctl start docker	--> start docker as service.
