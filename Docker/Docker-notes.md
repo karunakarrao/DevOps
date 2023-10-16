@@ -17,12 +17,24 @@ The docker engine consists of 3 componenets.
 	
 **Docker Daemon:** The daemon (dockerd) is a process that keeps running in the background and waits for commands from the client. The daemon is capable of managing various Docker objects.
 
-docker objects like (containers/images/volumes/networks/etc) are stored in this location  : ` /var/lib/docker `
+Docker Configuration Files	: `/etc/docker/daemon.json` (Linux)
 
-docker daemon service is run on ports : `2375(plain) / 2376(secure)`
+Docker Data Directory		: `/var/lib/docker/` (Linux)
 
-docker environment variable for accessing remotely : `export DOCKER_HOST="tcp://docker-host-ip:2375"` --> secure use 2376
-	
+Docker Images and Containers	: `/var/lib/docker/overlay2/` (Linux)
+
+Docker Logs			: `/var/lib/docker/containers/container-id/` (Linux)
+
+Docker Networking Configuration	: `/etc/docker/network/` (Linux)
+
+Docker Volumes			: `/var/lib/docker/volumes/volume-name/` (Linux) 
+
+Docker objects like (containers/images/volumes/networks/etc) are stored in this location  : ` /var/lib/docker `
+
+Docker daemon service is run on ports : `2375(plain) / 2376(secure)`
+
+Docker environment variable for accessing remotely : `export DOCKER_HOST="tcp://docker-host-ip:2375"` --> secure use 2376
+
 	$ systemctl status docker --> To check the Docker service status RUNNING/NOT
 	$ systemctl start docker  --> To Start the docker service	
 	$ systemctl enable docker  --> To enable the service to auto start post system reboot, it will add and entry in /etc/systemd/system.
