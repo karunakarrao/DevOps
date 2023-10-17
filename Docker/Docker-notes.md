@@ -15,8 +15,6 @@ The docker engine consists of 3 componenets.
 
 ![Picture1-15](https://user-images.githubusercontent.com/33980623/234473946-a618580d-8b8f-4705-a100-6f6f98f4049e.png)
 	
-**Docker Daemon:** The daemon (dockerd) is a process that keeps running in the background and waits for commands from the client. The daemon is capable of managing various Docker objects.
-
 Docker Configuration Files	: `/etc/docker/daemon.json` (Linux)
 
 Docker Data Directory		: `/var/lib/docker/` (Linux)
@@ -47,9 +45,9 @@ Docker environment variable for accessing remotely : `export DOCKER_HOST="tcp://
 
 **REST API:** The REST API acts as a bridge between the daemon and the client. Any command issued using the client passes through the API to finally reach the daemon.
 
-"Docker uses a client-server architecture. The Docker client talks to the Docker daemon, which does the heavy lifting of building, running, and distributing your Docker containers".
+**Docker Daemon:** The daemon (dockerd) is a process that keeps running in the background and waits for commands from the client. The daemon is capable of managing various Docker objects.
 
-You as a user will usually execute commands using the client component. The client then use the REST API to reach out to the long running daemon and get your work done.
+"Docker uses a client-server architecture. The Docker client talks to the Docker daemon, which does the heavy lifting of building, running, and distributing your Docker containers". You as a user will usually execute commands using the client component. The client then use the REST API to reach out to the long running daemon and get your work done.
 
 Docker: Install
 -------------------
@@ -62,7 +60,7 @@ Install:
 	 $ sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo	--> add repository 
 	 $ sudo yum install docker-ce docker-ce-cli containerd.io	-->install 3 components. 
 	 $ sudo systemctl start docker	--> start docker as service.
-	 $ sudo systemctl enable docker --> enable the docker service on restart
+	 $ sudo systemctl enable docker --> enable the docker service on system restart
 
 Daemon:
 -----------------------------
@@ -76,7 +74,7 @@ Version:
 	$ docker --version		--> docker version
 	$ docker-compose --version	--> docker compose version
 	$ docker system info 		--> docker full information (debug mode/
-	$ docker run hello-world	--> running simple docker image hello-world
+	$ docker run hello-world	--> testing Docker installtion, running simple docker image hello-world 
 
 Process:
 -----------------------------
@@ -97,11 +95,12 @@ Q. What is a Docker: Registry? (Docker Hub)
 An image registry is a centralized place where you can upload your images and can also download images created by others. Docker Hub is the default public registry for Docker. create a docker hub account and login using link: https://hub.docker.com/
 	
 Registry:
-
+---------------------------
 	$ docker login 	--> to login to docker repository (default: docker hub repository)
 	$ docker logout --> to logout docker repository
 	$ docker login gcr.io	--> to login to GCP repository
-	$ docker login docker.io --> to login to to docker hub repository
+	$ docker login docker.io --> to login to docker hub repository
+ 	$ docker login nexus-registry-url --> to login to nexus private registry 
 	
 Q. What is a Docker: Container? 
 --------------------------------
@@ -118,16 +117,13 @@ Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 		-m 	--> memory
 		-l 	--> labels
 		--rm 	--> remove the container once its stopped
-		-v <host-volume>:<container-volume> 	--> volumes
+		-v <Host-volume>:<container-volume> 	--> volumes
 		-p <Host-port>:<container-port> 	--> publish ( port )
 		-e key1=value1 	--> environment variable
 		--network <network-name> 	--> 
 		attach --> to attach to the running container
 	
-	$ docker ps --> it will show only running containers
-	$ docker ps -a --> to list all stopped and running
 	$ docker info  ---> to see all docker information.
-	
 	$ docker --help
 	$ docker <command> --help
 
@@ -137,17 +133,26 @@ start/stop:
 	$ docker start my-nginx		--> starts newly created nginx 
 	$ docker stop my-nginx 		--> stop nginx container, it will be avaiable to restart again
 	$ docker kill my-nginx 		--> it will obruptly kills the nginx container
+ 	$ docker rm my-nginx		--> it will delete the stopped/killed container process.
+ 
+"stop" vs "kill" commands. stop will gracefully shutdown the container, that means  it can perform cleanup operations or execute any defined exit procedures. it will  releasing resources, and then exit. Stopping a container allows it to save any changes to its file system, commit them to an image, and exit gracefully. it will invoke "SIGTERM" signal 
+
+Kill will forcefully terminate, which immediately terminates the container without allowing it to perform any cleanup or exit procedures. any changes or in-memory data that haven't been saved will be lost. Killing a container is useful when a container is unresponsive or needs to be stopped forcefully. it will invoke "SIGKILL" signal
 
 run:
 -----------------------------
 	$ docker run nignx 	--> it creates & starts nginx container, and docker daemon will give a unique name to it.
 	$ docker run --name my-nginx nginx 	--> it creates & starts nginx container named as my-nginx
 	$ docker run -d nginx 	--> container run in background
-	$ docker run -it nginx /bin/bash --> this will open a terminal to connect with container 
+	$ docker run -it nginx /bin/bash --> this will open a terminal to connect with running container 
 
-	$ docker run -p 8080:80 nginx --> publish the nginx to external network (-p <host-Port>:<container-port> ) 
+	$ docker run -p 8080:80 nginx --> publish the nginx to external network using host-port 8080 (-p <host-Port>:<container-port> ) 
+ 	$ docker run -p 8081:80 nginx 
+ 	
 	$ docker run –p 3306:3306 mysql --> publish mysql port
 	$ docker run –p 192.168.1.5:8000:5000 kodekloud/simple-webapp	--> 
+ 
+ Note: if we map a container-port 80 with host-port 8080, we can't map another container with same 8080 port, because its already been used (error: Bind for 0.0.0.0:8080 failed: port is already allocated.). So, we have to use different port. 
 
 remove:
 -----------------------------
