@@ -15,31 +15,22 @@ The docker engine consists of 3 componenets.
 
 ![Picture1-15](https://user-images.githubusercontent.com/33980623/234473946-a618580d-8b8f-4705-a100-6f6f98f4049e.png)
 	
+Docker service file Location	: `/lib/systemd/system/docker.service` | `/usr/lib/systemd/system/docker.service`
+
 Docker Configuration Files	: `/etc/docker/daemon.json` (Linux)
 
-Docker Data Directory		: `/var/lib/docker/` (Linux)
+Docker Data Directory		: `/var/lib/docker/` (Linux)  --> all docker objects are stored here like "containers, images, networks, volumes, plugins"
 
-Docker Images and Containers	: `/var/lib/docker/overlay2/` (Linux)
+Docker Images and Containers	: `/var/lib/docker/overlay2/` (Linux) --> it is where Docker stores the layered file system for containers using the OverlayFS storage driver. 
 
 Docker Logs			: `/var/lib/docker/containers/container-id/` (Linux)
 
-Docker Networking Configuration	: `/etc/docker/network/` (Linux)
-
 Docker Volumes			: `/var/lib/docker/volumes/volume-name/` (Linux) 
-
-Docker objects like (containers/images/volumes/networks/etc) are stored in this location  : ` /var/lib/docker `
 
 Docker daemon service is run on ports : `2375(plain) / 2376(secure)`
 
 Docker environment variable for accessing remotely : `export DOCKER_HOST="tcp://docker-host-ip:2375"` --> secure use 2376
 
-	$ systemctl status docker --> To check the Docker service status RUNNING/NOT
-	$ systemctl start docker  --> To Start the docker service	
-	$ systemctl enable docker  --> To enable the service to auto start post system reboot, it will add and entry in /etc/systemd/system.
-	
-	$ journalctl -u docker.service --> docker daemon troubleshooting with service logs
-	$ vi /etc/docker/daemon.json --> docker configurations are stored in daemon.json
-	$ systemctl reload docker --> docker config reload
 
 **Docker Client:** The client  (docker) is a command-line interface program mostly responsible for transporting commands issued by the users.
 
@@ -49,6 +40,8 @@ Docker environment variable for accessing remotely : `export DOCKER_HOST="tcp://
 
 "Docker uses a client-server architecture. The Docker client talks to the Docker daemon, which does the heavy lifting of building, running, and distributing your Docker containers". You as a user will usually execute commands using the client component. The client then use the REST API to reach out to the long running daemon and get your work done.
 
+Note: We come accross `docker.socket` vs `docker.service` in Docker, `docker.socket` is responsible for managing network connections to the Docker daemon, allowing client applications to interact with Docker over the network. On the other hand, `docker.service` manages the Docker daemon process itself, ensuring that it's started and running.
+
 Docker: Install
 -------------------
 Docker installation on CentOS, when docker install it create a dircectory in `/var/lib/docker` where all the docker objects are stored. such as containers, images, volumes, network and others.  
@@ -56,12 +49,25 @@ Docker installation on CentOS, when docker install it create a dircectory in `/v
 Install:
 ----------------------------
 
-	 $ sudo yum install -y yum-utils  --> install yum-utils package
-	 $ sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo	--> add repository 
-	 $ sudo yum install docker-ce docker-ce-cli containerd.io	-->install 3 components. 
-	 $ sudo systemctl start docker	--> start docker as service.
-	 $ sudo systemctl enable docker --> enable the docker service on system restart
+	$ sudo yum install -y yum-utils  --> install yum-utils package
+	$ sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo	--> add repository 
+  
+	$ sudo yum install docker-ce docker-ce-cli containerd.io  -->install 3 components. 
 
+  Note: 
+  1. `docker-ce` is the main Docker package that includes the Docker daemon `dockerd`, client tools, and additional components for managing containers and images. 
+  2. `docker-ce-cli` is a separate package that includes only the Docker command-line tools, It provides the Docker CLI commands for interacting with the Docker daemon and managing containers and images.
+  3. `containerd.io` is an industry-standard core container runtime that manages the container lifecycle (start, stop, pause, resume, etc.).
+  
+	$ sudo systemctl start docker	--> start docker as service.
+ 	$ sudo systemctl status docker 	--> To check the Docker service status RUNNING/NOT	
+	$ sudo systemctl enable docker  --> To enable the service to auto start post system reboot, it will add file in /etc/systemd/system directory.
+ 	$ sudo systemctl cat docker	--> To read the docker.service file.
+	$ sudo systemctl reload docker 	--> docker config reload
+    
+	$ journalctl -u docker.service --> docker daemon troubleshooting with service logs
+	$ vi /etc/docker/daemon.json --> docker configurations are stored in daemon.json
+ 
 Daemon:
 -----------------------------
 	 $ dockerd	--> to start the docker service manually
@@ -70,11 +76,13 @@ Daemon:
 	
 Version:
 -----------------------------
-	$ ps aux |grep docker 		--> to see process running inside container 
+	
 	$ docker --version		--> docker version
 	$ docker-compose --version	--> docker compose version
+ 
 	$ docker system info 		--> docker full information (debug mode/
-	$ docker run hello-world	--> testing Docker installtion, running simple docker image hello-world 
+	$ docker run hello-world	--> testing Docker installtion, running simple docker image hello-world
+ 	$ ps aux | grep docker 		--> to see process running inside container 
 
 Process:
 -----------------------------
