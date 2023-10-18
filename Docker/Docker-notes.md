@@ -60,10 +60,10 @@ Install:
   3. `containerd.io` is an industry-standard core container runtime that manages the container lifecycle (start, stop, pause, resume, etc.).
   
 	$ sudo systemctl start docker	--> start docker as service.
- 	$ sudo systemctl status docker 	--> To check the Docker service status RUNNING/NOT	
+ 	$ sudo systemctl status docker 	--> To check the Docker service status RUNNING/NOT.
 	$ sudo systemctl enable docker  --> To enable the service to auto start post system reboot, it will add file in /etc/systemd/system directory.
  	$ sudo systemctl cat docker	--> To read the docker.service file.
-	$ sudo systemctl reload docker 	--> docker config reload
+	$ sudo systemctl reload docker 	--> docker config reload.   
     
 	$ journalctl -u docker.service --> docker daemon troubleshooting with service logs
 	$ vi /etc/docker/daemon.json --> docker configurations are stored in daemon.json
