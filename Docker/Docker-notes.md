@@ -52,7 +52,7 @@ Install:
 	$ sudo yum install -y yum-utils  --> install yum-utils package
 	$ sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo	--> add repository 
   
-	$ sudo yum install docker-ce docker-ce-cli containerd.io  -->install 3 components. 
+	$ sudo yum install docker-ce docker-ce-cli containerd.io  --> install 3 components. 
 
   Note: 
   1. `docker-ce` is the main Docker package that includes the Docker daemon `dockerd`, client tools, and additional components for managing containers and images. 
@@ -65,24 +65,23 @@ Install:
  	$ sudo systemctl cat docker	--> To read the docker.service file.
 	$ sudo systemctl reload docker 	--> docker config reload.   
     
-	$ journalctl -u docker.service --> docker daemon troubleshooting with service logs
-	$ vi /etc/docker/daemon.json --> docker configurations are stored in daemon.json
+	$ journalctl -u docker.service 	--> docker daemon troubleshooting with service logs
+	$ vi /etc/docker/daemon.json 	--> docker configurations are stored in daemon.json
  
 Daemon:
 -----------------------------
 	 $ dockerd	--> to start the docker service manually
 	 $ dockerd --debug	--> starting the docker service in debug mode. 
-	 $ dockerd --debug --host=tcp://192.168.1.10:2375 --> remote docker service (export DOCKER_HOST="tcp://192.168.1.10:2375)
+	 $ dockerd --debug --host=tcp://192.168.1.10:2375 	--> remote docker service (export DOCKER_HOST="tcp://192.168.1.10:2375)
 	
 Version:
 -----------------------------
-	
 	$ docker --version		--> docker version
 	$ docker-compose --version	--> docker compose version
  
 	$ docker system info 		--> docker full information (debug mode/
 	$ docker run hello-world	--> testing Docker installtion, running simple docker image hello-world
- 	$ ps aux | grep docker 		--> to see process running inside container 
+ 	$ ps aux | grep docker 		--> to see process running inside container
 
 Process:
 -----------------------------
