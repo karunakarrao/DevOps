@@ -21,7 +21,7 @@ Docker Configuration Files	: `/etc/docker/daemon.json` (Linux)
 
 Docker Data Directory		: `/var/lib/docker/` (Linux)  --> all docker objects are stored here like "containers, images, networks, volumes, plugins"
 
-Docker Images and Containers	: `/var/lib/docker/overlay2/` (Linux) --> it is where Docker stores the layered file system for containers using the OverlayFS storage driver. 
+Docker Storage Drivers		: `/var/lib/docker/overlay2/` (Linux) --> it is where Docker stores the layered file system for containers using the OverlayFS storage driver. 
 
 Docker Logs			: `/var/lib/docker/containers/container-id/` (Linux)
 
@@ -67,7 +67,8 @@ Install:
     
 	$ journalctl -u docker.service 	--> docker daemon troubleshooting with service logs
 	$ vi /etc/docker/daemon.json 	--> docker configurations are stored in daemon.json
- 
+ 	$ ps aux | grep docker 		--> to see process running inside container
+  
 Daemon:
 -----------------------------
 	 $ dockerd	--> to start the docker service manually
@@ -78,18 +79,16 @@ Version:
 -----------------------------
 	$ docker --version		--> docker version
 	$ docker-compose --version	--> docker compose version
+ 	$ docker system info 		--> docker full information (debug mode/
  
-	$ docker system info 		--> docker full information (debug mode/
-	$ docker run hello-world	--> testing Docker installtion, running simple docker image hello-world
- 	$ ps aux | grep docker 		--> to see process running inside container
-
 Process:
 -----------------------------
 	$ docker ps 	--> only running containers list
 	$ docker ps -a 	--> to see all containers (running/stopped/paused/created)
 	$ docker ps -q	--> shows only container-ID of running process
-	$ docker ps -qa --> shows all containers-ID (running/stopped/paused/created)
-
+	$ docker ps -s 	--> shows Size of a running container 
+ 	$ docker ps -l 	--> latest container created
+  
 objects:
 -----------------------------
 	$ docker image ls	--> list docker images
@@ -114,8 +113,8 @@ Q. What is a Docker: Container?
 A container is a isolated env which will package the softwares and its dependencies requied to run an application on any platform uniformly. this contaienrs are light wight objects. docker container life cycle..
 		
 	Creation --> Running --> Pausing --> Unpausing --> starting --> Stopping --> Restarting --> Killing --> Destroying
-		
-Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
+
+ Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 	
 		-i 	--> interactive mode
 		-t 	--> terminal 
@@ -130,9 +129,20 @@ Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 		--network <network-name> 	--> 
 		attach --> to attach to the running container
 	
-	$ docker info  ---> to see all docker information.
-	$ docker --help
-	$ docker <command> --help
+run:
+-----------------------------
+	$ docker run nignx 			--> it creates & starts nginx container, and docker daemon will give a unique name to it.
+	$ docker run --name my-nginx nginx 	--> it creates & starts nginx container named as my-nginx
+	$ docker run -d nginx 			--> container run in background
+	$ docker run -it nginx /bin/bash 	--> this will open a terminal to connect with running container 
+
+	$ docker run -p 8080:80 nginx 		--> publish the nginx to external network using host-port 8080 (-p <host-Port>:<container-port> ) 
+ 	$ docker run -p 8081:80 nginx 		--> We can't map the nginx with same host port, so we used 8081 port.
+ 	
+	$ docker run –p 3306:3306 mysql --> publish mysql port
+	$ docker run –p 192.168.1.5:8000:5000 kodekloud/simple-webapp	--> 
+ 
+ Note: if we map a container-port 80 with host-port 8080, we can't map another container with same 8080 port, because its already been used (error: Bind for 0.0.0.0:8080 failed: port is already allocated.). So, we have to use different port. 
 
 start/stop:
 -----------------------------
@@ -146,20 +156,7 @@ start/stop:
 
 Kill will forcefully terminate, which immediately terminates the container without allowing it to perform any cleanup or exit procedures. any changes or in-memory data that haven't been saved will be lost. Killing a container is useful when a container is unresponsive or needs to be stopped forcefully. it will invoke "SIGKILL" signal
 
-run:
------------------------------
-	$ docker run nignx 	--> it creates & starts nginx container, and docker daemon will give a unique name to it.
-	$ docker run --name my-nginx nginx 	--> it creates & starts nginx container named as my-nginx
-	$ docker run -d nginx 	--> container run in background
-	$ docker run -it nginx /bin/bash --> this will open a terminal to connect with running container 
 
-	$ docker run -p 8080:80 nginx --> publish the nginx to external network using host-port 8080 (-p <host-Port>:<container-port> ) 
- 	$ docker run -p 8081:80 nginx 
- 	
-	$ docker run –p 3306:3306 mysql --> publish mysql port
-	$ docker run –p 192.168.1.5:8000:5000 kodekloud/simple-webapp	--> 
- 
- Note: if we map a container-port 80 with host-port 8080, we can't map another container with same 8080 port, because its already been used (error: Bind for 0.0.0.0:8080 failed: port is already allocated.). So, we have to use different port. 
 
 remove:
 -----------------------------
