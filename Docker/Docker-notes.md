@@ -43,8 +43,8 @@ Docker environment variable for accessing remotely : `export DOCKER_HOST="tcp://
 Note: We come accross `docker.socket` vs `docker.service` in Docker, `docker.socket` is responsible for managing network connections to the Docker daemon, allowing client applications to interact with Docker over the network. On the other hand, `docker.service` manages the Docker daemon process itself, ensuring that it's started and running.
 
 Docker: Install
--------------------
-Docker installation on CentOS, when docker install it create a dircectory in `/var/lib/docker` where all the docker objects are stored. such as containers, images, volumes, network and others.  
+----------------------------
+Docker installation on CentOS, when docker installed, it create a dircectory in `/var/lib/docker` where all the docker objects are stored. such as containers, images, volumes, network and others.  
 	
 Install:
 ----------------------------
@@ -52,18 +52,19 @@ Install:
 	$ sudo yum install -y yum-utils  --> install yum-utils package
 	$ sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo	--> add repository 
   
-	$ sudo yum install docker-ce docker-ce-cli containerd.io  --> install 3 components. 
+	$ sudo yum install docker-ce docker-ce-cli containerd.io  --> installs 3 components. 
 
   Note: 
   1. `docker-ce` is the main Docker package that includes the Docker daemon `dockerd`, client tools, and additional components for managing containers and images. 
   2. `docker-ce-cli` is a separate package that includes only the Docker command-line tools, It provides the Docker CLI commands for interacting with the Docker daemon and managing containers and images.
   3. `containerd.io` is an industry-standard core container runtime that manages the container lifecycle (start, stop, pause, resume, etc.).
   
-	$ sudo systemctl start docker	--> start docker as service.
- 	$ sudo systemctl status docker 	--> To check the Docker service status RUNNING/NOT.
-	$ sudo systemctl enable docker  --> To enable the service to auto start post system reboot, it will add file in /etc/systemd/system directory.
- 	$ sudo systemctl cat docker	--> To read the docker.service file.
-	$ sudo systemctl reload docker 	--> docker config reload.   
+	$ sudo systemctl start docker	--> start docker service.
+ 	$ sudo systemctl stop docker	--> stop docker service.
+ 	$ sudo systemctl status docker 	--> check Docker service status RUNNING/NOT.
+	$ sudo systemctl enable docker  --> enable the service to auto start post system reboot, it will add file in /etc/systemd/system directory.
+ 	$ sudo systemctl cat docker	--> to read the docker.service file.
+	$ sudo systemctl reload docker 	--> reload docker configurations
     
 	$ journalctl -u docker.service 	--> docker daemon troubleshooting with service logs
 	$ vi /etc/docker/daemon.json 	--> docker configurations are stored in daemon.json
@@ -71,9 +72,14 @@ Install:
   
 Daemon:
 -----------------------------
-	 $ dockerd	--> to start the docker service manually
+	 $ dockerd 	--> to start the docker service manually
+  	 $ dockerd &	--> to run it in background.
 	 $ dockerd --debug	--> starting the docker service in debug mode. 
 	 $ dockerd --debug --host=tcp://192.168.1.10:2375 	--> remote docker service (export DOCKER_HOST="tcp://192.168.1.10:2375)
+
+**Scenario-1: I stopped the docker service using `$ sudo systemctl stop docker`, but i could still start new containers even after the docker daemon is inavtive/dead. Why? explain?**
+
+Answer: Docker service is stopped using `systemctl stop docker` command,  you've stopped the Docker service, if a Docker client attempts to communicate with the Docker daemon, the `docker.socket` can trigger the Docker service to start again. This can happen because the socket unit is configured to activate the service when a connection is made. example if a docker command executed from command-line tool, it will communicates with the Docker daemon.
 	
 Version:
 -----------------------------
@@ -86,7 +92,7 @@ Process:
 	$ docker ps 	--> only running containers list
 	$ docker ps -a 	--> to see all containers (running/stopped/paused/created)
 	$ docker ps -q	--> shows only container-ID of running process
-	$ docker ps -s 	--> shows Size of a running container 
+	$ docker ps -s 	--> shows "Size" of a running container 
  	$ docker ps -l 	--> latest container created
   
 objects:
@@ -119,18 +125,32 @@ A container is a isolated env which will package the softwares and its dependenc
 		-i 	--> interactive mode
 		-t 	--> terminal 
 		-d 	--> detached
-		-c 	--> cpu
-		-m 	--> memory
-		-l 	--> labels
-		--rm 	--> remove the container once its stopped
+  		--rm 	--> remove the container, means destroys the cotainer perminently
+    
+      		-c 1.0		--> cpu  (0.1 cpu(10%) - 0.5 cpu(50%) - 1.0 cpu(100%) )
+		-m 512M		--> memory (K,M,G,)
+  		  
+		-u user-id:group-id			--> user group are assigned to containers
+  		-l env=PROD --label domain=FINANCE	--> labels
 		-v <Host-volume>:<container-volume> 	--> volumes
 		-p <Host-port>:<container-port> 	--> publish ( port )
-		-e key1=value1 	--> environment variable
-		--network <network-name> 	--> 
+		-e key1=value1 -e key2=value2	 	--> environment variable
+		--network my-network1		 	--> mapping to custom network group
 		attach --> to attach to the running container
+
+create:
+-----------------------------
+docker containers can be created using `$ docker create` command. this will not start the container until you start it using `$ docker start` command. 
 	
+ 	$ docker create nginx			--> create 
+  	$ docker create --name my-nginx nginx	--> 
+   	$ docker create --label env=DEV nginx	--> label the containers.
+    	$ docker create -e key1=value1	nginx 	--> setting env variables.
+
 run:
 -----------------------------
+docker cotainer can be created and started at a time using `$ docker run ` command. 
+
 	$ docker run nignx 			--> it creates & starts nginx container, and docker daemon will give a unique name to it.
 	$ docker run --name my-nginx nginx 	--> it creates & starts nginx container named as my-nginx
 	$ docker run -d nginx 			--> container run in background
@@ -184,8 +204,10 @@ to attach to the detached container, first your container must enable the intera
 	$ docker run -it -d nginx --> start container like this.
 	$ docker attach my-nginx --> to attach to the detached container, to detach (Ctrl+p + Ctrl+q )
 
-execute:	
+exec:	
 -----------------------------
+to run/perform any operations inside the container, like checking the process, user, data, etc. 
+
 	$ docker exec my-nginx uname -a --> to check the container OS details
 	$ docker exec my-nginx cat /etc/*release* --> this is to check container OS details
 	$ docker exec -it my-nginx /bin/bash --> this is to connect with running nginx 
