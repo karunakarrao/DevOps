@@ -126,7 +126,7 @@ A container is a isolated env which will package the softwares and its dependenc
 		-t 	--> terminal 
 		-d 	--> detached
   		--rm 	--> remove the container, means destroys the cotainer perminently
-    
+    		
       		-c 1.0		--> cpu  (0.1 cpu(10%) - 0.5 cpu(50%) - 1.0 cpu(100%) )
 		-m 512M		--> memory (K,M,G,)
   		  
@@ -175,8 +175,6 @@ start/stop:
 "stop" vs "kill" commands. stop will gracefully shutdown the container, that means  it can perform cleanup operations or execute any defined exit procedures. it will  releasing resources, and then exit. Stopping a container allows it to save any changes to its file system, commit them to an image, and exit gracefully. it will invoke "SIGTERM" signal 
 
 Kill will forcefully terminate, which immediately terminates the container without allowing it to perform any cleanup or exit procedures. any changes or in-memory data that haven't been saved will be lost. Killing a container is useful when a container is unresponsive or needs to be stopped forcefully. it will invoke "SIGKILL" signal
-
-
 
 remove:
 -----------------------------
