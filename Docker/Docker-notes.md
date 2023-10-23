@@ -325,16 +325,16 @@ create a Dockerfile, then build the docker file using the below commands. comman
 	$ docker image tag container-ID my_custom_nginx:latest 	--> this will add tags to the image
 	$ docker build . -t custom-tag1 			--> directory should contain `Dockerfile` to build the docker image
 	
-	$ docker build https://github.com/karunakarrao/my-nignx  --> to build the image from a git repo
-	$ docker build https://github.com/karunakarrao/my-nginx#branchname --> can also specify the branch 
-	$ docker build https://github.com/karunakarrao/my-nginx:<build-folder-name> --> this way we can pass the directory
+	$ docker build https://github.com/karunakarrao/my-nignx  		--> to build the image from a git repo
+	$ docker build https://github.com/karunakarrao/my-nginx#branchname 	--> can also specify the branch 
+	$ docker build https://github.com/karunakarrao/my-nginx:<build-folder-name> 	--> this way we can pass the directory
 	
 	$ docker build -f Dockerfile.dev https://github.com/karunakarrao/my-nginx:<build-folder-name> 
 
 tag:
 ---------------------
 	$ docker image tag container-ID custom_name:custom_tag
-	$ docker image tag httpd:alpine httpd:customv1 --> rename the tagged value with custom name
+	$ docker image tag httpd:alpine httpd:customv1 	--> rename the tagged value with custom name
 	$ docker image tag httpd:alpine gcr.io/company/httpd:customv1 
 
 save:
