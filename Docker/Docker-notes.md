@@ -95,6 +95,10 @@ Process:
 	$ docker ps -s 	--> shows "Size" of a running container 
  	$ docker ps -l 	--> latest container created
   
+  	$ docker ps -f	--> filter containers 
+   	$ docker ps -f "label=env=DEV"	--> filter containers labelled as "DEV"
+    	$ docker ps -f "label=env=PROD"	--> filter containers labelled ad "PROD"
+  
 objects:
 -----------------------------
 	$ docker image ls	--> list docker images
@@ -142,31 +146,41 @@ create:
 -----------------------------
 docker containers can be created using `$ docker create` command. this will not start the container until you start it using `$ docker start` command. 
 	
- 	$ docker create nginx			--> create 
-  	$ docker create --name my-nginx nginx	--> 
+ 	$ docker create nginx			--> create a new container, it will be in "created" state
+  	$ docker create --name my-nginx nginx	--> naming cotainer as "my-nginx"
    	$ docker create --label env=DEV nginx	--> label the containers.
     	$ docker create -e key1=value1	nginx 	--> setting env variables.
 
 run:
 -----------------------------
-docker cotainer can be created and started at a time using `$ docker run ` command. 
+docker containers can be "created and started" at  the sametime using `$ docker run ` command. 
 
 	$ docker run nignx 			--> it creates & starts nginx container, and docker daemon will give a unique name to it.
 	$ docker run --name my-nginx nginx 	--> it creates & starts nginx container named as my-nginx
 	$ docker run -d nginx 			--> container run in background
 	$ docker run -it nginx /bin/bash 	--> this will open a terminal to connect with running container 
+ 
+ 	$ docker run -c 0.5 -d nginx		--> assign CPU units 0.5 means half CPU
+  	$ docker run -m 512M -d nginx		--> assign MEMORY units 512MB to a container
+   
+   	$ docker run -l env=PROD -d nginx	--> Label a container with PROD 
+    	$ docker run --label env=DEV -d nginx	--> Lable a container with DEV
 
-	$ docker run -p 8080:80 nginx 		--> publish the nginx to external network using host-port 8080 (-p <host-Port>:<container-port> ) 
- 	$ docker run -p 8081:80 nginx 		--> We can't map the nginx with same host port, so we used 8081 port.
- 	
-	$ docker run –p 3306:3306 mysql --> publish mysql port
+     	$ docker run -e key1=value1 nginx	--> passing environment varialbes 
+    
+     	$ docker run -p 8080:80 nginx 		--> publish the nginx to external network using host-port 8080 (-p <host-Port>:<container-port> ) 
+ 	$ docker run -p 8081:80 nginx 		--> We can't map the nginx with same host port, so we used 8081 port. 	
+	$ docker run –p 3306:3306 mysql 	--> publish mysql port
 	$ docker run –p 192.168.1.5:8000:5000 kodekloud/simple-webapp	--> 
+
+ 	$ docker run -v 
+ 	
  
  Note: if we map a container-port 80 with host-port 8080, we can't map another container with same 8080 port, because its already been used (error: Bind for 0.0.0.0:8080 failed: port is already allocated.). So, we have to use different port. 
 
 start/stop:
 -----------------------------
-	$ docker create --name my-nginx nginx --> creates nginx container, named as my-nginx
+	$ docker create  nginx 		--> creates nginx container, named as my-nginx
 	$ docker start my-nginx		--> starts newly created nginx 
 	$ docker stop my-nginx 		--> stop nginx container, it will be avaiable to restart again
 	$ docker kill my-nginx 		--> it will obruptly kills the nginx container
@@ -206,17 +220,16 @@ exec:
 -----------------------------
 to run/perform any operations inside the container, like checking the process, user, data, etc. 
 
-	$ docker exec my-nginx uname -a --> to check the container OS details
-	$ docker exec my-nginx cat /etc/*release* --> this is to check container OS details
-	$ docker exec -it my-nginx /bin/bash --> this is to connect with running nginx 
-
-pause: 
+	$ docker exec my-nginx uname -a 		--> to check the container OS details
+	$ docker exec my-nginx cat /etc/*release* 	--> to check container OS details
+	$ docker exec -it my-nginx /bin/bash		--> opens a bash container terminal 
+ 	
+pause/unpause: 
 -----------------------------
 you can't perform any operation during this time, the container running but it will be in paused state. 
 
-	$ docker pause my-nginx my-redis --> it will pause the container
-	$ docker unpause my-nginx my-redis -->it will unpause the containers
-	$ docker rm my-redis --> to delete the container permanently
+	$ docker pause my-nginx my-redis 	--> it will pause the container
+	$ docker unpause my-nginx my-redis 	-->it will unpause the containers
 
 inspect:	
 -----------------------------
@@ -229,20 +242,19 @@ logs:
 top:
 -----------------------------
 	$ docker top my-nginx/container-ID 	--> to see process running for that container.
-	$ docker stats	--> provide the stats of the containers
-	
-	$ docker stop $(docker ps -q) --> it stops all containers running
-	$ docker rm $(docker ps -aq) --> it will remove all containers in stopped state.
-	
-	$ docker container stop $(docker container ls -q) --> stop all containers at once
-	$ docker container rm $(docker container ls -aq) --> remove all container at once.
+	$ docker stats				--> provide the stats of the containers like memory,cpu,PID,usage and etc.
+ 	$ docker stats my-nginx 		--> check the stats for a specific container
 
 events:	
 -----------------------------
-	$ docker system events --since 60m	--> system events recorded for 60m 
+`docker system events ` vs `docker events` both  are same. 
+
+	$ docker system events --since 60m		--> system events recorded for 60m 
+ 	$ docker events --since 60m -f "label=env=DEV" 	--> filter the events using  labels. (-f =  --filter)
 
 system:	
 -----------------------------
+
 	$ docker system df	--> docker objects created count and memeory usage
 	$ docker system info	--> docker daemon configuration details.
 	$ docker system prune	--> it will remove all stopped, dangling images
@@ -251,12 +263,18 @@ system:
   		- all dangling images
   		- all dangling build cache
 
+ Advanced commands:
+ ----------------------------
+ 
+	$ docker stop $(docker ps -q) 	--> it stops all containers running
+	$ docker rm $(docker ps -aq) 	--> it will remove all containers in stopped state.
+	
+	$ docker container stop $(docker container ls -q) 	--> stop all containers at once
+	$ docker container rm $(docker container ls -aq) 	--> remove all container at once.
 	
 Q. What is a Docker: Image?
 ----------------------------
-Images are multi-layered self-contained files that act as the template for creating containers. They are like a frozen, read-only copy of a container. Images can be exchanged through registries.
-
-during the build process, if we want to avoid the file which we don't want to build, then create a file named .dockerignore file and add the file which need to be ignored during the build process. 
+Images are multi-layered self-contained files that act as the template for creating containers. They are like a frozen, read-only copy of a container. Images can be exchanged through registries. during the build process, if we want to avoid the file which we don't want to build, then create a file named `.dockerignore` file and add the file which need to be ignored during the build process. 
 
 Sample docker image creation using the Dockerfile:
 --------------------------------------------------
@@ -287,25 +305,25 @@ CMD ["nginx", "-g", "daemon off;"]
 
 pull/push:
 ---------------------
-	$ docker pull nginx --> will pull the image from docker repository, it will pull only one.
-	$ docker push custome-image --> to push you image to the docker repository
+	$ docker pull nginx 		--> will pull the image from docker repository, it will pull only one.
+	$ docker push custome-image 	--> to push you image to the docker repository
 
 history:
 ---------------------
-	$ docker images  --> to list the docker images pulled and avaiable
-	$ docker history nginx --> to see image creation steps
+	$ docker images  	--> to list the docker images pulled and avaiable
+	$ docker history nginx 	--> to see image creation steps
 
 remove:
 ---------------------
-	$ docker rmi nginx --> to remove the nginx image in local repository
+	$ docker rmi nginx 	--> to remove the nginx image in local repository
 
 build:
 ---------------------
-create a Dockerfile, then build the docker file using the below
+create a Dockerfile, then build the docker file using the below commands. commands are executed from the same directory. where Dockerfile is available. 
 
-	$ docker build . --> this will build the image with out any tags or name for your build
-	$ docker image tag container-ID my_custom_nginx:latest --> this will add tags to the image
-	$ docker build . -t custom-tag1 --> directory should contain `Dockerfile` to build the docker image
+	$ docker build . 					--> this will build the image with out any tags or name for your build
+	$ docker image tag container-ID my_custom_nginx:latest 	--> this will add tags to the image
+	$ docker build . -t custom-tag1 			--> directory should contain `Dockerfile` to build the docker image
 	
 	$ docker build https://github.com/karunakarrao/my-nignx  --> to build the image from a git repo
 	$ docker build https://github.com/karunakarrao/my-nginx#branchname --> can also specify the branch 
