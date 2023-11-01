@@ -79,7 +79,7 @@ Daemon:
 
 **Scenario-1: I stopped the docker service using `$ sudo systemctl stop docker`, but i could still start new containers even after the docker daemon is inavtive/dead. Why? explain?**
 
-Answer: Docker service is stopped using `systemctl stop docker` command,  you've stopped the Docker service, if a Docker client attempts to communicate with the Docker daemon, the `docker.socket` can trigger the Docker service to start again. This can happen because the socket unit is configured to activate the service when a connection is made. example if a docker command executed from command-line tool, it will communicates with the Docker daemon.
+Answer: Docker service is stopped using `systemctl stop docker` command,  you've stopped the Docker service, if a Docker client attempts to communicate with the Docker daemon, the `docker.socket` can trigger the Docker service to start again. This can happen because the socket unit is configured to activate the service when a connection is made. for example a docker command executed from command-line tool, it will communicates with the Docker daemon.
 	
 Version:
 -----------------------------
@@ -120,7 +120,7 @@ Registry:
 	
 Q. What is a Docker: Container? 
 --------------------------------
-A container is a isolated env which will package the softwares and its dependencies requied to run an application on any platform uniformly. this contaienrs are light wight objects. docker container life cycle..
+A container is a light weight & isolated object, that wraps the application and its dependencies along with libraies and supporting file that are used to run the application indipendently with out having to worry about the underlying operating system. with containers you can run your application on any platform uniformly. this contaienrs are light wight objects. docker container life cycle. once the containers job is finished they closed.
 		
 	Creation --> Running --> Pausing --> Unpausing --> starting --> Stopping --> Restarting --> Killing --> Destroying
 
@@ -131,8 +131,8 @@ A container is a isolated env which will package the softwares and its dependenc
 		-d 	--> detached
   		--rm 	--> remove the container, means destroys the cotainer perminently
     		
-      		-c 1.0		--> cpu  (0.1 cpu(10%) - 0.5 cpu(50%) - 1.0 cpu(100%) )
-		-m 512M		--> memory (K,M,G,)
+      		--cpus 1.0		--> cpu  (0.1 cpu(10%) - 0.5 cpu(50%) - 1.0 cpu(100%) )
+		--memory 512M		--> memory (K,M,G,)
   		  
 		-u user-id:group-id			--> user group are assigned to containers
   		-l env=PROD --label domain=FINANCE	--> labels
@@ -160,8 +160,8 @@ docker containers can be "created and started" at  the sametime using `$ docker 
 	$ docker run -d nginx 			--> container run in background
 	$ docker run -it nginx /bin/bash 	--> this will open a terminal to connect with running container 
  
- 	$ docker run -c 0.5 -d nginx		--> assign CPU units 0.5 means half CPU
-  	$ docker run -m 512M -d nginx		--> assign MEMORY units 512MB to a container
+ 	$ docker run -cpus 0.5 -d nginx		--> assign CPU units 0.5 means half CPU
+  	$ docker run -memory 512M -d nginx	--> assign MEMORY units 512MB to a container
    
    	$ docker run -l env=PROD -d nginx	--> Label a container with PROD 
     	$ docker run --label env=DEV -d nginx	--> Lable a container with DEV
@@ -175,8 +175,8 @@ docker containers can be "created and started" at  the sametime using `$ docker 
 
  	$ docker run -v 
  	
- 
- Note: if we map a container-port 80 with host-port 8080, we can't map another container with same 8080 port, because its already been used (error: Bind for 0.0.0.0:8080 failed: port is already allocated.). So, we have to use different port. 
+ Scenario-2: if you map your container port 80 with host port 8080, and you have a requirement to increase the number of containers to 4, and the web URL should be one, how do you configure?
+  Note: if we map a container-port 80 with host-port 8080, we can't map another container with same 8080 port, because its already been used (error: Bind for 0.0.0.0:8080 failed: port is already allocated.). So, we have to use different port. 
 
 start/stop:
 -----------------------------
@@ -763,3 +763,12 @@ this to secure the docker environment from accedental stopping/starting/deleting
 	3. determine users who need access to servers. 
 	
 	step-2: 
+
+Scenarios:
+------------------------------------------------------------
+
+**Scenario-1: I stopped the docker service using `$ sudo systemctl stop docker`, but i could still start new containers even after the docker daemon is inavtive/dead. Why? explain?**
+
+Answer: Docker service is stopped using `systemctl stop docker` command,  you've stopped the Docker service, if a Docker client attempts to communicate with the Docker daemon, the `docker.socket` can trigger the Docker service to start again. This can happen because the socket unit is configured to activate the service when a connection is made. for example a docker command executed from command-line tool, it will communicates with the Docker daemon.
+
+Scenario-2: 
