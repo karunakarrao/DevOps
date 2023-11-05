@@ -175,8 +175,9 @@ docker containers can be "created and started" at  the sametime using `$ docker 
 
  	$ docker run -v 
  	
- Scenario-2: if you map your container port 80 with host port 8080, and you have a requirement to increase the number of containers to 4, and the web URL should be one, how do you configure?
-  Note: if we map a container-port 80 with host-port 8080, we can't map another container with same 8080 port, because its already been used (error: Bind for 0.0.0.0:8080 failed: port is already allocated.). So, we have to use different port. 
+Scenario-2: if you map your container port 80 with host port 8080, and you have a requirement to increase the number of containers to 4, and the web URL should be one, how do you configure?
+
+Note: if we map a container-port 80 with host-port 8080, we can't map another container with same 8080 port, because its already been used (error: Bind for 0.0.0.0:8080 failed: port is already allocated.). So, we have to use different port. 
 
 start/stop:
 -----------------------------
@@ -296,12 +297,23 @@ CMD ["nginx", "-g", "daemon off;"]
 	ADD	--> similer to COPY, but it has some additinal features, it can untar and copy, it can donwload from internet and copy
 	EXPOSE	--> to expose the container port
 	CMD 	--> the program with container should start when container start
-	ENDPOINT --> similer to CMD, but need to pass the CMD at the end.  
+	ENTRYPOINT --> similer to CMD, but need to pass the CMD at the end.  
 	ENV	--> image environment variables defined druing the container run
 	WORKDIR	--> define the working directory 
 	VOLUME	--> define mountable directories in image
 	ARG	--> arguments to pass in the image
 
+What is the difference between COPY vs ADD ?
+------------------------------------------------
+COPY: The COPY instruction is used to copy files and directories from the host machine to the image. It is a straightforward and simple operation. You specify the source and destination paths. It's generally recommended to use COPY when you want to copy files or directories from the host into the image.
+
+ADD: The ADD instruction is more versatile. It can do everything COPY can do, but it also has some additional features. It can copy local files, directories, and remote URLs, and it can automatically extract compressed files, such as tarballs, if the source is a URL or compressed archive.
+
+What is the difference between CMD vs ENTRYPOINT ?
+------------------------------------------------
+
+What is the difference between ENV vs ARG ?
+--------------------------------------------
 
 pull/push:
 ---------------------
