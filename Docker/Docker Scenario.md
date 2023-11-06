@@ -12,13 +12,44 @@ Step-1: create a dedicated network for this setup
 
         $ docker network create my-nginx-network
       
-Note: Docker provides network isolation between containers that are connected to the same network. Containers on the same network can communicate with each other, but they are isolated from containers on other networks. This helps prevent unintended network communication between unrelated containers. also it provides 
+Note: Docker provides network isolation between containers that are connected to the same network. Containers on the same network can communicate with each other, but they are isolated from containers on other networks. This helps prevent unintended network communication between unrelated containers. This isolation of network will provide  Isolation, Scalability, Security, Avoid Conflicts, Network policies, etc...
 
 Step-2: Start your four containers, each with a different host port, such as 8081, 8082, 8083, and 8084.
 
-        $ docker run -d --name container-1 -p 8081:80 --network my-nginx-network nginx
-        $ docker run -d --name container-2 -p 8082:80 --network my-nginx-network nginx
-        $ docker run -d --name container-3 -p 8083:80 --network my-nginx-network nginx
-        $ docker run -d --name container-4 -p 8084:80 --network my-nginx-network nginx
+        $ docker run -d --name container-1 -p 8081:80 --network my-nginx-network nginx;
+        $ docker run -d --name container-2 -p 8082:80 --network my-nginx-network nginx;
+        $ docker run -d --name container-3 -p 8083:80 --network my-nginx-network nginx;
+        $ docker run -d --name container-4 -p 8084:80 --network my-nginx-network nginx;
 
-Step-2: Set up a reverse proxy (e.g., Nginx) to listen on the desired host port (8080) and distribute requests to the containers. 
+Step-3: Set up a reverse proxy (e.g., Nginx) to listen on the desired host port (8080) and distribute requests to the containers. Create a nginx.conf for loadbalancing. 
+
+```
+http {
+    upstream backend {
+        server localhost:8081;
+        server localhost:8082;
+        server localhost:8083;
+        server localhost:8084;
+    }
+
+    server {
+        listen 80;
+        server_name your-domain.com;  # Replace with your domain or IP address
+
+        location / {
+            proxy_pass http://backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+    }
+
+    # Additional Nginx configuration settings can be added here as needed
+}
+
+events {
+    # Nginx events configuration can be added here if necessary
+}
+        
+```
+
+Step-4: 
