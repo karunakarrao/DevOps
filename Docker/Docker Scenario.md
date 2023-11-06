@@ -21,8 +21,16 @@ Step-2: Start your four containers, each with a different host port, such as 808
         $ docker run -d --name container-3 -p 8083:80 --network my-nginx-network nginx;
         $ docker run -d --name container-4 -p 8084:80 --network my-nginx-network nginx;
 
-Step-3: Set up a reverse proxy (e.g., Nginx) to listen on the desired host port (8080) and distribute requests to the containers. Create a nginx.conf for loadbalancing. 
+Step-3: Set up a reverse proxy (e.g., Nginx) to listen on the desired host port (8080) and distribute requests to the containers. Install Nginx on your host machine if it's not already installed. Then, configure Nginx to act as a reverse proxy. You can use a configuration like this
 
+        $ sudo apt-get update
+        $ sudo apt-get install nginx
+
+        $ ls /etc/nginx/nginx.conf        --> take backup of old config
+        $ vi nginx.conf
+
+nginx.conf
+---------------------------------------------
 ```
 http {
     upstream backend {
@@ -51,5 +59,18 @@ events {
 }
         
 ```
+------------------------------------------------------------------
 
-Step-4: 
+Step-5: start the nginx as a service. 
+
+        $ systemctl start nginx
+        $ systemctl status nginx
+
+Step-6: try to access the application using the ` http://localhost:8080 ` you will see the webpage. 
+
+Step-7: you can check the container logs using `$ docker logs container-1` see, http requests are processed or not. 
+
+
+Scenario-3: 
+
+        $ docker run -d --name nginx-load-balancer --network my-nginx-network -p 8080:80 -v ./nginx.conf:/etc/nginx/nginx.conf nginx
