@@ -409,7 +409,7 @@ Q. What is **`docker-compose`** ?
 ---------------------------------
 If we deploying fullscale application on docker, we need to use mutiple containers like web-server(nginx), in-memorydb(redis), persistant-db(mangodb), orchestration(ansible), etc. So to deploy all containers as a stack we use docker-compose . Docker-compose files are writen in YAML. this will deploy the complete application with one command. 
 
-docker-compose file must be named like this `docker-compose.yml`, `docker-compose.yaml`, `compose.yml`, `compose.yaml`, other wise docker-compose will not notice your configuration file. 
+docker-compose file must be named like this `docker-compose.yml`, `docker-compose.yaml`, other wise docker-compose will not notice your configuration file. 
 
 there are 2 versions in docker-compose file, mention the version details in "" like "2" or "3". 
 
@@ -468,7 +468,9 @@ networks:
 ```
 -------------------
 
-	$ docker-compose up	--> to bringup the application components. 
+	$ docker-compose up	--> to bring up all the application components.
+ 	$ docker-compose down 	--> To bring down all the application components.
+  	$ docker-
 
 Q. What is Docker: Networking ?
 --------------------------------
@@ -522,16 +524,16 @@ In a real life scenario in 3-tire environment, we have web-containers network ra
 
 	
 
-Q. Full picture how the Docker Image works?
+Q. how the Docker Image works?
 -----------------------------------------------
-1. To understand DockerImage better, we need to understand how DockerImages are build. DockerImages are build using Dockerfiles. Dockerfiles are contructed in multipule layers ( base(OS), package, dependencies, souce-code(application), endpoint) bind together and builds and image. this image is docker image. 
+1. To understand DockerImage better, we need to understand how DockerImages are build. DockerImages are build using Dockerfiles. Dockerfiles are contructed in multipule layers ( base(OS), package, dependencies, souce-code(application), entrypoint) bind together and builds and image. this image is docker image. 
 
 2. DockerImages are readonly images, means they are act as a template to create a container. so docker uses the same image to create n number of containers.
 
-3. when a container is created, it will create a layer on the DockerImage and 
+3. when a container is created, it will create a layer on the DockerImage
 
 	
-Q. Full Picture how the Docker container works ?
+Q. how the Docker container works ?
 ---------------------------------------------------------------------------------------------------------------------
 1). You execute "docker run hello-world" command where hello-world is the name of an image.
 
@@ -567,13 +569,13 @@ Q. Docker commands: container handling
 	Note: docker image should be specified at the end of the command. other wise docker image will not get created. show options are not avialbe.
 		Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 
-	$ docker run -p 8081:80 nginx	--> deploying nginx image
-	(or) $ docker container run -p 8082:80 nginx	
+	$ docker run -p 8081:80 nginx			--> deploying nginx image
+	$ docker container run -p 8082:80 nginx	
 
-	$ docker create --name=my-redis	redis --> it will create docker container, we need to start the container to use it.
+	$ docker create --name=my-redis	redis 		--> it will create docker container, we need to start the container to use it.
 
 	$ docker run --name=my-nginx -p 8081:80 --rm nginx --> to name container as "my-nginx" and --rm to remove the contianer once its stopped. 
-	$ docker run -d -p 8082:80 nginx --> to detach container, it will run in background. to attach again use --attach
+	$ docker run -d -p 8082:80 nginx 		--> to detach container, it will run in background. to attach again use --attach
 	$ docker attach <container-name/container-ID>	--> to attach the detached container
 
 	$ docker start <container-name/container-ID>	--> start the stopped container
@@ -587,11 +589,12 @@ Q. Docker commands: container handling
 	$ docker rm <container-name/container-ID>	--> to remove a stopped/Exited container
 
 	$ docker exec -it <container-name/container-ID> <command> 	--> -i interactive and -t terminal
-	$ docker exec -it my-nginx /bin/bash	--> connecting to running docker conatainer (my-nginx is container name)
-	$ docker exec my-nginx uname -a --> to exicute a command to check os details cmd: uname -a
+	$ docker exec -it my-nginx /bin/bash		--> connecting to running docker conatainer (my-nginx is container name)
+	$ docker exec my-nginx uname -a 		--> to exicute a command to check os details cmd: uname -a
 
 Q. how to update running container to publish port?
 ----------------------------------------------------
+No, we can't do that. to publish the port, we need to do it in the begining other wise we need to stop and remove the container. and then recreate a new container. 
 
 Docker : Image handling
 ------------------------------------------------------
@@ -602,7 +605,8 @@ to customize the image, we need to lear vision of what you want from the image.
 make a custom NGINX image, you must have a clear picture of what the final state of the image will be.
 	1. The image should have NGINX pre-installed which can be done using a package manager or can be built from source.
 	2. The image should start NGINX automatically upon running.
-How to Ignore Unnecessary Files: .dockerignore,  The .dockerignore file contains a list of files and directories to be excluded from image builds.This .dockerignore file has to be in the build context. Files and directories mentioned here will be ignored by the COPY instruction. But if you do a bind mount, the .dockerignore file will have no effect. 
+
+How to Ignore Unnecessary Files:   The `.dockerignore` file contains a list of files and directories to be excluded from image builds.This `.dockerignore` file has to be in the build context. Files and directories mentioned here will be ignored by the COPY instruction. But if you do a bind mount, the .dockerignore file will have no effect. 
 
 step-1: Now, create a new file named Dockerfile in an empty directory custom-nginx. A Dockerfile is a collection of instructions that, once processed by the daemon, results in an image. Content for the Dockerfile is as follow
 -------------------------------------------------------------
