@@ -44,7 +44,13 @@ Note: We come accross `docker.socket` vs `docker.service` in Docker, `docker.soc
 
 Docker: Install
 ----------------------------
-Docker installation on CentOS, when docker installed, it create a dircectory in `/var/lib/docker` where all the docker objects are stored. such as containers, images, volumes, network and others.  
+Docker installation on CentOS, when docker installed, it create a dircectory in `/var/lib/docker` where all the docker objects are stored. such as containers, images, volumes, network and others. Docker installtion comes this binaries. 
+
+		$ docker		--> Docker 
+		$ docker-compose	-->
+		$ docker-init		-->
+		$ docker-proxy		-->	
+		$ dockerd		--> 
 	
 Install:
 ----------------------------
@@ -81,14 +87,14 @@ Daemon:
 
 Answer: Docker service is stopped using `systemctl stop docker` command,  you've stopped the Docker service, if a Docker client attempts to communicate with the Docker daemon, the `docker.socket` can trigger the Docker service to start again. This can happen because the socket unit is configured to activate the service when a connection is made. for example a docker command executed from command-line tool, it will communicates with the Docker daemon.
 	
-Version:
------------------------------
+Version: Docker version checking 
+---------------------------------
 	$ docker --version		--> docker version
 	$ docker-compose --version	--> docker compose version
  	$ docker system info 		--> docker full information (debug mode/
  
-Process:
------------------------------
+Process: Checking the running docker objects
+---------------------------------------------
 	$ docker ps 	--> only running containers list
 	$ docker ps -a 	--> to see all containers (running/stopped/paused/created)
 	$ docker ps -q	--> shows only container-ID of running process
@@ -99,7 +105,7 @@ Process:
    	$ docker ps -f "label=env=DEV"	--> filter containers labelled as "DEV"
     	$ docker ps -f "label=env=PROD"	--> filter containers labelled ad "PROD"
   
-objects:
+objects: Docker Objects list
 -----------------------------
 	$ docker image ls	--> list docker images
 	$ docker network ls	--> lists docker networks
@@ -110,7 +116,7 @@ Q. What is a Docker: Registry? (Docker Hub)
 ---------------------------------------------
 An image registry is a centralized place where you can upload your images and can also download images created by others. Docker Hub is the default public registry for Docker. create a docker hub account and login using link: https://hub.docker.com/
 	
-Registry:
+Registry: Docker Image hub
 ---------------------------
 	$ docker login 	--> to login to docker repository (default: docker hub repository)
 	$ docker logout --> to logout docker repository
@@ -191,8 +197,10 @@ start/stop:
 
 Kill will forcefully terminate, which immediately terminates the container without allowing it to perform any cleanup or exit procedures. any changes or in-memory data that haven't been saved will be lost. Killing a container is useful when a container is unresponsive or needs to be stopped forcefully. it will invoke "SIGKILL" signal
 
-remove:
+remove: 
 -----------------------------
+To delete the container once it done its work. 
+
 	$ docker run --rm ubuntu cat /etc/*release*	--> remove the docker container once the container exited.
 
 ports:
@@ -203,6 +211,8 @@ ports:
 
 copy:
 -----------------------------
+Copy file from local host to container, this will allow you to update the container data. 
+
 	$ docker cp <local file path> <contiainer-id:/container-path> 
 	$ docker cp /tmp/web.conf webapp:/etc/web.conf --> copy file/directories to container from localhost to container 
 
@@ -227,6 +237,8 @@ to run/perform any operations inside the container, like checking the process, u
  	
 pause/unpause: 
 -----------------------------
+Pausing a container is a Docker operation that temporarily stops all processes within a running container, Pausing a container allows you to temporarily free up system resources, such as CPU and memory, for other containers that need them. When you're troubleshooting issues within a container, pausing it can help you examine the container's file system or configurations without the interference of running processes. 
+
 you can't perform any operation during this time, the container running but it will be in paused state. 
 
 	$ docker pause my-nginx my-redis 	--> it will pause the container
@@ -234,7 +246,12 @@ you can't perform any operation during this time, the container running but it w
 
 inspect:	
 -----------------------------
-	$ docker inspect  my-nginx/container-ID --> to see the docker container details.
+This will show all the details of docker container/image/volume/network. 
+
+	$ docker inspect my-nginx/container-ID --> to see the docker container details.
+ 	$ docker inspect image
+  	$ docker inspect volume
+   	$ docker inspect network
 
 logs:	
 -----------------------------
@@ -288,7 +305,8 @@ RUN apt-get update && \
     apt-get install nginx -y && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-CMD ["nginx", "-g", "daemon off;"]
+
+
 ```
 
 	FROM	--> define OS prefered for your image
@@ -304,16 +322,20 @@ CMD ["nginx", "-g", "daemon off;"]
 	ARG	--> arguments to pass in the image
 
 What is the difference between COPY vs ADD ?
-------------------------------------------------
+----------------------------------------------
 COPY: The COPY instruction is used to copy files and directories from the host machine to the image. It is a straightforward and simple operation. You specify the source and destination paths. It's generally recommended to use COPY when you want to copy files or directories from the host into the image.
 
 ADD: The ADD instruction is more versatile. It can do everything COPY can do, but it also has some additional features. It can copy local files, directories, and remote URLs, and it can automatically extract compressed files, such as tarballs, if the source is a URL or compressed archive.
 
 What is the difference between CMD vs ENTRYPOINT ?
-------------------------------------------------
+---------------------------------------------------
+CMD and ENTRYPOINT are Dockerfile instructions used to define the default command that runs when a container starts. The main difference is that CMD allows users to override the command when starting the container, while ENTRYPOINT sets a fixed command that cannot be easily overridden. Typically, CMD is used to provide default arguments, while ENTRYPOINT sets the primary command that is always executed, allowing additional arguments to be provided when running the container. This difference makes CMD more flexible for customization and ENTRYPOINT more suitable for defining the core functionality of a container.
+
+	$ docker run --entrypoint sleep2.0 ubuntu-sleeper 20 	--> this is to override the default `entrypoint` cmd.
 
 What is the difference between ENV vs ARG ?
---------------------------------------------
+---------------------------------------------
+ENV and ARG are both used to define variables in Docker, but they serve different purposes. ENV sets environment variables in the container, making them available during runtime. ARG defines build-time variables for the image, providing flexibility during the build process but not accessible in the running container.
 
 pull/push:
 ---------------------
@@ -331,7 +353,7 @@ remove:
 
 build:
 ---------------------
-create a Dockerfile, then build the docker file using the below commands. commands are executed from the same directory. where Dockerfile is available. 
+create a Dockerfile, then build the docker image using the below commands. commands are executed from the same directory. where Dockerfile is available. 
 
 	$ docker build . 					--> this will build the image with out any tags or name for your build
 	$ docker image tag container-ID my_custom_nginx:latest 	--> this will add tags to the image
@@ -345,14 +367,14 @@ create a Dockerfile, then build the docker file using the below commands. comman
 
 tag:
 ---------------------
-	$ docker image tag container-ID custom_name:custom_tag
-	$ docker image tag httpd:alpine httpd:customv1 	--> rename the tagged value with custom name
+	$ docker image tag image-ID custom_name:custom_tag	--> rename the image with new name and tag
+	$ docker image tag httpd:alpine httpd:customv1 		--> rename the tagged image value with custom name
 	$ docker image tag httpd:alpine gcr.io/company/httpd:customv1 
 
 save:
 ---------------------
-	$ docker image save alpine:latest -o alpine.tar  --> to save the image as .tar file and share
-	$ docker image load -i alpine.tar  --> to extract the .tar file 
+	$ docker image save alpine:latest -o alpine.tar	--> to save the image as .tar file and share
+	$ docker image load -i alpine.tar  		--> to extract the .tar file 
 	
 export/import:
 ---------------------
@@ -378,16 +400,16 @@ volumes:
 	
 run: 
 -----------------------------
-	$ docker run -v my-volume:/var/lib/mysql mysql --> volume mapped to container default storage location "/var/lib/mysql".
-	$ docker run -v my-volume2:/var/lib/mysql mysql --> if we didn't create a volume, docker will create the volume and map.
-	$ docker run -v /home/mysql:/var/lib/mysql mysql --> we can map the external location to store the data persistantly
-	$ docker run --mount type=bind,source=/home/mysql,target=/var/lib/mysql mysql --> this way also we can mount the volumes.
+	$ docker run -v my-volume:/var/lib/mysql mysql 		--> volume mapped to container default storage location "/var/lib/mysql".
+	$ docker run -v my-volume2:/var/lib/mysql mysql 	--> if we didn't create a volume, docker will create the volume and map.
+	$ docker run -v /home/mysql:/var/lib/mysql mysql 	--> we can map the external location to store the data persistantly
+	$ docker run --mount type=bind,source=/home/mysql,target=/var/lib/mysql mysql 	--> this way also we can mount the volumes.
 
 Q. What is **`docker-compose`** ? 
 ---------------------------------
-If we deploying fullscale application on docker, we need to use mutiple containers like web-server(nginx), in-memorydb(redis), persistant-db(mangodb), orchestration(ansible), etc. So to deploy all containers as a stack we use docker-compose .YAML files. this will deploy the complete application with one command. 
+If we deploying fullscale application on docker, we need to use mutiple containers like web-server(nginx), in-memorydb(redis), persistant-db(mangodb), orchestration(ansible), etc. So to deploy all containers as a stack we use docker-compose . Docker-compose files are writen in YAML. this will deploy the complete application with one command. 
 
-docker-compose file must be named as this other wise docker-compose will not notice your configuration file. docker-compose.yml, docker-compose.yaml, compose.yml, compose.yaml
+docker-compose file must be named like this `docker-compose.yml`, `docker-compose.yaml`, `compose.yml`, `compose.yaml`, other wise docker-compose will not notice your configuration file. 
 
 there are 2 versions in docker-compose file, mention the version details in "" like "2" or "3". 
 
@@ -434,7 +456,7 @@ services:
 			- front-end
 			- back-end
 	result:
-		image: result
+	  image: result
 		depends_on: 
 			- db
 		networks: 
@@ -456,7 +478,7 @@ Docker installtion comes with 3 types of networks
 	3. None
 	
 Bridge:  Is the default network that a conatiner will attach to. this network 172.17.0.1 range. 
-Host: container ports are attached to Host 
+Host: container ports are attached to Host Network, this results port conflict. so extra precusions are needed.
 None: no network created to that containers.
 	
 	$ docker run nginx --> this will map to default Bridge network.
