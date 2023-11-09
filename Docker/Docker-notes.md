@@ -1,21 +1,26 @@
+Docker: Overview 
+--------------------
+Docker is a Containerization platform. It will provide an environment to run your containers with out having to worry about the underlying OS. Docker is avaiable for Linux and Windows OS. so you can run your containers on any of the platfarms. just install the Docker and deploy your containers.  Containerization will encapsulate or package softwares and all its dependencies, so that it can run uniformly and consistently on any infrastructure. 
+
 What is a Container?
 ----------------------
-A container will pack your application and its dependencies,libraries,OS together so that it can be deployed/run accross any platform without worrying the underlying OS.
-
-Docker: Overview :
---------------------
-Docker is a Containerization platform. Containerization will encapsulate or package softwares and all its dependencies, so that it can run uniformly and consistently on any infrastructure. 
+A container is light weight isolated object, that will pack your application and its dependencies with libraries and OS together. So that you don't have to worry. it can be deployed/run accross any platform without worrying the underlying OS.
 
 Docker: Architecture Overview
 --------------------------------
-The docker engine consists of 3 componenets.
-	1). Docker Daemon
-	2). Docker client
-	3). REST API
+Docker architecture involve 3 componenets. 
+
+	1). Docker Daemon: The daemon (dockerd) is a process that keeps running in the background and waits for commands from the client. The daemon is capable of managing various Docker objects.
+	2). Docker client: The client  (docker) is a command-line interface program mostly responsible for transporting commands issued by the users.
+	3). REST API: The REST API acts as a bridge between the daemon and the client. Any command issued using the client passes through the API to finally reach the daemon.
 
 ![Picture1-15](https://user-images.githubusercontent.com/33980623/234473946-a618580d-8b8f-4705-a100-6f6f98f4049e.png)
+
+Docker uses a client-server architecture. The Docker client talks to the Docker daemon, which does the heavy lifting of building, running, and distributing your Docker containers. You as a user will usually execute commands using the client component. The client then use the REST API to reach out to the long running daemon and get your work done.
+
+Note: We come accross `docker.socket` vs `docker.service` in Docker, `docker.socket` is responsible for managing network connections to the Docker daemon, allowing client applications to interact with Docker over the network. On the other hand, `docker.service` manages the Docker daemon process itself, ensuring that it's started and running.
 	
-Docker service file Location	: `/lib/systemd/system/docker.service` | `/usr/lib/systemd/system/docker.service`
+docker.service file Location	: `/lib/systemd/system/docker.service` | `/usr/lib/systemd/system/docker.service`
 
 Docker Configuration Files	: `/etc/docker/daemon.json` (Linux)
 
@@ -31,31 +36,22 @@ Docker daemon service is run on ports : `2375(plain) / 2376(secure)`
 
 Docker environment variable for accessing remotely : `export DOCKER_HOST="tcp://docker-host-ip:2375"` --> secure use 2376
 
-
-**Docker Client:** The client  (docker) is a command-line interface program mostly responsible for transporting commands issued by the users.
-
-**REST API:** The REST API acts as a bridge between the daemon and the client. Any command issued using the client passes through the API to finally reach the daemon.
-
-**Docker Daemon:** The daemon (dockerd) is a process that keeps running in the background and waits for commands from the client. The daemon is capable of managing various Docker objects.
-
-"Docker uses a client-server architecture. The Docker client talks to the Docker daemon, which does the heavy lifting of building, running, and distributing your Docker containers". You as a user will usually execute commands using the client component. The client then use the REST API to reach out to the long running daemon and get your work done.
-
-Note: We come accross `docker.socket` vs `docker.service` in Docker, `docker.socket` is responsible for managing network connections to the Docker daemon, allowing client applications to interact with Docker over the network. On the other hand, `docker.service` manages the Docker daemon process itself, ensuring that it's started and running.
-
 Docker: Install
 ----------------------------
-Docker installation on CentOS, when docker installed, it create a dircectory in `/var/lib/docker` where all the docker objects are stored. such as containers, images, volumes, network and others. Docker installtion comes this binaries. 
+Docker installation on CentOS. When docker is installed, it create a dircectory `/var/lib/docker` where all the docker objects are stored. such as containers, images, volumes, network and others. Docker installtion comes with this binaries. 
 
-		$ docker		--> Docker 
-		$ docker-compose	-->
-		$ docker-init		-->
-		$ docker-proxy		-->	
-		$ dockerd		--> 
+		$ docker		--> It is used to interact with the Docker daemon and manage Docker containers and services.
+		$ docker-compose	--> a tool for defining and running multi-container Docker applications. It allows you to define a multi-container environment in a single file and manage the entire application stack.
+		$ docker-init		--> for initializing Docker containers. It helps set up the container environment before executing the main process.
+		$ docker-proxy		--> Docker Proxy is involved in networking for Docker containers. It handles the routing of network traffic to and from Docker containers.
+		$ dockerd		--> This is the Docker daemon binary. It is the background process that manages Docker containers on a system. 
 	
-Install:
-----------------------------
+Install: Docker
+----------------
+Installing the docker on a Linux OS.
 
-	$ sudo yum install -y yum-utils  --> install yum-utils package
+	$ sudo yum install -y yum-utils  	--> install yum-utils package
+ 
 	$ sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo	--> add repository 
   
 	$ sudo yum install docker-ce docker-ce-cli containerd.io  --> installs 3 components. 
@@ -64,7 +60,11 @@ Install:
   1. `docker-ce` is the main Docker package that includes the Docker daemon `dockerd`, client tools, and additional components for managing containers and images. 
   2. `docker-ce-cli` is a separate package that includes only the Docker command-line tools, It provides the Docker CLI commands for interacting with the Docker daemon and managing containers and images.
   3. `containerd.io` is an industry-standard core container runtime that manages the container lifecycle (start, stop, pause, resume, etc.).
-  
+
+Start/Stop Docker service:
+---------------------------
+Docker installtion creates `docker.service` file the this location : `/lib/systemd/system/docker.service` | `/usr/lib/systemd/system/docker.service`. to handle docker services to start/stop/restart use as below. 
+
 	$ sudo systemctl start docker	--> start docker service.
  	$ sudo systemctl stop docker	--> stop docker service.
  	$ sudo systemctl status docker 	--> check Docker service status RUNNING/NOT.
@@ -75,49 +75,44 @@ Install:
 	$ journalctl -u docker.service 	--> docker daemon troubleshooting with service logs
 	$ vi /etc/docker/daemon.json 	--> docker configurations are stored in daemon.json
  	$ ps aux | grep docker 		--> to see process running inside container
-  
-Daemon:
------------------------------
-	 $ dockerd 	--> to start the docker service manually
-  	 $ dockerd &	--> to run it in background.
-	 $ dockerd --debug	--> starting the docker service in debug mode. 
-	 $ dockerd --debug --host=tcp://192.168.1.10:2375 	--> remote docker service (export DOCKER_HOST="tcp://192.168.1.10:2375)
 
-**Scenario-1: I stopped the docker service using `$ sudo systemctl stop docker`, but i could still start new containers even after the docker daemon is inavtive/dead. Why? explain?**
-
-Answer: Docker service is stopped using `systemctl stop docker` command,  you've stopped the Docker service, if a Docker client attempts to communicate with the Docker daemon, the `docker.socket` can trigger the Docker service to start again. This can happen because the socket unit is configured to activate the service when a connection is made. for example a docker command executed from command-line tool, it will communicates with the Docker daemon.
-	
-Version: Docker version checking 
----------------------------------
-	$ docker --version		--> docker version
-	$ docker-compose --version	--> docker compose version
- 	$ docker system info 		--> docker full information (debug mode/
- 
-Process: Checking the running docker objects
----------------------------------------------
-	$ docker ps 	--> only running containers list
-	$ docker ps -a 	--> to see all containers (running/stopped/paused/created)
-	$ docker ps -q	--> shows only container-ID of running process
-	$ docker ps -s 	--> shows "Size" of a running container 
- 	$ docker ps -l 	--> latest container created
-  
-  	$ docker ps -f	--> filter containers 
-   	$ docker ps -f "label=env=DEV"	--> filter containers labelled as "DEV"
-    	$ docker ps -f "label=env=PROD"	--> filter containers labelled ad "PROD"
-  
-objects: Docker Objects list
+objects: 
 -----------------------------
 	$ docker image ls	--> list docker images
 	$ docker network ls	--> lists docker networks
 	$ docker container ls	--> lists running docker containers
 	$ docker volume ls 	--> lists volumes created
 
-Q. What is a Docker: Registry? (Docker Hub)
+Daemon:
+-----------------------------
+	 $ dockerd 		--> to start the docker service manually
+  	 $ dockerd &		--> to run it in background.
+	 $ dockerd --debug	--> starting the docker service in debug mode. 
+	 $ dockerd --debug --host=tcp://192.168.1.10:2375 	--> remote docker service (export DOCKER_HOST="tcp://192.168.1.10:2375)
+	
+Version: 
+---------------------------------
+	$ docker --version		--> docker version
+	$ docker-compose --version	--> docker compose version
+ 	$ docker system info 		--> docker full information (debug mode/
+ 
+Process: 
+---------------------------------------------
+	$ docker ps 		--> only running containers list
+	$ docker ps -a 		--> to see all containers (running/stopped/paused/created)
+	$ docker ps -q		--> shows only container-ID of running process
+	$ docker ps -s 		--> shows "Size" of a running container 
+ 	$ docker ps -l 		--> latest container created
+  
+  	$ docker ps -f		--> filter containers 
+   
+   	$ docker ps -f "label=env=DEV"	--> filter containers labelled as "DEV"
+    	$ docker ps -f "label=env=PROD"	--> filter containers labelled ad "PROD"
+
+Docker Registry
 ---------------------------------------------
 An image registry is a centralized place where you can upload your images and can also download images created by others. Docker Hub is the default public registry for Docker. create a docker hub account and login using link: https://hub.docker.com/
-	
-Registry: Docker Image hub
----------------------------
+
 	$ docker login 	--> to login to docker repository (default: docker hub repository)
 	$ docker logout --> to logout docker repository
 	$ docker login gcr.io	--> to login to GCP repository
@@ -179,12 +174,8 @@ docker containers can be "created and started" at  the sametime using `$ docker 
 	$ docker run –p 3306:3306 mysql 	--> publish mysql port
 	$ docker run –p 192.168.1.5:8000:5000 kodekloud/simple-webapp	--> 
 
- 	$ docker run -v 
- 	
-Scenario-2: if you map your container port 80 with host port 8080, and you have a requirement to increase the number of containers to 4, and the web URL should be one, how do you configure?
-
-Note: if we map a container-port 80 with host-port 8080, we can't map another container with same 8080 port, because its already been used (error: Bind for 0.0.0.0:8080 failed: port is already allocated.). So, we have to use different port. 
-
+ 	$ docker run -v my-volume1:/
+  
 start/stop:
 -----------------------------
 	$ docker create  nginx 		--> creates nginx container, named as my-nginx
@@ -201,6 +192,7 @@ remove:
 -----------------------------
 To delete the container once it done its work. 
 
+	$ docker rm container-ID/container-name		
 	$ docker run --rm ubuntu cat /etc/*release*	--> remove the docker container once the container exited.
 
 ports:
@@ -292,20 +284,20 @@ system:
 	
 Q. What is a Docker: Image?
 ----------------------------
-Images are multi-layered self-contained files that act as the template for creating containers. They are like a frozen, read-only copy of a container. Images can be exchanged through registries. during the build process, if we want to avoid the file which we don't want to build, then create a file named `.dockerignore` file and add the file which need to be ignored during the build process. 
+Docker image is a lightweight, standalone, and executable package that encapsulates the software, its dependencies, and configuration needed to run an application. It serves as a blueprint for creating Docker containers. Docker images are built from a set of instructions called a Dockerfile, which specifies the base image, application code, environment settings, and other components. 
 
-Sample docker image creation using the Dockerfile:
+Sample docker image creation using the Dockerfile is shown below
+
+Dockerfile
 --------------------------------------------------
 ```
-FROM ubuntu:latest
+FROM nginx:latest			# Use an official Nginx runtime as a base image
 
-EXPOSE 80
+COPY index.html /usr/share/nginx/html	# Copy the local index.html file to the container's web root
 
-RUN apt-get update && \
-    apt-get install nginx -y && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+EXPOSE 80				# Expose port 80 for incoming traffic
 
-
+CMD ["nginx", "-g", "daemon off;"]	# Define the default command to run when the container starts
 
 ```
 
@@ -320,22 +312,6 @@ RUN apt-get update && \
 	WORKDIR	--> define the working directory 
 	VOLUME	--> define mountable directories in image
 	ARG	--> arguments to pass in the image
-
-What is the difference between COPY vs ADD ?
-----------------------------------------------
-COPY: The COPY instruction is used to copy files and directories from the host machine to the image. It is a straightforward and simple operation. You specify the source and destination paths. It's generally recommended to use COPY when you want to copy files or directories from the host into the image.
-
-ADD: The ADD instruction is more versatile. It can do everything COPY can do, but it also has some additional features. It can copy local files, directories, and remote URLs, and it can automatically extract compressed files, such as tarballs, if the source is a URL or compressed archive.
-
-What is the difference between CMD vs ENTRYPOINT ?
----------------------------------------------------
-CMD and ENTRYPOINT are Dockerfile instructions used to define the default command that runs when a container starts. The main difference is that CMD allows users to override the command when starting the container, while ENTRYPOINT sets a fixed command that cannot be easily overridden. Typically, CMD is used to provide default arguments, while ENTRYPOINT sets the primary command that is always executed, allowing additional arguments to be provided when running the container. This difference makes CMD more flexible for customization and ENTRYPOINT more suitable for defining the core functionality of a container.
-
-	$ docker run --entrypoint sleep2.0 ubuntu-sleeper 20 	--> this is to override the default `entrypoint` cmd.
-
-What is the difference between ENV vs ARG ?
----------------------------------------------
-ENV and ARG are both used to define variables in Docker, but they serve different purposes. ENV sets environment variables in the container, making them available during runtime. ARG defines build-time variables for the image, providing flexibility during the build process but not accessible in the running container.
 
 pull/push:
 ---------------------
@@ -380,6 +356,22 @@ export/import:
 ---------------------
 	$ docker export <container-name> file1.tar
 	$ docker image import file1.tar newimage:latest
+
+ Q What is the difference between COPY vs ADD ?
+----------------------------------------------
+COPY: The COPY instruction is used to copy files and directories from the host machine to the image. It is a straightforward and simple operation. You specify the source and destination paths. It's generally recommended to use COPY when you want to copy files or directories from the host into the image.
+
+ADD: The ADD instruction is more versatile. It can do everything COPY can do, but it also has some additional features. It can copy local files, directories, and remote URLs, and it can automatically extract compressed files, such as tarballs, if the source is a URL or compressed archive.
+
+Q What is the difference between CMD vs ENTRYPOINT ?
+---------------------------------------------------
+CMD and ENTRYPOINT are Dockerfile instructions used to define the default command that runs when a container starts. The main difference is that CMD allows users to override the command when starting the container, while ENTRYPOINT sets a fixed command that cannot be easily overridden. Typically, CMD is used to provide default arguments, while ENTRYPOINT sets the primary command that is always executed, allowing additional arguments to be provided when running the container. This difference makes CMD more flexible for customization and ENTRYPOINT more suitable for defining the core functionality of a container.
+
+	$ docker run --entrypoint sleep2.0 ubuntu-sleeper 20 	--> this is to override the default `entrypoint` cmd.
+
+Q What is the difference between ENV vs ARG ?
+---------------------------------------------
+ENV and ARG are both used to define variables in Docker, but they serve different purposes. ENV sets environment variables in the container, making them available during runtime. ARG defines build-time variables for the image, providing flexibility during the build process but not accessible in the running container.
 	
 Q. what is the use of docker namespaces ?
 ------------------------------------------
@@ -387,9 +379,18 @@ Docker uses Namespaces to isolate the containers from the hosted OS, Docker cont
 
 Q. What is a Docker: Volumes ?
 -------------------------------
-Containers are short lived object they are destroyed once the container work is over, but the data it collected also removed once the container is destroied. so to make the data persistant or to use for time to time we need to map the container path to localhost path so that the data is save persistantly. this is where the volumes come in to picture.
+Containers are short lived object they are destroyed once the container work is over, but the data it collected also removed once the container is destroied. so to make the data persistant or to use for time to time we need to map the container path to localhost path so that the data is save persistantly. this is where the volumes come in to picture. 
 
-docker uses the storage drivers to do the all the below actions when we execute the command. they are mutiple types like AUFS, ZFS, BTRFS, Device Mapper, Overlay, Overlay2 and etc. Depeding on dockerimage base OS respective driver is used to perform this operations. 
+Q. What is Docker storage drivers?
+-----------------------------------
+docker uses the storage drivers to maintain the layered architecture, creating writable layer on images, copy and write and etc. are done with help of storage drivers.  Depeding on underlying OS respective driver is used to perform this operations. Docker will chose the best option available for the system automatically. 
+
+ 	1. AUFS
+  	2. ZFS
+   	3. BTRFS
+    	4. Device Mapper
+     	5. Overlay
+      	6. Overlay2
 
 volumes:
 -----------------------------
@@ -405,11 +406,26 @@ run:
 	$ docker run -v /home/mysql:/var/lib/mysql mysql 	--> we can map the external location to store the data persistantly
 	$ docker run --mount type=bind,source=/home/mysql,target=/var/lib/mysql mysql 	--> this way also we can mount the volumes.
 
-Q. What is **`docker-compose`** ? 
+Q. What is `docker-compose` ? 
 ---------------------------------
-If we deploying fullscale application on docker, we need to use mutiple containers like web-server(nginx), in-memorydb(redis), persistant-db(mangodb), orchestration(ansible), etc. So to deploy all containers as a stack we use docker-compose . Docker-compose files are writen in YAML. this will deploy the complete application with one command. 
+If we deploying fullscale application on docker, we need to use mutiple containers like web-server(nginx), in-memorydb(redis), persistant-db(mangodb), orchestration(ansible), etc. So to deploy all containers as a stack we use docker-compose . Docker-compose files are writen in YAML. this will deploy the complete application stack with one command. 
 
-docker-compose file must be named like this `docker-compose.yml`, `docker-compose.yaml`, other wise docker-compose will not notice your configuration file. 
+docker-compose file must be named like this `docker-compose.yml`, `docker-compose.yaml`, other wise docker-compose will not notice your configuration file. else you need to specify the `-f` flag to pass the compose file. 
+
+ 	$ docker-compose up	--> Builds, (re)creates, starts, and attaches to containers.
+	$ docker-compose down	--> Stops and removes containers, networks, volumes, and images created by up.
+	$ docker-compose ps	--> Lists containers.
+	$ docker-compose logs	--> Displays log output from services.
+	$ docker-compose exec	--> Runs a command in a running service.
+	$ docker-compose build	--> Builds or rebuilds services.
+	$ docker-compose stop	--> Stops services.
+	$ docker-compose restart --> Restarts services.
+	$ docker-compose pull	--> Pulls images for services.
+	$ docker-compose up -d	--> Starts the services in the background.
+
+ 	$ docker-compose -f my-compose.yaml up	--> to bringup the custom named docker-compose file
+
+   	$ docker-compose -f my-compose.yaml logs -f web	--> to view the logs like 'tail' command
 
 there are 2 versions in docker-compose file, mention the version details in "" like "2" or "3". 
 
@@ -420,21 +436,38 @@ version: "3"
 services:
   redis:
     image: redis
-  db: 
+    networks:
+      - backend
+  db:
     image: postgres
-    environment: 
+    environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+    networks:
+      - backend
   voting-app:
     image: eesprit/voting-app-vote
     ports:
-      - 5000:80
+      - 5001:80
+    networks:
+      - frontend
+      - backend
   result-app:
     image: eesprit/voting-app-result
     ports:
-      - 5001:80
+      - 5002:80
+    networks:
+      - frontend
+      - backend
   worker-app:
     image: eesprit/voting-app-worker
+    networks:
+      - backend
+
+networks:
+  frontend:
+  backend:
+
 ```
 ----------------------------
 ```
@@ -467,10 +500,6 @@ networks:
 	- back-end
 ```
 -------------------
-
-	$ docker-compose up	--> to bring up all the application components.
- 	$ docker-compose down 	--> To bring down all the application components.
-  	$ docker-
 
 Q. What is Docker: Networking ?
 --------------------------------
@@ -526,7 +555,7 @@ In a real life scenario in 3-tire environment, we have web-containers network ra
 
 Q. how the Docker Image works?
 -----------------------------------------------
-1. To understand DockerImage better, we need to understand how DockerImages are build. DockerImages are build using Dockerfiles. Dockerfiles are contructed in multipule layers ( base(OS), package, dependencies, souce-code(application), entrypoint) bind together and builds and image. this image is docker image. 
+1. To understand DockerImage better, we need to understand how Docker images are build. DockerImages are build using Dockerfiles. Dockerfiles are contructed in multipule layers ( base(OS), package, dependencies, souce-code(application), entrypoint) bind together and builds and image. this image is docker image. 
 
 2. DockerImages are readonly images, means they are act as a template to create a container. so docker uses the same image to create n number of containers.
 
@@ -550,66 +579,29 @@ Q. how the Docker container works ?
 
 Q. How to Publish a Port to access the application ?
 ---------------------------------------------------------------------------------------------------------
-Containers are isolated environments. Your host system doesn't know anything about what's going on inside a container. Hence, applications running inside a container remain inaccessible from the outside. To allow access from outside of a container, you must publish the appropriate port inside the container to a port on your local network. 
-
-	$ docker run <image-fullname> --publish <host-port>:<container-port> --> common syntax for the --publish or -p option is as follows
-
-When you wrote --publish 8080:80, any request sent to port 8080 of your host system will be forwarded to port 80 inside the container. Now to access the application on your browser, visit http://localhost:8080 | http://dockerhost:8080
-
-Note: it is mandate you pass the arguments like --> Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
+Containers are isolated environments. Your host system doesn't know anything about what's going on inside a container. Hence, applications running inside a container remain inaccessible from the outside. To allow access from outside of a container, you must publish the appropriate port inside the container to a port on your local network. any request sent to port 8080 of your host system will be forwarded to port 80 inside the container. Now to access the application on your browser, visit http://localhost:8080 | http://dockerhost:8080
 
 	$ docker run nginx  --publish 8080:80 --name=my-nginx
-	
 
-Q. Docker commands: container handling
-------------------------------------------------------
-	$ docker --version
-	$ docker-compose --version
-
-	Note: docker image should be specified at the end of the command. other wise docker image will not get created. show options are not avialbe.
-		Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
-
-	$ docker run -p 8081:80 nginx			--> deploying nginx image
-	$ docker container run -p 8082:80 nginx	
-
-	$ docker create --name=my-redis	redis 		--> it will create docker container, we need to start the container to use it.
-
-	$ docker run --name=my-nginx -p 8081:80 --rm nginx --> to name container as "my-nginx" and --rm to remove the contianer once its stopped. 
-	$ docker run -d -p 8082:80 nginx 		--> to detach container, it will run in background. to attach again use --attach
-	$ docker attach <container-name/container-ID>	--> to attach the detached container
-
-	$ docker start <container-name/container-ID>	--> start the stopped container
-	$ docker stop <container-name/container-ID>	--> shuts down a container gracefully 
-	$ docker restart <container-name/container-ID>	--> restart the container
-	$ docker kill <container-name/container-ID> 	--> to kill the process
-
-	$ docker ps	--> to list the docker process
-	$ docker ps -a 	--> to list all the process which are stopped also
-
-	$ docker rm <container-name/container-ID>	--> to remove a stopped/Exited container
-
-	$ docker exec -it <container-name/container-ID> <command> 	--> -i interactive and -t terminal
-	$ docker exec -it my-nginx /bin/bash		--> connecting to running docker conatainer (my-nginx is container name)
-	$ docker exec my-nginx uname -a 		--> to exicute a command to check os details cmd: uname -a
 
 Q. how to update running container to publish port?
 ----------------------------------------------------
-No, we can't do that. to publish the port, we need to do it in the begining other wise we need to stop and remove the container. and then recreate a new container. 
+No, to publish the port, we need to do it in the begining of container creation. other wise we need recreate a new container with port details. 
 
-Docker : Image handling
-------------------------------------------------------
 
-Dockerfiles:
+Dockerfiles: Image handling
 ---------------------------------------------------------------
-to customize the image, we need to lear vision of what you want from the image. 
 make a custom NGINX image, you must have a clear picture of what the final state of the image will be.
+
 	1. The image should have NGINX pre-installed which can be done using a package manager or can be built from source.
 	2. The image should start NGINX automatically upon running.
 
 How to Ignore Unnecessary Files:   The `.dockerignore` file contains a list of files and directories to be excluded from image builds.This `.dockerignore` file has to be in the build context. Files and directories mentioned here will be ignored by the COPY instruction. But if you do a bind mount, the .dockerignore file will have no effect. 
 
-step-1: Now, create a new file named Dockerfile in an empty directory custom-nginx. A Dockerfile is a collection of instructions that, once processed by the daemon, results in an image. Content for the Dockerfile is as follow
--------------------------------------------------------------
+step-1: Now, create a new file named Dockerfile in an empty directory. A Dockerfile is a collection of instructions.
+
+Dockerfile
+-----------------------------------------
 ```
 FROM ubuntu:latest
 
@@ -623,36 +615,23 @@ CMD ["nginx", "-g", "daemon off;"]
 ```
 ----------------------------------------
 
-Images are multi-layered files and in this file, each line (known as instructions) that you've written creates 
+FROM: 	Every valid Dockerfile starts with a FROM instruction. This instruction sets the base image for your resultant image.
+EXPOSE: The EXPOSE instruction is used to indicate the port that needs to be published. 
+RUN: 	The RUN instruction in a Dockerfile executes a command inside the container shell. 
+CMD: 	Finally the CMD instruction sets the default command for your image.
 
-	FROM: Every valid Dockerfile starts with a FROM instruction. This instruction sets the base image for your resultant image.
-	EXPOSE: The EXPOSE instruction is used to indicate the port that needs to be published. 
-	RUN: The RUN instruction in a Dockerfile executes a command inside the container shell. 
-	CMD: Finally the CMD instruction sets the default command for your image.
-
-to build the image need to use the command build from custom-nginx directory
-
-
-	$ docker push <Image-repositry-name>:<tag>
+	$ docker push <Image-repositry-name>:<tag>	-->syntax
 	
 	$ docker login		--> to login to docker hub registory.
 	$ docker logout		--> to logout from docker registroy
 	
-	$ docker image push karna-nginx:latest		--> to push the latest image
-	$ docker pull <Image-repositry-name>:<tag>
-	
-
 	$ docker build . 	--> to build the docker image without tags
 
-	$ docker image build --tag custom-nginx:packaged . --> to tag the docker image. REPOSITORY-name is custom-nginx  and  TAG is package
-
-	$ docker image build --tag my-nginx:latest 	--> to tag the image
-
-	$ docker images --> to list the images.
-
-	$ docker image history <image-name> --> to see the image layers of docker image.
-
-	$ docker image prune --force	--> this will delete name less images. 
+	$ docker image build --tag custom-nginx:packaged .	--> to tag the docker image. REPOSITORY-name is custom-nginx  and  TAG is package
+	$ docker image build --tag my-nginx:latest 		--> to tag the image
+	$ docker image history <image-name> 		--> to see the image layers of docker image.
+	$ docker image prune --force			--> this will delete name less images. 
+ 	$ docker image push karna-nginx:latest		--> to push the latest image
 
 -----------------------------------------------------------------------
 ```
@@ -706,9 +685,6 @@ ENTRYPOINT [ "rmbyext" ]
 ```
 ---------------------------------------------------------------------------
 
-to share the docker image online 
-
-$ docker login
 
 Q. Docker: Network Manipulation Basics in Docker:
 --------------------------------------------------------------------------
@@ -718,7 +694,7 @@ Scenario:1
 ------------
 Now consider a scenario where you have a notes-api application powered by Express.js and a PostgreSQL database server running in two separate containers. These two containers are completely isolated from each other and are oblivious to each other's existence. So how do you connect the two? Won't that be a challenge? you connect them by putting them under a user-defined bridge network. 
 
-$ docker network ls 	--> to list the docker networks 
+		$ docker network ls 	--> to list the docker networks 
 
 using above command, You should see three networks in your system. Now look at the DRIVER column of the table here. These drivers are can be treated as the type of network. By default, Docker has five networking drivers.
 	
@@ -730,11 +706,9 @@ using above command, You should see three networks in your system. Now look at t
 	
 How to Create a User-Defined Bridge in Docker:
 ----------------------------------------------------------------------------
-As you can see, Docker comes with a default bridge network named bridge. Any container you run will be automatically attached to this bridge network. Containers attached to the default bridge network can communicate with each others using IP addresses. 
+As you can see, Docker comes with a default bridge network named bridge. Any container you run will be automatically attached to this bridge network. Containers attached to the default bridge network can communicate with each others using IP addresses. A user-defined bridge, however, has some extra features over the default one. 
 
-A user-defined bridge, however, has some extra features over the default one. 
-
-1. User-defined bridges provide automatic DNS resolution between containers: This means containers attached to the same network can communicate with each others using the container name. So if you have two containers named notes-api and notes-db the API container will be able to connect to the database container using the notes-db name.
+1. User-defined bridges provide automatic DNS resolution between containers: This means containers attached to the same network can communicate with each others using the container name. So if you have two containers named notes-api and notes-db the API container will be able to connect to the database container using the container names.
 
 2. User-defined bridges provide better isolation: All containers are attached to the default bridge network by default which can cause conflicts among them. Attaching containers to a user-defined bridge can ensure better isolation.
 
@@ -742,21 +716,16 @@ A user-defined bridge, however, has some extra features over the default one.
 
 Note: Keep in mind, though, that in order for the automatic DNS resolution to work you must assign custom names to the containers. 
 
-$ docker network ls
-
-$ docker network inspect --format='{{range .Containers}}{{.Name}}{{end}}' bridge --> to inspect which container using which network-ID.(bridge/my-network/host)
-
-$ docker network create my-network 	--> this will create a bridge network	
+	$ docker network ls
+	$ docker network inspect --format='{{range .Containers}}{{.Name}}{{end}}' bridge --> to inspect which container using which network-ID.(bridge/my-network/host)
+	$ docker network create my-network 	--> this will create a bridge network	
 
 newly created network doesn't have any containers attached to it. two ways of attaching a container to a network. 
 
-$ docker network connect my-network my-nginx 	--> to attach a container to a newly created network  to a running container. 
-(or)
-$ docker run --network=my-network  -p 8081:80 -d --rm nginx --> creating a new container and attaching to newly created network.
-
-$ docker network disconnect my-network my-nginx		--> to Detach Containers from a Network in Docker. we can detach all networks.
-
-$ docker network rm my-network 		--> to remove a network 
+	$ docker network connect my-network my-nginx 			--> to attach a container to a newly created network  to a running container. 
+	$ docker run --network=my-network  -p 8081:80 -d --rm nginx 	--> creating a new container and attaching to custom network.
+	$ docker network disconnect my-network my-nginx			--> to Detach Containers from a Network in Docker. we can detach all networks.
+	$ docker network rm my-network 					--> to remove a network 
 
 ----------------------------------
 ```
@@ -770,29 +739,24 @@ docker container run \
  ```   
 --------------------------------------
 
-Although the container is running, there is a small problem. Databases like PostgreSQL, MongoDB, and MySQL persist their data in a directory. PostgreSQL uses the /var/lib/postgresql/data directory inside the container to persist data. Now what if the container gets destroyed for some reason? You'll lose all your data. To solve this problem, a named volume can be used.
-
-How to Work with Named Volumes in Docker
+Q. How to Work with Named Volumes in Docker
 ---------------------------------------------------------------------------
-A named volume is very similar to an anonymous volume except that you can refer to a named volume using its name. Volumes are also logical objects in Docker and can be manipulated using the command-line. 
+Although the containers are running, there is a small problem. Databases like PostgreSQL, MongoDB, and MySQL persist their data in a directory. PostgreSQL uses the `/var/lib/postgresql/data` directory inside the container to persist data. Now what if the container gets destroyed for some reason? You'll lose all your data. To solve this problem, a named volume can be used. A named volume is very similar to an anonymous volume except that you can refer to a named volume using its name. Volumes are also logical objects in Docker and can be manipulated using the command-line. 
 
-$ docker volume create my-volume1	--> creating new volumes 
+	$ docker volume create my-volume1	--> creating new volumes, this is a named volume. 
+	$ docker volume ls			--> to list the volumes
+ 
+	$ docker container inspect --format='{{range .Mounts}} {{ .Name }} {{end}}' notes-db	--> volumes attached to container notes-db
 
-$ docker volume ls	--> to list the volumes
-
-$ docker container inspect --format='{{range .Mounts}} {{ .Name }} {{end}}' notes-db	--> volumes attached to container notes-db
-
-How to Access Logs from a Container in Docker
+Q How to Access Logs from a Container in Docker
 ------------------------------------------------------------------------------
 
-$ docker container logs my-nginx	--> to check the container logs. 
-
-$ docker container create 
+	$ docker container logs my-nginx	--> to check the container logs. 
 	
 	
 Q. Securing the Docker Daemon (/var/run/docker.sock)?
 -------------------------------------------------------
-this to secure the docker environment from accedental stopping/starting/deleting. it also provide the security from hackers where her/she can attack if they have got access to the docker daemon. 
+this to secure the docker environment from accedental stopping/starting/deleting. it also provide the security from hackers where he/she can attack if they have got access to the docker daemon. 
 	
 	step-1: Fist we need to secure the docker host.
 	-------------------------------------------------
@@ -800,7 +764,6 @@ this to secure the docker environment from accedental stopping/starting/deleting
 	2. enable logging using SSH based authentication.
 	3. determine users who need access to servers. 
 	
-	step-2: 
 
 Scenarios:
 ------------------------------------------------------------
