@@ -16,7 +16,7 @@ Docker architecture involve 3 componenets.
 
 ![Picture1-15](https://user-images.githubusercontent.com/33980623/234473946-a618580d-8b8f-4705-a100-6f6f98f4049e.png)
 
-Docker uses a client-server architecture. The Docker client talks to the Docker daemon, which does the heavy lifting of building, running, and distributing your Docker containers. You as a user will usually execute commands using the client component. The client then use the REST API to reach out to the long running daemon and get your work done.
+Docker uses a client-server architecture. The Docker client talks to the Docker daemon, which does the heavy lifting of building, running, and distributing your Docker containers. You as a user will usually execute commands using the client component. The client then use the REST API to reach out to the long running daemon and get your work done. 
 
 Note: We come accross `docker.socket` vs `docker.service` in Docker, `docker.socket` is responsible for managing network connections to the Docker daemon, allowing client applications to interact with Docker over the network. On the other hand, `docker.service` manages the Docker daemon process itself, ensuring that it's started and running.
 	
@@ -85,11 +85,47 @@ objects:
 
 Daemon:
 -----------------------------
-	 $ dockerd 		--> to start the docker service manually
-  	 $ dockerd &		--> to run it in background.
-	 $ dockerd --debug	--> starting the docker service in debug mode. 
-	 $ dockerd --debug --host=tcp://192.168.1.10:2375 	--> remote docker service (export DOCKER_HOST="tcp://192.168.1.10:2375)
+Once the docker daemon starts, it listens on an internal unix socket `docker.sock` (/var/run/docker.sock) this is how the docker-cli interact with docker daemon. this is Unix Socket is only limited to that perticular system itself.
+You can start a Docker Daemon manually using `dockerd` command. 
+
+	 $ dockerd 		--> starting Docker Daemon manually 
+  	 $ dockerd &		--> run it in background using "&"
+	 $ dockerd --debug	--> running in debug mode. using option "--debug" 
+  
+	 $ dockerd --debug --host=tcp://192.168.1.10:2375  --> remote docker service (export DOCKER_HOST="tcp://192.168.1.10:2375) no SSL (not secure)
+  	 $ dockerd --debug --host=tcp://192.168.1.10:2376\ --> secure connection is made with help of encription keys.
+    			   --tls=true \
+			   --tlscert=/var/docker/server.pem \
+			   --tlskey=/var/docker/serverkey.pem
+
+The above configurations can also be moved to the configuration file located in /etc/docker/daemon.json. this is the docker configuration file. 
+
+/etc/docker/daemon.json
+--------------------------
+```
+{
+	"debug": true,
+	"hosts": ["tcp://192.168.1.10:2376"]
+	"tls": true,
+	"tlscert": "/var/docker/server.pem",
+	"tlskey": "/var/docker/serverkey.pem"
+}
 	
+```
+  
+if we want to control the docker daemon from remote host we need to add `--host=tcp://192.168.1.10:2375`. this will enable the TCP Socket so that the daemon can be interacted from remote host. In the remote host we need to install docker-cli  and need to export the DOCKER_HOST environment variable to like  `export DOCKER_HOST="tcp://192.168.1.10:2375`(2375 unencrypted) | `export DOCKER_HOST="tcp://192.168.1.10:2376` (2376 is encrypted SSL) this. now you can use docker-CLI to connect to the remote daemon.
+	
+ 	Unix Socket: this will only listens with in the same machine.
+	TCP Socket: this will enable you to communicate with remote machines.
+
+Note: In normal situations when the docker daemon crashed, it will takedown all the containers which are running. to avoid this behaviour we can configure the system. this methord is called as "LIVE RESTORE". we just need to add one line in the docker configuration file (/etc/docker/daemon.json) as below and restart the docker service using `$ systemctl restart docker.service` command.
+
+	{
+	"debug": true,
+	"hosts": ["tcp://192.168.1.10:2376"]
+ 	"live-restore": true	# Live-restore 
+	}
+  
 Version: 
 ---------------------------------
 	$ docker --version		--> docker version
@@ -168,13 +204,18 @@ docker containers can be "created and started" at  the sametime using `$ docker 
     	$ docker run --label env=DEV -d nginx	--> Lable a container with DEV
 
      	$ docker run -e key1=value1 nginx	--> passing environment varialbes 
-    
+
+Port Publish:
+-----------------------------
+
+
      	$ docker run -p 8080:80 nginx 		--> publish the nginx to external network using host-port 8080 (-p <host-Port>:<container-port> ) 
  	$ docker run -p 8081:80 nginx 		--> We can't map the nginx with same host port, so we used 8081 port. 	
 	$ docker run –p 3306:3306 mysql 	--> publish mysql port
-	$ docker run –p 192.168.1.5:8000:5000 kodekloud/simple-webapp	--> 
 
- 	$ docker run -v my-volume1:/
+sometimes physical mechine have multipule NICs (network interface cards), it means that system can have mutipule IP address. so we want to publish the container on the internal NIC card then we can specify the IP of that NIC and create the container. so that the applicaton can only accessable on that IP only. 
+
+ 	$ docker run –p 192.168.1.5:8000:5000 kodekloud/simple-webapp	--> pulishing the container on a specific NIC card. 
   
 start/stop:
 -----------------------------
@@ -187,6 +228,21 @@ start/stop:
 "stop" vs "kill" commands. stop will gracefully shutdown the container, that means  it can perform cleanup operations or execute any defined exit procedures. it will  releasing resources, and then exit. Stopping a container allows it to save any changes to its file system, commit them to an image, and exit gracefully. it will invoke "SIGTERM" signal 
 
 Kill will forcefully terminate, which immediately terminates the container without allowing it to perform any cleanup or exit procedures. any changes or in-memory data that haven't been saved will be lost. Killing a container is useful when a container is unresponsive or needs to be stopped forcefully. it will invoke "SIGKILL" signal
+
+auto restart: Restart policy
+-----------------------------
+To make the container auto restart we need to add the command with `--restart ` option with parameters like `no` | `on-failure` | `always` | `unless-stopped`
+	
+  	$ docker run --restart=on-failure -d nginx	--> 
+
+   no:		--> never automatically restart
+   
+   on-failure:	--> depends on the exit code, if the exit code is ZERO it will not restart. if the exit code is NOT ZERO then it will restart
+   
+   always:	--> it will restart the container 
+   
+   unless-stopped:	-->
+ 
 
 remove: 
 -----------------------------
@@ -205,8 +261,10 @@ copy:
 -----------------------------
 Copy file from local host to container, this will allow you to update the container data. 
 
-	$ docker cp <local file path> <contiainer-id:/container-path> 
-	$ docker cp /tmp/web.conf webapp:/etc/web.conf --> copy file/directories to container from localhost to container 
+	$ docker cp source destination 
+ 
+	$ docker cp /tmp/web.conf webapp:/etc/web.conf 	--> copy file/directories to container from localhost --> container 
+ 	$ docker cp webapp:/etc/web.conf /tmp		--> copy files from container --> localhost
 
 rename:
 -----------------------------
@@ -248,6 +306,7 @@ This will show all the details of docker container/image/volume/network.
 logs:	
 -----------------------------
 	$ docker logs my-nginx
+ 	$ docker container logs -f my-nginx	--> Live log monitoring. like tail command. 
 
 top:
 -----------------------------
