@@ -96,7 +96,9 @@ You can start a Docker Daemon manually using `dockerd` command.
   	 $ dockerd --debug --host=tcp://192.168.1.10:2376\ --> secure connection is made with help of encription keys.
     			   --tls=true \
 			   --tlscert=/var/docker/server.pem \
-			   --tlskey=/var/docker/serverkey.pem
+			   --tlskey=/var/docker/serverkey.pem \
+      			   --tlsverify=true,
+			   --tlscacerts=/var/docker/caserver.pem
 
 The above configurations can also be moved to the configuration file located in /etc/docker/daemon.json. this is the docker configuration file. 
 
@@ -109,6 +111,8 @@ The above configurations can also be moved to the configuration file located in 
 	"tls": true,
 	"tlscert": "/var/docker/server.pem",
 	"tlskey": "/var/docker/serverkey.pem"
+	"tlsverify": true,
+	"tlscacerts": /var/docker/caserver.pem
 }
 	
 ```
@@ -196,22 +200,37 @@ docker containers can be "created and started" at  the sametime using `$ docker 
 	$ docker run --name my-nginx nginx 	--> it creates & starts nginx container named as my-nginx
 	$ docker run -d nginx 			--> container run in background
 	$ docker run -it nginx /bin/bash 	--> this will open a terminal to connect with running container 
- 
+
+resource:
+-----------------------
+You can allocate system resources to the container, so that the container can only limit the system resources as defined. this will eliminate the cpu and memory crunch. 
+
  	$ docker run -cpus 0.5 -d nginx		--> assign CPU units 0.5 means half CPU
   	$ docker run -memory 512M -d nginx	--> assign MEMORY units 512MB to a container
-   
+
+Label:
+------------------------
+you can label your containers according to your need so that you can filter them later using the labels that are defined for the containers. this will help you to filter the containers easly. 
+
    	$ docker run -l env=PROD -d nginx	--> Label a container with PROD 
     	$ docker run --label env=DEV -d nginx	--> Lable a container with DEV
 
+env:
+-------------------------
+passing the environment variables during the container. this variables are visible inside the container. and they use this environment variables. 
+
      	$ docker run -e key1=value1 nginx	--> passing environment varialbes 
+      	$ docker run -e key1=value1 -e key2=value2 httpd	--> passing 2 env variables. 
 
 Port Publish:
 -----------------------------
-
+publishing the container port using the `--publish` or `-p` option. `-P` will allocate a random host port to the container. `-P` has some drawbacks when the container restart it will reset the hostport with different port. so it is recommunded to use `-p` option to publish the contianer. 
 
      	$ docker run -p 8080:80 nginx 		--> publish the nginx to external network using host-port 8080 (-p <host-Port>:<container-port> ) 
  	$ docker run -p 8081:80 nginx 		--> We can't map the nginx with same host port, so we used 8081 port. 	
 	$ docker run –p 3306:3306 mysql 	--> publish mysql port
+
+  	$ docker run -P httpd			--> publish the port automatically by the system. 
 
 sometimes physical mechine have multipule NICs (network interface cards), it means that system can have mutipule IP address. so we want to publish the container on the internal NIC card then we can specify the IP of that NIC and create the container. so that the applicaton can only accessable on that IP only. 
 
@@ -235,14 +254,10 @@ To make the container auto restart we need to add the command with `--restart ` 
 	
   	$ docker run --restart=on-failure -d nginx	--> 
 
-   no:		--> never automatically restart
-   
-   on-failure:	--> depends on the exit code, if the exit code is ZERO it will not restart. if the exit code is NOT ZERO then it will restart
-   
-   always:	--> it will restart the container 
-   
-   unless-stopped:	-->
- 
+	   no:		--> never automatically restart
+	   on-failure:	--> depends on the exit code, if the exit code is ZERO it will not restart. if the exit code is NOT ZERO then it will restart
+	   always:	--> it will restart the container. 
+	   unless-stopped:	-->
 
 remove: 
 -----------------------------
@@ -305,8 +320,23 @@ This will show all the details of docker container/image/volume/network.
 
 logs:	
 -----------------------------
+docker logs are stored in `/var/lib/docker/containers/container-id/` location.  
+
 	$ docker logs my-nginx
  	$ docker container logs -f my-nginx	--> Live log monitoring. like tail command. 
+  
+Docker uses the `logging drivers` to store the logs on the specific container. there are different types of logging drivers available. to view the  drivers available use `$ docker system info`, there you can see the available driver plugins. to change the drivers add the below configurations in `/etc/docker/daemon.json` file. 
+
+	{
+ 		"debug": true,
+		"hosts": ["tcp://192.168.1.10:2376"]
+		"log-driver": awslogs	# logging drivers change 
+  		"log-opt": {
+    			"awslogs-region": "us-east-1"
+		}
+  	}
+Note: to store the docker logs on the aws cloud we must need to pass the AWS credentials, so that the docker daemon can store the logs on the aws. 
+
 
 top:
 -----------------------------
@@ -391,6 +421,7 @@ build:
 create a Dockerfile, then build the docker image using the below commands. commands are executed from the same directory. where Dockerfile is available. 
 
 	$ docker build . 					--> this will build the image with out any tags or name for your build
+ 	$ docker build -f Dockerfile.dev 			--> use custom docker file to crate docker image.
 	$ docker image tag container-ID my_custom_nginx:latest 	--> this will add tags to the image
 	$ docker build . -t custom-tag1 			--> directory should contain `Dockerfile` to build the docker image
 	
@@ -406,35 +437,78 @@ tag:
 	$ docker image tag httpd:alpine httpd:customv1 		--> rename the tagged image value with custom name
 	$ docker image tag httpd:alpine gcr.io/company/httpd:customv1 
 
-save:
+save/load:
 ---------------------
+Images can be shared as a .tar file and extract it using the save and  load commands. 
+
 	$ docker image save alpine:latest -o alpine.tar	--> to save the image as .tar file and share
 	$ docker image load -i alpine.tar  		--> to extract the .tar file 
 	
 export/import:
 ---------------------
+we can export and import containers also using eport and import command. 
+
 	$ docker export <container-name> file1.tar
 	$ docker image import file1.tar newimage:latest
 
- Q What is the difference between COPY vs ADD ?
+What is Multistage-docker build ? how to?
+----------------------------------------------
+Multistage Docker builds are a feature that allows creating more efficient and smaller Docker images by using multiple build stages within a single Dockerfile. Each stage represents a phase of the build process. This helps reduce the size of the final Docker image by excluding unnecessary build dependencies and files, making it more lightweight and suitable for production deployment. 
+
+Dockerfile
+------------------
+```
+
+FROM node AS builder
+COPY . .
+RUN npm install
+RUN npm run build 	# npm utility is used to create a application directory and its dependencies in a /dist directory  that will used to copy all the files to the image directory.
+
+FROM nginx 
+COPY --from=builder dist /usr/share/nginx/html	# we use ---from option to use the output image of first stage in the secound stage. 
+CMD [ "nginx", "-g", "daemon off;" ]
+
+```
+In the above docker file we used `npm` utility to package the application files and everything into a single directory that can be used to create the docker image very effectively. 
+
+Best practices to create docker images:
+----------------------------------------
+below are the list of best practices that we can follow during the docker build. 
+
+	1. Create slim/minimal images
+	2. Find an official minimal image that exists
+	3. Only install necessary packages
+	4. Maintain different images for different
+		environments:
+		• Development – debug tools
+		• Production - lean
+	5. Use multi-stage builds to create lean production
+	ready images.
+	6. Avoid sending unwanted files to the build context 
+
+ Q. What is the difference between COPY vs ADD ?
 ----------------------------------------------
 COPY: The COPY instruction is used to copy files and directories from the host machine to the image. It is a straightforward and simple operation. You specify the source and destination paths. It's generally recommended to use COPY when you want to copy files or directories from the host into the image.
 
 ADD: The ADD instruction is more versatile. It can do everything COPY can do, but it also has some additional features. It can copy local files, directories, and remote URLs, and it can automatically extract compressed files, such as tarballs, if the source is a URL or compressed archive.
 
-Q What is the difference between CMD vs ENTRYPOINT ?
+Q. What is the difference between CMD vs ENTRYPOINT ?
 ---------------------------------------------------
 CMD and ENTRYPOINT are Dockerfile instructions used to define the default command that runs when a container starts. The main difference is that CMD allows users to override the command when starting the container, while ENTRYPOINT sets a fixed command that cannot be easily overridden. Typically, CMD is used to provide default arguments, while ENTRYPOINT sets the primary command that is always executed, allowing additional arguments to be provided when running the container. This difference makes CMD more flexible for customization and ENTRYPOINT more suitable for defining the core functionality of a container.
 
 	$ docker run --entrypoint sleep2.0 ubuntu-sleeper 20 	--> this is to override the default `entrypoint` cmd.
 
-Q What is the difference between ENV vs ARG ?
+Q. What is the difference between ENV vs ARG ?
 ---------------------------------------------
 ENV and ARG are both used to define variables in Docker, but they serve different purposes. ENV sets environment variables in the container, making them available during runtime. ARG defines build-time variables for the image, providing flexibility during the build process but not accessible in the running container.
 	
 Q. what is the use of docker namespaces ?
 ------------------------------------------
 Docker uses Namespaces to isolate the containers from the hosted OS, Docker containers running on hosted severs are not fully isolated, means they share same kernal. So the containers running on host are given a process-ID. Docker uses namespaces for each container so with in the container only container process are visible. but if we actually see hosted system process, respective process are visible in the hosted system with different PID.  
+
+Q. What is CGroups?
+-----------------------
+CGroups(control groups) are the linux feature that allows to allocate the system resources such as CPU, MEMORY and Network bandwidth, block-IO among the different system process on the host. docker uses this CGroups to share the resource among the docker containers. 
 
 Q. What is a Docker: Volumes ?
 -------------------------------
@@ -821,8 +895,24 @@ this to secure the docker environment from accedental stopping/starting/deleting
 	-------------------------------------------------
 	1. disable password based authentication
 	2. enable logging using SSH based authentication.
-	3. determine users who need access to servers. 
-	
+	3. determine USERS who need access to servers. 
+
+ 	Step-2: remote access restrictions
+  	------------------------------------
+   	1. secure the external connection using the TLS certificates
+    	2. create the CA certificates and install it on the docker host is mandate. in "/etc/docker/daemon.json"
+     	{
+	"debug": true,
+	"hosts": ["tcp://192.168.1.10:2376"]
+	"tls": true,
+	"tlscert": "/var/docker/server.pem",
+	"tlskey": "/var/docker/serverkey.pem"
+	"tlsverify": true,
+	"tlscacerts": /var/docker/caserver.pem
+	}
+	3. share the ca-client.pem and client-key.pem and cacert.pem to the remote  host and copy it to the docker HOME directory under ~/.docker. 
+ 	4. export DOCKER_TLS_VERIFY=true
+
 
 Scenarios:
 ------------------------------------------------------------
