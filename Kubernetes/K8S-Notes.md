@@ -3,10 +3,6 @@
 
 
 
-
-
-
-
 Kubernetes: Overview
 -----------------------------------------------------------------
 Kubernetes is an **Open-Source** and container orchestration system for automate software deployment, scale, descale, auto-scale, deploy, replicate, loadbalance, failover. its originally developed by Google.  which is used widely in containerization platfroms. it has widely spread global community support. now it maintained by **Cloud Native Computing Foundation**.
@@ -18,7 +14,7 @@ k8s roles change according to your certification and responsibilities.
 	3. CKA - Certified Kubernetes Administrator
 	4. CKSA - Certified Kubernetes Security Specialist
 
-there are other tools avaiable in the market, but this is the widly used one. other tools like
+there are other tools avaiable in the market, but k8s is the widly used one. other tools like
 
     1. OpenShift
     2. DockerSwam 
@@ -26,30 +22,59 @@ there are other tools avaiable in the market, but this is the widly used one. ot
     4. AWS EKS
 
 Kubernetes installtion:
-
 -----------------------------------------------------------------
 k8s installtion can be done is different ways depeding on the requirement.
 
-    1. minikube --> for testing, training or local setup we can use it.
-    2. kubeadm  --> for commertial purpose setup, or production grade setup require kubeadm.
-    3. kops --> 
-    4. Kubespray --> 
+    1. minikube	--> for testing, training or local setup we can use it.
+    2. kubeadm 	--> for commertial purpose setup, or production grade setup require kubeadm.
+    3. kops 	--> A command-line utility specifically for creating, managing, and upgrading Kubernetes clusters on AWS.
+    4. Kubespray  --> A set of Ansible scripts used for deploying production-ready Kubernetes clusters.
+    5. Rancher	--> An open-source platform that includes its Kubernetes distribution and management interface. Rancher makes it easier to deploy and manage Kubernetes clusters across different environments.
+    6. Kind (Kubernetes in Docker) --> Allows you to run a Kubernetes cluster on your local machine using Docker containers as nodes. It's primarily used for testing and development workflows.
+
     
+    7. AWS - EKS --> Amazon Elastic Kubernetes Service (EKS) is a managed Kubernetes service provided by Amazon Web Services (AWS). 
+    8. Google Cloud (GKE) --> Google Kubernetes Engine (GKE) is Google Cloud Platform's (GCP) managed Kubernetes service that simplifies the deployment, management, and scaling of containerized applications using Kubernetes.
+    9. Azure (AKS) --> Azure Kubernetes Service (AKS) is Microsoft Azure's managed Kubernetes service offering that simplifies deploying, managing, and scaling containerized applications using Kubernetes on the Azure cloud platform.
 
 Kubernetes-architecture:
 -----------------------------------------------------------------
-Kuberenetes architecture build on master & salve model. In K8S there are several components involved. below are the list of components.
+Kuberenetes architecture build on master & salve model. In K8S there are several components involved. below are the list of components. 
+
     **Master-Node** components: Kuber API-Server, ETCD, kube-Controller, kube-Scheduler, Container-runtime, kubelet(agent), kubeproxy(agent)
     **Worker-Node** Components: Container-Runtime(Docker), kubelet(agent), kubeproxy(agent)
 
-1). ETCD: 
+K8s -Install:
 -----------------------------------------------------------------
-ETCD will stores data in key/value format. it is a distributed reliable key value store which stores the information of all the kubernetes resources such as nodes, Pods, replicasets, deployments, namespaces, configs, secrets, accounts, roles etc. In multi master environment it stores the data across mutiple master nodes, so all masters can have the information on all the k8s objects in a cluster. It also responsible to maintain the logs to avoid conflicts between masters. 
+All configurations of K8s are stored in the below loaction.
 
-    $ cat /etc/kubernetes/manifests/etcd.yaml   -->etcd yaml is located 
-    $ cat /etc/systemd/system/      --> all service files are avaiable here
+ 	1. kubectl, kubeadm, kubelet, kube-proxy are available in /usr/bin (or) /usr/local/bin
+	2. Configuration files for Kubernetes, such as kubeconfig files (which specify cluster details, authentication, and more), are commonly located in the user's home directory under ~/.kube/.
+ 	3. Kubernetes Configuration Directory: configuration files specific to Kubernetes are reside in /etc/kubernetes, /etc/kubernetes/manifests
+  	4. Kubelet Data: Data associated with kubelet (like certificates, logs, and other runtime information) can be found in directories like (/var/lib/kubelet/).
+   	5. If you're using container runtimes like Docker, data are stored in their respective directories (/var/lib/docker/).
+    	6. Logs for various Kubernetes components, including the API server, controller-manager, scheduler, and worker nodes, might be stored in /var/log/.
+     		1. API server logs: 		--> $ journalctl -u kube-apiserver
+		2. Controller-manager logs: 	--> $ journalctl -u kube-controller-manager
+		3. Scheduler logs: 		--> $ journalctl -u kube-scheduler
 
-we must specify the certificate path location. the location of certificates are available 
+  	     /etc/systemd/system/      --> all service files are avaiable here
+
+1). kube-API-server: 
+-----------------------------------------------------------------
+Kubernetes API-Server is the front-end for K8s, this will allow users interact with their Kubernetes cluster using `kubectl` command. The API (application programming interface) server determines if a request is valid and then processes it. the API is the interface used to manage, create, and configure Kubernetes clusters.
+    
+    $ cat /etc/kubernetes/manifests/kube-apiserver.yaml  
+    
+    $ ps -aux |grep kube-apiserver
+
+2). ETCD: 
+-----------------------------------------------------------------
+ETCD will stores data in key/value format. it is a distributed reliable key value store which stores the information of all the kubernetes resources such as nodes, Pods, replicasets, deployments, namespaces, configMaps, secrets, accounts, roles etc. In multi master environment it stores the data across mutiple master nodes, so all masters can have the information on all the k8s objects in a cluster. It also responsible to maintain the logs to avoid conflicts between masters. 
+
+    $ cat /etc/kubernetes/manifests/etcd.yaml  
+
+we must specify the certificate path location. the location of certificates are available in /etc/kubernetes/pki
 
   ` $ /etc/kubernetes/pki/etcd \
     -cacert /etc/kubernetes/pki/etcd/ca.crt \
@@ -58,32 +83,25 @@ we must specify the certificate path location. the location of certificates are 
     
     $ ps -aux |grep etcd
     
-2). kube-API-server: 
------------------------------------------------------------------
-The Kubernetes API-Server is the front end, this is how the users interact with their Kubernetes cluster using kubectl command. The API (application programming interface) server determines if a request is valid and then processes it. the API is the interface used to manage, create, and configure Kubernetes clusters.
-    
-    $ cat /etc/kubernetes/manifests/kube-apiserver.yaml   -->etcd yaml is located 
-    $ cat /etc/systemd/system/      --> all service files are avaiable here
-    
-    $ ps -aux |grep kube-apiserver
-    
 3). kube-Controller:
 -----------------------------------------------------------------
 kubernetes controller is a manager which controlls various k8s objects. controller is process which continuosly monitors various components of k8s inside the controller. it is a brain to k8s cluster. it has various controllers inside to monitor different k8s objects. like node controller, deployment controller, namespace controller, job controller, replication controller, and etc.
 
 Controller check the heart beat of the nodes, if the node heart beat(40sec) is not receive availabe then it mark that node as unreachable. similerly there are other controllers avaible in the controller manager.
        
-       1. Node controller --> checks the node status and their avialability and the reach in the cluster
+       1. Node controller 	--> checks the node status and their avialability and the reach in the cluster
        2. Replication controller --> it will check the replicas defined are avaiable or not, if not will create the new pod
        3. namespace controller  --> namespace related activities are monitored by this 
        4. deployment controller
        5. endpoint controller
        6. job controller
        7. ServiceAccount controller
+       8. Resource Quota controller
+       9. Persistant volume controller
 
-   $ cat /etc/kubernetes/manifests/kube-controller-manager.yaml --> controller YAML file is avaible here
-   $ cat /etc/systemd/system/      --> all service files are avaiable here
-   $ ps -aux | grep kube-controller-manager
+	$ cat /etc/kubernetes/manifests/kube-controller-manager.yaml --> controller YAML file is avaible here
+ 
+	$ ps -aux | grep kube-controller-manager
    
 4). kube-scheduler:
 -----------------------------------------------------------------
@@ -102,7 +120,7 @@ kubelet is a agent running on all cluster nodes in kubernetes. which is installe
     
 6). kubeproxy:
 -----------------------------------------------------------------
-kube-proxy is a network proxy that runs on each node in your cluster, implementing part of the Kubernetes Service concept. kube-proxy maintains network rules on nodes. These network rules allow network communication to your Pods from network sessions inside or outside of your cluster.
+The `kube-proxy` is a network proxy service running on each node in a Kubernetes cluster. It's responsible for implementing Kubernetes networking concepts and managing network communication to facilitate connectivity between different pods and services within the cluster. `kube-proxy` also performs health checks on backend pods within Services to ensure that traffic is routed only to healthy pods capable of serving requests. For Services of type LoadBalancer, kube-proxy facilitates load balancing across multiple pods by distributing incoming traffic to the appropriate backend pods that comprise the Service.
 
 kubeproxy is an agent with in the kubernetes cluster, every pod reaches every pod. this can achived with POD networking. POD network is an internal network that spans accross all the nodes in the cluster to which all th pods in the cluster. 
 
@@ -121,10 +139,14 @@ Kubernetes Objects: `explain`
 -----------------------------------------------------------------
 kubernetes resources are called as kubernetes objects. which are used to setup the kubernetes for application deployment.
 
-	$ kubectl api-resources --> to list all kubernetes objects 
+	$ kubectl api-resources 	--> to list all kubernetes objects 
 	$ kubectl api-resources --namespaced=true --> k8s objects which are created inside namespace
 	$ kubectl api-resources --namespaced=false --> k8s objects which are not created inside namespace
 
+  | Objects Created in-side NameSpace 	| Objects Created Out-Side NameSpace 	|
+  | ------------------------------------|---------------------------------------|
+  | POD					|					|
+  | 
 	1. Pod		 	 --> Is the smallest object is k8s. conatiner are created inside the Pods. 
 	2. ReplicaSet 		 --> to replicate POD's on k8s cluster. and make sure defined number of replicas avaialbe. 
 	3. ReplicationController --> same as replicaset, but replicaset is advanced.
@@ -137,24 +159,21 @@ kubernetes resources are called as kubernetes objects. which are used to setup t
 	10. endpoints                   
 	11. events                      
 	12. limitranges                 
-	13. persistentvolumeclaims      
-	14. pods                        
+	13. persistentvolumeclaims                            
 	15. podtemplates                
 	16. replicationcontrollers      
 	17. resourcequotas              
 	18. secrets                     
 	19. serviceaccounts             
-	20. services                            
 	21. daemonsets                  
 	22. deployments                 
 	23. replicasets                 
 	24. statefulsets                   
 	25. cronjobs                    
 	26. jobs                                                   
-	27. events                      
 	28. ingresses                   
 	29. networkpolicies             
-	30. poddisruptionbudgets        
+
 	31. rolebindings                
 	32. roles    
 
@@ -164,11 +183,11 @@ kubernetes resources are called as kubernetes objects. which are used to setup t
     $ kubectl version --> to check the kubernetes version
     
     $ kubectl explain <k8s-Object-name> --> Documentation for resource object (Pod, Replicaset, Deployment, service, etc.)
-    $ kubectl explain pod --> Documentation for POD. to check apiVersion of k8s object.
-    $ kubectl explain replicaset/rs --> Documentation for Replicaset
-    $ kubectl explain replicationcontroller/rc --> doc. for RC
+    $ kubectl explain pod 		--> Documentation for POD. to check apiVersion of k8s object.
+    $ kubectl explain replicaset/rs 	--> Documentation for Replicaset
+    $ kubectl explain replicationcontroller/rc 	--> doc. for RC
     $ kubectl explain deployment/deploy --> doc for deployment
-    $ kubectl explain service/svc --> doc for service
+    $ kubectl explain service/svc 	--> doc for service
 
 Kubernetes objects are created in two types.
 
