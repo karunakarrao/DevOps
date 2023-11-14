@@ -173,7 +173,6 @@ kubernetes resources are called as kubernetes objects. which are used to setup t
 	26. jobs                                                   
 	28. ingresses                   
 	29. networkpolicies             
-
 	31. rolebindings                
 	32. roles    
 
@@ -202,7 +201,7 @@ Containers are lightweight object, it pack your application code together with d
 -------------------------------------------------------------------------------------------
 POD: (create, replace, delete, describe, explain, edit, run )
 -------------------------------------------------------------------------------------------
-pod is the smallest object in the k8s. the containers are run inside the Pod. In k8s each pod is represented as one host and each pod is allocated with one IP address. once the pod is destroyed, its containers & its ip is also removed. if new pod is created in place of old pod they will be allocated with new IP address which is allocated by the kubernetes. kubernetes pod are communicated with help of pod network. its is an internal network with in the cluster.  
+pod is the smallest object in the k8s. the containers are run inside the Pod. In k8s each pod is represented as one host and each pod is allocated with one IP address. once the pod is destroyed, its containers & its ip is also removed. if new pod is created in place of old pod they will be allocated with new IP address which is allocated by the kubernetes. kubernetes pod are communicated with help of pod networking. its is an internal network with in the cluster.  
 
 Syntax: Imperative way
 ------------------------
@@ -232,47 +231,52 @@ spec:
 ```
 -------------------------------------------------------------
 
-   $ kubectl create -f pod-def.yaml  --> is used to create the pod using YAML file.
-   $ kubectl replace -f pod-def.v2.yml  --> updating with new version
-
-   $ kubectl get pods        --> to list pods running on default namespace
-   $ kubectl get pods -o wide   --> to list pods with aditional details
-   $ kubectl get pods  -w    --> to watch the pod status on fly
-   $ kubectl get all         --> to list all objects(Pod, Replicasets, Deploylments, services, etc.) running in default namespace
-   
-   $ kubectl get pods -n prod1-namespace --> to list PODs on namespace prod1-namespace. insted of -n we can use --namespace
-   $ kubectl get all --namespace=kube-system    --> to list "kube-system" namespace objects, kubernetes object namespace
-   
-   $ kubectl get pods --show-labels --> show labels of all pods
-   $ kubectl get pods --selector=env=prod --> selecting pods on selector 
-   $ kubectl get pods -n kube-system --show-labels | grep k8s-app=kube-dns --> filter the pods from 100's of pods
-
-   
-   $ kubectl describe pod my-pod    --> it will provide pod information
-   $ kubectl edit pod my-pod        --> to edit the Pod on fly
-   
-   $ kubectl delete pod my-pod  --> to delete the pods
+	   $ kubectl create -f pod-def.yaml  	--> create a pod using YAML file.
+	   $ kubectl replace -f pod-def.v2.yml  --> updating with new version
+	
+	   $ kubectl get pods        --> to list pods running on default namespace
+	   $ kubectl get pods -o wide   --> to list pods with aditional details
+	   $ kubectl get pods  -w    --> to watch the pod status on fly
+	   $ kubectl get all         --> to list all objects(Pod, Replicasets, Deploylments, services, etc.) running in default namespace
+	   
+	   $ kubectl get pods -n prod1-namespace 	--> to list PODs on namespace prod1-namespace. insted of -n we can use --namespace
+	   $ kubectl get all --namespace=kube-system    --> to list "kube-system" namespace objects, kubernetes object namespace
+	   
+	   $ kubectl get pods --show-labels 		--> show labels of all pods
+	   $ kubectl get pods --selector=env=prod 	--> selecting pods on selector 
+	   $ kubectl get pods -n kube-system --show-labels | grep k8s-app=kube-dns --> filter the pods from 100's of pods
+	
+	   
+	   $ kubectl describe pod my-pod    --> it will provide pod information
+	   $ kubectl edit pod my-pod        --> to edit the Pod on fly
+	   
+	   $ kubectl delete pod my-pod  --> to delete the pods
    
 -------------------------------------------------------------------------------------------
 NameSpace:
 -------------------------------------------------------------------------------------------
-Namespaces provides a mechanism for isolating groups of resources within a single cluster. Names of resources need to be unique within a namespace, but not across namespaces. By default we see 4 namespaces in K8S cluster. 
+K8s uses Namespaces to provides a mechanism for isolating groups of resources within a single cluster. we can create namespaces for each environment like Dev, Test, Prod. This will help in differentiate the objects of each env. object Names should be unique within a namespace, but not across namespaces. By default we see 4 namespaces in K8S cluster. 
 	
-   1. **kube-system** --> This namespace is for objects created by the Kubernetes system. Like etcd, api-server,controller, kube-scheduler, kubelet and etc.
-   2. **default** --> Kubernetes includes this namespace so that you can start using your new cluster without first creating a namespace.
-   3. **kube-public** --> This namespace is readable by all clients (including those not authenticated). This namespace is mostly reserved for cluster usage
-   4. **kube-node-lease** -->it holds Lease objects associated with each node. **`kubelet`** to send heartbeats so that the **Master-Node** can detect node failures.
+   1. **kube-system** 	-->  Kubernetes system components that are essential for the functioning of the Kubernetes cluster. K8s object like etcd, api-server,controller, kube-scheduler, kubelet and etc are  created in this namespace. 
+   2. **default** 	--> Default namespace for users to use. It's a common place for deploying applications and services 
+   3. **kube-public** 	-->  Intended for resources that should be made accessible publicly throughout the cluster. It's often used for resources that should be readable by all users.
+   4. **kube-node-lease** --> This namespace contains node lease objects, which are used to determine the availability of nodes in the cluster.`kubelet` to send heartbeats so that the **Master-Node** can detect node failures.
 
-	$ kubectl api-resources --namespaced=true	--> resources defined inside namespace
-	$ kubectl api-resources --namespaced=false	--> resources defined outside namespace
-	
+	$ kubectl api-resources --namespaced=true	--> resources which are created inside namespace
+	$ kubectl api-resources --namespaced=false	--> resources which are created outside namespace
+ 
+      	$ kubectl get namespaces			--> List namespaces available in cluster 
+
+      	$ kubectl create namespace my-space1		--> Create a Namespace
+      	$ kubectl describe namespace my-space1		--> show details of namespace
+      	$ kubectl delete namespace my-space1		--> Delete the namespace
+      	
+       	$ kubectl config set-context --current --namespace=kube-system	--> switch between namespaces. 
 	
 -------------------------------------------------------------------------------------------
 ReplicationController: (create, replace, delete, describe, explain, edit, apply )
 -------------------------------------------------------------------------------------------
-A ReplicationController ensures that a specified number of pod replicas are running. `ReplicationController` is similer to ReplicaSet. but Replicaset is the next-generation for ReplicationController that supports the new set-based label "selector". 
-
-It's mainly used by Deployment as a mechanism to orchestrate pod creation, deletion and updates. 
+A ReplicationController ensures that a number of pod replicas are running. `ReplicationController` is similer to ReplicaSet. but Replicaset is the next-generation for ReplicationController that supports the new set-based label "selector". It's mainly used by Deployment as a mechanism to orchestrate pod creation, deletion and updates. 
 
 Note:  that we recommend using Deployments instead of directly using ReplicaSets, unless you require custom update orchestration or don't require updates at all.
 
@@ -302,23 +306,23 @@ spec:
 ```
 ----------------------------------------------------------------------------------------------
 
-    $ kubectl create -f rc-def.yaml --> create using YAML file.
-(or)
+ 	$ kubectl explain rc
+  
+	$ kubectl create -f rc-def.yaml --> create using YAML file. (or)
 	$ kubectl apply -f rc-def.yaml
-
-    $ kubectl get replicaitoncontroller
-(or)
+	
+	$ kubectl get replicaitoncontroller (or)
 	$ kubectl get rc
-
-    $ kubectl delete rc my-rc1
-    $ kubectl describe rc my-rc1
-    $ kubectl edit rc my-rc1
-    $ kubectl replace -f replicationcontroller-definiton.v2.yaml
+	
+	$ kubectl delete rc my-rc1
+	$ kubectl describe rc my-rc1
+	$ kubectl edit rc my-rc1
+	$ kubectl replace -f replicationcontroller-definiton.v2.yaml
 
 -------------------------------------------------------------------------------------------
 Replicaset: (create, replace, delete, describe, explain, edit, apply, scale, autoscale )
 -------------------------------------------------------------------------------------------
-A ReplicaSet's purpose is to maintain a set of replica Pods running at any given time. `ReplicationController` and `ReplicaSet` are used for similer functionality. ReplicationController is older version, ReplicaSet is the newer version. In deployment k8s uses replicasets to replicate the pods. 
+A ReplicaSet's purpose is to maintain a set of replicas of Pods running at any given time. `ReplicationController` and `ReplicaSet` are used for similer functionality. ReplicationController is older version, ReplicaSet is the newer version. In deployment k8s uses replicasets to replicate the pods. 
 
 Note: ReplicaSet can own a non-homogenous set of Pods. it means if the `matchLabels` is condition is met with other pods the pods get destroyed by this replicaset controller to maintain the desired count. so careful while defining the labels. 
 
