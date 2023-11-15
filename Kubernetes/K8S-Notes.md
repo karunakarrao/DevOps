@@ -41,8 +41,8 @@ Kubernetes-architecture:
 -----------------------------------------------------------------
 Kuberenetes architecture build on master & salve model. In K8S there are several components involved. below are the list of components. 
 
-    **Master-Node** components: Kuber API-Server, ETCD, kube-Controller, kube-Scheduler, Container-runtime, kubelet(agent), kubeproxy(agent)
-    **Worker-Node** Components: Container-Runtime(Docker), kubelet(agent), kubeproxy(agent)
+    Master-Node components: Kuber API-Server, ETCD, kube-Controller, kube-Scheduler, Container-runtime, kubelet(agent), kubeproxy(agent)
+    Worker-Node Components: Container-Runtime(Docker), kubelet(agent), kubeproxy(agent)
 
 K8s -Install:
 -----------------------------------------------------------------
@@ -54,7 +54,8 @@ All configurations of K8s are stored in the below loaction.
   	4. Kubelet Data: Data associated with kubelet (like certificates, logs, and other runtime information) can be found in directories like (/var/lib/kubelet/).
    	5. If you're using container runtimes like Docker, data are stored in their respective directories (/var/lib/docker/).
     	6. Logs for various Kubernetes components, including the API server, controller-manager, scheduler, and worker nodes, might be stored in /var/log/.
-     		1. API server logs: 		--> $ journalctl -u kube-apiserver
+     
+       		1. API server logs: 		--> $ journalctl -u kube-apiserver
 		2. Controller-manager logs: 	--> $ journalctl -u kube-controller-manager
 		3. Scheduler logs: 		--> $ journalctl -u kube-scheduler
 
@@ -76,10 +77,10 @@ ETCD will stores data in key/value format. it is a distributed reliable key valu
 
 we must specify the certificate path location. the location of certificates are available in /etc/kubernetes/pki
 
-  ` $ /etc/kubernetes/pki/etcd \
+    $ /etc/kubernetes/pki/etcd \
     -cacert /etc/kubernetes/pki/etcd/ca.crt \
     -cert /etc/kubernetes/pki/etcd/server.crt \
-    -key /etc/kubernetes/pki/etcd/server.key ` 
+    -key /etc/kubernetes/pki/etcd/server.key 
     
     $ ps -aux |grep etcd
     
@@ -218,18 +219,30 @@ Syntax: Declarative way
 pod-def.yaml 
 -----------------------------------------------------------
 ```
+
+---
 apiVersion: v1
 kind: Pod
 metadata:
-  name: nginx
+  name: nginx-pod
 spec:
   containers:
-  - name: nginx
-    image: nginx:1.14.2
+  - name: nginx-pod
+    image: nginx
     ports:
-    - containerPort: 80     # container services are exposed with port : 80
+    - containerPort: 80
+    resources:			# To avoid the resource, we added this resources section. 
+      requests:
+        cpu: "100m"   		# Request 0.1 CPU cores
+        memory: "128Mi"  	# Request 128 MiB memory
+      limits:
+        cpu: "500m"  	 	# Limit to 0.5 CPU cores
+        memory: "256Mi"  	# Limit to 256 MiB memory
+...
+
 ```
 -------------------------------------------------------------
+Note: In the above POD creation, we added the resources section to avoild the resouce starvation, this means By setting appropriate resource requests and limits, Kubernetes can efficiently manage resource allocation and prevent one application from consuming an excessive amount of resources, thereby avoiding starvation for other processes running in the cluster. Adjust these values based on your application's resource needs and cluster capacity.
 
 	   $ kubectl create -f pod-def.yaml  	--> create a pod using YAML file.
 	   $ kubectl replace -f pod-def.v2.yml  --> updating with new version
@@ -351,6 +364,13 @@ spec:
               image: nginx
               ports:
               - containerPort: 80
+	      resources:		# To avoid the resource, we added this resources section. 
+	        requests:
+		  cpu: "100m"  	 	# Request 0.1 CPU cores
+		  memory: "128Mi"  	# Request 128 MiB memory
+	        limits:
+		  cpu: "500m"   	# Limit to 0.5 CPU cores
+		  memory: "256Mi"  	# Limit to 256 MiB memory
 ```
 -----------------------------------------------------------------------------------
 
@@ -358,7 +378,7 @@ spec:
         $ kubectl create -f replicaset.v1.yaml   --> create replicaset
 
         $ kubectl get replicaset    --> list replicasets
-	    $ kubectl get rs    --> list replicasets 
+	$ kubectl get rs    --> list replicasets 
 
         $ kubectl describe replicaset my-rs         --> describe replicaset properties
         $ kubectl replace -f replicaset.v2.yaml     --> replace the new app version with latest version
@@ -409,9 +429,7 @@ Note: autoscaling can be done using the command `autoscale` or as shown above we
 ---------------------------------------------------------------------------------------------------------------
 Deployment: (create, replace, delete, describe, explain, edit, apply, scale, autoscale, rollout, set, expose )
 ---------------------------------------------------------------------------------------------------------------
-A Deployment provides declarative updates for Pods and ReplicaSets. Deployment will create or modify pods and its containerized application. Deployments can scale PODs, enable rollout of old & update new code in a controlled manner, or roll-back to an earlier deployment version if necessary. 
-
-Do not overlap labels or selectors with other controllers (including other Deployments and StatefulSets). Kubernetes doesn't stop you from overlapping, and if multiple controllers have overlapping selectors those controllers might conflict and behave unexpectedly.
+A Deployment provides declarative ways to  manage, create and scaling of identical pods, ensuring the desired state of an application.  Deployments can scale PODs, enable rollout of old code & update new code in a controlled manner. roll-back to an earlier deployment version if necessary. Do not overlap "labels and selectors" with other controllers (including other Deployments and StatefulSets). Kubernetes doesn't stop you from overlapping, and if multiple controllers have overlapping selectors those controllers might conflict and behave unexpectedly.
 
 deployment updates can be done in 2 ways
             
@@ -452,22 +470,29 @@ spec:
               image: nginx
               ports:
               - containerPort: 80
+	      resources:		# To avoid the resource, we added this resources section. 
+	        requests:
+		  cpu: "100m"   	# Request 0.1 CPU cores
+		  memory: "128Mi"  	# Request 128 MiB memory
+	        limits:
+		  cpu: "500m"   	# Limit to 0.5 CPU cores
+		  memory: "256Mi"  	# Limit to 256 MiB memory
 ```
 ------------------------------------------------------------------------------------------------------
 
     $ kubectl create -f deployment-definition.yaml --dry-run=client --> to trial run the YAML file, if will not apply any changes
     $ kubectl create -f deployment-definition.yaml  --> to exicute the YAML file.
     
-(or)$ kubectl apply -f deployment-definition.yaml   --> to create/update using YAML files
+    $ kubectl apply -f deployment-definition.yaml   --> to create/update using YAML files
     
     $ kubectl get deployment    --> to check deployments available
-(or)$ kubectl get deploy --> to check deployments available
-    $ kubectl get deployment my-deply       --> to check one deployment my-deploy
+    $ kubectl get deploy 	--> to check deployments available
+    $ kubectl get deployment my-deply       	--> to check one deployment my-deploy
     $ kubectl get deployment --namespace=dev    --> to check the deploymets running on namespace "dev"
     
     $ kubectl describe deployment my-deploy 
     $ kubectl delete deployment my-deploy
-    $ kubectl edit deployment my-deploy --> update the version by editing the running deployment.
+    $ kubectl edit deployment my-deploy	--record  	--> update the version by editing the running deployment. --record will updated revision history
 
 deployment rollout is done in two ways 
 
@@ -493,18 +518,19 @@ spec:
     
 Note: "Pod-template-hash" Do not change this label. This label ensures that child ReplicaSets of a Deployment do not overlap.
 
-    $ kubectl apply -f deployment-definition.v2.yaml    --> to update the latest version of application.
-    $ kubectl replace -f deployment-definition.v2.yaml  --> update new version(nginx to nginx:1.16.2) using YAML and replace running deployment.
-    $ kubectl replace --force -f deployment-definition.v2.yaml  --> bring down the existing deployment forcefully and creates the new one.
-    $ kubectl set image deployment my-deploy nginx=nginx:1.16.1 --> to set the latest nginx image on the running deployment
-
-    $ kubectl rollout history deployment my-deploy  --> history of the number of deployments
-    $ kubectl rollout status deployment my-deploy   --> deployment status can be checked. 
-    $ kubectl rollout restart deployment my-deploy  --> to restart the resources. 
-    $ kubectl rollout undo deployment my-deploy     --> if update is failed  then rollout the new-version to the old-verison 
-    $ kubectl rollout undo deployment/nginx-deployment --to-revision=2 --> rollback to a specific revision with --to-revision
+    $ kubectl apply -f deployment-definition.v2.yaml    	--> to update the latest version of application.
+    $ kubectl replace -f deployment-definition.v2.yaml  	--> update new version(nginx to nginx:1.16.2) using YAML and replace running deployment.
+    $ kubectl replace --force -f deployment-definition.v2.yaml  	--> bring down the existing deployment forcefully and creates the new one.
     
-    $ kubectl annotate deployment my-deploy1 kubernetes.io/change-cause="image updated to 1.16.1" --> update rollout history 
+    $ kubectl set image deployment my-deploy nginx=nginx:1.16.1 	--> to set the new nginx image on the running deployment use <image name>=<image>
+
+    $ kubectl rollout history deployment my-deploy  	--> history of the number of deployments
+    $ kubectl rollout status deployment my-deploy   	--> deployment status can be checked. 
+    $ kubectl rollout restart deployment my-deploy  	--> to restart the resources. 
+    $ kubectl rollout undo deployment my-deploy     	--> if update is failed  then rollout the new-version to the old-verison 
+    $ kubectl rollout undo deployment/nginx-deployment --to-revision=2 		--> rollback to a specific revision with --to-revision
+    
+    $ kubectl annotate deployment my-deploy1 kubernetes.io/change-cause="image updated to 1.16.1" 	--> update rollout history 
     
 Note: we can see revision version details in the deployment description in annotations field.  By default, 10 old ReplicaSets will be kept, however its ideal value depends on the frequency and stability of new Deployments.
 
@@ -526,8 +552,8 @@ example: o/p
 
 Note:  you are running a Deployment with 10 replicas, maxSurge=3, and maxUnavailable=2. RollingUpdate Deployments support running multiple versions of an application at the same time. When you or an autoscaler scales a RollingUpdate Deployment that is in the middle of a rollout (either in progress or paused), the Deployment controller balances the additional replicas in the existing active ReplicaSets (ReplicaSets with Pods) in order to mitigate risk. This is called proportional scaling.
 
-    $ kubectl scale deployment my-deploy --replicas=10  --> to scale up the deployment
-    $ kubectl scale deployment my-deploy --replicas=3   --> to scale down the deployment
+    $ kubectl scale deployment my-deploy --replicas=10  	--> to scale up the deployment
+    $ kubectl scale deployment my-deploy --replicas=3   	--> to scale down the deployment
     $ kubectl autoscale deployment/nginx-deployment --min=10 --max=15 --cpu-percent=80
     
 Note: remember every time new-verison changed, respective "replicaset" is brought down parallel a new "replicaset" is created with new-verison, the old replicasets. will avaiable but pods will not be avaiable in running state. when you do the undo operation thet old replicaset is recreated and new one will go down.
@@ -535,17 +561,21 @@ Note: remember every time new-verison changed, respective "replicaset" is brough
 Q. How to deploy latest version of code on running deployment?
 ---------------------------------------------------------------
 scenario-1: we can directly set the latest deployment code image using "set" command as below
+
     $ kubectl set deployment my-deploy nginx=nginx:1.16.1  busybox=busybox:1.12 
     
 Scenario-2: we can edit the deployment using the "edit" command 
-    $ kubectl edit deployment my-deploy --> it will open the running deployment in editing mode and will update the latest version
+
+    $ kubectl edit deployment my-deploy 	--> it will open the running deployment in editing mode and will update the latest version
     
 Scenario-3: using the deployment .yaml file and update the latest version and apply the changes
+
     $ kubectl apply -f deploy.yml
 
 Q. How do you rollback to a specific version on the deployment?
 -------------------------------------------------------------------
 this can be achived using the rollout command with option --to-revision, and we can move to specific version
+
     $ kubectl rollout undo deployment my-deploy --to-revision=2 
     
 Q. How to check the deployment status and history of deployments?
@@ -558,7 +588,7 @@ Q. How to check the deployment status and history of deployments?
 Service: (create, replace, delete, describe, explain, edit, apply,
 ---------------------------------------------------------------------------------
 
-In Kubernetes, a Service is a method for exposing a network application that is running as one or more Pods. for each servcie in k8s given a IP address, so its  also has its own IP address.  The set of Pods targeted by a Service is usually determined by a selector that you define in POD definition as labels.
+In Kubernetes, a Service is a method for exposing the application running on one or more Pods. Services offer a stable endpoint by grouping pods based on labels and facilitating load balancing and automatic discovery of pods, ensuring the application is available for access. for each servcie in k8s given a IP address, so its  also has its own IP address.  The set of Pods targeted by a Service is usually determined by a selector that you define in POD definition as labels.
 
     Publishing Services K8s services to external network is exposed in 3 ways 
     
@@ -576,18 +606,18 @@ kind: Service
 metadata:
   name: my-service
 spec:
-  type: NodePort   #--> NodePort/ClusterIP/LoadBalancer
+  type: NodePort   	#--> NodePort/ClusterIP/LoadBalancer
   selector:
-    app: MyApp      #--> this is the MyApp Pod's label app=MyApp
+    app: MyApp      	#--> this is the MyApp Pod's label app=MyApp
   ports:
     - protocol: TCP
-      port: 80  #--> service exposes on this 
-      targetPort: 9376 #--> container exposes services on this port
-      nodePort: 32008  #--> nodePort is on node, Port range from ( 30000-->32767)
+      port: 80  		#--> service exposes on this port
+      targetPort: 9376 		#--> container exposed on this port
+      nodePort: 32008  		#--> nodePort is on node, Port range from ( 30000-->32767)
 ```      
 --------------------------------
 
-Note: A Service can map any incoming **`port`** to  **`targetPort`**. By default and for convenience, the targetPort is set to the same value as the port field. id you didn't specify the targetPort, system will consider port & targetPort both are same. 
+Note: By default for convenience, the `targetPort` is set to the same value as the `port` field. you didn't specify the targetPort, system will consider port & targetPort both are same. 
 
 service-multiport.yml
 --------------------------------
@@ -616,8 +646,8 @@ When you Exposes the Service the **default service** type will set as **`Cluster
 
 by using "expose" command and to expose the application, a service is created and application accessing "Endpoints" are created. to access the application we use this endpoints. this can be seen `$ kubectl describe service <service-name>`
 
-	`$ kubectl expose deployment my-deploy --port=80 `--> this expose the deployment as a clusterIP. to access URL use clusterIP.
-    	`$ curl http://10.101.51.194 `--> to access the URL use clusterIP ip address
+	$ kubectl expose deployment my-deploy --port=80 	--> this expose the deployment as a clusterIP. to access URL use clusterIP.
+    	$ curl http://10.101.51.194 		--> to access the URL use clusterIP ip address
 
 ### NodePort:   
 Exposes the Service on each Node's IP at a static port (NodePort). NodePort ranges from port 30000 to 32767.
