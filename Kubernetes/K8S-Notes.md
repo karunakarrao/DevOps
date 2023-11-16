@@ -117,7 +117,7 @@ kubelet is a agent running on all cluster nodes in kubernetes. which is installe
 
     download the installer and extract it as a servcie kubelet.service.d in path /etc/systemd/system/
     
-    $ ps -aux |grep kubelet --> process check
+    $ ps -aux |grep kubelet 	--> process check
     
 6). kubeproxy:
 -----------------------------------------------------------------
@@ -129,8 +129,8 @@ kubeproxy is a process runs on each node in k8s cluster. its job is to look for 
 
     kube-proxy.service
     
-    $ kubectl get pods --namespace kube-system --> to list the pods on namespace kube-system ( -n --> namespace)
-    $ kubectl get daemonsets -n kube-system --> to list daemonsets.
+    $ kubectl get pods --namespace kube-system 	--> to list the pods on namespace kube-system ( -n --> namespace)
+    $ kubectl get daemonsets -n kube-system 	--> to list daemonsets.
     
 7). Container Runtime:
 -----------------------------------------------------------------
@@ -191,8 +191,8 @@ kubernetes resources are called as kubernetes objects. which are used to setup t
 
 Kubernetes objects are created in two types.
 
-    1. imperative --> objects created using command line are called imperative.
-    2. declarative --> objects created using yml/programing are called declarative.
+    1. imperative 	--> objects created using command line are called imperative.
+    2. declarative 	--> objects created using yml/programing are called declarative.
 
 -----------------------------------------------------------------
 Container:
@@ -588,17 +588,17 @@ Q. How to check the deployment status and history of deployments?
 Service: (create, replace, delete, describe, explain, edit, apply,
 ---------------------------------------------------------------------------------
 
-In Kubernetes, a Service is a method for exposing the application running on one or more Pods. Services offer a stable endpoint by grouping pods based on labels and facilitating load balancing and automatic discovery of pods, ensuring the application is available for access. for each servcie in k8s given a IP address, so its  also has its own IP address.  The set of Pods targeted by a Service is usually determined by a selector that you define in POD definition as labels.
+In Kubernetes, a Service is a method for exposing an application running on one or more Pods. Services offer a stable endpoint by grouping pods based on labels and facilitating load balancing and automatic discovery of pods, ensuring the application is available for access. for each servcie in k8s an IP is allocated to it. The set of Pods targeted by a Service is usually determined by a selector that you define in POD definition as labels.
 
     Publishing Services K8s services to external network is exposed in 3 ways 
     
         1). Cluster-IP (Default) --> Service only reachable within the cluster
         2). NodePort --> Exposes the Service on each Node's static port. port range 30000 - 32767
         3). LoadBalancer --> Exposes the Service externally using a cloud provider's load balancer.
- 
-example: suppose you have a set of Pods that each POD listen on TCP port 9376 and are labelled as app=MyApp. You can define a Service to publish that TCP listener
- 
-service-nodeport.yml
+
+ 	$ kubectl create service nodeport my-service --node-port 31200 --tcp 5432:80 		--> Nodeport service creation
+  	 
+NodePort: service-nodeport.yml
 --------------------------------
 ```
 apiVersion: v1
@@ -610,60 +610,36 @@ spec:
   selector:
     app: MyApp      	#--> this is the MyApp Pod's label app=MyApp
   ports:
-    - protocol: TCP
+    - name: http
       port: 80  		#--> service exposes on this port
       targetPort: 9376 		#--> container exposed on this port
-      nodePort: 32008  		#--> nodePort is on node, Port range from ( 30000-->32767)
+      nodePort: 32001  		#--> nodePort is on node, Port range from ( 30000-->32767)
+    - name: https
+      port: 443
+      targetPort: 9377
+      nodePort: 32002
 ```      
 --------------------------------
 
 Note: By default for convenience, the `targetPort` is set to the same value as the `port` field. you didn't specify the targetPort, system will consider port & targetPort both are same. 
 
-service-multiport.yml
---------------------------------
-```
-apiVersion: v1
-kind: Service
-metadata:
-  name: my-service
-spec:
-  selector:
-    app: MyApp
-  ports:
-    - name: http
-      protocol: TCP
-      port: 80
-      targetPort: 9376
-    - name: https
-      protocol: TCP
-      port: 443
-      targetPort: 9377
-```   
---------------------------------
+ClusterIP: 
+----------------------------------
+Cluster-IP is a type of k8s service that is only reachable with in the k8s cluster. This is the Default service type.  by using `expose` command we expose an application services externally. this will create an "Endpoints" for your application to access. You can see the endpoints using `$ kubectl describe service <service-name>`
 
-### ClusterIP: 
-When you Exposes the Service the **default service** type will set as **`Cluster-IP`**. this Service only reachable within the cluster. This is the default ServiceType.
+	$ kubectl expose deployment my-deploy --port=80 	--> this exposes the deployment as a clusterIP. to access URL use endpoints.
+    	$ curl http://10.101.51.194 				--> to access the URL use clusterIP ip address
 
-by using "expose" command and to expose the application, a service is created and application accessing "Endpoints" are created. to access the application we use this endpoints. this can be seen `$ kubectl describe service <service-name>`
-
-	$ kubectl expose deployment my-deploy --port=80 	--> this expose the deployment as a clusterIP. to access URL use clusterIP.
-    	$ curl http://10.101.51.194 		--> to access the URL use clusterIP ip address
-
-### NodePort:   
-Exposes the Service on each Node's IP at a static port (NodePort). NodePort ranges from port 30000 to 32767.
+NodePort:   
+-----------------------------------
+NodePort Service will expose your application services via Hostport. NodePorts are ranges from port 30000 to 32767. To expose your application service 
  
-``` 
     $ kubectl expose deployment my-deploy --type=NodePort --port=80 --> expose it as NodePort, to access URL use nodeport with ip. 
-    $  kubectl get service
-    NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
-    my-deploy    NodePort    10.104.86.214   <none>        80:31358/TCP   3m10s  
-
     $ curl http://localhost:31358 --> to access the URL use Node ip address and the NodePort
-```
 
-**Note:** remember the application listen port is defined with --port argument, should be same as --port other wise we can't access the application.
+Note: remember the application listen port is defined with --port argument, should be same as --port other wise we can't access the application.
 
---------------------------------------
+-------------------------------------
 ```
 apiVersion: v1
 kind: Service
@@ -678,8 +654,9 @@ spec:
 ```      
 --------------------------------------
 
-### LoadBalancer:
-Exposes the Service externally using a cloud provider's load balancer. NodePort and ClusterIP Services, to which the external load balancer routes,  are automatically created. this can only be achived with cloud providers like (Aws, Azure, GCP). 
+LoadBalancer:
+--------------------------------
+A LoadBalancer service in Kubernetes is used to expose applications externally by provisioning a cloud-based load balancer. It distributes incoming traffic among pods associated with the service and provides an external IP for accessing the application from outside the cluster, making services accessible over the internet. The cloud provider allocates an external IP, directing traffic to the service and enabling public access to applications like web servers or APIs.
 
 -----------------------
 ```
@@ -703,57 +680,22 @@ status:
 ```    
 ---------------------------------------
 
-service-definition.yaml
--------------------------
-```
-apiVersion: v1
-kind: Service
-metadata:
-    name: my-svc
-spec:
-    type: NodePort       # we can use this NodePort/LoadBalancer/ClusterIP
-    ports:
-    - port: 80           # nginx webserver listens on port 80 this is Service port
-      targetPort: 80     # targetPort is a nginx POD port
-      nodePort: 30008    # This port is Node port or external access port
-    selector:
-        app: nginx
-```
----------------------------
-
-service-clusterip-def.yaml
-----------------------------
-```
-apiVersion: v1
-kind: service
-metadata:
-    name: my-svc-cluster
-spec:
-    type: ClusterIP  	# if type is not specified, by default it uses "CluserIP"
-    ports:
-    - port: 80       	# this is mandate field, its a service port
-      targetPort: 80 	# this is not mandate field, if not specified it will allocate same as port
-    selector:
-        app: nginx
-```	
-----------------------------
-```
-```
         $ kubectl create -f sevice-definition.yaml 	--> to create the sevice
         $ kubectl get services  	--> to check the services
         $ kubectl get services -o wide 	--> to see more details 
         $ kubectl delete serivce my-svc --> to delete 
         $ kubectl edit service my-svc 	--> to edit the service properties
-```
+
 --------------------------------------------------------------------------------------------------------
 NameSpace: (create, get, api-resources, config ) 
 --------------------------------------------------------------------------------------------------------
 In Kubernetes, namespaces provides a mechanism for isolating groups of resources(pods, replicasets, deployments, services, etc..) within a single cluster. Names of resources need to be unique within a namespace, but not across mutiple namespaces. In simple terms namespace is a isolated area for a team.
 
-	$ kubectl get namespace --> to list the namespaces avaiable
-	$ kubectl get namespaces --show-labels --> it will show labels     
-        $ kubectl api-resources --namespaced=true --> k8s objects which are created inside namespace
-        $ kubectl api-resources --namespaced=false --> k8s objects which are not created inside namespace
+	$ kubectl get namespace 		--> to list the namespaces avaiable
+	$ kubectl get namespaces --show-labels 	--> it will show labels
+ 
+        $ kubectl api-resources --namespaced=true 	--> k8s objects which are created inside namespace
+        $ kubectl api-resources --namespaced=false 	--> k8s objects which are not created inside namespace
         
 Kubernetes starts with four initial namespaces:
 
@@ -762,11 +704,11 @@ Kubernetes starts with four initial namespaces:
     3). kube-public: This namespace is created automatically and is readable by all users 
     4). kube-node-lease: This namespace holds Lease objects associated with each node. it allow the "kubelet" to send heartbeats so that master node can detect node failure.
     
-Note: kubeconfig file is avaiable in the $HOME/.kube/config --> this is the file which is visible when we exicute the below command.
+Note: `kubeconfig` file is avaiable in the $HOME/.kube/config 	--> this is the file which is visible when we exicute the below command.
 
-        $ kubectl config view --> to see kubeconfig file.
-        $ kubectl config get-contexts --> to check details for current namespace, cluster information
-        $ kubectl config view | grep namespace  --> to check the namespace currenlty we are working on. if we are default it won't show.
+        $ kubectl config view 		--> to see kubeconfig file.
+        $ kubectl config get-contexts 	--> to check details for current namespace, cluster information
+        $ kubectl config view | grep namespace  	--> to check the namespace currenlty we are working on. if we are default it won't show.
         
 	$ kubectl run nginx --image=nginx --namespace=prod1 --> create nginx pod in prod1 namespace, prod1 namespace should be created.
         $ kubectl get pods --namespace=prod1 --> to list pods from namespace prod1
@@ -774,7 +716,7 @@ Note: kubeconfig file is avaiable in the $HOME/.kube/config --> this is the file
         $ kubectl config set-context --current --namespace=prod1 --> to switch from "default" to "prod1" namespace
         $ kubectl config set-context --current --namespace=kube-system --> switch to kubernetes namespace
 
-When you create a Service, it creates a corresponding DNS entry.This entry is of the form `<service-name>.<namespace-name>.svc.cluster.local`which means that if a container only uses `<service-name>`, it will resolve to the service which is local to a namespace. This is useful for using the same configuration across multiple namespaces such as Development, Staging and Production. If you want to reach across namespaces, you need to use the fully qualified domain name (FQDN).
+When you create a Service, it creates a corresponding DNS entry. This entry is of the form `<service-name>.<namespace-name>.svc.cluster.local` which means that if a container only uses `<service-name>`, it will resolve to the service which is local to a namespace. This is useful for using the same configuration across multiple namespaces such as Development, Staging and Production. If you want to reach across namespaces, you need to use the fully qualified domain name (FQDN).
 
 	$ kubectl create namespace prod1 --> this will create  namespace prod1
 
@@ -811,6 +753,7 @@ spec:
             containers:
             - name: nginx
               image: nginx
+
 	      
 ```
 ------------------------------------------------------------
@@ -828,20 +771,14 @@ spec:
 ----------------------------------------------------------------------------------------- 
 Namespace: ResourceQuota
 -----------------------------------------------------------------------------------------
+Resource quotas in Kubernetes allow cluster administrators to allocate and limit the amount of compute resources (CPU, memory, storage) and object count (pods, services, etc.) that can be used within a namespace. This helps in resource governance and prevents any single namespace from consuming excessive resources, thereby ensuring fair resource distribution among different teams or applications.
 
-?????????? Pending ???????????
+Note: before creating resource quota for namespace, we need to create namespace.
 
-
-example:5
-----------------------
-kubectl create namespace myspace
-kubectl create quota test --hard=count/deployments.apps=2,count/replicasets.apps=4,count/pods=3,count/secrets=4 --namespace=myspace
-kubectl create deployment nginx --image=nginx --namespace=myspace --replicas=2
-kubectl describe quota --namespace=myspace
-
-
-before creating resource quota for namespace, we need to create namespace 
-    $ kubectl create namespace prod2
+	$ kubectl create namespace myspace	--> create namespace
+	$ kubectl create quota test --hard=count/deployments.apps=2,count/replicasets.apps=4,count/pods=3,count/secrets=4 --namespace=myspace	--> allocate quotas to the namespace
+	$ kubectl create deployment nginx --image=nginx --namespace=myspace --replicas=2	
+	$ kubectl describe quota --namespace=myspace
 
 prod2-ns-resourcequota-def.yaml
 -----------------------------------------------------------------------------
