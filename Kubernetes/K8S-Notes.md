@@ -801,13 +801,9 @@ spec:
 -------------------------------------------------------------------------------
 nodeName: Manual scheduling
 -------------------------------------------------------------------------------
-kube-scheduler is responsible to devide and distribute the work among all the nodes equally, if a new node is created, it will allocate work to it. if you don't want a default scheduler to chose where to create pod on the cluster nodes, specifing the parameter/keyword "nodeName", to create pod on the defined Node name.
+kube-scheduler is responsible to devide and distribute the work among all the nodes equally, if a new node is created, it will allocate work to it. if you don't want a default scheduler to chose where to create pod on the cluster nodes, specifing the parameter/keyword "nodeName", to create pod on the defined Node name. every pod has a field called "nodeName" which is by default not set, the scheduler goes to all PODs and looks for this property, if not avaialbe the scheduler will run an algoritham and assign a node to this pod. 
 
-every pod has a field called "nodeName" which is by default not set, the scheduler goes to all PODs and looks for this property, if not avaialbe the scheduler will run an algoritham and assign a node to this pod. 
-
-if scheduler is down, we can't start the pod, it will go to pending state, to avoid this we can use nodeName parameter specifying the nodeName property. this will only work during the pod creation, to change the pod nodeName during runtime we need to use Binding methord to change nodeName. 
-
-we can collect nodeName details using 
+if scheduler is down, we can't start the pod, it will go to pending state, to avoid this we can use `nodeName` parameter specifying in pod creation. this will only work during the pod creation, to change the pod nodeName during runtime we need to use Binding methord to change nodeName. 
 
     $ kubectl get nodes     --> to see the nodes in the cluster and its details.
 
@@ -846,10 +842,11 @@ target:
 ------------------------------------------------------------------------------------
 Labels & Selectors:
 ------------------------------------------------------------------------------------
-Labels and selectors are the properties attached to each k8s objects(Pods, deployments, services, etc..). they use to group kubernetes objects/resources to gether. labels and annotations are attached in metadata section in YAML file. Labels can be used to select objects and to find collections of objects that satisfy certain conditions. 
+Labels and selectors are the properties attached to each k8s objects(Pods, deployments, services, etc..). they use to group kubernetes objects/resources to gether. labels and annotations are attached in metadata section in YAML file. Labels can be used to select objects and to find collections of objects that satisfy certain conditions. Annotations are not used as labels they identify the object details like name, phone number, author, etc.
 
-Annotations are not used as labels they identify the object details like name, phone number, author, etc.
-
+	$ kubectl run nginx --image nginx --labels env=dev,bu=finance,cn=IND	--> this will label the prod with 3 labels.
+ 	$ kubectl get pod --selector env=dev 	--> filter the pods with labels.
+  
 -----------------------------------------
 ```
 apiVersion:v1
@@ -871,6 +868,37 @@ metadata:
 
     $ kubectl get nodes --show-labels       --> to show labels defined for a node.
     
+---------------------------------------------------------------------------
+NodeSelector:
+---------------------------------------------------------------------------
+NodeSelector is similer to nodeName, but nodeSelector uses node labels to schedule the pods. for example in a cluster few nodes, labeled as "disktype=ssd" then if we use this label with nodeSelector field. that means all the nodes with disktype=ssd are all eligible to create the pods in that node. to apply this property we need to follow 2 steps
+
+step-1: Labeling the node :
+---------------------------------------
+
+    $ kubectl label node node01 env=prod	--> to create a label to node01 as env=prod
+    $ kubectl label node node01 env-		--> delete the label using "-" 
+    $ kubectl get node node01 --show-labels 	--> to show the labels of node01
+
+step2: creating the pod with nodeSelector :
+------------------------------------------
+
+my-pod.yaml    
+-----------------------------------------------
+```
+apiVersion: v1
+kind: Pod
+metadata:
+    name: nginx-pod
+spec:
+    nodeSelector:
+        env: prod
+    containers:
+    - name: nginx
+      image: nginx
+```
+-----------------------------------------------
+
 ------------------------------------------------------------------------------------
 Annotations:
 ------------------------------------------------------------------------------------
@@ -895,25 +923,24 @@ metadata:
 ------------------------------------------------------------------------------------
 Taint & Tolerations:
 ------------------------------------------------------------------------------------
-Taints and tolerations work together to ensure that pods are not scheduled onto inappropriate nodes. One or more taints are applied to a node. this marks that the node should not accept any pods that do not tolerate the taints. 
+Taints and tolerations work together to ensure that pods are not scheduled onto inappropriate nodes. One or more taints are applied to a node. this marks that the node should not accept any pods that do not tolerate the taints. to allow the tained nodes to create pods, we need to create the pods with taint tolerations while creating the pod.
 
 Taint: is applied to nodes, it will reject the pods if the pods not has tolerations 
 Tolerations: is applied to pods, it will allow the pod to accept by the tainted node.
 
 taints are 3 types
+
     1). NoSchedule : it will not allow pod to schedule on node, if already running it will ignore
     2). PreferNoSchedule : it will not allow pod on the node, if no choice it will ignore this property and allow pod to schedule
     3). NoExecute: it will not allow, if already any pod running it will remove them.
     
-        $ kubectl taint node node01 env=UAT:NoSchedule  --> to apply taint on a node
-        $ kubectl taint node node02 env=dev:PreferNoSchedule
+        $ kubectl taint node node01 env=UAT:NoSchedule  	
+        $ kubectl taint node node02 env=dev:PreferNoSchedule	
         $ kubectl taint node node03 env=prod:NoExecute
 
         $ kubectl desribe node node01|grep taint 
         
-        $ kubectl taint node node01 env=UAT:NoSchedule-  --> this is to remove the taint from a node use "-" at the end. 
-
-to allow the tained nodes to create pods, we need to create the pods with taint tolerations while creating the pod.
+        $ kubectl taint node node01 env=UAT:NoSchedule-  	--> this is to remove the taint from a node use "-" at the end. 
 
 pod-tolaration.yaml
 ----------------------------------------------------------------
@@ -952,43 +979,7 @@ spec:
 ```
 -----------------------------------------------------------------
 
-
----------------------------------------------------------------------------
-NodeSelector:
----------------------------------------------------------------------------
-NodeSelector is similer to nodeName, but nodeSelector uses node labels to schedule the pods. 
-
-for example in a cluster few nodes, labeled as "disktype=ssd" then if we use this label with nodeSelector field. that means all the nodes with disktype=ssd are all eligible to create the pods in that node.
-
-to apply this property we need to follow 2 steps
-
-step-1: labeling the node with env=prod :
----------------------------------------
-
-    $ kubectl label node node01 env=prod	--> to create a label to node01 as env=prod
-    $ kubectl label node node01 env-		--> delete the label using "-" 
-    $ kubectl get node node01 --show-labels 	--> to show the labels of node01
-
-step2: creating the pod with nodeSelector :
-------------------------------------------
-
-my-pod.yaml    
------------------------------------------------
-```
-apiVersion: v1
-kind: Pod
-metadata:
-    name: nginx-pod
-spec:
-    nodeSelector:
-        env: prod
-    containers:
-    - name: nginx
-      image: nginx
-```
------------------------------------------------
-
------------------------------------------------------------------
+-----------------------------------------------------------
 NodeAffinity:
 -----------------------------------------------------------------
 Node affinity is conceptually similar to nodeSelector. it allows you to constrain which nodes your pod is eligible to be scheduled on, based on labels on the node. You can use In, NotIn, Exists, DoesNotExist, Gt and Lt.
@@ -1000,11 +991,6 @@ there are 2 types of nodeAffinity
 
 requiredDuringScheduling: The scheduler can't schedule the Pod unless the rule is met.
 preferredDuringScheduling: The scheduler tries to find a node that meets the rule. If a matching node is not available, still schedules the Pod. You can specify a weight between 1 and 100 for each instance of the preferredDuringSchedulingIgnoredDuringExecution affinity type.
-
-In the future K8S plan to offer below 2types also
-
-    3). requiredDuringSchedulingRequiredDuringExecution 
-    4). requiredDuringSchedulingIgnoredDuringExecution 
     
     except that it will evict pods from nodes that case to satisfy the pods' node affinity requirements.
     
@@ -1012,9 +998,9 @@ Note: In the preceding types, `IgnoredDuringExecution` means that if the node la
 
 Scenario-1: nodeSelector & affinity
 -----------------------------------------------------------
-Note: If you specify both nodeSelector and affinity, both must be satisfied for the pod to be scheduled onto a candidate node. 
+Note: If you specify both nodeSelector and affinity, both must be satisfied for the pod to be scheduled onto a candidate node. the pod will get schedule on the node only both conditions are statisfied. ( nodeSelector & affinity rule)
 
-pod-affinity-nodeSelector.yaml --> the pod will get schedule on the node only both conditions are statisfied. ( nodeSelector & affinity rule)
+pod-affinity-nodeSelector.yaml 
 --------------------------------------------------------
 ```
 apiVersion: v1
@@ -1030,7 +1016,7 @@ spec:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
-        -   matchExpressions:
+        -  matchExpressions:
             -   key: env
                 operator: In     # we can use operators In/ NotIn/ Exists/ DoesNotExist/ Gt/ Lt
                 values:          # the pod can be scheduled onto a node if one of the nodeSelectorTerms can be satisfied.
