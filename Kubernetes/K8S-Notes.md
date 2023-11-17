@@ -979,6 +979,123 @@ spec:
 ```
 -----------------------------------------------------------------
 
+-----------------------------------------------------------------------------------------	
+Daemonset:
+-----------------------------------------------------------------------------------------
+In K8s DaemonSet ensuresa specific pod runs on every node in a cluster. The primary purpose of a DaemonSet is to manage and maintain a set of pods, typically for background services, monitoring agents, or other system-level components that need to run on all nodes within the cluster. 
+
+Key Features and Characteristics:
+
+	One Pod Per Node	--> A DaemonSet ensures that exactly one instance of a pod runs on each node in the cluster where the DaemonSet is applied.
+	Automatic Scheduling: 	-->When new nodes join the cluster, a DaemonSet automatically schedules the required pods on those nodes, ensuring that each node has the specified pods running.
+	Pod Lifecycle Management: --> DaemonSets handle pod lifecycle events, ensuring that pods are rescheduled or replaced if they fail or are deleted.
+	Use Cases: 		-->DaemonSets are commonly used for tasks like log collection, monitoring, networking, storage daemons, or any service that should run on all nodes.
+
+Example Use Cases:
+
+	Monitoring Agents: 	--> Deploying monitoring agents like Prometheus Node Exporter to collect node-specific metrics from each node.
+	Logging: 		--> Running logging agents (e.g., Fluentd, Filebeat) to collect logs from each node and forward them to a central logging system.
+	Network Plugins: 	--> Deploying network plugins or proxies required on each node for networking purposes.
+
+example: kube-proxy, kubelet, weave-net, 
+
+Some typical uses of a DaemonSet are:
+
+    1). running a cluster storage daemon on every node
+    2). running a logs collection daemon on every node
+    3). running a node monitoring daemon on every node
+
+Daemonsets are like replicasets, the pod defined in daemonset, will create one pod on each node so that it can be avaiable on all nodes in a cluster. when a new node is added to the cluster daemonset will create one pod in new node, if the node is removed it will remove the pod on the node. this is useful when you want to monitor logs of each node (or) run services like kubeproxy on each node, (or) monitoring the node status. etc. in this scenario we use the daemonsets. 
+
+kube-proxy-daemonset.yaml
+-------------------------------------------------------------------------------
+```
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+    name: kube-proxy
+    namespace: kube-system
+    labels:
+        k8s-app: kube-proxy
+spec:
+    selector:
+        matchLabels:
+            k8s-app: kube-proxy
+    template:
+        metadata:
+            labels:
+                k8s-app: kube-proxy
+        spec:
+            containers:
+            - command:
+                - /usr/local/bin/kube-proxy
+                - --config=/var/lib/kube-proxy/config.conf
+                - --hostname-override=$(NODE_NAME)
+                ....
+                ....
+                ....
+```
+---------------------------------------------------------------
+```
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: my-ds-pod
+  labels:
+    app: nginx
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+```
+-------------------------------------------------
+
+-----------------------------------------------------------------------------------------
+Static PODs: (/etc/kubernetes/manifests | /var/lib/kubelet/config.yaml)
+-----------------------------------------------------------------------------------------
+Static Pods are managed directly by the `kubelet` daemon on a specific node, without the API server observing them. Kubelet daemon will monitor this directory `/etc/kubernetes/manifests/` and new pod definition files are exicuted. these pods are not controlled by `kubectl` but just we can monitor, if you want to delete those pods just have to remove the file from that location. this location can be changed according to over convenence using the file `/var/lib/kubelet/config.yaml`. change the `staticPodPath` we can't deploy objects like replicasets, deployments, sevices as a static pods
+
+        $ ps -ef |grep kubelet 
+
+note: all static pods ends with node name 
+
+simple-static-pod.yaml
+-------------------------------
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  labels:
+    app: nginx
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+```
+--------------------------------
+
+        $ kubectl get pods --all-namespaces
+        $ cd /etc/kubernetes/manifests
+        $ more /var/lib/kubelet/config.yaml
+
+all kuberenetes components are placed as static pod onthe system in  `/etc/kubernetes/manifests`
+
+        /etc/kubernetes/manifests ➜  ls -ltr
+        -rw------- 1 root root 1450 Feb 19 10:07 kube-scheduler.yaml
+        -rw------- 1 root root 3380 Feb 19 10:07 kube-controller-manager.yaml
+        -rw------- 1 root root 3849 Feb 19 10:07 kube-apiserver.yaml
+        -rw------- 1 root root 2215 Feb 19 10:07 etcd.yaml
+
+Note: daemonset and static pods are ignored by kube-scheduler
 -----------------------------------------------------------
 NodeAffinity:
 -----------------------------------------------------------------
@@ -1074,6 +1191,7 @@ If you specify multiple "matchExpressions" associated with nodeSelectorTerms, th
 
 pod-affinity.yaml
 -----------------------------------------------------
+```
 apiVersion: v1
 kind: Pod
 metadata:
@@ -1091,12 +1209,13 @@ spec:
                 value:  #  the pod can be scheduled onto a node if one of the nodeSelectorTerms can be satisfied.
                 - prod1
                 - prod2
-                
             -   key: bu
                 operator: Exists
   containers:
   - name: nginx
     image: nginx
+
+```
 -----------------------------------------------------------------
 
 Node affinity per scheduling profile:
@@ -1106,6 +1225,7 @@ When configuring multiple scheduling profiles, you can associate a profile with 
 To do so, add an addedAffinity to the args of the NodeAffinity plugin in the scheduler configuration. 
 
 ------------------------------------------------------------------
+```
 apiVersion: kubescheduler.config.k8s.io/v1beta1
 kind: KubeSchedulerConfiguration
 
@@ -1123,6 +1243,8 @@ profiles:
                   operator: In
                   values:
                   - foo
+
+```
 -------------------------------------------------------------
 
 Inter-pod affinity and anti-affinity:
@@ -1354,117 +1476,7 @@ spec:
 -------------------------------------
 An individual Pod or Container that requests resources outside of these LimitRange constraints will be rejected, whereas a ResourceQuota only applies to all of the namespace/project's objects in aggregate.
 
------------------------------------------------------------------------------------------	
-Daemonset:
------------------------------------------------------------------------------------------
-A DaemonSet ensures that all Nodes run a copy of a Pod. As nodes are added to the cluster, Pods are added to nodes. As nodes are removed from the cluster, those Pods are garbage collected. Deleting a DaemonSet will clean up the Pods it created.
 
-usecases: monitoring agent/ log collecter/
-
-example: kube-proxy, kubelet, weave-net, 
-
-Some typical uses of a DaemonSet are:
-    1). running a cluster storage daemon on every node
-    2). running a logs collection daemon on every node
-    3). running a node monitoring daemon on every node
-
-Daemonsets are like replicasets, the pod defined in daemonset, will create one pod on each node so that it can be avaiable on all nodes in a cluster. when a new node is added to the cluster daemonset will create one pod in new node, if the node is removed it will remove the pod on the node. 
-
-this is useful when you want to monitor logs of each node (or) run services like kubeproxy on each node, (or) monitoring the node status. etc. in this scenario we use the daemonsets. 
-
-kube-proxy-daemonset.yaml
--------------------------------------------------------------------------------
-```
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-    name: kube-proxy
-    namespace: kube-system
-    labels:
-        k8s-app: kube-proxy
-spec:
-    selector:
-        matchLabels:
-            k8s-app: kube-proxy
-    template:
-        metadata:
-            labels:
-                k8s-app: kube-proxy
-        spec:
-            containers:
-            - command:
-                - /usr/local/bin/kube-proxy
-                - --config=/var/lib/kube-proxy/config.conf
-                - --hostname-override=$(NODE_NAME)
-                ....
-                ....
-                ....
-```
----------------------------------------------------------------
-```
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  name: my-ds-pod
-  labels:
-    app: nginx
-spec:
-  selector:
-    matchLabels:
-      app: nginx
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-        - name: nginx
-          image: nginx
-```
--------------------------------------------------
-
------------------------------------------------------------------------------------------
-Static PODs: (/etc/kubernetes/manifests | /var/lib/kubelet/config.yaml)
------------------------------------------------------------------------------------------
-Static Pods are managed directly by the kubelet daemon on a specific node, without the API server observing them. Kubelet daemon will monitor this directory /etc/kubernetes/manifests/ and new pod definition files are exicuted.
-
-these pods are not controlled by kubectl but just we can monitor, if you want to delete those pods just have to remove the file from that location. 
-
-this location can be changed according to over convenence using the file "/var/lib/kubelet/config.yaml". change the staticPodPath: we can't deploy objects like replicasets, deployments, sevices as a static pods
-
-        $ ps -ef |grep kubelet 
-
-note: all static pods ends with node name 
-
-simple-static-pod.yaml
--------------------------------
-```
-apiVersion: v1
-kind: Pod
-metadata:
-  name: nginx-pod
-  labels:
-    app: nginx
-spec:
-  containers:
-    - name: nginx
-      image: nginx
-```
---------------------------------
-
-        $ kubectl get pods --all-namespaces
-        $ cd /etc/kubernetes/manifests
-        $ more /var/lib/kubelet/config.yaml
-
-all kuberenetes components are placed as static pod onthe system in  /etc/kubernetes/manifests
-
-        /etc/kubernetes/manifests ➜  ls -ltr
-        -rw------- 1 root root 1450 Feb 19 10:07 kube-scheduler.yaml
-        -rw------- 1 root root 3380 Feb 19 10:07 kube-controller-manager.yaml
-        -rw------- 1 root root 3849 Feb 19 10:07 kube-apiserver.yaml
-        -rw------- 1 root root 2215 Feb 19 10:07 etcd.yaml
-
-Note: daemonset and static pods are ignored by kube-scheduler
 
 -------------------------------------------------------------------------------------------------------
 Multiple Schedulers:
