@@ -85,19 +85,19 @@ objects:
 
 Daemon:
 -----------------------------
-Once the docker daemon starts, it listens on an internal unix socket `docker.sock` (/var/run/docker.sock) this is how the docker-cli interact with docker daemon. this is Unix Socket is only limited to that perticular system itself.
-You can start a Docker Daemon manually using `dockerd` command. 
+Once the docker daemon starts, it listens on an internal unix socket `docker.sock` (/var/run/docker.sock) this is how the docker-cli interact with docker daemon. this is Unix Socket is only limited to that perticular system itself. You can start a Docker Daemon manually using `dockerd` command. 
 
 	 $ dockerd 		--> starting Docker Daemon manually 
   	 $ dockerd &		--> run it in background using "&"
 	 $ dockerd --debug	--> running in debug mode. using option "--debug" 
   
 	 $ dockerd --debug --host=tcp://192.168.1.10:2375  --> remote docker service (export DOCKER_HOST="tcp://192.168.1.10:2375) no SSL (not secure)
+  
   	 $ dockerd --debug --host=tcp://192.168.1.10:2376\ --> secure connection is made with help of encription keys.
     			   --tls=true \
 			   --tlscert=/var/docker/server.pem \
 			   --tlskey=/var/docker/serverkey.pem \
-      			   --tlsverify=true,
+      			   --tlsverify=true \
 			   --tlscacerts=/var/docker/caserver.pem
 
 The above configurations can also be moved to the configuration file located in /etc/docker/daemon.json. this is the docker configuration file. 
@@ -153,11 +153,11 @@ Docker Registry
 ---------------------------------------------
 An image registry is a centralized place where you can upload your images and can also download images created by others. Docker Hub is the default public registry for Docker. create a docker hub account and login using link: https://hub.docker.com/
 
-	$ docker login 	--> to login to docker repository (default: docker hub repository)
-	$ docker logout --> to logout docker repository
-	$ docker login gcr.io	--> to login to GCP repository
-	$ docker login docker.io --> to login to docker hub repository
- 	$ docker login nexus-registry-url --> to login to nexus private registry 
+	$ docker login 			--> to login to docker repository (default: docker hub repository)
+	$ docker logout 		--> to logout docker repository
+	$ docker login gcr.io		--> to login to GCP repository
+	$ docker login docker.io 	--> to login to docker hub repository
+ 	$ docker login nexus-registry-url 	--> to login to nexus private registry 
 	
 Q. What is a Docker: Container? 
 --------------------------------
