@@ -982,7 +982,7 @@ spec:
 -----------------------------------------------------------------------------------------	
 Daemonset:
 -----------------------------------------------------------------------------------------
-In K8s DaemonSet ensuresa specific pod runs on every node in a cluster. The primary purpose of a DaemonSet is to manage and maintain a set of pods, typically for background services, monitoring agents, or other system-level components that need to run on all nodes within the cluster. 
+In K8s DaemonSet ensure a specific pod runs on every node in a cluster. The primary purpose of a DaemonSet is to manage and maintain a set of pods, typically for background services, monitoring agents, or other system-level components that need to run on all nodes within the cluster. 
 
 Key Features and Characteristics:
 
