@@ -588,7 +588,7 @@ Q. How to check the deployment status and history of deployments?
 Service: (create, replace, delete, describe, explain, edit, apply,
 ---------------------------------------------------------------------------------
 
-In Kubernetes, a Service is a method for exposing an application running on one or more Pods. Services offer a stable endpoint by grouping pods based on labels and facilitating load balancing and automatic discovery of pods, ensuring the application is available for access. for each servcie in k8s an IP is allocated to it. The set of Pods targeted by a Service is usually determined by a selector that you define in POD definition as labels.
+In Kubernetes, a Service is a method for exposing an application services running on one or more Pods. Services offer a stable endpoint by grouping pods based on labels and facilitating load balancing and automatic discovery of pods, ensuring the application is available for access. for each servcie in k8s an IP is allocated to it. The set of Pods targeted by a Service is usually determined by a selector that you define in POD definition as labels.
 
     Publishing Services K8s services to external network is exposed in 3 ways 
     
@@ -656,7 +656,7 @@ spec:
 
 LoadBalancer:
 --------------------------------
-A LoadBalancer service in Kubernetes is used to expose applications externally by provisioning a cloud-based load balancer. It distributes incoming traffic among pods associated with the service and provides an external IP for accessing the application from outside the cluster, making services accessible over the internet. The cloud provider allocates an external IP, directing traffic to the service and enabling public access to applications like web servers or APIs.
+A LoadBalancer service in Kubernetes is used to expose application services externally by provisioning a cloud-based load balancer. It distributes incoming traffic among pods associated with the service and provides an external IP for accessing the application from outside the cluster, making services accessible over the internet. The cloud provider allocates an external IP, directing traffic to the service and enabling public access to applications like web servers or APIs.
 
 -----------------------
 ```
@@ -773,6 +773,11 @@ Namespace: ResourceQuota
 -----------------------------------------------------------------------------------------
 Resource quotas in Kubernetes allow cluster administrators to allocate and limit the amount of compute resources (CPU, memory, storage) and object count (pods, services, etc.) that can be used within a namespace. This helps in resource governance and prevents any single namespace from consuming excessive resources, thereby ensuring fair resource distribution among different teams or applications.
 
+there are 2 steps involved 
+
+	1. Create a namespace 
+ 	2. Create a ResourceQuota for your namespace. 
+
 Note: before creating resource quota for namespace, we need to create namespace.
 
 	$ kubectl create namespace myspace	--> create namespace
@@ -825,6 +830,7 @@ spec:
         - containerPort: 8080
 ```
 ------------------------------------------------------------------------------------     
+
 
 pod-bind-runtime.yaml --> this file will change the pod nodeName during runtime. but below file need to convert into JSON format. pass it as a command line option.
 -------------------------------------------------------------------------------------
@@ -1096,6 +1102,8 @@ all kuberenetes components are placed as static pod onthe system in  `/etc/kuber
         -rw------- 1 root root 2215 Feb 19 10:07 etcd.yaml
 
 Note: daemonset and static pods are ignored by kube-scheduler
+
+
 -----------------------------------------------------------
 NodeAffinity:
 -----------------------------------------------------------------
@@ -1361,23 +1369,37 @@ Note: pod default resource requirement need to set at the namespace level first.
 	
 Memory limits: memory-limits.yaml
 -----------------------------------------------------------------
+```
 apiVersion: v1
 kind: LimitRange
 metadata:
-  name: mem-limit-range
+  name: resource-limits
 spec:
   limits:
-  - default:	# defines default limits
-      memory: 512Mi
-    defaultRequest: # defines default requests
-      memory: 256Mi
-    type: Container
+    - type: Container
+      defaultRequest:	# Defines default request values for CPU and memory.
+        cpu: "100m"
+        memory: "256Mi"
+      default:		#  Sets default limits for CPU and memory.
+        cpu: "200m"
+        memory: "512Mi"
+      max:		# Specifies the maximum limits that a Container can request.
+        cpu: "1"
+        memory: "1Gi"
+      min:		#  Specifies the minimum limits that a Container can request.
+        cpu: "50m"
+        memory: "128Mi"
+    - type: PersistentVolumeClaim	# Defines constraints for PersistentVolumeClaims related to storage.
+      max:
+        storage: "5Gi"
+```
 ---------------------------------------------------------------------   
 
         $ kubectl apply -f memory-limits.yaml --namespace=prod1
 
 CPU-Limits: cpu-limits.yaml
 ---------------------------------------------------------------------
+```
 apiVersion: v1
 kind: LimitRange
 metadata:
@@ -1389,14 +1411,15 @@ spec:
     defaultRequest:
       cpu: 0.5
     type: Container
+```
 ------------------------------------------------------------------------
 
-        $ kubectl apply -f cpu-limits.yaml --namespace=prod1
-
+        $ kubectl apply -f cpu-limits.yaml --namespace=prod1 
         $ kubectl get pod default-mem-demo --output=yaml --namespace=prod1 --> to view detailed information.
 
 What if you specify a container's limit, but not its request? 
----------------------------------------
+----------------------------------------------------------------
+```
 apiVersion: v1
 kind: Pod
 metadata:
@@ -1408,26 +1431,27 @@ spec:
     resources:
       limits:
         memory: "1Gi"
---------------------------------------
+```
+--------------------------------------------------------------
 
 What if you specify a container's request, but not its limit?
 --------------------------------------------------------------
-the container's memory request is set to the value specified in the container's manifest. The container is limited to use no more than 512MiB of memory, 
-which matches the default memory limit for the namespace.
+the container's memory request is set to the value specified in the container's manifest. The container is limited to use no more than 512MiB of memory, which matches the default memory limit for the namespace.
 
 --> Remember, you CANNOT edit specifications of an existing POD other than the below.
 
-spec.containers[*].image
-spec.initContainers[*].image
-spec.activeDeadlineSeconds
-spec.tolerations
+	spec.containers[*].image
+	spec.initContainers[*].image
+	spec.activeDeadlineSeconds
+	spec.tolerations
 
-What is the difference between ResourceQuota vs LimitRange?
+What is the difference between `ResourceQuota` vs `LimitRange`?
 --------------------------------------------------------------
-LimitRange and ResourceQuota are objects used to control resource usage by a Kubernetes cluster administrator.
+LimitRange and ResourceQuota are objects used to control resource usage by a Kubernetes cluster administrator. "ResourceQuota" is for how many k8s objects are eligible to create inside the namespace. where as "LimitRange" is for how much system resouces are allocated for each resource like "cpu", "memory", "storage".
 
 ResourceQuota is for limiting the total resource consumption of a namespace, for example:
 -------------------------------
+```
 apiVersion: v1
 kind: ResourceQuota
 metadata:
@@ -1439,10 +1463,12 @@ spec:
     replicationcontrollers: "20" 
     secrets: "10" 
     services: "10"
-    
+ ```   
 ----------------------------------
+
 LimitRangeis for managing constraints at a pod and container level within the project.
 ----------------------------------------
+```
 apiVersion: "v1"
 kind: "LimitRange"
 metadata:
@@ -1472,41 +1498,86 @@ spec:
         cpu: "200m" 
         memory: "100Mi" 
       maxLimitRequestRatio:
-        cpu: "10" 
+        cpu: "10"
+```
 -------------------------------------
 An individual Pod or Container that requests resources outside of these LimitRange constraints will be rejected, whereas a ResourceQuota only applies to all of the namespace/project's objects in aggregate.
 
 
-
 -------------------------------------------------------------------------------------------------------
 Multiple Schedulers:
------------------------------------------------------------------
-Kubernetes ships with a default scheduler that is described here. If the default scheduler does not suit your needs you can implement your own scheduler. Moreover, you can even run multiple schedulers simultaneously alongside the default scheduler and instruct Kubernetes what scheduler to use for each of your pods.
+-------------------------------------------------------------------------------------------------------
+Kubernetes ships with a "default scheduler" that is described here. If the default scheduler does not suit your needs you can implement your own scheduler. Moreover, you can even run multiple schedulers simultaneously alongside the default scheduler and instruct Kubernetes what scheduler to use for each of your pods.
+
+default-scheduler.yaml
+----------------------------------------------------------------
+```
+apiVersion: kubescheduler.config.k8s.io/v1alpha1
+kind: KubeSchedulerConfiguration
+profiles:
+- schedulerName: default-scheduler
+  plugins:
+    score:
+      disabled: false
+    preemption:
+      disabled: false
+  # Add other configuration specific to this scheduler...
+
+```
+
+custom-scheduler.yaml
+----------------------------------------------------------------
+```
+apiVersion: kubescheduler.config.k8s.io/v1alpha1
+kind: KubeSchedulerConfiguration
+profiles:
+- schedulerName: custom-scheduler
+  plugins:
+    score:
+      disabled: false
+    preemption:
+      disabled: false
+  # Add other configuration specific to this scheduler...
+
+```
+
+	$ kube-scheduler --config=default-scheduler.yaml
+	$ kube-scheduler --config=custom-scheduler.yaml
 
 -------------------------------------------------------------------------------------------------------
 Monitoring:
 -------------------------------------------------------------------------------------------------------
-we like to monitor node level metrix such as resource consumtion on k8s,  on node level metrics, how many nodes in the cluster ? how many are healthy? , performance metrics like CPU, MEMORY, DISK, Network utilization. Pod level metrix such as CPU consumtion for each pod performancd and etc. 
+we like to monitor node level metrix such as resource consumtion on k8s,  on node level metrics, how many nodes in the cluster ? how many are healthy? performance metrics like CPU, MEMORY, DISK, Network utilization. Pod level metrix such as CPU consumtion for each pod performancd and etc. by default k8s not comes with monitoring solution. 
 
-by default k8s not comes with monitoring solution. for that we need to use open source solutions like
+Key Aspects of Monitoring:
+--------------------------------
+	1. Cluster Metrics: 	Monitor the overall health and performance of the Kubernetes cluster, including resource utilization, node health, and API server responsiveness.
+	2. Pod Metrics: 	Track pod-specific metrics such as CPU and memory usage, restarts, and network activity to ensure they are running as expected.
+	3. Logs and Events: 	Collect and analyze logs and events generated by pods, nodes, and the Kubernetes system to diagnose issues and troubleshoot problems.
+	4. Alerting and Notifications: 	Set up alerts based on predefined thresholds or abnormal behaviors to proactively detect and respond to issues.
 
-    1. Metrix severs --> memroy monitoring solution.
-    2. prometheus
-    3. elastic stack
-    4. Datadog
-    5. dynatrace
+Popular Monitoring Tools 
+------------------------
+	1. Metrix severs --> memroy monitoring solution.
+	2. prometheus	--> An open-source monitoring and alerting toolkit that collects and stores metrics data
+ 	3. Grafana	--> A visualization tool that works well with Prometheus for creating dashboards and visual representations of monitored data.
+  	4. Logs		--> ELK Stack (Elasticsearch, Logstash, Kibana), Fluentd, and Loki are commonly used for log collection, aggregation, and analysis within Kubernetes clusters.
+   
+	5. elastic stack
+	6. Datadog
+	7. dynatrace
     
 ------------------------------------------------------------------------------------------------------
 Metrix server: monitoring utility
 ------------------------------------------------------------------------------------------------------
-we can have i metrix sever for each k8s cluster. it is an in memory monitroing solution. we cant see historical performace. so we need to relay on other softwares for this. 
-
-k8s run an agent on each node is kubelet. kubelet also contain a sub component called cAdviser(container Adviser). which is resposible collecting the node metrix and send it to the metrics sever.
+we can have 1 metrix sever for each k8s cluster. it is an in memory monitroing solution. we can't see historical performace. so we need to relay on other softwares for this.  k8s run an agent on each node is kubelet. kubelet also contain a sub component called cAdviser(container Adviser). which is resposible collecting the node metrix and send it to the metrics sever.
 
 for minikube, we can use 
+
         $ minikube addons enable metrics-server
 
 for other setups
+
         $ git clone https://github.com/kubernetes-incubator/metrics-server
         $ kubectl create -f ... options.
 
@@ -1518,36 +1589,30 @@ we can view the metrics details using the below
 ---------------------------------------------------------------------------------------------------
 Logging:
 ---------------------------------------------------------------------------------------------------
-to view the logs of the pod, we can view the logs during the execution also
+to view the Live logs of the pod use -f option, we can view the logs during the execution.
 
-        $ kubectl logs -f <pod-name> --> if we have only one pod in a definition file. this methord will work.
-        $ kubectl logs -f <pod-name> <container-name> --> if multiple containers are available in the pod.
+        $ kubectl logs -f <pod-name> 	--> if we have only one pod in a definition file. this methord will work.
+        $ kubectl logs -f <pod-name> <container-name> 	--> if multiple containers are available in the pod.
 
+------------------------------------------------------------------------------------------------------
 Configure Applications:
------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
 Configuring applications comprises of understanding the following concepts:
 
-Configuring Command and Arguments on applications
-Configuring Environment Variables
-Configuring Secrets
+	1. Configuring Command and Arguments on applications
+	2. Configuring Environment Variables
+	3. Configuring Secrets
 
----------------------------------------------------------------------------------------------------
-Commands and Arguments in k8s pod
----------------------------------------------------------------------------------------------------
-
-
----------------------------------------------------------------------------------------------------
-Configuring Command and Arguments on applications:
+1. Configuring Command and Arguments on applications:
 ---------------------------------------------------------------------------------------------------
 we use the docker images in k8s. so when we use the images where it require inputs how are we pass them using `command` and `args`.  The command and arguments that you define cannot be changed after the Pod is created.
 
-docker uses 2 parameters in docker images 
-    1. CMD sleep 5  --> defined input, if not specified it will use the existing value 5, other wise $ docker run ubuntu-sleep sleep 10 
-   
-    2. ENTRYPOINT ["sleep"] --> it will look for the input, $ docker run ubuntu-sleeper 10
+docker uses 2 parameters in docker images   ther wise $ docker run ubuntu-sleep sleep 10 
+    2. ENTRYPOINT ["sleep"] 	--> it will look for the input, $ docker run ubuntu-sleeper 10
 
 to pass the arguments similer in the k8s, we use this options
------------------------------------------------
+------------------------------------------------------------------------
+```
 apiVersion: v1
 kind: Pod
 metadata:
@@ -1561,15 +1626,18 @@ spec:
     command: ["printenv"]
     args: ["HOSTNAME", "KUBERNETES_PORT"]
   restartPolicy: OnFailure
-------------------------------------------------
 
--------------------------------------------------------------------------------------------------
+```
+--------------------------------------------------------------------
+
+
 Configuring Environment Variables:
 -------------------------------------------------------------------------------------------------
 --> if the docker require, any environment variable we specify them with option "-e key=value". similarly in k8s we specify the values as below.
 
 pod-definition.yaml
 --------------------------------------------------
+```
 apiVersion: v1
 kind: Pod
 metadata:
@@ -1586,7 +1654,8 @@ spec:
       value: large
     - name: APP_MODE
       value: prod
-      
+
+```    
 ---------------------------------------------------
 
 -------------------------------------------------------------------------------------------------
