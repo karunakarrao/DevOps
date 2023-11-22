@@ -1605,10 +1605,10 @@ Configuring applications comprises of understanding the following concepts:
 
 1. Configuring Command and Arguments on applications:
 ---------------------------------------------------------------------------------------------------
-we use the docker images in k8s. so when we use the images where it require inputs how are we pass them using `command` and `args`.  The command and arguments that you define cannot be changed after the Pod is created.
+we use the docker images in k8s. so when we use the images where it require inputs how are we pass them using `command` and `args`.  The command and arguments that you define cannot be changed after the Pod is created. docker uses 2 parameters in docker images.
 
-docker uses 2 parameters in docker images   ther wise $ docker run ubuntu-sleep sleep 10 
-    2. ENTRYPOINT ["sleep"] 	--> it will look for the input, $ docker run ubuntu-sleeper 10
+	1. $ docker run ubuntu-sleep sleep 10 
+    	2. ENTRYPOINT ["sleep"] 	--> it will look for the input, $ docker run ubuntu-sleeper 10
 
 to pass the arguments similer in the k8s, we use this options
 ------------------------------------------------------------------------
@@ -1623,8 +1623,8 @@ spec:
   containers:
   - name: command-demo-container
     image: debian
-    command: ["printenv"]
-    args: ["HOSTNAME", "KUBERNETES_PORT"]
+    command: ["printenv"]		# Docker ENTRYPOINT is override with command in k8s
+    args: ["HOSTNAME", "KUBERNETES_PORT"]	# docker CMD will override with args in k8s
   restartPolicy: OnFailure
 
 ```
@@ -1633,7 +1633,7 @@ spec:
 
 Configuring Environment Variables:
 -------------------------------------------------------------------------------------------------
---> if the docker require, any environment variable we specify them with option "-e key=value". similarly in k8s we specify the values as below.
+if the docker container require any environment variable we specify them with option "-e key=value". similarly in k8s we specify the environment variables like below. we can also specify the env variables in k8s as configMaps or secrets. 
 
 pod-definition.yaml
 --------------------------------------------------
@@ -1661,7 +1661,7 @@ spec:
 -------------------------------------------------------------------------------------------------
 Q. ConfigMaps: How to create & Inject configMap in k8s ?
 -------------------------------------------------------------------------------------------------
-A `ConfigMap` is an K8S object used to store **non-confidential** data in **key-value** pairs. Pods can consume ConfigMaps as environment variables, command-line arguments, or as configuration files in a volume. A ConfigMap is not designed to hold large chunks of data. The data stored in a ConfigMap cannot exceed 1 MiB. If you need to store larger chunks of data, you may want to consider mounting a `volume` or use a separate database or file service
+A `ConfigMap` is an K8S object used to store **non-confidential** data in **key-value** pairs. Pods can consume ConfigMaps as environment variables, command-line arguments, or as configuration files in a volume. A ConfigMap is not designed to hold large chunks of data. The data stored in a ConfigMap cannot exceed 1MiB. If you need to store larger chunks of data, you may want to consider mounting a `volume` or use a separate database or file service.
 
 Note: The spec of a static Pod cannot refer to a ConfigMap or any other API objects. The Pod and the ConfigMap must be in the same namespace.
 
@@ -1673,8 +1673,9 @@ there are 2 steps involved in setting up the configmaps.
 step-1: creating configmap:
 ----------------------------
 
-$ kubectl create configmap mysql-config --from-literal=mysql_port=3306 --from-literal=mysql_db_user=rajesh-db1
-
+	$ kubectl create configmap mysql-config --from-literal=mysql_port=3306 --from-literal=mysql_db_user=rajesh-db1
+	$ kubectl create configmap app-env-config --from-file: app-env.properties
+ 
 my-configmap.yaml
 ---------------------------------------------
 ```
@@ -1689,7 +1690,7 @@ data:
 ```
 ----------------------------------------------
 
-$ kubectl create -f my-configmap.yaml
+	$ kubectl create -f my-configmap.yaml
 
 (or)
 
@@ -1697,20 +1698,22 @@ creating a configmap from a file with multiple env variables
 
 app-env.properties
 -----------------------------------------------
+```
 APP_COLOR: RED
 APP_NAME: rajesh
 APP_DB_NAME: DB1
 APP_DB_USER: db-user1
-
+```
 ------------------------------------------------
 
-$ kubectl create configmap app-env-config --from-file: app-env.properties
+	$ kubectl create configmap app-env-config --from-file: app-env.properties
 
 step-2: inject configMap:
 --------------------------
 to inject configmaps with pods we can use it like below
 
 ------------------------------------------------------------
+```
 apiVersion: v1
 kind: Pod
 metadata: 
@@ -1721,11 +1724,12 @@ spec:
     containers:
     -   name: nginx
         image: nginx
-        envFrom:    # configmap is mapped to a specific contiainer.
+        envFrom:    		# configmap is mapped to a specific contiainer.
         -   configMapRef:
             -   name: mysql-config  # mapping complete configmap
-	    
+```	    
 -------------------------------------------------------------
+
 only one variable from configmap also can be used
 --------------------------------------------------------
 ```
@@ -1733,7 +1737,7 @@ spec:
   containers:
   - name: nginx
     image: nginx
-    env:
+    env:		# only one environment variable is mapping
     -  name: APP_COLOR
        valueFrom:
          configMapKeyRef:
@@ -1741,48 +1745,53 @@ spec:
             key: APP_COLOR
 ```
 ```
-volumes:
+volumes:		# injecting the data file as a volume.
 - name: app-config-valume
   configMap:
-    name: app-config
+    name: app-env-config
 ```
-$ kubectl get configmaps --> to list the configmaps
-$ kubectl edit configmap configmap-name --> to edit or update the configmap
-$ kubectl delete configmap configmap-name --> to delete the configmap
+--------------------------------------------------------
+
+	$ kubectl get configmaps 			--> to list the configmaps
+ 	$ kubectl describe configmaps my-config 	--> to view the configMap
+	$ kubectl edit configmap configmap-name 	--> to edit or update the configmap
+	$ kubectl delete configmap configmap-name 	--> to delete the configmap
 
 ----------------------------------------------------------
 Secrets: Generic
 ----------------------------------------------------------
-secrets are used to store the sensitive data like passwords and keys. so that they are encripted. key encripting format base64
+secrets are used to store the sensitive data like passwords and keys. so that they are encripted. key encripting format base64. 2 steps involved. Secrets are not encrypted, They only encoded. so it is not safer in that sense. However, some best practices around using secrets make it safer.
 
-this involves 2 steps
     1. create secrets
     2. inject it into pod
 
 ### step-1: creating secrets:
 ------------------------------
-$ kubectl create secret generic my-secret --from-literal=db_host=mysql --from-literal=DB_user=root --from-literal=DB_password=password
-(or)
-$ kubectl create secret generic my-secret --from-file=secrets.properties.
+	$ kubectl create secret generic my-secret --from-literal=db_host=mysql --from-literal=DB_user=root --from-literal=DB_password=password
+	(or)
+	$ kubectl create secret generic my-secret --from-file=secrets.properties.
 
 before creating the secret file, we need to convert values in to encripted format. below we use base64 to encripy our data.
 
+encrypt
 -----------------------------
-$ echo -n "root" |base64 
-cm9vdA==
-$ echo -n "password" |base64
-cGFzc3dvcmQ=
-$ echo -n "mqsql" |base64
-bXFzcWw=
+	$ echo -n "root" |base64 
+	cm9vdA==
+	$ echo -n "password" |base64
+	cGFzc3dvcmQ=
+	$ echo -n "mqsql" |base64
+	bXFzcWw=
 
+decrypt
 ------------------------------
 
-$ echo -n "cm9vdA==" |base64 --decode --> to decript the value
-$ echo -n "cGFzc3dvcmQ=" |base64 --decode
+	$ echo -n "cm9vdA==" |base64 --decode 		--> to decript the value
+	$ echo -n "cGFzc3dvcmQ=" |base64 --decode
 
 -------------------------------
 secret.yaml
 --------------------------
+```
 apiVersion: v1
 kind: Secret
 metadata:
@@ -1791,16 +1800,18 @@ data:
     DB_user: cm9vdA==
     DB_Password: cGFzc3dvcmQ=
     DB_Host: bXFzcWw=
-    
+
+ ```   
 ---------------------------
 
-$ kubectl create -f secret.yaml
-$ kubectl get secrets my-secret
-$ kubectl get secrets my-secret -o wide --> to show the output in yaml file
-$ kubectl describe secrets my-secret
+	$ kubectl create -f secret.yaml
+	$ kubectl get secrets my-secret
+	$ kubectl get secrets my-secret -o wide 	--> to show the output in yaml file
+	$ kubectl describe secrets my-secret
 
 step-2: injecting configMap in to the pod :
 --------------------------------------------
+```
 apiVersion: v1
 kind: Pod
 metadata: 
@@ -1814,10 +1825,11 @@ spec:
         envFrom:    # configmap is mapped to a specific contiainer.
         - secretRef:
           - name: my-secret  # mapping complete configmap
-	  
+```	  
 -------------------------------------------
 Injecting configMap specific eliment in to the pod:
 ----------------------------------------------------
+```
 spec:
     containers:
     -   name: nginx
@@ -1828,11 +1840,12 @@ spec:
             secretKeyRef:
                 name: my-secret  # secret configmap file
                 key: DB_Password
-		
+```		
 -----------------------------------------------------------------------------
-Secrets are not encrypted, so it is not safer in that sense. However, some best practices around using secrets make it safer.
 
-Not checking-in secret object definition files to source code repositories. Enabling Encryption at REST for Secrets so they are stored encrypted in ETCD. Also the way kubernetes handles secrets as below
+
+Note: checking-in secret object definition files to source code repositories. Enabling Encryption at REST for Secrets so they are stored encrypted in ETCD. Also the way kubernetes handles secrets as below
+
 	1. A secret is only sent to a node if a pod on that node requires it.
 	2. Kubelet stores the secret into a tmpfs so that the secret is not written to disk storage.
 	3. Once the Pod that depends on the secret is deleted, kubelet will delete its local copy of the secret data as well.
@@ -1842,14 +1855,14 @@ Secrets: Encrypting Secret Data at Rest usting ETCD
 ----------------------------------------------------------
 We can encrypt secrets using ETCD. to encryption using ETCD, check `etcdctl` is available or not. otherwise install it.
 	
-	$ sudo apt-get install etcd-client
+	$ sudo apt-get install etcd-client	# this will install etcdctl
 	$ etcdctl
 
 step-1: check REST encryption is enabled or not
 -------------------------------------------------
 first thing to encrypt dats using ETCD, we need to check the REST encription is enabled or not in kube-api-server. The kube-apiserver process accepts an argument `--encryption-provider-config` that controls how API data is encrypted in etcd. to verify the option is enabled or not by looking in to kube-apiserver config.
 	
-	$ kubectl -n kube-system describe pod kube-apiserver-controlplane 
+	$ kubectl -n kube-system describe pod kube-apiserver-controlplane 	# to check teh encryption is enabled or not
 
 Step-2: create configuration for REST encryption : enc.yaml
 ------------------------------------------------------------
@@ -1857,10 +1870,8 @@ Step-2: create configuration for REST encryption : enc.yaml
 apiVersion: apiserver.config.k8s.io/v1
 kind: EncryptionConfiguration
 resources:
-  - resources:
+  - resources:		# choose which services need to be encrypted with etcd. like secrets/configmaps/other.
       - secrets
-      - configmaps
-      - pandas.awesome.bears.example
     providers:
       - aescbc:
           keys:
@@ -1869,13 +1880,16 @@ resources:
       - identity: {}
 ```      
 ---------------------------------------------------------
+
 	$ head -c 32 /dev/urandom | base64 --> randam encryption and use it in config file.
 	
-edit the kube-apiserver pod definition file and update the `enc.yaml` file and `--encryption-provider-config=/etc/kubernetes/enc/enc.yaml` and update the `valumeMounts` and `valumes` and restart the kube-apiserver
+to effect the above changes, we need to edit the `kube-apiserver` manifest file availabe in (/etc/kubernetes/manifest/) pod definition file and update the `enc.yaml` (REST encryption file) in the  `--encryption-provider-config=/etc/kubernetes/enc/enc.yaml` and update the `valumeMounts` and `valumes` and restart the kube-apiserver as below. for more details refer this link.
 
+https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/
 
-first create a secret:
+first create a secret
 -----------------------
+
 	$ kubectl create secret generic my-secret1 --from-literal mykey=mypassword1 
 	$ kubectl describe secret my-secret1
 	$ kubectl get secret my-secret1 -o yaml >my-secret1.yaml
@@ -1888,9 +1902,10 @@ to read the secret files, use the below command and check.
    		--key=/etc/kubernetes/pki/etcd/server.key  \
    		get /registry/secrets/default/secret1 | hexdump -C
 
+Post configuring the encryption settings we can convert the un encrypted secret file using the below command with out changing the actual values. this below command replaces all the unencrypted secrets. 
 
-
-
+ 	$ kubectl get secrets --all-namespaces -o json | kubectl replace -f -
+  
 ----------------------------------------------------------------------------------------
 Multi-Container PODS:
 ----------------------------------------------------------------------------------------
@@ -1915,9 +1930,7 @@ spec:
     image: log-agent
 ```
 -----------------------------
-There are 3 common patterns, when it comes to designing multi-container PODs. The first and what we just saw with the logging service example is known as a side car pattern. The others are the adapter and the ambassador pattern.
-
-But these fall under the CKAD curriculum and are not required for the CKA exam. So we will be discuss these in more detail in the CKAD course.
+There are 3 common patterns, when it comes to designing multi-container PODs. The first and what we just saw with the logging service example is known as a side car pattern. The others are the adapter and the ambassador pattern. But these fall under the CKAD curriculum and are not required for the CKA exam. So we will be discuss these in more detail in the CKAD course.
 
 ----------------------------------------------------------------------------------------
 Init container:
