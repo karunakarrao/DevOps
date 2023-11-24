@@ -1826,9 +1826,9 @@ spec:
         - secretRef:
           - name: my-secret  # mapping complete configmap
 ```	  
--------------------------------------------
+--------------------------------------------------------------------
 Injecting configMap specific eliment in to the pod:
-----------------------------------------------------
+--------------------------------------------------------------------
 ```
 spec:
     containers:
@@ -1840,6 +1840,7 @@ spec:
             secretKeyRef:
                 name: my-secret  # secret configmap file
                 key: DB_Password
+
 ```		
 -----------------------------------------------------------------------------
 
@@ -1907,9 +1908,18 @@ Post configuring the encryption settings we can convert the un encrypted secret 
  	$ kubectl get secrets --all-namespaces -o json | kubectl replace -f -
   
 ----------------------------------------------------------------------------------------
-Multi-Container PODS:
+Sidecar Contaienrs : Multi-Container PODS
 ----------------------------------------------------------------------------------------
-Pods what co-exist with one or more pods called multi container pods, this pods will get destroied and created together. they even use same space. 
+Sidecar container pods are run along side with main application pod. they will stay alive as long as the main pod. if one of the pods goes down or crashes, both pods will be restarted. both the containers are expected to stay alive at all times. Pods what co-exist with one or more pods called multi container pods, this pods will get destroied and created together. they even use same space. both sidecar and muticontainer pods are same. 
+
+some of the usecases of the sidecar containers are:
+
+	1. logging sidecar
+ 	2. monitoring sidecar
+  	3. security sidecar
+   	4. network sidecar
+    	5. database sidecar
+     	6. encryption sidecar and etc. 
 
 multi-pod.yaml
 -----------------------------
@@ -1930,41 +1940,18 @@ spec:
     image: log-agent
 ```
 -----------------------------
-There are 3 common patterns, when it comes to designing multi-container PODs. The first and what we just saw with the logging service example is known as a side car pattern. The others are the adapter and the ambassador pattern. But these fall under the CKAD curriculum and are not required for the CKA exam. So we will be discuss these in more detail in the CKAD course.
 
 ----------------------------------------------------------------------------------------
 Init container:
 ----------------------------------------------------------------------------------------
-In a multi-container pod, each container is expected to run a process that stays alive as long as the POD’s lifecycle. For example in the multi-container pod that we talked about earlier that has a web application and logging agent, both the containers are expected to stay alive at all times. The process running in the log agent container is expected to stay alive as long as the web application is running. If any of them fails, the POD restarts.
+InitContainers in Kubernetes are specialized containers that run before the main application containers in a Pod. They're primarily used to perform setup or initialization tasks required by the main application or containers within the Pod. InitContainers run in sequence, one after another, before the main containers start. Each InitContainer must complete successfully before the next one starts.  InitContainers help keep the setup logic separate from the application logic, ensuring that the main container starts only when prerequisites are met.
 
-But at times you may want to run a process that runs to completion in a container. For example a process that pulls a code or binary from a repository that will be used by the main web application. That is a task that will be run only one time when the pod is first created. Or a process that waits for an external service or database to be up before the actual application starts. That’s where initContainers comes in.
+InitContainers are commonly used for actions like:
 
-An initContainer is configured in a pod like all other containers, except that it is specified inside a initContainers section, like this:
-
-------------------------------------
-```
-apiVersion: v1
-kind: Pod
-metadata:
-  name: myapp-pod
-  labels:
-    app: myapp
-spec:
-  containers:
-  - name: myapp-container
-    image: busybox:1.28
-    command: ['sh', '-c', 'echo The app is running! && sleep 3600']
-  initContainers:
-  - name: init-myservice
-    image: busybox
-    command: ['sh', '-c', 'git clone <some-repository-that-will-be-used-by-application> ;']
-```
--------------------------------------------------
-When a POD is first created the initContainer is run, and the process in the initContainer must run to a completion before the real container hosting the application starts.
-
-You can configure multiple such initContainers as well, like how we did for multi-pod containers. In that case each init container is run one at a time in sequential order.
-
-If any of the initContainers fail to complete, Kubernetes restarts the Pod repeatedly until the Init Container succeeds.
+	1. Preparing the environment.
+	2. Pulling necessary files or data.
+	3. Running configuration scripts.
+	4. Initializing volumes or network resources.
 
 -------------------------------------------
 ```
@@ -1993,6 +1980,107 @@ spec:
 Self Healing Applications:
 ----------------------------------------------------------------------------
 Kubernetes supports self-healing applications through ReplicaSets and Replication Controllers. The replication controller helps in ensuring that a POD is re-created automatically when the application within the POD crashes. It helps in ensuring enough replicas of the application are running at all times.
+
+---------------------------------------------------------------------------
+Readiness Probe:
+---------------------------------------------------------------------------
+Readiness probes determine when a container is ready to serve traffic. Used to check if an application inside a container is ready to handle requests. Ensures that the container is ready to serve traffic before being included in load balancing or service endpoints. 
+
+-----------------------
+ ```
+containers:
+- name: nginx
+  image: nginx
+  readinessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 3
+      periodSeconds: 3
+```
+---------------------------------
+
+Healthcheck (readiness):
+-------------------------
+Ping the app eve  make sure it's healthy (ie. accepting HTTP requests). If fail two subsequent pings, cordone it off (prevents cascades). Must pass two subsequent health checks before can accept traffic again.
+
+-------------------------
+```
+readinessProbe:
+  successThreshold: 2
+  failureThreshold: 2
+  periodSeconds: 10
+  timeoutSeconds: 5
+  httpGet:
+    path: /management/health
+    port: web-traffic
+```
+-------------------------
+
+---------------------------------------------------------------------------------------------------------
+Liveness Probe:
+--------------------------------------------------------------------------------------------------------
+It is used to indicate if the container has started and is alive or not i.e. proof of being avaliable. In the given example, if the request fails, it will restart the container. If not provided the default state is Success.
+
+-------------------------
+```
+ livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 3
+      periodSeconds: 3
+```
+----------------------------
+App has Died (liveliness):
+--------------------------
+If app fails 3 consecutive health checks, 30 seconds apart, reboot the container. Maybe app got into an unrecoverable state like Java ran out of heap memory.
+
+-------------------------
+```
+livenessProbe:
+  successThreshold: 1
+  failureThreshold: 3
+  periodSeconds: 30
+  timeoutSeconds: 5
+  httpGet:
+    path: /management/health
+    port: web-traffic
+```
+-------------------------
+  
+---------------------------------------------------------------------------------------------------------
+Startup Probe:
+---------------------------------------------------------------------------------------------------------
+It is used to indicate if the application inside the Container has started. If a startup probe is provided, all other probes are disabled. In the given example, if the request fails, it will restart the container. Once the startup probe has succeeded once, the liveness probe takes over to provide a fast response to container deadlocks. If not provided the default state is Success.
+
+-------------------------
+```
+startupProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 3
+      periodSeconds: 3
+```
+------------------------------
+
+App Initialization (startup):
+-------------------------------
+Spring app that is slow to start - anywhere between 30-120 seconds. Don't want other probes to run until app is started. Check it every 10 seconds (give up after 5 sec) for up to 180s before k8s gets into a crash loop.
+
+-------------------------
+```
+startupProbe:
+  successThreshold: 1
+  failureThreshold: 18
+  periodSeconds: 10
+  timeoutSeconds: 5
+  httpGet:
+    path: /management/health
+    port: web-traffic
+```
+-------------------------
 
 ----------------------------------------------------------------------------------------
 OS Upgrade :
@@ -2700,100 +2788,5 @@ nameserver that maintain by google. that has all names added is 8.8.8.8.  DNS se
 Network Namespaces:
 --------------------------------------------------------------------------------------------------------
 
----------------------------------------------------------------------------------------------------------
-Readyness Probe:
----------------------------------------------------------------------------------------------------------
-It is used to indicate if the container is ready to serve traffic or not i.e.proof of being ready to use. It checks dependencies like database connections or other services your container is depending on to fulfill its work. In the given example, until the request returns Success, it won't serve any traffic(by removing the Pod’s IP address from the endpoints of all Services that match the Pod). Kubernetes relies on the readiness probes during rolling updates, it keeps the old container up and running until the new service declares that it is ready to take traffic. If not provided the default state is Success.
 
------------------------
- ```
- readinessProbe:
-      httpGet:
-        path: /healthz
-        port: 8080
-      initialDelaySeconds: 3
-      periodSeconds: 3
-```
----------------------------------
-
-Healthcheck (readiness):
--------------------------
-Ping the app every 10 seconds to make sure it's healthy (ie. accepting HTTP requests). If fail two subsequent pings, cordone it off (prevents cascades). Must pass two subsequent health checks before can accept traffic again.
-
--------------------------
-```
-readinessProbe:
-  successThreshold: 2
-  failureThreshold: 2
-  periodSeconds: 10
-  timeoutSeconds: 5
-  httpGet:
-    path: /management/health
-    port: web-traffic
-```
--------------------------
----------------------------------------------------------------------------------------------------------
-Liveness Probe:
---------------------------------------------------------------------------------------------------------
-It is used to indicate if the container has started and is alive or not i.e. proof of being avaliable. In the given example, if the request fails, it will restart the container. If not provided the default state is Success.
-
--------------------------
-```
- livenessProbe:
-      httpGet:
-        path: /healthz
-        port: 8080
-      initialDelaySeconds: 3
-      periodSeconds: 3
-```
-----------------------------
-App has Died (liveliness):
---------------------------
-If app fails 3 consecutive health checks, 30 seconds apart, reboot the container. Maybe app got into an unrecoverable state like Java ran out of heap memory.
-
--------------------------
-```
-livenessProbe:
-  successThreshold: 1
-  failureThreshold: 3
-  periodSeconds: 30
-  timeoutSeconds: 5
-  httpGet:
-    path: /management/health
-    port: web-traffic
-```
--------------------------
-  
----------------------------------------------------------------------------------------------------------
-Startup Probe:
----------------------------------------------------------------------------------------------------------
-It is used to indicate if the application inside the Container has started. If a startup probe is provided, all other probes are disabled. In the given example, if the request fails, it will restart the container. Once the startup probe has succeeded once, the liveness probe takes over to provide a fast response to container deadlocks. If not provided the default state is Success.
-
--------------------------
-```
-startupProbe:
-      httpGet:
-        path: /healthz
-        port: 8080
-      initialDelaySeconds: 3
-      periodSeconds: 3
-```
-------------------------------
-
-App Initialization (startup):
--------------------------------
-Spring app that is slow to start - anywhere between 30-120 seconds. Don't want other probes to run until app is started. Check it every 10 seconds (give up after 5 sec) for up to 180s before k8s gets into a crash loop.
-
--------------------------
-```
-startupProbe:
-  successThreshold: 1
-  failureThreshold: 18
-  periodSeconds: 10
-  timeoutSeconds: 5
-  httpGet:
-    path: /management/health
-    port: web-traffic
-```
--------------------------
 
