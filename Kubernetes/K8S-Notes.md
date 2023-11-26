@@ -194,12 +194,10 @@ Kubernetes objects are created in two types.
     1. imperative 	--> objects created using command line are called imperative.
     2. declarative 	--> objects created using yml/programing are called declarative.
 
------------------------------------------------------------------
 Container:
 -----------------------------------------------------------------
 Containers are lightweight object, it pack your application code together with dependencies such as base OS, runtimes and libraries required to run your software services. containers are isolated evironments which act as indipendent system. container application exposes its services using a port know as containerPort. 
 
--------------------------------------------------------------------------------------------
 POD: (create, replace, delete, describe, explain, edit, run )
 -------------------------------------------------------------------------------------------
 pod is the smallest object in the k8s. the containers are run inside the Pod. In k8s each pod is represented as one host and each pod is allocated with one IP address. once the pod is destroyed, its containers & its ip is also removed. if new pod is created in place of old pod they will be allocated with new IP address which is allocated by the kubernetes. kubernetes pod are communicated with help of pod networking. its is an internal network with in the cluster.  
@@ -1349,6 +1347,7 @@ apiVersion: v1
 kind: ResourceQuota
 metadata:
    name: my-rq-limits
+   namespace: my-namespace1
 spec:
   hard:
     cpu: "1000"
@@ -1374,6 +1373,7 @@ apiVersion: v1
 kind: LimitRange
 metadata:
   name: resource-limits
+  namespace: my-namespace1
 spec:
   limits:
     - type: Container
@@ -1670,14 +1670,16 @@ there are 2 steps involved in setting up the configmaps.
     step-1. create configMap
     step-2. inject configMap
 
-step-1: creating configmap:
-----------------------------
+Scenario-1: Creating configMap and Injecting complete configMap in a main YAML file.
+-------------------------------------------------------------------------------------
 
-	$ kubectl create configmap mysql-config --from-literal=mysql_port=3306 --from-literal=mysql_db_user=rajesh-db1
-	$ kubectl create configmap app-env-config --from-file: app-env.properties
- 
-my-configmap.yaml
----------------------------------------------
+Step-1: Create a configMap 
+
+ 	$ kubectl create configmap mysql-config --from-literal=mysql_port=3306 --from-literal=mysql_db_user=rajesh-db1
+(or)
+
+mysql-config.yaml
+--------------------------------------------------
 ```
 apiVersion: v1
 kind: ConfigMap
@@ -1688,31 +1690,14 @@ data:
     mysql_port: 3306
     mysql_db_user: rajesh-db1
 ```
-----------------------------------------------
+--------------------------------------------------
 
-	$ kubectl create -f my-configmap.yaml
+	$ kubectl create -f mysql-config.yaml
+ 
+Step-2: Injecting complete configMap   
 
-(or)
-
-creating a configmap from a file with multiple env variables
-
-app-env.properties
------------------------------------------------
-```
-APP_COLOR: RED
-APP_NAME: rajesh
-APP_DB_NAME: DB1
-APP_DB_USER: db-user1
-```
-------------------------------------------------
-
-	$ kubectl create configmap app-env-config --from-file: app-env.properties
-
-step-2: inject configMap:
---------------------------
-to inject configmaps with pods we can use it like below
-
-------------------------------------------------------------
+main.yaml
+---------------------------------------------------
 ```
 apiVersion: v1
 kind: Pod
@@ -1724,14 +1709,31 @@ spec:
     containers:
     -   name: nginx
         image: nginx
-        envFrom:    		# configmap is mapped to a specific contiainer.
+        envFrom:    			# configmap is mapped to a specific contiainer.
         -   configMapRef:
-            -   name: mysql-config  # mapping complete configmap
-```	    
--------------------------------------------------------------
+            -   name: mysql-config  	# mapping complete configmap
+```	
+---------------------------------------------------
 
-only one variable from configmap also can be used
---------------------------------------------------------
+Scenario-2: Creating configMap and Injecting one variable from a configMap
+---------------------------------------------------------------------------
+
+Step-1: Creating a configMap:
+myapp-color.yaml
+---------------------------------------------------
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: myapp-color
+    namespace: default # configmaps are used with in the namespace.
+data:
+    APP_COLOR: RED 
+    APP_USER: Abhilash
+```
+---------------------------------------------------
+step-2: inject configMap:
+
 ```
 spec:
   containers:
@@ -1741,17 +1743,43 @@ spec:
     -  name: APP_COLOR
        valueFrom:
          configMapKeyRef:
-            name: app-env-config
+            name: myapp-color
             key: APP_COLOR
 ```
-```
-volumes:		# injecting the data file as a volume.
-- name: app-config-valume
-  configMap:
-    name: app-env-config
-```
---------------------------------------------------------
 
+Scenario-3: Creating a configMap from File and Injecting a file as configMap in main YAML file
+-----------------------------------------------------------------------------------------------
+app-env.properties
+-----------------------------------------------
+```
+APP_COLOR: RED
+APP_NAME: rajesh
+APP_DB_NAME: DB1
+APP_DB_USER: db-user1
+```
+------------------------------------------------
+step-1: creating a configMap from a file app-env.properties
+
+	$ kubectl create configmap my-config --from-file=app-env.properties
+
+Step-2: injecting a file as a configMap
+
+------------------------------------------------- 
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+  - name: my-container
+    image: my-image:latest
+  volumes:			# injecting the data file as a volume.
+  - name: app-volume
+    configMap:
+       name: my-config
+```
+----------------------------------------------
 	$ kubectl get configmaps 			--> to list the configmaps
  	$ kubectl describe configmaps my-config 	--> to view the configMap
 	$ kubectl edit configmap configmap-name 	--> to edit or update the configmap
@@ -1910,7 +1938,7 @@ Post configuring the encryption settings we can convert the un encrypted secret 
 ----------------------------------------------------------------------------------------
 Sidecar Contaienrs : Multi-Container PODS
 ----------------------------------------------------------------------------------------
-Sidecar container pods are run along side with main application pod. they will stay alive as long as the main pod. if one of the pods goes down or crashes, both pods will be restarted. both the containers are expected to stay alive at all times. Pods what co-exist with one or more pods called multi container pods, this pods will get destroied and created together. they even use same space. both sidecar and muticontainer pods are same. 
+Sidecar container pods are run along side with main application container in a pod. they will stay alive as long as the main container is live. if one of the pods goes down or crashes, both containers will get restarted. both the containers are expected to stay alive at all times. Containers that are co-exist with one or more containers called multi container pods, this pods will get destroied and created together. they even use same space. both sidecar and muticontainer pods are same. 
 
 some of the usecases of the sidecar containers are:
 
@@ -1984,7 +2012,7 @@ Kubernetes supports self-healing applications through ReplicaSets and Replicatio
 ---------------------------------------------------------------------------
 Readiness Probe:
 ---------------------------------------------------------------------------
-Readiness probes determine when a container is ready to serve traffic. Used to check if an application inside a container is ready to handle requests. Ensures that the container is ready to serve traffic before being included in load balancing or service endpoints. 
+Ensuring that a container is ready to serve traffic before it receives requests.  Implement a readinessProbe to confirm the container's readiness. Set it to validate the container's health before adding it to service endpoints.
 
 -----------------------
  ```
@@ -2002,7 +2030,7 @@ containers:
 
 Healthcheck (readiness):
 -------------------------
-Ping the app eve  make sure it's healthy (ie. accepting HTTP requests). If fail two subsequent pings, cordone it off (prevents cascades). Must pass two subsequent health checks before can accept traffic again.
+Ping the app every 3 sec and  make sure it's healthy (ie. accepting HTTP requests). If fail two subsequent pings, cordone it off (prevents cascades). Must pass two subsequent health checks before can accept traffic again.
 
 -------------------------
 ```
@@ -2020,7 +2048,7 @@ readinessProbe:
 ---------------------------------------------------------------------------------------------------------
 Liveness Probe:
 --------------------------------------------------------------------------------------------------------
-It is used to indicate if the container has started and is alive or not i.e. proof of being avaliable. In the given example, if the request fails, it will restart the container. If not provided the default state is Success.
+Continuous monitoring to ensure that a container is running without issues. a livenessProbe to periodically check the container's health. Use it to restart the container if it becomes unresponsive or encounters issues.
 
 -------------------------
 ```
@@ -2052,7 +2080,7 @@ livenessProbe:
 ---------------------------------------------------------------------------------------------------------
 Startup Probe:
 ---------------------------------------------------------------------------------------------------------
-It is used to indicate if the application inside the Container has started. If a startup probe is provided, all other probes are disabled. In the given example, if the request fails, it will restart the container. Once the startup probe has succeeded once, the liveness probe takes over to provide a fast response to container deadlocks. If not provided the default state is Success.
+For applications that have a longer initialization time or complex startup procedures. It is used to indicate if the application inside the Container has started. If a startup probe is provided, all other probes are disabled. In the given example, if the request fails, it will restart the container. Once the startup probe has succeeded once, the liveness probe takes over to provide a fast response to container deadlocks. If not provided the default state is Success.
 
 -------------------------
 ```
