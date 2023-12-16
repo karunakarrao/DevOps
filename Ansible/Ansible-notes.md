@@ -1,86 +1,65 @@
 Red Hat Ansible Engine Implementation:
 --------------------------------------
 
-**Q. What is Ansible?**
+Q. What is Ansible?
+--------------------------------------------
+Ansible is an Open source. Ansible is a configuration management and orchestration utility.  Ansible Automates and standardizes configuration of remote hosts and virtual machines. we can start and shutdown of applications. we can Performs rolling updates with zero downtime. it built on **Python**. it support Vagrant and Jenkins.
 
-Ansible is an Open source. Ansible is a configuration management and orchestration utility. it built on **Python**. Ansible Automates and standardizes configuration of remote hosts and virtual machines. we can start and shutdown of applications. we can Performs rolling updates with zero downtime. it support Vagrant and Jenkins.
-
-**Q. What are Ansible Limitations?**
-
+Q. What are Ansible Limitations?
+--------------------------------------------
 Ansible cannot audit changes made by other users on system. **we can't determine who made change to a file.** it does not perform initial minimal installation of system. it does not track changes made to files on system. and its does not track which user or process made changes. To track changes, use version control system or Linux® Auditing System
 
-**Q. Ansible Architecture?**
-
+Q. Ansible Architecture?
+--------------------------------------------
 there are two types of machines in Ansible architecture
 1. control node (Ansible-master) --> Ansible installed and maintained on Ansible-master. It must be linux OS.
 2. managed hosts (Ansible-Workers) --> Ansible-worker nodes can be linux / Windows.
 	
 System administrators login to Ansible-Master and launch Ansible playbook on a specify target host to hosts. Ansible uses **SSH** as network transport to communicate with managed hosts. Modules refer in playbook copied to managed hosts and delete once the task is completed. Core modules perform most system administration tasks Users can write custom modules if needed.
 
-**Q. What are Ansible-Master Components?**
+Q. What are Ansible-Master Components?
+--------------------------------------------
+**Ansible configuration:** Ansible installtion comes with ansible config file `ansible.cfg` located in `/etc/ansible` directory. all ansible settings avaiable here. to override the default values we need to use environment variables (or) we can update the file. 
 
-**Ansible configuration:** Ansible installtion comes with ansible config file (ansible.cfg) located in /etc/ansible directory. all ansible settings avaiable here. to override the default values we need to use environment variables (or) we can update the file. 
-
-**Host inventory:** This is a text based file, which containes list of hosts(ansible-worker) added here. we can devide them into groups for specific tasks.
+**Host inventory:** This is a text file, ansible-worker nodes added here. we can devide them into groups for specific tasks.
 
 **Core modules:** Ansible installtion comes with default/core modules. over 400 modules are built to perform various tasks on ansible worker nodes.
 
 **Custom modules:** Ansible allow to use & create custom modules to perform a specific functionality in ansible. they written in python, Add custom modules to Ansible library
 
-**Playbooks:** are list of tasks written in YAML syntax. each task to perform one operation on Ansible-worker node. this task are exicuted in sequential order. playbook tasks use modules with arguments and exicutes on managed hosts
+**Playbooks:** Ansible playbooks are written in YAML. each task to perform one operation on Ansible-worker node. this task are exicuted in sequential order. playbook tasks use modules with arguments and exicutes on managed hosts
 
 **Connection plug-ins:** Ansible communicate with remote hosts/cloud-hosts using native SSH (default) or Paramiko SSH or local. Paramiko is Python implementation of OpenSSH for Red Hat Enterprise Linux 5 and 6. Ansible supports passwords for SSH authentication. Most common practice: Use SSH user keys to access managed hosts
 
 **Plug-ins:** Extend Ansible’s functionality Examples: Email notifications and logging
 
-**Q. what are Ansible-Master Roles?**
-
-System administrators login to Ansible-master and initiate Ansible operations. Ansible software installed and allconfiguration files maintained on Ansible-master. 
-
-**Q. what are Ansible-Master Requirements?**
-
+Q. what are Ansible-Master Requirements?
+--------------------------------------------
 	1) Must have Python 2.6 or 2.7 installed
 	2) Ansible-master runs on Linux, macOS, any BSD-based UNIX system
 	3) Windows not currently supported for Ansible-Master.
 	4) On Red Hat Enterprise Linux 6 or 7, ansible package and dependencies must be installed
-
-**Q. what are Ansible-Managed Host Role?**
-
-Ansible automatically does the following on managed host systems, to work this it require SSH connection on the server. 
-	1. Ansible-Master Login to managed Hosts.
-	2. Installs modules requied for the task
-	3. Executes remote commands for configuration
-
-**Q. What are Ansible-Managed Host Requirements?**
-
-1. Ansible managed hosts must install SSH and configured. and it should allow incoming connections from ansible-master. 
-2. install Python 2.4 or later, Lets you use Ansible to manage Red Hat Enterprise Linux 5, 6, and 7 hosts
-3. python-simplejson package must be installed on Red Hat Enterprise Linux 5 managed hosts
+ 
+Q. What are Ansible-Managed Host Requirements?
+--------------------------------------------
+	1. Ansible-worker nodes must install SSH and configured. and it should allow incoming connections from ansible-master. 
+	2. install Python 2.4 or later
+	3. python-simplejson package must be installed on Red Hat Enterprise Linux 5 managed hosts
 	
 Note: python=simplejson is Not required on Red Hat Enterprise Linux 6 and 7 managed hosts. Python 2.5 and newer versions provide functionality by default.
 
-**Q. What are ansible Use Cases ?**
-
-1) Configuration management
-	-> Deploy and manipulate remote host’s configuration files
-	-> Use static files or create files on fly using templates
-2) Multi-node deployment tool
-	-> Use playbooks to define applications installed and configured on remote machines
-	-> Apply playbook to multiple machines, building them in consistent manner
-	-> Orchestrate multi-node applications with Ansible rules
-3) Remote task execution
-	-> Example: Specify ad hoc commands on command line
-	-> Causes Ansible to execute commands on remote hosts
-
-**Q. What are ansible Deployments?**
-
--> Ansible strength: Simplifies software configuration of servers
--> When Ansible accesses managed hosts, it can discover version of Red Hat Enterprise Linux running on remote server
--> Ansible determines if host is properly entitled by comparing installed applications and applied software subscriptions
--> Ansible Playbooks can consistently build development, test, and production servers
-	-> Kickstart can get bare-metal servers running
-	-> Ansible builds them further
-	-> Provision servers to corporate baseline standard or specific role within datacenter
+Q. What are ansible Use Cases ?
+--------------------------------------------
+	1) Configuration management
+		-> Deploy and manipulate remote host’s configuration files
+		-> Use static files or create files on fly using templates
+	2) Multi-node deployment tool
+		-> Use playbooks to define applications installed and configured on remote machines
+		-> Apply playbook to multiple machines, building them in consistent manner
+		-> Orchestrate multi-node applications with Ansible rules
+	3) Remote task execution
+		-> Example: Specify ad hoc commands on command line
+		-> Causes Ansible to execute commands on remote hosts
 
 **Red Hat JBoss® Middleware:**
 
@@ -104,8 +83,8 @@ Note: python=simplejson is Not required on Red Hat Enterprise Linux 6 and 7 mana
 -> Discover and manage software subscriptions on Red Hat Satellite clients
 -> Perform post-install configuration of hosts provisioned by Red Hat Satellite
 
-**Q. what are Ansible Orchestration Methods?**
-
+Q. what are Ansible Orchestration Methods?
+--------------------------------------------
 Ansible commonly used to finish provisioning application servers
 
 -> Example: Write playbook to perform these steps on newly installed base system:
@@ -117,51 +96,34 @@ Ansible commonly used to finish provisioning application servers
 		-> Start relevant services
 		-> Test application and confirm it is functioning
 
-**Q. what is ansible plugin local?**
-
+Q. what is ansible plugin local?
+--------------------------------------------
 Ansible plugin "local" is an another connection plug-in for Linux applications. it use to manage Ansible-Master locally, without SSH
 	Common uses:
 	-> When writing playbooks that interface with cloud services or other API
 	-> When Ansible is invoked locally by cron job
 
-**Q. what is paramiko and ControlPersist?**
-
--> paramiko: Connection plug-in used on Red Hat Enterprise Linux 5 and 6 machines
-	-> Paramiko SSH is Python-based OpenSSH implementation that implements persistent SSH connections
-	-> Connection solution for older systems using versions of OpenSSH that do not implement ControlPersist
--> ControlPersist allows for persistent SSH connections
-	-> Improves Ansible performance
-	-> Eliminates SSH connection overhead when multiple SSH commands execute in succession
-
-**Q. What is winrm and docker:**
-
-winrm: Allows Microsoft Windows machines to be managed hosts.
+Q. What is winrm and docker:
+--------------------------------------------
+winrm: Allows Windows machines  as managed hosts.
 docker: Allows Ansible to treat Docker containers as managed hosts without using SSH. this feature introduced in Ansible 2
 
-Note: `pywinrm` Python module must be installed on Linux control node to support winrm
+ Note: `pywinrm` Python module must be installed on Linux control node to support winrm
 
-**Q. What is Ansible Configuration file?**
-
-Configuration File:
-	-> Settings in Ansible adjustable via configuration file (ansible.cfg)
-	-> Default configuration file, /etc/ansible/ansible.cfg, sufficient for most users
-
-Environment Variables: Ansible also allows configuration settings using environment variables. they override default configuration file settings
-
-**Q. How can we change Ansible Configuration Settings?**
-
-ansible-config utility allows users to see all available configuration settings and their defaults. it also shows how to set them, and where current values come from. Changes can be made in configuration file. Ansible searches for file to use in this order. First file found is used, all others ignored
+Q. How can we change Ansible Configuration Settings?
+--------------------------------------------
+Ansible will look for ansible configurations in the below order, we can use `$ ansible-config view` utility to see all configuration settings and their defaults.
 
 	1st) ANSIBLE_CONFIG (environment variable, if set)
 	2nd) ansible.cfg (in current directory)
-	3rd)  ~/.ansible.cfg (in home directory)
+	3rd) ~/.ansible.cfg (in home directory)
 	4th) /etc/ansible/ansible.cfg
 	
-	
-**Q. What are Ansible Prerequisites?**
-
+Q. What are Ansible Prerequisites?
+--------------------------------------------
 Ansible-Master: Ansible uses agentless architecture. Differs from other configuration management utilities like Puppet, Chef. 
-	1. Software installs on Ansible-master 
+	
+ 	1. Software installs on Ansible-master 
 		Only requirement: Python version 2.6 or later 
 			# yum list python
 			  python.x86_64	2.7.5-34.el7	installed
