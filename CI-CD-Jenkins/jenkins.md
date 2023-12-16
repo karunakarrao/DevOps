@@ -4,11 +4,13 @@ Jenkins: (CD/CI):
 
 Q. What is Jenkins? 
 -----------------------
-Jenkins is one of the most popular automation tools, that used for continuous integration and continuous delivery and Continuous Deployment. Jenkins is a free and open-source, that enables developers to package, build, integrate, and test code automatically as soon as it is commits the source code in the repository. it perform security checks and deploy the code. With the help of jenkins you can automate the continuous intigration, delivery and deployments.  
+Jenkins is one of the most popular automation tools, that used for continuous integration and continuous delivery and Continuous Deployment. Both CI and CD aim to accelerate software delivery, improve quality, and enable rapid, iterative development.
 
-Alternate options for Jenkins: GitLab CI/CD, Bamboo, TeamCity, Azure DevOps, Travis IC, Circle CI, Go CD, Codeship, Jenins X, Drone.
+Jenkins is a free and open-source, that enables developers to package, build, integrate, and test code automatically as soon as it is commits the source code in the repository. it perform security checks and deploy the code. With the help of jenkins you can automate the continuous intigration, delivery and deployments.  
 
-Q. Jenkins lifecycle?
+Alternate options for Jenkins: GitLab CI/CD, Bamboo, TeamCity, Azure DevOps, Travis IC, Circle CI, Go CD, Codeship, Jenins X, Drone.  
+
+Q. Jenkins lifecycle?                                         
 ---------------------------------------
 Jenkins is a powerful automation server, manages a code lifecycle by orchestrating various stages from code development to deployment. Here’s an elaboration of the Jenkins code lifecycle.
 
@@ -44,7 +46,7 @@ Maintenance:
  
 This lifecycle demonstrates how Jenkins automates and orchestrates different stages of code development, testing, and deployment, promoting continuous integration and continuous delivery (CI/CD) practices.
 
-Q. Jenkin roles in a DevOps engineer job?
+Q. Jenkins role as a DevOps engineers job?
 -----------------------------------------------------
 Installation and Configuration:
 	Setting up Jenkins, configuring master and agent nodes.
@@ -79,7 +81,7 @@ These detailed topics form the core knowledge base essential for a DevOps engine
 
 Q. Why Jenkins?
 -----------------
-When working on a project with different teams, developers often face issues with different teams using different CI tools, version management, and other tools. Setting up a CI/CD toolchain for each new project will lead to certain challenges like
+Before jenkins, When working on a project with different teams, developers often face issues with different teams using different CI tools, version management, and other tools. Setting up a CI/CD toolchain for each new project will lead to certain challenges like
 
     * Slower Releases
     * Manual Builds
@@ -99,11 +101,12 @@ Jenkins is the solution to those challenges. its is an Open-source, 1000+ plugin
 
 What are the practical challenges during the code development & Testng?
 -----------------------------------------------------------------------
-There are challenges in software development like **slower releses, manual builds, humun errors, lack of automation, non-repetable tasks**. this makes the development of the software is slower. this can be corrected with **Jenkins** which provides **automated builds, automated tests, automated CI/CD pipelines, automated deployment, installed locally and plug-ins** which makes software development faster.
+There are challenges in software development like **slower releses, manual builds, humun errors, lack of automation, repetable tasks**. this makes the development of the software is slower. this can be corrected with **Jenkins** which provides **automated builds, automated tests, automated CI/CD pipelines, automated deployment, installed locally and plug-ins** which makes software development faster.
 
 Q. What is CI & CD?
 ----------------------
 **Continuous Integration( CI )** is a process in which the code is merged from multiple contributors and added to a single repository. In simple words, CI is a process, take the code and package it, test it, do security checks and  send it to the CD for further processing. 
+
 **Continuous Deployment( CD )** is an automated process in which the code is taken from the repository and deployed to the system.
 
 CI/CD in simple words is a process that takes the code, package, test, do security check and deploy it to a system that can be serverless, a VM, or a container.
@@ -112,18 +115,28 @@ CI/CD in simple words is a process that takes the code, package, test, do securi
       * CD – Continuous Delivery
       * CD – Continuous Deployment
 
+source code --> package code --> build code --> test code --> run security checks --> deploy code -->VM/Docker
+
 Q. What are the Key process  of CI?
 ------------------------------------
-Key Processes of Continuous Integration
-      * Package the code
-      * Test the code (run unit tests, integration tests, etc)
-      * Run security checks against the code
+Continuous Integration (CI): 
+	Code Integration: 	Developers frequently merge their code changes into a shared repository, ensuring that the codebase is continuously updated and integrated.
+	Automated Builds: 	Automatically building the application whenever new code changes are detected. This involves compiling code, running tests, and generating artifacts.
+	Automated Testing: 	Executing automated tests (unit tests, integration tests, etc.) to validate changes and ensure they don’t break existing functionality.
+	Code Quality Checks: 	Running static code analysis tools to maintain code quality standards, identify bugs, and enforce coding guidelines.
+	Early Feedback: 	Providing quick feedback to developers about the success or failure of their code changes, enabling rapid bug fixes and improvements.
       
 Q. what is Continuous delivery/deployment?
 --------------------------------------------
-The basic difference between Continuous Delivery and Continuous Deployment is that in Continuous Delivery to deploy the code after the CI process, you have to manually trigger it via some button to deploy on the system whereas in Continuous Deployment this process is automatic with out manual intervention.
+Continuous Delivery (CD) and Continuous Deployment (CD):
+	Deployment Automation: 			Automatically deploying applications or changes to various environments, ensuring consistency and reliability in the deployment process.
+	Environment Configuration: 		Managing and configuring different environments (development, staging, production) consistently and reliably.
+	Rollback and Rollforward Strategies: 	Implementing strategies for reverting changes (rollback) or moving forward (rollforward) in case of deployment failures or issues.
+	Release Orchestration: 			Orchestrating the release process, including approval gates, notifications, and monitoring to ensure a smooth and controlled release.
+	Automated Monitoring and Feedback: 	Setting up automated monitoring tools to track application performance and gather feedback post-deployment.
+	Feedback Loop and Improvement: 		Collecting feedback from production environments to drive continuous improvements in the development and deployment processes.
 
-source code --> package code --> build code --> test code --> run security checks --> deploy code -->VM/Docker
+In summary, CI focuses on integrating code changes frequently, running tests, and maintaining code quality, while CD involves automating deployment processes and ensuring a reliable, automated path from code changes to production release. Both CI and CD aim to accelerate software delivery, improve quality, and enable rapid, iterative development.
 
 Q. what are the key process of CD?
 -----------------------------------
@@ -141,7 +154,7 @@ Jenkins installtion on Linux, jenkins require Java, we can follow Jenkins docume
     $ sudo rpm --import http://pkg.jenkins.io/redhat-stable/jenkins.io.key  		--> jenkin key for validation
     $ sudo yum install jenkins -y 		--> install jenkins
 
-Jenkins installation files are available in **`/var/lib/jenkins/`**, in this directory we have config.xml and jobs are stored here, to start the jenkins service the configuration file are available **`/lib/systemd/system/jenkins.service`** file and change Jenkins port to 8090 by updating Environment="JENKINS_PORT=" variable value , It should look like this: Environment="JENKINS_PORT=8090"
+Jenkins installation files are available in **`/var/lib/jenkins/`**, in this directory we have `config.xml` and jobs are stored here. to start the jenkins service the configuration file are available **`/lib/systemd/system/jenkins.service`** file and change Jenkins port to `8090` by updating Environment="JENKINS_PORT=" variable value , It should look like this: Environment="JENKINS_PORT=8090"
 
 Under the Jenkins directory there are mutiple files are available
 	/var/lib/jenkins
@@ -176,6 +189,7 @@ To update any existing plugin in Jenkins
       1. Go to Manage Jenkins -> Manager Plugins
       2. Click Updates and search for the desired plugin.
       3. Select the desired plugin and Install.
+      
 Note: Few plugins may need a restart To restart Jenkins `$ sudo systemctl restart jenkins`
 
 Q. How to Delete Plugins?
