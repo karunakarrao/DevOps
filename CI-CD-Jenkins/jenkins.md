@@ -3,12 +3,13 @@ Jenkins: (CD/CI):
 ==================================================================
 
 Q. What is Jenkins? 
------------------------
+--------------------------------------
 Jenkins is one of the most popular automation tools, that used for continuous integration and continuous delivery and Continuous Deployment. Both CI and CD aim to accelerate software delivery, improve quality, and enable rapid, iterative development.
 
 Jenkins is a free and open-source, that enables developers to package, build, integrate, and test code automatically as soon as it is commits the source code in the repository. it perform security checks and deploy the code. With the help of jenkins you can automate the continuous intigration, delivery and deployments.  
 
-Alternate options for Jenkins: GitLab CI/CD, Bamboo, TeamCity, Azure DevOps, Travis IC, Circle CI, Go CD, Codeship, Jenins X, Drone.  
+Alternate options for Jenkins: 	
+	GitLab CI/CD, Bamboo, TeamCity, Azure DevOps, Travis IC, Circle CI, Go CD, Codeship, Jenins X, Drone.  
 
 Q. Jenkins lifecycle?                                         
 ---------------------------------------
@@ -17,29 +18,37 @@ Jenkins is a powerful automation server, manages a code lifecycle by orchestrati
 Development:
 	Code Creation: Developers write and modify code on their local machines.
 	Version Control: The code is committed to a version control system (e.g., Git, SVN) where Jenkins can access it.
+ 
 Triggering:
 	Code Change Event: Jenkins is configured to listen for events (like commits or pull requests) in the version control system.
 	Build Trigger: When a change is detected, Jenkins triggers a build process based on defined criteria (e.g., specific branches, specific files).
+ 
 Checkout:
 	Workspace Creation: Jenkins creates a dedicated workspace for the build.
 	Code Retrieval: Jenkins pulls the code from the version control system to the workspace.
+ 
 Build:
 	Compilation: If applicable, the code is compiled into an executable or deployable format.
 	Testing: Automated tests (unit tests, integration tests, etc.) are executed to ensure code quality.
 	Artifact Generation: Build artifacts like binaries, packages, or documentation are created.
+ 
 Quality Checks:
 	Static Analysis: Tools like SonarQube, Checkstyle, or PMD are used to analyze code quality, identify bugs, or enforce coding standards.
 	Code Coverage: Measure how much of the code is covered by tests.
+ 
 Deployment:
 	Deployment Process: If the build passes all checks, Jenkins can initiate deployment to various environments (e.g., staging, production).
 	Configuration Management: Jenkins can manage configurations for different environments or deployment targets.
+ 
 Monitoring and Reporting:
 	Build Logs and Reports: Jenkins generates logs and reports for each build, providing detailed information about the process and any issues encountered.
 	Notifications: Notify stakeholders about build success/failure via email, Slack, or other communication channels.
+ 
 Post-Build Actions:
 	Artifact Archiving: Store generated artifacts for future use or reference.
 	Trigger Downstream Jobs: Trigger other Jenkins jobs or workflows based on the build status.
 	Clean-up: Optionally clean up workspace and resources used during the build.
+ 
 Maintenance:
 	Monitoring and Optimization: Continuous monitoring and optimization of Jenkins configurations and pipelines to ensure efficiency and reliability.
 	Pipeline Updates: Update Jenkins pipelines to incorporate changes in the development process or technology stack.
@@ -51,31 +60,43 @@ Q. Jenkins role as a DevOps engineers job?
 Installation and Configuration:
 	Setting up Jenkins, configuring master and agent nodes.
 	Understanding system requirements, installation methods, and initial setup steps.
+ 
 Pipeline as Code:
 	Creating and managing pipelines using Jenkinsfile (Declarative or Scripted Pipeline).
 	Defining stages, steps, and conditions for automation, enabling CI/CD processes.
+ 
 Plugins and Integrations:
 	Utilizing and managing plugins for source control systems (e.g., Git, SVN), build tools (e.g., Maven, Gradle), testing frameworks, deployment tools (e.g., Docker, Kubernetes), and more.
 	Integrating with other tools and services using Jenkins plugins for enhanced functionality.
+ 
 Job Types and Configurations:
 	Creating various job types (freestyle, pipeline) to automate build, test, and deployment processes.
 	Configuring job parameters, triggers, and post-build actions for specific requirements.
+ 
 Version Control Integration:
 	Integrating Jenkins with different version control systems (e.g., Git, Bitbucket) to fetch, track, and manage code for builds.
+ 
 Distributed Builds:
 	Setting up and managing distributed build environments, including master-slave configurations for distributing build workloads across multiple machines.
+ 
 Security and Access Control:
 	Implementing security measures within Jenkins, managing user access, and configuring authentication methods to ensure a secure environment.
+ 
 Monitoring and Logging:
 	Monitoring Jenkins builds, analyzing logs, and using monitoring tools to troubleshoot issues, optimize performance, and ensure smooth operation.
+ 
 High Availability and Scalability:
 	Implementing strategies to make Jenkins highly available and scalable, including load balancing and redundancy configurations.
+ 
 Containerization and Orchestration:
 	Integrating Jenkins with containerization tools like Docker and orchestration tools like Kubernetes for efficient application deployment and management.
+ 
 Backup and Recovery:
 	Setting up backup plans and recovery strategies for Jenkins configurations, jobs, and settings in case of failures or data loss.
+ 
 Best Practices and Optimization:
 	Following best practices for Jenkins usage, optimizing build pipelines, minimizing build times, and efficiently using resources to improve overall performance.
+ 
 
 These detailed topics form the core knowledge base essential for a DevOps engineer working with Jenkins, empowering them to design, implement, and maintain robust CI/CD pipelines and automation workflows.
 
@@ -163,7 +184,7 @@ Under the Jenkins directory there are mutiple files are available
 		|-> nodes/
 		|-> plugins/
 		|-> jobs/
-		 |-> secrets/ 
+		|-> secrets/ 
 
     $ sudo vi /lib/systemd/system/jenki ns.service
     $ sudo systemctl edit jenkins      --> edit Jenkins service file
