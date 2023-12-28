@@ -1,10 +1,15 @@
-Q. What is Infrastructure as Code?
+Q. What is Infrastructure as Code (IAC) ?
 -------------------------------------------------
 A. Infrastructure as code (IaC) tools allow you to manage infrastructure with configuration files rather than through a graphical user interface. IaC allows you to build, change, and manage your infrastructure in a safe environment. Configuration file can be reuse and share.
 
+Examples of IAC tools that are used in the market are: Ansible, Terraform, Cloud Formation, docker, Salt stack, Puppet
+            
 Q. IaC as Terraform?
 ----------------------------
-A. Terraform is HashiCorp's infrastructure as code tool. It lets you define resources and infrastructure in human-readable, declarative configuration files, and manages your infrastructure's lifecycle. Using Terraform has several advantages over manually managing your infrastructure:
+A. Terraform is HashiCorp's infrastructure as code tool. It lets you define resources and infrastructure in human-readable, declarative configuration files, and manages your infrastructure's lifecycle. Using Terraform has several advantages over manually managing your infrastructure:  
+
+
+
   * Terraform can manage infrastructure on multiple cloud platforms.
   * The human-readable configuration language helps you write infrastructure code quickly.
   * Terraform's state allows you to track resource changes throughout your deployments.
