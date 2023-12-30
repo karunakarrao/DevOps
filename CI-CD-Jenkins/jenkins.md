@@ -177,7 +177,12 @@ Jenkins installtion on Linux, jenkins require Java, we can follow Jenkins docume
 
 Jenkins installation files are available in **`/var/lib/jenkins/`**, in this directory we have `config.xml` and jobs are stored here. to start the jenkins service the configuration file are available **`/lib/systemd/system/jenkins.service`** file and change Jenkins port to `8090` by updating Environment="JENKINS_PORT=" variable value , It should look like this: Environment="JENKINS_PORT=8090"
 
-Under the Jenkins directory there are mutiple files are available
+	/var/lib/jenkins			--> Jenkins Home directory consist of config.xml, nodes, users, plugins, jobs,secrets. 
+ 	/var/lib/jenkins/secrets		--> Jenkins initialAdminPassword is available here.
+ 	/lib/systemd/system/jenkins.service	--> Jenkins service file location
+  	
+Under the Jenkins directory there are mutiple files are available:
+
 	/var/lib/jenkins
 		|-> config.xml
 		|-> users/
@@ -186,8 +191,8 @@ Under the Jenkins directory there are mutiple files are available
 		|-> jobs/
 		|-> secrets/ 
 
-    $ sudo vi /lib/systemd/system/jenki ns.service
-    $ sudo systemctl edit jenkins      --> edit Jenkins service file
+    $ sudo vi /lib/systemd/system/jenkins.service
+    $ sudo systemctl edit jenkins      	--> edit Jenkins service file
     $ sudo systemctl start jenkins      --> start Jenkins service 
     $ sudo systemctl status jenkins     --> status check 
     $ sudo systemctl restart jenkins    --> restart jenkins
@@ -222,18 +227,18 @@ To delete any plugin in Jenkins
 
 Q. How to change the Jenkins default listner port?
 ----------------------------------------------------
-by changing the **/lib/systemd/system/jenkins.service** file and edit Environment="JENKINS_PORT=8090" to desired open port. 
+by changing the **/lib/systemd/system/jenkins.service** file and edit `Environment="JENKINS_PORT=8090"` to desired open port. 
       * by default jenkins listen on port 8080
  
 Q. Important file in Jenkins installtion?
 -----------------------------------------
-1. jenkins service file /etc/systemd/system/jenkins.service
-2. jenkins service file also available in /lib/systemd/system/jenkins.service
-3. jenkins installed files are available in /var/lib/jenkins/config.xml is the main file to take backup of.
+1. jenkins service file `/etc/systemd/system/jenkins.service`
+2. jenkins service file also available in `/lib/systemd/system/jenkins.service`
+3. jenkins installed files are available in `/var/lib/jenkins/config.xml` is the main file to take backup of.
 
 Q. How to restart jenkins from web-ui?
 ----------------------------------------
-we can do it by using **`jenkins-url/restart`**. this will do the job.
+we can do it by using `jenkins-url/restart`. this will do the job.
 
 Q. how to use jenkins-cli?
 ---------------------------
@@ -253,16 +258,16 @@ Jenkins Dashbaord:
 ```
 Q. how to add secrets in Jenkins
 ----------------------------------
-Goto --> manage jenkins --> security --> manage credentials --> select domain --> add credentials -> credential type and add.
+	Goto --> manage jenkins --> security --> manage credentials --> select domain --> add credentials -> credential type and add.
 
 Q. Managing Users in Jenkins:
 -----------------------------
 We can manage users in the jenkins and create roles for the users and restric them what they can do and what they can't do. this can be achived with a plugin known as "Role Based Authentication". this plugin allow the admin to create roles for the users and restrict their access. 
 
-Manage Jenkins --> Manage users --> create new user --> login credentials.
-Manage Jenkins --> Manage Plugin --> install Plugin--> Role based Authorization Plugin.
-Manage Jenkins --> security section --> configure global security --> authorization --> Role based strategy
-Goto --> manage jenkins --> Manage and Assign Roles section will appear--> from here you give permissions to the users. 
+	Manage Jenkins --> Manage users --> create new user --> login credentials.
+	Manage Jenkins --> Manage Plugin --> install Plugin--> Role based Authorization Plugin.
+	Manage Jenkins --> security section --> configure global security --> authorization --> Role based strategy
+	Goto --> manage jenkins --> Manage and Assign Roles section will appear--> from here you give permissions to the users. 
 
 Q. Jenkins Dashboard :
 -----------------------
