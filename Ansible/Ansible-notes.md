@@ -3,7 +3,7 @@ Red Hat Ansible Engine Implementation:
 
 Q. What is Ansible?
 --------------------------------------------
-Ansible is an Open source. Ansible is a configuration management and orchestration utility.  Ansible Automates and standardizes configuration of remote hosts and virtual machines. we can start and shutdown of applications. we can Performs rolling updates with zero downtime. it built on **Python**. it support Vagrant and Jenkins.
+Ansible is an Open source configuration management and orchestration utility.  Ansible Automates and standardizes configuration of remote hosts and virtual machines. we can start and shutdown of applications. we can Performs rolling updates with zero downtime. it built on **Python**. it support Vagrant and Jenkins.
 
 Q. What are Ansible Limitations?
 --------------------------------------------
@@ -108,10 +108,10 @@ Q. What is winrm and docker:
 winrm: Allows Windows machines  as managed hosts.
 docker: Allows Ansible to treat Docker containers as managed hosts without using SSH. this feature introduced in Ansible 2
 
- Note: `pywinrm` Python module must be installed on Linux control node to support winrm
+ Note: `pywinrm` Python module must be installed on Linux control node to support `winrm`
 
 Q. How can we change Ansible Configuration Settings?
---------------------------------------------
+-----------------------------------------------------
 Ansible will look for ansible configurations in the below order, we can use `$ ansible-config view` utility to see all configuration settings and their defaults.
 
 	1st) ANSIBLE_CONFIG (environment variable, if set)
@@ -140,7 +140,7 @@ Managed Hosts: No special Ansible agent needed on ansible-worker nodes.
 		-> Key-based authentication preferable in enterprise environments
 
 **Q. How Ansible uses SSH Key-Based Authentication?**
-
+---------------------------------------------------------
 To authenticate ssh logins without password, use public key authentication. SSH lets users authenticate using private/public key scheme.
 	Two keys generated: private and public
 	
@@ -151,7 +151,7 @@ To authenticate ssh logins without password, use public key authentication. SSH 
 		-> Possession of private key used to complete authentication
 			
 **Q. How to generate SSH-Keys and uses ?**
-
+---------------------------------------------------------
 ssh-keygen: 
 To generate keys, use ssh-keygen: $ ssh-keygen 
 	1. Private key: ~/.ssh/id_rsa
@@ -173,15 +173,15 @@ To do this, use ssh-copy-id:
 After copying key, use key-based authentication to authenticate SSH connections to host
 
 **Q. How to see the ansible Modules ?**
-
-To see modules available on Ansible-Master, run ansible-doc with -l option. Modules installed under /usr/lib/python2.7/site-packages/ansible/modules
+---------------------------------------------------------
+To see modules available on Ansible-Master, run ansible-doc with -l option. Modules installed under `/usr/lib/python2.7/site-packages/ansible/modules`
 	
 	$ ansible-doc -l	--> to list all the default modules available 
 	$ ansible-doc yum	--> detail doc for a module yum/firewalld/service/copy 
 	$ ansible-doc -s yum 	--> synapsys
 
 **Q. Types of Module comes with ansible?**
-
+---------------------------------------------------------
 Core modules: These modules are Included with Ansible. Written and maintained by Ansible Engineering Team. Integral to basic foundations of Ansible distribution. 
 Used for common tasks. Always available
 
@@ -192,7 +192,7 @@ Certified modules: Part of a future planned program currently in development
 Community modules: Included as a convenience. Submitted and maintained by Ansible community.Not maintained by Ansible.
 
 **Q. Anisble Module Categories:**
-
+---------------------------------------------------------
 	-> Cloud
 	-> Clustering
 	-> Commands
@@ -225,14 +225,16 @@ call modules in playbooks as part of task
 
 Example: Invoke yum module Arguments: Package name and desired state
 ---------------------------------------------------------------------
+```
 ---
-- name: " install using yum module
+- name: install using yum module
   hosts: all
   tasks:
 	- name: Install a package postfix
 	  yum:
 	    name: postfix
 	    state: latest
+ ```  
 -------------------------------------------------------------------
 To call modules from Python scripts, use Ansible Python API
 	-> Not supported in case of failures
