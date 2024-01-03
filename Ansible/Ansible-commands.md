@@ -48,22 +48,22 @@ ansible_ssh_private_key_file
 ---------------------------------------------------------------------------------------------
 Ansible commands: ansible (-a, -b, -C, -e, -i, -m, -o, -t, -v, -vvv, -k, -s, -u, -U, -K)
 ---------------------------------------------------------------------------------------------
--m  --> module
--C, --check --> check 
--i ---> inventory
--a arguments/instructions
---list-hosts 
--o --> one line output
--e --> extra vars
---syntax-check 
--t, --tree --> log output to this directory
--v, --verbose
--vvvv --> enable debugging
--s, --sudo --> run operations with sudo 
--b, --become
--K, --ask-become-pass 
--u --> remote user
--U --> sudo user
+	-m  --> module
+	-C, --check --> check 
+	-i ---> inventory
+	-a arguments/instructions
+	--list-hosts 
+	-o --> one line output
+	-e --> extra vars
+	--syntax-check 
+	-t, --tree --> log output to this directory
+	-v, --verbose
+	-vvvv --> enable debugging
+	-s, --sudo --> run operations with sudo 
+	-b, --become
+	-K, --ask-become-pass 
+	-u --> remote user
+	-U --> sudo user
 
 
 ansible:
@@ -102,23 +102,23 @@ SSH keys:
 	
 Ping/Pong status check:
 -----------------------
-	$ ansible all -m ping -i inventory	--> ad-hoc command to ping all the severs 
-	$ ansible all -m command -a uptime -i inventory --> to check server uptime on all inventory hosts
-	$ ansible all -m copy -a "src=~/src/file1 dest=~/dest/file1" -i inventory --> copy the source file to destination.
-	$ ansible localhost -m command -a uptime -i inventory --> to check the server uptime on localhost using ansible command
+	$ ansible all -m ping -i inventory							--> ad-hoc command to ping all the severs 
+	$ ansible all -m command -a uptime -i inventory 					--> to check server uptime on all inventory hosts
+	$ ansible all -m copy -a "src=~/src/file1 dest=~/dest/file1" -i inventory 		--> copy the source file to destination.
+	$ ansible localhost -m command -a uptime -i inventory 					--> to check the server uptime on localhost using ansible command
 
 to make the custom inventory file as a default, we can have a copy of the ansible.cfg file in home directory. and modify field #inventory with new path. so you don't have to use the parameter -i for each command. 
 
 list host inventory:
 --------------------
-	$ ansible all -m ping -i inventory  --> to check the ping status for inventory file hosts.
-	$ ansible all --list-hosts --> to list the hosts
-	$ ansible all --list --> to list the hosts.
+	$ ansible all -m ping -i inventory  	--> to check the ping status for inventory file hosts.
+	$ ansible all --list-hosts 		--> to list the hosts
+	$ ansible all --list 			--> to list the hosts.
 
 creating users on worker nodes:
 -------------------------------
 	$ ansible all -m user -a "user=devops" -i inventory	--> to create new user "devops"
-	$ ansible all -m command -a "id -a devops" 	--> to check user "devops" details.
+	$ ansible all -m command -a "id -a devops" 		--> to check user "devops" details.
 
 authorized_key module: public key 
 ----------------------------------------------
@@ -146,20 +146,20 @@ $ ansible all -m copy -a "content=' this is raj ' dest=~/test1.txt" -i inventory
 
 inventory
 -------------------------------------------------------------------------------------------
-[web]
-web1 ansible_host=192.168.11.10 ansible_user=devops ansible_ssh_pass=Password ansible_connection=ssh 
-web2 ansible_host=192.168.11.11 ansible_user=devops ansible_ssh_pass=Password ansible_connection=ssh
-
-[windows]
-win1 ansible_host=172.168.12.10	ansible_user=win1 ansible_password=Win1Pass	ansible_connection=winrm
-win2 ansible_host=172.168.12.11	ansible_user=win1 ansible_password=Win1Pass	ansible_connection=winrm
-
-[db]
-192.168.[1:5].[1:10]  # this means ip addresses 192.168.1.1, 192.168.1.2,....,192.168.1.10 and 192.168.2.1 ...192.168.2.10 and 192.168.3.1 and 192.168.4.1
-
-[webservers:children]
-web
-db
+	[web]
+	web1 ansible_host=192.168.11.10 ansible_user=devops ansible_ssh_pass=Password ansible_connection=ssh 
+	web2 ansible_host=192.168.11.11 ansible_user=devops ansible_ssh_pass=Password ansible_connection=ssh
+	
+	[windows]
+	win1 ansible_host=172.168.12.10	ansible_user=win1 ansible_password=Win1Pass	ansible_connection=winrm
+	win2 ansible_host=172.168.12.11	ansible_user=win1 ansible_password=Win1Pass	ansible_connection=winrm
+	
+	[db]
+	192.168.[1:5].[1:10]  # this means ip addresses 192.168.1.1, 192.168.1.2,....,192.168.1.10 and 192.168.2.1 ...192.168.2.10 and 192.168.3.1 and 192.168.4.1
+	
+	[webservers:children]
+	web
+	db
 ----------------------------------------------------------------------------------------------------
 
 ansible-playbook:
