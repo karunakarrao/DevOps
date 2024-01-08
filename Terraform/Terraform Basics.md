@@ -2,26 +2,31 @@ Q. What is Infrastructure as Code (IAC) ?
 -------------------------------------------------
 A. Infrastructure as code (IaC) tools allow you to manage infrastructure with configuration files rather than through a graphical user interface. IaC allows you to build, change, and manage your infrastructure in a safe environment. Configuration file can be reuse and share.
 
-Examples of IAC tools that are used in the market are: Ansible, Terraform, Cloud Formation, docker, Salt stack, Puppet
+Examples: 
+
+            Configuration Management IAC tools:             Ansible, Puppet, Salt Stack
+            Server templating IAC Tools:                    Docker, Vagrant,
+            Infrastructure Provisioning IAC Tools:          Terraform, Cloud Formation
             
 Q. IaC as Terraform?
 ----------------------------
-A. Terraform is HashiCorp's infrastructure as code tool. It lets you define resources and infrastructure in human-readable, declarative configuration files, and manages your infrastructure's lifecycle. Using Terraform has several advantages over manually managing your infrastructure:  
+A. Terraform is HashiCorp's infrastructure as code tool. Its and opensource IAC tool. It lets you define resources and infrastructure in a human-readable, declarative configuration files, and manages your infrastructure's lifecycle. Using Terraform has several advantages over manually managing your infrastructure:  
 
-
-
-  * Terraform can manage infrastructure on multiple cloud platforms.
-  * The human-readable configuration language helps you write infrastructure code quickly.
-  * Terraform's state allows you to track resource changes throughout your deployments.
-  * You can commit your configurations to version control to safely collaborate on infrastructure.
+              1. Terraform can manage infrastructure on multiple cloud platforms.
+              2. The human-readable configuration language helps you write infrastructure code quickly.
+              3. Terraform's state allows you to track resource changes throughout your deployments.
+              4. You can commit your configurations to version control to safely collaborate on infrastructure.
 
 Q. How to manage any infrastructure?
 --------------------------------------
 A. Terraform plugins called **providers** let Terraform interact with cloud platforms and other services via their application programming interfaces (APIs). HashiCorp and the Terraform community have written over 1,000 providers to manage resources on Amazon Web Services (AWS), Azure, Google Cloud Platform (GCP), Kubernetes, Helm, GitHub, Splunk, and DataDog, just to name a few. 
 
+            Providers: Providers are the plug-ins that allow you to connect with different resouces. 
+            Resources: Resouces are the objects that are created on the cloud like ec2, vpc, s2  and more.            
+
 Q. How terraform track your infrastructure changes?
 ----------------------------------------------------
-A. Terraform keeps track of your real infrastructure in a state file know as **`terraform.tfstate`**, which acts as a source of truth for your environment. This file is only created in same directory where **`terrafrom apply`** executed successful. Terraform uses this state file to determine the changes to make to your infrastructure so that it will match your configuration.
+A. Terraform keeps track of your real infrastructure in a state file know as `terraform.tfstate`, which acts as a source of truth for your environment. This file is only created in same directory where `terrafrom apply` executed successful. Terraform uses this state file to determine the changes to make to your infrastructure so that it will match your configuration. `terraform.tfstate` file is the obsalute copy of your environment. so don't edit or modify this file.
 
 Q. Terraform commands ?
 -------------------------
