@@ -1,9 +1,9 @@
 -----------------------------------------------------------------------------
 Ansible installtion & Configuration files :
 -----------------------------------------------------------------------------
-	/etc/ansible/ansible.cfg --> main ansible configuration file
-	/etc/ansible/hosts  	 --> default host inventory file
-	/usr/bin/ansible	 --> ansible binaries are available here
+	/etc/ansible/ansible.cfg 	--> main ansible configuration file
+	/etc/ansible/hosts  	 	--> default host inventory file
+	/usr/bin/ansible	 	--> ansible binaries are available here
 	/usr/lib/python2.7/site-packages/ansible/modulescd  --> ansible modules are available here
 	
 	/etc/ansible/facts.d/custom.fact	--> for defining the custom facts
@@ -48,22 +48,22 @@ ansible_ssh_private_key_file
 ---------------------------------------------------------------------------------------------
 Ansible commands: ansible (-a, -b, -C, -e, -i, -m, -o, -t, -v, -vvv, -k, -s, -u, -U, -K)
 ---------------------------------------------------------------------------------------------
-	-m  --> module
-	-C, --check --> check 
-	-i ---> inventory
+	-m  		--> module
+	-C, --check 	--> check 
+	-i 		--> inventory
 	-a arguments/instructions
 	--list-hosts 
-	-o --> one line output
-	-e --> extra vars
+	-o 		--> one line output
+	-e 		--> extra vars
 	--syntax-check 
-	-t, --tree --> log output to this directory
+	-t, --tree 	--> log output to this directory
 	-v, --verbose
-	-vvvv --> enable debugging
-	-s, --sudo --> run operations with sudo 
+	-vvvv 		--> enable debugging
+	-s, --sudo 	--> run operations with sudo 
 	-b, --become
 	-K, --ask-become-pass 
-	-u --> remote user
-	-U --> sudo user
+	-u 		--> remote user
+	-U 		--> sudo user
 
 
 ansible:
@@ -92,6 +92,7 @@ ansible-config:
 	
 ansible-playbook:
 ----------------------------------------------------
+	$ ansible-playbook play1.yaml -i hosts 
 	$ ansible-playbook play1.yaml --tags "install"
 	$ ansible-playbook play1.yaml --skip-tags "upgrade"
 	$ ansible-playbook play1.yaml --start-at-task "start httpd server"
@@ -120,39 +121,43 @@ creating users on worker nodes:
 	$ ansible all -m user -a "user=devops" -i inventory	--> to create new user "devops"
 	$ ansible all -m command -a "id -a devops" 		--> to check user "devops" details.
 
-authorized_key module: public key 
+authorized_key : module - public key 
 ----------------------------------------------
-$ cat ~/.ssh/id_rsa.pub
+	$ cat ~/.ssh/id_rsa.pub
 
 to add a public key to remote authorized_keys file. to trust Ansible_master for password less authentication.
-$ ansible all -m authorized-key -a "user=devops  state=present  key='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCiR9HQUu8OUr7k8oe+odfvVQgdMNVsHM+dV0oNQnqG+ devops@bastion.0926.internal'" -b
+	
+ 	$ ansible all -m authorized-key -a "user=devops  state=present  key='ssh-rsa AAAAB3NzaC1ycQgdMNVsHM+dV0oNQnqG+ devops@bastion.0926.internal'" -b
 	
 to Remove the same key, we can use the same command with belwo option. State=absent and option -b is to become sudo user
-$ ansible all -m authorized_key -a "user=devops state=presnet key='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCiR9HQUu8OUr7k8oe+odfvVQgdMNVsHM+dV0oNQnqG+ devops@bastion.0926.internal'" -b
+
+	$ ansible all -m authorized_key -a "user=devops state=presnet key='ssh-rsa AAAABfvVQgdMNVsHM+dV0oNQnqG+ devops@bastion.0926.internal'" -b
 
 
 lineinfile: module:
 ------------------
  this module check the line present if not we can add. /etc/sudoers is a sudo users list.
-$ ansible all -m lineinfile -a "dest=/etc/sudoers state=present line='devops ALL=(ALL) NOPASSWORD: ALL'" -b
+ 
+	$ ansible all -m lineinfile -a "dest=/etc/sudoers state=present line='devops ALL=(ALL) NOPASSWORD: ALL'" -b
 
-$ ansible all -m command -a "whoami"	--> to check the user at remote host
+	$ ansible all -m command -a "whoami"	--> to check the user at remote host
 
 copy: module:
 ------------
 this module is used to copy the file to remote server, if file present it will update else it will create it. 
-$ ansible all -m copy -a "src=/home/devops/test1.txt dest=/home/devops/"
-$ ansible all -m copy -a "content=' this is raj ' dest=~/test1.txt" -i inventory
+
+	$ ansible all -m copy -a "src=/home/devops/test1.txt dest=/home/devops/"
+	$ ansible all -m copy -a "content=' this is raj ' dest=~/test1.txt" -i inventory
 
 inventory
 -------------------------------------------------------------------------------------------
 	[web]
-	web1 ansible_host=192.168.11.10 ansible_user=devops ansible_ssh_pass=Password ansible_connection=ssh 
-	web2 ansible_host=192.168.11.11 ansible_user=devops ansible_ssh_pass=Password ansible_connection=ssh
+	web1 ansible_host=192.168.11.10 	ansible_user=devops 	ansible_ssh_pass=Password 	ansible_connection=ssh 
+	web2 ansible_host=192.168.11.11 	ansible_user=devops 	ansible_ssh_pass=Password 	ansible_connection=ssh
 	
 	[windows]
-	win1 ansible_host=172.168.12.10	ansible_user=win1 ansible_password=Win1Pass	ansible_connection=winrm
-	win2 ansible_host=172.168.12.11	ansible_user=win1 ansible_password=Win1Pass	ansible_connection=winrm
+	win1 ansible_host=172.168.12.10		ansible_user=win1 	ansible_password=Win1Pass	ansible_connection=winrm
+	win2 ansible_host=172.168.12.11		ansible_user=win1 	ansible_password=Win1Pass	ansible_connection=winrm
 	
 	[db]
 	192.168.[1:5].[1:10]  # this means ip addresses 192.168.1.1, 192.168.1.2,....,192.168.1.10 and 192.168.2.1 ...192.168.2.10 and 192.168.3.1 and 192.168.4.1
@@ -165,10 +170,11 @@ inventory
 ansible-playbook:
 -----------------
 this is to check the ansible playbook trial run and check the changes. it will not apply the changes. 
-$ ansible-playbook httpd.yml -C -i inventory 	--> user -C [capital C ]
 
-$ ansible-playbook httpd.yml --syntax-check -i inventory --> this is to check syntax errors in yaml playbook
+	$ ansible-playbook httpd.yml -i inventory --check 		--> Dry-run the playbook
+	$ ansible-playbook httpd.yml --syntax-check -i inventory 	--> this is to check syntax errors in yaml playbook
 
+--------------------------------
 -   name: "task details"
     host: managedhost.example.com
     user: remoteuser
@@ -176,7 +182,8 @@ $ ansible-playbook httpd.yml --syntax-check -i inventory --> this is to check sy
     become_method: sudo
     become_user: root
 
--------------------------
+--------------------------------
+
 Example: Playbook with Multiple Plays
 ---------------------------------------
 ---
@@ -195,16 +202,16 @@ Example: Playbook with Multiple Plays
       service: name=mariadb enabled=true
 -------------------------------------
 
-$ ansible-playbook httpd-play.yaml -i inventory -->to run the playbook
-$ ansible-playbook --syntax-check httpd-play.yaml -i inventory --> to check the syntax errors.
-$ ansible-playbook httpd-play.yaml -i inventory --step --> to exicute step by step task play with user confirmation (yes/no/cancel)
+	$ ansible-playbook httpd-play.yaml -i inventory 		--> to run the playbook
+	$ ansible-playbook --syntax-check httpd-play.yaml -i inventory 	--> to check the syntax errors.
+	$ ansible-playbook httpd-play.yaml -i inventory --step 		--> to exicute step by step task play with user confirmation (yes/no/cancel)
 
 
 facts:
 ---------------
-to collect the managed host facts like OS,Os version, network info, ip info, and much more\.. etc...
-$ ansible web1 -m setup -i inventory --> to collect facts. 
-
+to collect the managed host "web1" facts like OS, version, network info, ip info, and much more\.. etc...
+	
+ 	$ ansible web1 -m setup -i inventory --> to collect facts. 
 
 to disable collecting ansible facts can be done using gather_facts: no
 -----------------------------------------------------------------------
@@ -214,9 +221,9 @@ to disable collecting ansible facts can be done using gather_facts: no
   gather_facts: no  # to avoid ansilbe collecting facts.
 ```
 (or)
-
-/etc/ansible/ansible.cfg --> change the value accordingly
-gathering = implicit/explicit --> `implicit` it will gather facts | `explicit` it will not gather facts.
+change the values in the ansible.cfg file `/etc/ansible/ansible.cfg`
+	
+ 	gathering = implicit/explicit --> `implicit` it will gather facts | `explicit` it will not gather facts.
 
 (or)
 
