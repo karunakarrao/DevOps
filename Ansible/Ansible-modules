@@ -11,10 +11,10 @@ $ ansible -m --> module
           -b --> become
           --become-methord --> sudo | su | pbrun | pfexec | doas | dzdo | ksu | runas | pmrun | enable | machinectl
 
-1. ping / ansible.builtin.ping
-2. command / ansible.builtin.command
-3. shell / ansible.builtin.shell
-4. debug / ansible.builtin.debug --> to print any msg during the exicution
+1. ping 
+2. command 
+3. shell 
+4. debug 
 5. 
 
 
@@ -26,6 +26,7 @@ gather_facts: false/true
 become: yes
 vars:
    ansible_become_user:
+
 
 Debug:
 ----------------------------------------
