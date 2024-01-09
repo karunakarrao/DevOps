@@ -34,16 +34,16 @@ Ansible searches for its config file(ansible.cfg) in below order in system. Firs
 ---------------------------------------------------------------------------------------------
 Inventory file arguments
 ---------------------------------------------------------------------------------------------
-ansible_connection
-ansible_host
-ansible_port
-ansible_user
-ansible_password
-ansible_ssh_private_key_file
-ansible_become
-ansible_become_user
-ansible_become_method
-ansible_ssh_private_key_file
+	ansible_connection
+	ansible_host
+	ansible_port
+	ansible_user
+	ansible_password
+	ansible_ssh_private_key_file
+	ansible_become
+	ansible_become_user
+	ansible_become_method
+	ansible_ssh_private_key_file
 
 ---------------------------------------------------------------------------------------------
 Ansible commands: ansible (-a, -b, -C, -e, -i, -m, -o, -t, -v, -vvv, -k, -s, -u, -U, -K)
@@ -65,11 +65,12 @@ Ansible commands: ansible (-a, -b, -C, -e, -i, -m, -o, -t, -v, -vvv, -k, -s, -u,
 	-u 		--> remote user
 	-U 		--> sudo user
 
-
+----------------------------------------------------
 ansible:
 ----------------------------------------------------
 	$ ansible --verison --> to check the ansible version.
-
+ 
+----------------------------------------------------
 ansible-doc:
 ----------------------------------------------------
 	$ ansible-doc -l  --> to list the modules 
@@ -80,29 +81,34 @@ ansible-doc:
   	$ ansible-doc ec2 
    	$ ansible-doc copy
 
+----------------------------------------------------
 ansible-inventory:
 ----------------------------------------------------
 	$ ansible-inventory -i inventory/ -y
 
+----------------------------------------------------
 ansible-config:
 ----------------------------------------------------
 	$ ansible-config dump |grep -i ROLE 
 	$ ansible-config list
 	$ ansible-config view
-	
+
+----------------------------------------------------
 ansible-playbook:
 ----------------------------------------------------
 	$ ansible-playbook play1.yaml -i hosts 
 	$ ansible-playbook play1.yaml --tags "install"
 	$ ansible-playbook play1.yaml --skip-tags "upgrade"
 	$ ansible-playbook play1.yaml --start-at-task "start httpd server"
-	
+
+----------------------------------------------------
 SSH keys:
--------------------------------------
+----------------------------------------------------
 	$ ssh -i id_rsa user@hostname
-	
+
+---------------------------------------------------
 Ping/Pong status check:
------------------------
+----------------------------------------------------
 	$ ansible all -m ping -i inventory							--> ad-hoc command to ping all the severs 
 	$ ansible all -m command -a uptime -i inventory 					--> to check server uptime on all inventory hosts
 	$ ansible all -m copy -a "src=~/src/file1 dest=~/dest/file1" -i inventory 		--> copy the source file to destination.
@@ -110,17 +116,20 @@ Ping/Pong status check:
 
 to make the custom inventory file as a default, we can have a copy of the ansible.cfg file in home directory. and modify field #inventory with new path. so you don't have to use the parameter -i for each command. 
 
+----------------------------------------------------
 list host inventory:
---------------------
+----------------------------------------------------
 	$ ansible all -m ping -i inventory  	--> to check the ping status for inventory file hosts.
 	$ ansible all --list-hosts 		--> to list the hosts
 	$ ansible all --list 			--> to list the hosts.
 
+----------------------------------------------------
 creating users on worker nodes:
--------------------------------
+----------------------------------------------------
 	$ ansible all -m user -a "user=devops" -i inventory	--> to create new user "devops"
 	$ ansible all -m command -a "id -a devops" 		--> to check user "devops" details.
 
+----------------------------------------------------
 authorized_key : module - public key 
 ----------------------------------------------
 	$ cat ~/.ssh/id_rsa.pub
@@ -133,24 +142,26 @@ to Remove the same key, we can use the same command with belwo option. State=abs
 
 	$ ansible all -m authorized_key -a "user=devops state=presnet key='ssh-rsa AAAABfvVQgdMNVsHM+dV0oNQnqG+ devops@bastion.0926.internal'" -b
 
-
+----------------------------------------------------
 lineinfile: module:
-------------------
+----------------------------------------------------
  this module check the line present if not we can add. /etc/sudoers is a sudo users list.
  
 	$ ansible all -m lineinfile -a "dest=/etc/sudoers state=present line='devops ALL=(ALL) NOPASSWORD: ALL'" -b
 
 	$ ansible all -m command -a "whoami"	--> to check the user at remote host
 
+----------------------------------------------------
 copy: module:
-------------
+----------------------------------------------------
 this module is used to copy the file to remote server, if file present it will update else it will create it. 
 
 	$ ansible all -m copy -a "src=/home/devops/test1.txt dest=/home/devops/"
 	$ ansible all -m copy -a "content=' this is raj ' dest=~/test1.txt" -i inventory
 
+----------------------------------------------------
 inventory
--------------------------------------------------------------------------------------------
+----------------------------------------------------
 	[web]
 	web1 ansible_host=192.168.11.10 	ansible_user=devops 	ansible_ssh_pass=Password 	ansible_connection=ssh 
 	web2 ansible_host=192.168.11.11 	ansible_user=devops 	ansible_ssh_pass=Password 	ansible_connection=ssh
@@ -168,13 +179,14 @@ inventory
 ----------------------------------------------------------------------------------------------------
 
 ansible-playbook:
------------------
+----------------------------------------------------
 this is to check the ansible playbook trial run and check the changes. it will not apply the changes. 
 
 	$ ansible-playbook httpd.yml -i inventory --check 		--> Dry-run the playbook
 	$ ansible-playbook httpd.yml --syntax-check -i inventory 	--> this is to check syntax errors in yaml playbook
 
 --------------------------------
+---
 -   name: "task details"
     host: managedhost.example.com
     user: remoteuser
