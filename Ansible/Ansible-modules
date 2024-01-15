@@ -137,25 +137,133 @@ mariadb> CREATE USER 'ecomuser'@'localhost' IDENTIFIED BY 'ecompassword';
 mariadb> GRANT ALL PRIVILEGES ON *.* TO 'ecomuser'@'localhost';
 mariadb> FLUSH PRIVILEGES;
 
-Blocks:
-----------------------------------------
-- block:
-  - name: install mysql
-    yum: name=mysql state=present
-  - name: start mysql servvice
-    service: name=mysql-serverr state=started
-  become_user: db-user
-  when: ansible_facts['distribution'] == 'centos'
-  rescue:
-   - mail:
-       to:
-       subject: 
-       body: DB install failed at {{ ansible_failed_task.name }} 
-  always:
-  - mail:
-      to: 
-      subject
-      body: 
-   ignore_errors: yes
 
+
+======================================================================================================================
+Error Handling:
+======================================================================================================================
+
+---------------------------------------------------
+# Stop the playbook on all servers, if any once task failed on the play on any of the servers. 
+---
+- name: install                 #
+  hosts: all
+  any_error_fatal: true
+  tasks:
+
+--------------------------------------------------
+# if more than 30% servers are failed then quit the play 
+---
+- name: install                 #
+  hosts: all
+  max_fail_percentage: 30
+  tasks:
+  
+---------------------------------------------------
+# To ignore errors for a task we can use this `ignore_errors`, so the task is igonred if fail/pass.
+---
+- name: install                 #
+  hosts: all
+  tasks:
+  - name: install 
+    apt: name=apache2 state=latest
+  - mail: 
+      to: 
+      subject:
+      body:
+    ignore_errors: true
+    
+---------------------------------------------------
+# if errors found in the server log, we can make the playbook fail. 
+
+---
+- name: install
+  hosts: all
+  any_error_fatal: true 
+  tasks: 
+  - command: cat /var/log/server.log
+    register: command_output
+    failed_when: '"ERROR"  in command_output.stdout'
+
+-----------------------------------------------------
+# incase failure in the block it will trigger the rescue section. 
+---
+- name: install & service
+  hosts: all
+  tasks:
+  - blocks:
+      - name: install apache2
+        apt: name=apache2 state=latest
+      - name: start apache
+        servcie: name=apache2 state=started
+    rescue:
+    - mail:
+        to: dev-group@hcl.com
+        subject: failed playbook
+        body: 
+    always:
+    - mail: 
+        to: 
+        subject:
+        body:
+
+-------------------------------------------------
+# how to use blocks and Handling the errors.
+---
+- name: install
+  hosts: all
+  tasks: 
+    - block:
+      - name: install mysql
+        yum: name=mysql state=present
+      - name: start mysql servvice
+        service: name=mysql-serverr state=started
+      become_user: db-user
+      when: ansible_facts['distribution'] == 'centos'
+      rescue:
+       - mail:
+           to:
+           subject: 
+           body: DB install failed at {{ ansible_failed_task.name }} 
+      always:
+      - mail:
+          to: 
+          subject
+          body: 
+       ignore_errors: yes
+
+========================================================================
+Ansible - Strategy:
+========================================================================
+There are 2 types of Strategies in Ansible.
+    1. Linear (Defalut) - You don't need to specify
+    2. Free - 
+    
+change the strategy as below. 
+
+----------------------------------------------------
+# free will install tasks on the servers independently with out waiting for other servers.
+---
+- name: install
+  hosts: all
+  strategy: free 
+  tasks: 
+  - name: 
+
+
+=========================================================================
+Ansible - Serial:
+=========================================================================
+to perform tasks BATCH wise we use the "serial" directive. like below
+
+---
+- name: install
+  hosts: all
+  serial: 3
+  tasks:
+  - name:
+  
+-----------------------------------------------------
+
+Note: by default how many servers ansible can perform playbook changes is 5. Ansible can create 5 forks by Defalut. this is configured in ansibile.cfg file as "forks = 5". how ever we can change this behaviour using ansible configuration file. 
       
