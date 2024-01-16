@@ -5,7 +5,6 @@ Ansible installtion & Configuration files :
 	/etc/ansible/hosts  	 	--> default host inventory file
 	/usr/bin/ansible	 	--> ansible binaries are available here
 	/usr/lib/python2.7/site-packages/ansible/modulescd  --> ansible modules are available here
-	
 	/etc/ansible/facts.d/custom.fact	--> for defining the custom facts
 ------------------------------------------------------------------------------
 Ansible installation Binaries:
@@ -48,22 +47,22 @@ Inventory file arguments
 ---------------------------------------------------------------------------------------------
 Ansible commands: ansible (-a, -b, -C, -e, -i, -m, -o, -t, -v, -vvv, -k, -s, -u, -U, -K)
 ---------------------------------------------------------------------------------------------
-	-m  		--> module
-	-C, --check 	--> check 
-	-i 		--> inventory
+	-m  			--> module
+	-C, --check 		--> check 
+	-i 			--> inventory
 	-a arguments/instructions
 	--list-hosts 
-	-o 		--> one line output
-	-e 		--> extra vars
+	-o 			--> one line output
+	-e 			--> extra vars
 	--syntax-check 
-	-t, --tree 	--> log output to this directory
+	-t, --tree 		--> log output to this directory
 	-v, --verbose
-	-vvvv 		--> enable debugging
-	-s, --sudo 	--> run operations with sudo 
+	-vvvv 			--> enable debugging
+	-s, --sudo 		--> run operations with sudo 
 	-b, --become
 	-K, --ask-become-pass 
-	-u 		--> remote user
-	-U 		--> sudo user
+	-u 			--> remote user
+	-U 			--> sudo user
 
 ----------------------------------------------------
 ansible:
@@ -114,7 +113,7 @@ Ping/Pong status check:
 	$ ansible all -m copy -a "src=~/src/file1 dest=~/dest/file1" -i inventory 		--> copy the source file to destination.
 	$ ansible localhost -m command -a uptime -i inventory 					--> to check the server uptime on localhost using ansible command
 
-to make the custom inventory file as a default, we can have a copy of the ansible.cfg file in home directory. and modify field #inventory with new path. so you don't have to use the parameter -i for each command. 
+Note: to make the custom inventory file as a default, we can have a copy of the `ansible.cfg` file in home directory. and modify field `#inventory` with new path. so you don't have to use the parameter -i for each command. 
 
 ----------------------------------------------------
 list host inventory:
@@ -178,14 +177,16 @@ inventory
 	db
 ----------------------------------------------------------------------------------------------------
 
+--------------------------------------------------------------------
 ansible-playbook:
-----------------------------------------------------
+--------------------------------------------------------------------
 this is to check the ansible playbook trial run and check the changes. it will not apply the changes. 
 
 	$ ansible-playbook httpd.yml -i inventory --check 		--> Dry-run the playbook
 	$ ansible-playbook httpd.yml --syntax-check -i inventory 	--> this is to check syntax errors in yaml playbook
 
 --------------------------------
+```
 ---
 -   name: "task details"
     host: managedhost.example.com
@@ -193,11 +194,13 @@ this is to check the ansible playbook trial run and check the changes. it will n
     become: yes
     become_method: sudo
     become_user: root
-
+...
+```
 --------------------------------
 
 Example: Playbook with Multiple Plays
----------------------------------------
+--------------------------------------------------------------------
+```
 ---
   # This is a simple playbook with two plays
 
@@ -212,15 +215,17 @@ Example: Playbook with Multiple Plays
     tasks:
     - name: first task
       service: name=mariadb enabled=true
--------------------------------------
+...
+```
+--------------------------------------------------------------------
 
 	$ ansible-playbook httpd-play.yaml -i inventory 		--> to run the playbook
 	$ ansible-playbook --syntax-check httpd-play.yaml -i inventory 	--> to check the syntax errors.
 	$ ansible-playbook httpd-play.yaml -i inventory --step 		--> to exicute step by step task play with user confirmation (yes/no/cancel)
 
-
-facts:
----------------
+--------------------------------------------------------------------
+facts: setup module
+--------------------------------------------------------------------
 to collect the managed host "web1" facts like OS, version, network info, ip info, and much more\.. etc...
 	
  	$ ansible web1 -m setup -i inventory --> to collect facts. 
@@ -229,29 +234,33 @@ to disable collecting ansible facts can be done using gather_facts: no
 -----------------------------------------------------------------------
 ```
 ---
-- hosts: large_farm
-  gather_facts: no  # to avoid ansilbe collecting facts.
+- name: Disable ansible facts
+  hosts: large_farm
+  gather_facts: no  	# to avoid ansilbe collecting facts.
+...
 ```
-(or)
-change the values in the ansible.cfg file `/etc/ansible/ansible.cfg`
+(or)  change the values in the ansible.cfg file `/etc/ansible/ansible.cfg`
 	
  	gathering = implicit/explicit --> `implicit` it will gather facts | `explicit` it will not gather facts.
 
 (or)
 
-$ ANSIBLE_GATHERING=explicit ansible-playbook play1 -i inventory  --> command line gather facts disable
+	$ ANSIBLE_GATHERING=explicit ansible-playbook play1 -i inventory  --> command line gather facts disable
 
----------------------------------------------------------------
-
+--------------------------------------------------------------------
 Ansible-vault:
----------------
+--------------------------------------------------------------------
 --ask-vault-pass
 
 --vault-password-file:
 
-$ ansible-vault create secret.yml	--> to create a new secure file
+	$ ansible-vault create secret.yml	--> to create a new secure file
+ 
 (or)
-$ ansible-vault create secret.yml --vault-password-file=./password.txt --> to create a secure file using a password.txt file which contain password
+	
+	$ ansible-vault create secret.yml --vault-password-file=./password.txt --> to create a secure file using a password.txt file which contain password
+
+ 
 password.txt
 -----------------------
 Passw0rd
