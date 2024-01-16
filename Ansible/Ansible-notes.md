@@ -2359,10 +2359,10 @@ Question 12: Which of the following is a valid way of defining variables via the
 --extra-vars 'hosts=vipers, user=starbuck'
 -e 'hosts=vipers user=starbuck'
 
-=======================================
-
+=========================================================================================================================================
 Ansible Roles : 
-----------------
+=========================================================================================================================================
+
 we can create custom ansible roles as per our needs, or we can use the comunity supported roles developed by the ansible communicty using ansible-galaxy command. this ansible roles are used to reuse the code in multiple places. depends on requirement. and it will separte the tasks, variables, handleres, etc arganized properly so that they can be used in mutiple places.  Roles can split playbooks into smaller playbooks and files
 
 Role Uses: Enable Ansible to load components from external files. Roles written as general purpose can be reused
@@ -3000,460 +3000,232 @@ EOF
 
 -> When the web page prompts you for the username, enter kiosk.
 
-=========================================================================
-
+=========================================================================================================================================
 Question 1 : What executes before roles in a playbook?
 -> pre_tasks 
 post_tasks
 tasks
 includes
 
+=========================================================================================================================================
 Question 2 : When do handlers execute?
 Once, at the end of the task
 Once, at the end of the playbook
 -> Once, at the end of the play
 Once, after includes run
 
+=========================================================================================================================================
 Question 3 : What are handlers most often used for?
 -> Restarting services
 Adding hosts to inventory with add_host
 Specifying host variables
 Gathering facts
 
+=========================================================================================================================================
 Question 4 : Which of the following describes how roles are used?
 -> Roles are a way of automatically loading certain vars_files, tasks, and handlers
 Roles are many logical functions for a single virtual server in your inventory
 Roles provide a way to associate different playbooks
 Roles concatenate multiple inventories
 
+=========================================================================================================================================
 Question 5 : Under a role's tasks directory, main.yml should include which of the following?
 A YAML list of dependent roles
 A hosts declaration
 A YAML dictionary of variables
 -> A YAML list of tasks
 
+=========================================================================================================================================
 Question 6 : Which of the following directories must be included in roles that are used by a playbook?
 -> tasks
 vars
 meta
 defaults
 
+=========================================================================================================================================
 Question 7 : What is the default sequence for role and playbook task execution?
 -> Role tasks execute before playbook tasks
 Role tasks execute as post_tasks for playbooks
 Playbook tasks execute as pre_tasks before applying role tasks
 There is no default and tasks execute in any order they appear
 
+=========================================================================================================================================
 Question 8 : To configure a specific path for Ansible to look for roles, you can set the following in ansible.cfg:
 roles_location
 -> roles_path
 roles_default
 roles_dir
 
+=========================================================================================================================================
 Question 9 : What can the meta directory set?
 Version of the playbook
 Multiple inventories
 -> Dependencies on other roles
 remote_user
 
+=========================================================================================================================================
 Question 10 : Variables that are declared in a task in the apache role can be used by the web role, if web is executed after apache.
 -> TRUE
 FALSE
 
+=========================================================================================================================================
 Question 11 : If roles/rolename/vars/main.yml exists, then the following is true:
 The variables in the 'defaults' directory are not evaluated
 Those variables overrule hostvars
 -> Those variables overrule defaults/main.yml in that role
 They behave the same as using extra vars on the command line
 
+=========================================================================================================================================
 Question 12 : What is the defined process for creating and using a role?
 Ansible automatically creates and uses a role if it is defined in the YAML file
 Roles are downloaded from a repository and used only if needed
 Roles are created and used in an ad hoc manner
 -> Create the role directory structure; define the role content; use the role in a playbook
 
+=========================================================================================================================================
 Question 13 : Using role defaults is least important in terms of variable precedence.
 -> TRUE
 FALSE
 
+=========================================================================================================================================
 Question 14 : Which best describes the dependency behavior of a role in a playbook?
 A role is listed multiple times, if roles_path is set accordingly
 -> A role can run multiple times as a dependency if allow_duplicates is set to "true" or "yes"
 Roles can be applied only once
 A role can be called multiple times if you intend to call that role both before and after the execution of the current role
 
+=========================================================================================================================================
 Question 15 : In a dependencies list, which entry would call the "apache" role with the variable "vhosts=true?"
 - { role: apache, when vhosts == true }
 - { role: apache, set_var: "{{ vhosts | stdout.true }}" }
 -> - { role: apache, vhosts: true }
 - { role: apache, when vhosts is defined }
-
+  
+=========================================================================================================================================
 Question 16 : Under which conditions can Ansible Galaxy be used to install roles?
 -> From the Ansible community to your playbook directories
 To /dev/null
 To target machines so that ansible-agent may run them
 From Mercurial
 
+=========================================================================================================================================
 Question 17 : Under which condition can you install multiple roles from Galaxy using a file with a list of role names?
 Only if role_path is set
 -> Only if the file contains role names in the "username.rolename" format
 Only as the ansible user
 Only if the file is in json format
 
+=========================================================================================================================================
 Question 18 : What occurs when you execute the "ansible-galaxy init newrole1 -p /etc/ansible/roles" command?
 It installs a role by the name "newrole1" in your playbook's roles directory
 -> It installs a role by the name of "newrole1" at /etc/ansible/roles
 It installs a role by the name of "newrole1" in ansible.cfg's roles_path value
 It prepopulates the "newrole1" role with task lists included at /etc/ansible/roles
 
+=========================================================================================================================================
 Question 19 : What is Ansible Galaxy?
 An Ansible module used to control various cloud providers
 -> A collection of community contributed roles
 A collection of Ansible supported roles
 A collection of inventory plug-ins
 
-======================================================================
-
+=========================================================================================================================================
 Ansible Vault:
---------------
-
-Ansible Vault Overview :
-------------------------
-Ansible-vault is used to store the sensitive data. this will be an encrypted file. 
-
--> Options for data values:
-	-> Store as variables in group_vars or host_vars
-	-> Load by include_vars or vars_files
+=========================================================================================================================================
+Ansible-vault is used to store the sensitive data. this will be an encrypted file. Default encryption cipher: Advanced Encryption Standard (AES).Playbook can use variables encrypted by Ansible Vault Store as variables in `group_vars` or `host_vars`. Load by `include_vars` or `vars_files`
 
 Data Storage Options:
 ---------------------
--> Use external key management tool
+Use external key management tool
 
--> Option 1: Privately deployed tool --> Example: Vault by HashiCorp
+Option 1: Privately deployed tool --> Example: Vault by HashiCorp
+Option 2: SAAS cloud tool
 
--> Option 2: SAAS cloud tool
+	1. Amazon Web Services' Key Management Service
+	2. Microsoft Azure’s Key Vault
+Store data alongside playbook
+	Use Ansible Vault
+	Built into Ansible
 
-	-> Amazon Web Services' Key Management Service
-	-> Microsoft Azure’s Key Vault
+	$ ansible-vault create secret.yml						--> To create encrypted file, use ansible-vault 
+	$ ansible-vault create --vault-password-file=vault-pass.txt secret.yml		--> vault-pass.txt is a password file contain password information.
+	$ ansible-vault encrypt secret1.yml secret2.yml					--> encrypt a file,  To save file with new name, use --output=OUTPUT_FILE
+	$ ansible-vault view secret1.yml						--> To view file
+	$ ansible-vault edit secret.yml							--> To edit file 
+ 	$ ansible-vault rekey secret.yml						--> To change vault password, use --new-vault-password-file
+	$ ansible-vault decrypt secret1.yml --output=secret1-decrypted.yml		--> To decrypt file,
+	$ ansible-playbook --ask-vault-pass site.yml
+ 	$ ansible-playbook --vault-password-file=vault-pass site.yml
 
--> Store data alongside playbook
-	-> Use Ansible Vault
-	-> Built into Ansible
-
-File Types:
--------------
-what files can be encrypted. any Ansible structured data file can be done. below are the list
-	-> Inventory variables
-	-> Variable files included in playbook
-	-> Variable files passed as argument during playbook execution
-	-> Variables defined in roles
-
-create ansible-vault Files:
------------------------
-To create encrypted file, use ansible-vault 	
-
-$ ansible-vault create secret.yml
-
-  New Vault password: redhat
-  Confirm New Vault password: redhat
-
--> Default: File opens using vim editor
-	-> To use different editor, set and import EDITOR
-	-> Example: To use nano editor, set nano: export EDITOR=nano
-
--> Default encryption cipher: Advanced Encryption Standard (AES)
-	-> Shared secret-based
-
-create encrypted file using Password File:
-------------------------------------------
-with help of --vault-password-file we don't need to enter the password. we can just pass the password file to the command. vault-pass.txt is a password file contain password information.
-
-	$ ansible-vault create --vault-password-file=vault-pass.txt secret.yml
-	vault-pass.txt
-	----------------
-	Passw0rd
-	----------------
-
-Encrypting a File:
-------------------
--> To encrypt existing file, use ansible-vault encrypt FILENAME
--> To encrypt more than one file, enter file names as arguments:
-
-	$ ansible-vault encrypt secret1.yml secret2.yml
-	New Vault password: redhat
-	Confirm New Vault password: redhat
-	Encryption successful
-
--> To save file with new name, use --output=OUTPUT_FILE
-	-> Available for encrypting single file only
-
-Viewing an Encrypted File:
---------------------------
--> To view file, use ansible-vault view FILENAME:
-
-	$ ansible-vault view secret1.yml
-	Vault password: secret
-	less 458 (POSIX regular expressions)
-	Copyright (C) 1984-2012 Mark Nudelman
-
-	less comes with NO WARRANTY, to the extent permitted by law.
-	For information about the terms of redistribution,
-	see the file named README in the less distribution.
-	Homepage: http://www.greenwoodsoftware.com/less
-	my_secret: "yJJvPqhsiusmmPPZdnjndkdnYNDjdj782meUZcw"
-
--> File not opened for editing
-
-Editing an Encrypted File:
---------------------------
--> To edit file, use ansible-vault edit FILENAME:
-
-$ ansible-vault edit secret.yml
-Vault password: redhat
-Decrypts file to temporary file
-
--> Edit temporary file and save changes
--> Content copied to encrypted file
--> Temporary file removed
-
-Changing a File Password:
--------------------------
--> To change vault password, use ansible-vault rekey FILENAME
-	-> Enter original and new password:
-
-$ ansible-vault rekey secret.yml
-Vault password: redhat
-New Vault password: RedHat
-Confirm New Vault password: RedHat
-Rekey successful
-
--> Can rekey multiple files sharing same password
--> Enter file names as arguments
--> To use password file, supply file name to rekey
--> To do so, use --new-vault-password-file
-
-Decrypting a File:
--------------------
--> To decrypt file, use ansible-vault decrypt FILENAME:
-
-$ ansible-vault decrypt secret1.yml --output=secret1-decrypted.yml
-Vault password: redhat
-Decryption successful
-
-Playbooks:
-----------
--> Playbook can use variables encrypted by Ansible Vault
-	-> Variable types:
-	Defined in group_vars or host_vars
-	Loaded by include_vars or vars_files
-	Passed on ansible-playbook with -e @file.yml or -e @file.json
-	Defined as role variables and defaults
-
--> Playbook decrypted in memory while running
-
-Variable Examples:
-------------------
--> To run such playbook, specify:
-
---ask-vault-pass
-
---vault-password-file:
-
-$ ansible-playbook --ask-vault-pass site.yml
-Vault password: redhat
-If no password specified, error returned:
-
-[student@demo ~]$ ansible-playbook site.yml
-ERROR: A vault password must be specified to decrypt vars/api_key.yml
-
-
-Password File:
-----------------
--> Alternative: Provide file location to decrypt vault
--> File stores password in plain text or using script
--> Password is string stored as single line in file
--> To provide file location, use --vault-password-file=/path/to/vault-password-file:
-
-$ ansible-playbook --vault-password-file=vault-pass site.yml
-Other option: Set vault password file as environmental variable
-
--> To do so, use ANSIBLE_VAULT_PASSWORD_FILE=~/vault-pass
+Set vault password file as environmental variable, To do so, use `ANSIBLE_VAULT_PASSWORD_FILE=~/vault-pass`
 
 Python Cryptography:
 --------------------
+Default: python-crypto used for encryption/decryption. Decrypting multiple files at startup can cause delay. To speed up decryption, install python-cryptography:
+	
+ 	$ sudo yum install python-cryptography
+	python-cryptography: Alternative library that provides:
 
--> Default: python-crypto used for encryption/decryption
--> Decrypting multiple files at startup can cause delay
--> To speed up decryption, install python-cryptography:
-
-$ sudo yum install python-cryptography
-python-cryptography: Alternative library that provides:
-
--> Modern interface
--> Improved cryptographic operations
--> If installed, used by default in place of python-crypto
+If installed, used by default in place of python-crypto
 
 Benefits:
 ----------
--> Performance issues with other Python-based libraries:
+Performance issues with other Python-based libraries:
 	PyCrypto
 	M2Crypto
 	PyOpenSSL
 
--> python-cryptography benefits:
-	-> Better algorithm implementation
-	-> High-level cryptography for human-readable APIs
-	-> Included algorithms (AES-GCM and HKDF)
-	-> Stronger community of maintenance for libraries
+python-cryptography benefits:
+	Better algorithm implementation
+	High-level cryptography for human-readable APIs
+	Included algorithms (AES-GCM and HKDF)
+	Stronger community of maintenance for libraries
+	GCM (Galois Counter Mode) is a mode of operation for block ciphers.
+	HKDF (HMAC-based Extract-and-Expand Key Derivation Function) is suitable for deriving keys of a fixed size used for other cryptographic operations.
 
-GCM (Galois Counter Mode) is a mode of operation for block ciphers.
-
-HKDF (HMAC-based Extract-and-Expand Key Derivation Function) is suitable for deriving keys of a fixed size used for other cryptographic operations.
-
-==============================================================
-Ansible Vault Lab:
---------------------
--> In this lab, you explore using encryption and decryption of files. Then you use an encrypted file with an Ansible Playbook to store usernames and passwords.
-
-Goals:
-------
--> Create and edit an encrypted file
--> View the contents of an encrypted file
--> Change the password of an encrypted file
--> Encrypt and decrypt an existing file
--> Define playbook variables in an encrypted file
--> Create a playbook that uses the encrypted variables file
--> Run a playbook using an encrypted file
-
-
+============================================================================================================================================================
 LAB-7: Ansible Vault
-================================================================
+============================================================================================================================================================
 
-2. Manage Encrypted Files:
---------------------------
--> In this exercise, you create and edit an encrypted file and change the password on an existing encrypted file. You also encrypt and decrypt an existing file.
+In this exercise, you create and edit an encrypted file and change the password on an existing encrypted file. You also encrypt and decrypt an existing file.
 
-------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------
 2.1. Create and View Encrypted File:
-------------------------------------
-Create an encrypted file called super-secret.yml under ansible_implementation, entering redhat as the vault password when prompted:
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+Create an encrypted file called super-secret.yml under ansible_implementation, entering redhat as the vault password when prompted. The default cipher (AES) used to encrypt the file is based on a shared secret.
 
-$ ansible-vault create super-secret.yml
-Sample Output
-New Vault password: redhat
-Confirm New Vault password: redhat
-----------------------------
+	$ ansible-vault create super-secret.yml
 
-This is encrypted.
+View the content of the encrypted file, entering redhat as the vault password when prompted:
 
-----------------------------
+	$ ansible-vault view super-secret.yml
 
--> Attempt to view the contents of the encrypted super-secret.yml file:
+Edit the encrypted file 
 
-$ cat super-secret.yml
-Sample Output
-$ANSIBLE_VAULT;1.1;AES256
-30353232636462623438613666393263393238613363333735626661646265376566653765633565
-3663386561393538333864306136316265636632386535330a653764616133343630303633323831
-33653136313933636633623431646634636661333762393764396135333236316338656338383933
-3635646662316335370a363264366138333434626261363465636331333539323734643363326138
-34626565353831666333653139323965376335633132313162613838613561396462323037313132
-3264386531353862396233323963613139343635323532346538
+	$ ansible-vault edit super-secret.yml
 
--> Because super-secret.yml is encrypted, you cannot view the contents in plain text.
--> The default cipher (AES) used to encrypt the file is based on a shared secret.
+Change the vault password of the encrypted file
 
--> View the content of the encrypted file, entering redhat as the vault password when prompted:
+	$ ansible-vault rekey super-secret.yml
 
-$ ansible-vault view super-secret.yml
-Sample Output
-Vault password: redhat
+Decrypt the encrypted file and save the file as super-secret-decrypted.yml,  with the --output option and ansible as the vault password:
 
-This is encrypted.
+	$ ansible-vault decrypt super-secret.yml --output=super-secret-decrypted.yml
 
+Encrypt the super-secret-decrypted.yml file and save the file as passwd-encrypted.yml, this time entering redhat as the vault password:
 
-----------------------------------
-2.2. Edit and View Encrypted File:
-----------------------------------
--> In this section, you add content to super-secret.yml and then view the file.
-
--> Edit super-secret.yml, specifying redhat as the vault password when prompted:
-
-$ ansible-vault edit super-secret.yml
-	Sample Output
-	Vault password: redhat
-
--> Add the following to the end of the file:
-
-This is also encrypted.
-
--> Save the file and exit the editor.
-
--> View the content of super-secret.yml, using redhat as the vault password:
-
-$ ansible-vault view super-secret.yml
-	Sample Output
-	Vault password: redhat
-	This is encrypted.
-	This is also encrypted.
-
-------------------------------------
-2.3. Change Encrypted File Password:
-------------------------------------
--> Change the vault password of the encrypted super-secret.yml file from redhat to ansible:
-
-$ ansible-vault rekey super-secret.yml
-Sample Output
-Vault password: redhat
-New Vault password: ansible
-Confirm New Vault password: ansible
-Rekey successful
-
-----------------------------------------
-2.4. Decrypt and Encrypt Encrypted File:
-----------------------------------------
-
--> Decrypt the encrypted super-secret.yml file and save the file as super-secret-decrypted.yml, using the ansible-vault decrypt subcommand with the --output option and ansible as the vault password:
-
-$ ansible-vault decrypt super-secret.yml --output=super-secret-decrypted.yml
-Sample Output
-Vault password: ansible
-Decryption successful
-
--> View the contents of the super-secret-decrypted.yml file to verify that it is decrypted:
-
-$ cat super-secret-decrypted.yml
-Sample Output
-This is encrypted.
-This is also encrypted.
-
--> Encrypt the super-secret-decrypted.yml file and save the file as passwd-encrypted.yml, this time entering redhat as the vault password:
-
-$ ansible-vault encrypt super-secret-decrypted.yml --output=super-secret-encrypted.yml
-Sample Output
-New Vault password: redhat
-Confirm New Vault password: redhat
-Encryption successful
+	$ ansible-vault encrypt super-secret-decrypted.yml --output=super-secret-encrypted.yml
 
 3. Use Ansible Vault:
 ------------------------
 In this section, you use Ansible Vault to encrypt a local file containing passwords and use the encrypted version in a playbook to create users on the frontend1.${GUID}.internal remote system.
 
-------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------
 3.1. Create Encrypted Variable File:
-------------------------------------
--> In this exercise, you create an encrypted file called secret.yml in the ansible_implementation directory. This file defines the password variables and stores the passwords to be used in the playbook. You use an associative array variable called newusers to define two users and passwords with the name variable as ansibleuser1 and ansibleuser2 and the pw variable as redhat and Re4H1T, respectively. You set the vault password to redhat.
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+In this exercise, you create an encrypted file called `secret.yml`. This file defines the password variables and stores the passwords to be used in the playbook. 
 
--> Make sure that you are in the ansible_implementation directory:
-
-$ cd ~/ansible_implementation
-
--> Create an encrypted file called secret.yml in ansible_implementation, providing the password redhat for the vault:
-
-$ ansible-vault create secret.yml
-Sample Output
-New Vault password: redhat
-Confirm New Vault password: redhat
+	$ ansible-vault create secret.yml
 ---------------------------------
 newusers:
   - name: ansibleuser1
@@ -3461,21 +3233,14 @@ newusers:
   - name: ansibleuser2
     pw: Re4H1T
 ---------------------------------
--> The password is stored as plain text in the pw variable.
--> Save the file and exit the editor.
 
--------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------
 3.2. Create Playbook That Uses Encrypted Variable File:
--------------------------------------------------------
--> In this exercise, you create a playbook that uses the variables defined in the secret.yml encrypted file. You name the playbook create_users.yml and create it under the ansible_implementation directory.
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+You name the playbook create_users.yml and create it under same directory.
 
--> You configure the playbook to use the lb host group defined by the lab setup script in the inventory file. Then you run this playbook as the devops user on the remote managed host and configure the playbook to create users based on the newusers associative array. This creates the ansibleuser1 and ansibleuser2 users on the hosts in the lb host group.
-
--> Create an Ansible Playbook in ansible_implementation/create_users.yml:
-
-$ cat << EOF > create_users.yml
+	$ cat create_users.yml
 -----------------------------------
-
 ---
 - name: create user accounts for all our servers
   hosts: lb
@@ -3489,76 +3254,64 @@ $ cat << EOF > create_users.yml
         name: "{{ item.name }}"
         password: "{{ item.pw | password_hash('sha512') }}"
       with_items: "{{ newusers }}"
-EOF
-
 ------------------------------------
 
--> The password is converted into a password hash that uses the password_hash hashing filters and sha512 algorithm.
+The password is converted into a password hash that uses the password_hash hashing filters and sha512 algorithm. You use the `user` module and pass this hashed password as an argument, as shown in this simplified example:
 
--> You use the user module and pass this hashed password as an argument, as shown in this simplified example:
+	user:
+	  name: user1
+	  password: "{{ 'passwordsaresecret' | password_hash('sha512') }}"
 
-user:
-  name: user1
-  password: "{{ 'passwordsaresecret' | password_hash('sha512') }}"
+Perform a syntax check of create_users.yml using ansible-playbook --syntax-check, and include the --ask-vault-pass option to prompt for the vault password set on secret.yml:
 
--> Perform a syntax check of create_users.yml using ansible-playbook --syntax-check, and include the --ask-vault-pass option to prompt for the vault password set on secret.yml:
+	$ ansible-playbook --syntax-check --ask-vault-pass create_users.yml
 
-$ ansible-playbook --syntax-check --ask-vault-pass create_users.yml
-Sample Output
-Vault password: redhat
+Create a password file called vault-pass with redhat as the contents and set the permissions of the file to 0600. This file is used during playbook execution rather than prompting for a password.
 
-playbook: create_users.yml
+	$ echo 'redhat' > vault-pass
+	$ chmod 0600 vault-pass
 
--> Resolve any syntax errors before continuing.
-
--> Create a password file called vault-pass with redhat as the contents and set the permissions of the file to 0600:
-
-$ echo 'redhat' > vault-pass
-$ chmod 0600 vault-pass
-
--> This file is used during playbook execution rather than prompting for a password.
-
----------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------
 3.3. Execute Playbook With Encrypted Variable File:
----------------------------------------------------
--> In this section, you execute the Ansible Playbook, using the vault password file to create the ansibleuser1 and ansibleuser2 users on a remote system. The usernames and passwords are stored as variables in the encrypted secret.yml file. You then connect to frontend1.${GUID}.internal via SSH to verify that the playbook executed properly and created both users.
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+In this section, you execute the Ansible Playbook, using the vault password file to create the `ansibleuser1` and `ansibleuser2` users on a remote system. The usernames and passwords are stored as variables in the encrypted `secret.yml` file. You then connect to `frontend1.${GUID}.internal` via SSH to verify that the playbook executed properly and created both users.
 
--> Execute the Ansible Playbook, using vault-pass as the vault password:
+Execute the Ansible Playbook, using `vault-pass` as the vault password:
 
-$ ansible-playbook --vault-password-file=vault-pass create_users.yml
+	$ ansible-playbook --vault-password-file=vault-pass create_users.yml
 
--> Connect to frontend1.${GUID}.internal via SSH first as ansibleuser1 and then as ansibleuser2 to verify that the users were created.
+Connect to `frontend1.${GUID}.internal` via SSH first as `ansibleuser1` and then as `ansibleuser2` to verify that the users were created.
 
--> For the ansibleuser1 user, use redhat as the password. For the ansibleuser2 user, use Red4H1T as the password.
+For the `ansibleuser1` user, use `redhat` as the password. For the `ansibleuser2` user, use `Red4H1T` as the password.
 
----------------------------------------------
+=========================================================================================================================================================
 Question 1 : When it is necessary to store secrets in variables, and what is the appropriate way to secure them?
-Rely on user/group security and ACLs
-Encrypt the entire playbook using GnuPG
--> Encrypt the secret variables using Ansible Vault
-Change the playbook to use var_prompt for all secrets
-
+	Rely on user/group security and ACLs
+	Encrypt the entire playbook using GnuPG
+	-> Encrypt the secret variables using Ansible Vault
+	Change the playbook to use var_prompt for all secrets
+=========================================================================================================================================================
 Question 2 : When calling Ansible from another script, and a vault file is in use, what is the best way to specify the vault password?
-Use the --ask-vault-pass option with echo and a pipe to supply the vault password prompt
-Supply the password on the Ansible command line with --vault-pass
-Decrypt the vault in the script to avoid the prompt
--> Store the password in a temp file and use the --vault-password-file option
-
+	Use the --ask-vault-pass option with echo and a pipe to supply the vault password prompt
+	Supply the password on the Ansible command line with --vault-pass
+	Decrypt the vault in the script to avoid the prompt
+	-> Store the password in a temp file and use the --vault-password-file option
+=========================================================================================================================================================
 Question 3 : Which command displays the contents of a vault-encrypted variable file while still leaving the file encrypted on disk?
-Encrypted file contents cannot be viewed
--> ansible-vault view encryptedvars.yml
-ansible-vault decrypt encryptedvars.yml
-ansible --decrypt-vault encryptedvars.yml
-
+	Encrypted file contents cannot be viewed
+	-> ansible-vault view encryptedvars.yml
+	ansible-vault decrypt encryptedvars.yml
+	ansible --decrypt-vault encryptedvars.yml
+=========================================================================================================================================================
 Question 4 : How should a vault-encrypted variable file be referenced from a playbook?
--> Add an include_vars directive to the play
-Add an include task to the play
-Add an include_encrypted_vars directive to the play
-Add a --include-vault directive on the command line
-
+	-> Add an include_vars directive to the play
+	Add an include task to the play
+	Add an include_encrypted_vars directive to the play
+	Add a --include-vault directive on the command line
+=========================================================================================================================================================
 Question 5 : What is the best way to modify a vault-encrypted file?
-vi encryptedvars.yml
--> ansible-vault edit encryptedvars.yml
-ansible-vault decrypt encryptedvars.yml; vi encryptedvars.yml
-Re-create the encrypted file
-------------------------------------------
+	vi encryptedvars.yml
+	-> ansible-vault edit encryptedvars.yml
+	ansible-vault decrypt encryptedvars.yml; vi encryptedvars.yml
+	Re-create the encrypted file
+=========================================================================================================================================================
