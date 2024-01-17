@@ -11,15 +11,8 @@ $ ansible -m --> module
           -b --> become
           --become-methord --> sudo | su | pbrun | pfexec | doas | dzdo | ksu | runas | pmrun | enable | machinectl
 
-1. ping 
-2. command 
-3. shell 
-4. debug 
-5. 
-
-
 Playbook keywords:
--------------------
+------------------------------------------------------------------------------
 hosts: 
 tasks:
 gather_facts: false/true
@@ -27,9 +20,9 @@ become: yes
 vars:
    ansible_become_user:
 
-
+------------------------------------------------------------------------------
 Debug:
-----------------------------------------
+------------------------------------------------------------------------------
 ---
 - name: print ansible_facts using debug
   hosts: all.
@@ -37,17 +30,129 @@ Debug:
   tasks:
   - debug: 
       vars: ansible_facts
-      
-Package: 
-----------------------------------------
+------------------------------------------------------------------------------
+yum
+------------------------------------------------------------------------------
+---
+- name: Install httpd
+  hosts: all
+  tasks:
+  - name: Install apache        # yum 
+    yum:
+      name: httpd
+      state: installed
+------------------------------------------------------------------------------
+apt
+------------------------------------------------------------------------------
+  - name: Install apache        # apt
+    apt: 
+      name: apache2
+      state: latest
+------------------------------------------------------------------------------
+package
+------------------------------------------------------------------------------
+  - name: Install apache        # package
+    package: 
+      name: httpd
+      state: present
+------------------------------------------------------------------------------
+service
+------------------------------------------------------------------------------
+  - name: Start httpd service   # service
+    service:
+      name: httpd
+      state: started
+------------------------------------------------------------------------------
+firewalld
+------------------------------------------------------------------------------
+  - name: open firewall         # firewalld
+    firewalld: 
+      port: 8080/tcp
+      service: http
+      zone: public
+      state: enabled
+      permanent: yes
+      immediate: yes
+------------------------------------------------------------------------------
+file
+------------------------------------------------------------------------------
+  - name: create a directroy    # file
+    file: 
+      path: /home/karna/newdir/
+      state: directroy
+  - name: create a file
+    file: 
+      path: /home/karna/newdir/index.html
+      state: touch
+      owner: app-user 
+      group: apt-user
+      mode: 0644
+------------------------------------------------------------------------------
+tags
+------------------------------------------------------------------------------
+- name: using tags              # tags
+  hosts: all
+  tasks: 
+  - name: install httpd
+    apt: name=apache2 state=latest 
+    tags: install httpd
+  - name: start httpd service
+    service: name=apache2 state=started
+    tags: start httpd service
+------------------------------------------------
+$ ansible-playbook test.yaml -i hosts -t "install httpd"
+-------------------------------------------------
+---
+- name: using tags
+  hosts: all
+  tasks: 
+  - name: install nginx
+    package: name=nginx state=latest 
+    tags: install nginx
 
+------------------------------------------------------------------------------
+archive
+------------------------------------------------------------------------------
+---
+- name: archive the files          # archive
+  hosts: all
+  tasks: 
+  - name: compress a folder
+    archive: 
+      path: /home/karna/newdir/
+      dest: /tmp/newdir.gz
+      format: zip|tar|bz2|xz|gz
 
+------------------------------------------------------------------------------
+cron
+------------------------------------------------------------------------------
+---
+- name: cron jobcreation            # cron
+  cron: 
+    name: cron job for testing
+    job: sh /tmp/sample.sh
+    month: 2
+    day: 30
+    hour:  12
+    minute: 10
 
-Service:
-----------------------------------------
+------------------------------------------------------------------------------
+user
+------------------------------------------------------------------------------
+---
+- name: create new users            #user
+  hosts: all
+  tasks:
+  - name: create new users
+    user:
+      name: dev-user
+      uid: 1001
+      group: dev
+      shell: /root/user1/
 
+------------------------------------------------------------------------------
 Firewalld:
------------------------------------------
+------------------------------------------------------------------------------
 
 ---
 - name: Add firewalld rule
@@ -62,28 +167,9 @@ Firewalld:
        permanent: yes
        immediate: yes
 
-storeage:
---------------------------------------------
-
-filesystem:
---------------------------------------------
-
-mount:
--------------------------------------------
-
-file:
-----------------------------------------
-
-archive:
-------------------------------------------------
-
-unarchive:
------------------------------------------
--
-          remote_src: yes
-          
+------------------------------------------------------------------------------
 cron:
-------------------------------------------
+------------------------------------------------------------------------------
 ---
 - name: 
   hosts: all
@@ -100,9 +186,9 @@ cron:
       minute: 10
       weekday: 1
       
-      
+------------------------------------------------------------------------------      
 users and groups:
------------------------------------------
+------------------------------------------------------------------------------
 tasks:
 - name:
   user:
@@ -112,31 +198,178 @@ tasks:
     shell:
 - name: 
 
+------------------------------------------------------------------------------
 authorized_key:
----------------------------------
- 
+------------------------------------------------------------------------------
+
+
+
+
+
+
+==============================================================================================================
+Conditional tasks:
+==============================================================================================================
+
+------------------------------------------------------------------------------
+when
+------------------------------------------------------------------------------
+
+---
+- name: install list of packages on Debian                      # When
+  hosts: all
+  vars:
+     list:
+     - firewalld
+     - apache2
+     - nginx
+  tasks:
+   - name: install list on Ubuntu
+     yum: 
+        name: "{{ item }}" 
+        state: latest
+     when: ansible_os_family == "Ubuntu"
+     loop: "{{ list }}"
+   - name: install list on Debian
+     apt: 
+        name: "{{ item }}" 
+        state:  latest
+     when: ansible_os_family == "Debian"
+     loop: "{{ list }}"
+
+------------------------------------------------------------------------------
+vars
+------------------------------------------------------------------------------
+---
+- name: install list of packages on Debian                      # vars
+  hosts: all
+  vars:
+     list:
+     - name: firewalld
+       value: firewalld
+     - name: install apache2
+       value: apache2
+     - name: nginx
+       value: nginx
+  tasks:
+   - name: install list on Ubuntu
+     yum: 
+        name: "{{ item.value }}" 
+        state: latest
+     when: ansible_os_family == "Ubuntu"
+     loop: "{{ list }}"
+   - name: install list on Debian
+     apt: 
+        name: "{{ item.value }}" 
+        state:  latest
+     when: ansible_os_family == "Debian"
+     loop: "{{ list }}"
+
+------------------------------------------------------------------------------
+Previous task result
+------------------------------------------------------------------------------ 
+---
+- name: Conditional Task Example                                #  Conditional based on Previous Task Result
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Check if a file exists
+      stat:
+        path: /path/to/some/file
+      register: file_check
+
+    - name: Display a message if the file exists
+      debug:
+        msg: "The file exists."
+      when: file_check.stat.exists
+
+---------------------------------------------------------      
+---
+- name: email service                       # register
+  hosts: all
+  tasks: 
+  - name: check status
+    command: service httpd status
+    register: result.rc
+-------------------------------------------------------
+---
+- name: install package                  # jinga vars   
+  hosts: all
+  become: true
+  vars:
+    users:
+    - apache
+    - nginx
+  tasks:
+  - name: create users
+    user: name="{{ item }}"
+    loop: "{{ users }}"
+  - command: id "{{ item }}"
+    loop: "{{ users }}"
+------------------------------------------------------------
+---
+- name: using blocks in the program                    # blocks & Rescue & allways
+  hosts: all
+  tasks: 
+  - block:
+    - name: install apache
+      apt: name=apache2 state=latest
+    - name: start service
+      service: name=apache2 state=started    
+    become_user: apache
+    when: ansible_os_family == "Debian"
+    rescue: 
+      - mail: 
+          to: karunakarrao.devops@gmail.com
+          subject: Install fail
+          body: apache install fail {{ ansible_failed_task.name }}
+  - block:
+    - name: install nginx
+      apt: name=nginx state=latest
+    - name: start nginx service
+      service: name=nginx state=started
+    become_user: nginx
+    when: ansible_os_family == "Debian"
+---------------------------------------------------------   
+
+=================================================================================================================
+Include: include_vars, include_tasks, include_roles, Include
+=================================================================================================================
+
+vars.yaml
+-----------------------------------
+package:
+- apache2
+- nginx
+- redis
+- mangodb
+-----------------------------------
+- name: install                             # include_vars
+  hosts: all
+  tasks:
+  - include_vars:
+      file: /root/vars.yaml
+      name: package
+  - include_tasks:
+      file: /root/install.yaml
+      name: Install
       
+  - name: install package
+    apt: name="{{ item }}" state=latest
+    loop: "{{ package.package }}"
 
-
-Sample demo application setup:
--------------------------------------------------
-$ sudo yum install firewalld
-$ sudo service firewalld start
-$ sudo systemctl enable firewalld 
-
-$ sudo yum install mariadb-server
-$ sudo vi /etc/my.cnf 
-$ sudo service mariadb start
-$ sudo systemctl enable mariadb
-$ sudo firewall-cmd --permanent --zone=public --add-port=3306/tcp
-$ sudo sirewall-cmd --reload
-
-$ mysql
-mariadb> CREATE DATABASE ecomdb;
-mariadb> CREATE USER 'ecomuser'@'localhost' IDENTIFIED BY 'ecompassword';
-mariadb> GRANT ALL PRIVILEGES ON *.* TO 'ecomuser'@'localhost';
-mariadb> FLUSH PRIVILEGES;
-
+-----------------------------------------------------
+--- 
+- name: Install                             # include_tasks
+  hosts: all
+  tasks:
+  - include_tasks: /root/install-db.yaml
+  - include_tasks: /root/install-app.yaml
+  - include_tasks: /root/install_web.yaml
+  - include_tasks: /root/start-service_db.yaml
+  
+----------------------------------------------------
 
 
 ======================================================================================================================
@@ -175,7 +408,6 @@ Error Handling:
     
 ---------------------------------------------------
 # if errors found in the server log, we can make the playbook fail. 
-
 ---
 - name: install
   hosts: all
@@ -250,12 +482,10 @@ change the strategy as below.
   tasks: 
   - name: 
 
-
 ======================================================================================================================
 Ansible - Serial:
 ======================================================================================================================
-to perform tasks BATCH wise we use the "serial" directive. like below
-
+by default how many servers ansible can perform playbook changes is 5. Ansible can create 5 forks by Defalut. this is configured in ansibile.cfg file as "forks = 5". how ever we can change this behaviour using to execute tasks BATCH wise on host servers, we use the "serial" directive. it means, it will performs playbook execution on 3 servers.
 ---
 - name: install
   hosts: all
@@ -266,4 +496,71 @@ to perform tasks BATCH wise we use the "serial" directive. like below
 -----------------------------------------------------
 
 Note: by default how many servers ansible can perform playbook changes is 5. Ansible can create 5 forks by Defalut. this is configured in ansibile.cfg file as "forks = 5". how ever we can change this behaviour using ansible configuration file. 
-      
+
+=============================================================================================================
+Playbook-tasks execution order:
+=============================================================================================================
+Roles are executed before the playbook tasks. To execute tasks before the roles, we can use the directives like pre_tasks,  post_tasks. 
+
+---------------------------------------------
+---
+- name: install 
+  hosts: all
+  tasks:
+  - name: install apache2
+    apt: name=apache2 state=latest
+  post_tasks:
+  - name: start servcie
+    service: name=apache2 state=started    
+  pre_tasks:
+  - name: check os version
+    command: cat /etc/*release*
+    
+=============================================================================================================
+handlers:
+=============================================================================================================
+Handlers in Ansible are used to trigger actions in response to events during the execution of playbooks. Typically, handlers are defined to perform tasks like restarting a service or taking some other action only when notified by a specific task. 
+
+---
+- name: install 
+  hosts: all
+  tasks: 
+    - name: install
+      apt: 
+        name:
+          - apache2
+          - nginx
+        state: latest
+      notify: start service
+  handlers:
+    - name: start service
+      service:              # The service module handles services individually, so you should provide a single service name.
+        name: "{{ item }}"
+        state: started
+      loop:
+        - apache2
+        - nginx
+        
+------------------------------------------------------------------------------------------------------
+
+
+Sample application demo  setup:
+=======================================================================================================================
+
+$ sudo yum install firewalld
+$ sudo service firewalld start
+$ sudo systemctl enable firewalld 
+
+$ sudo yum install mariadb-server
+$ sudo vi /etc/my.cnf 
+$ sudo service mariadb start
+$ sudo systemctl enable mariadb
+$ sudo firewall-cmd --permanent --zone=public --add-port=3306/tcp
+$ sudo sirewall-cmd --reload
+
+$ mysql
+mariadb> CREATE DATABASE ecomdb;
+mariadb> CREATE USER 'ecomuser'@'localhost' IDENTIFIED BY 'ecompassword';
+mariadb> GRANT ALL PRIVILEGES ON *.* TO 'ecomuser'@'localhost';
+mariadb> FLUSH PRIVILEGES;
+
