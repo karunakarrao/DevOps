@@ -2362,7 +2362,6 @@ Question 12: Which of the following is a valid way of defining variables via the
 =========================================================================================================================================
 Ansible Roles : 
 =========================================================================================================================================
-
 we can create custom ansible roles as per our needs, or we can use the comunity supported roles developed by the ansible communicty using ansible-galaxy command. this ansible roles are used to reuse the code in multiple places. depends on requirement. and it will separte the tasks, variables, handleres, etc arganized properly so that they can be used in mutiple places.  Roles can split playbooks into smaller playbooks and files
 
 Role Uses: Enable Ansible to load components from external files. Roles written as general purpose can be reused
@@ -2389,9 +2388,9 @@ Structure Example:
 		└── main.yml
 
 Subdirectories:
-----------------
+----------------------------------------------------------------------------------------------------------------
 
-defaults	: main.yml contains default values for role variables
+defaults	: main.yml contains default values for role variables.  
 		: Values can be overwritten when role is used
 
 files		: Contains static files referenced by role tasks
@@ -2411,10 +2410,8 @@ tests		: Can contain inventory and test.yml playbook
 vars		: main.yml defines role variable values
 
 Variables and Defaults:
-----------------------
-create vars/main.yml with < name: value > pairs in hierarchy. YAML uses role variables like any other variable: {{ VAR_NAME }}. High priority and it Cannot be overridden by inventory variables
-
-Use default variables to set default values for included or dependent role variables. To define default variables, create defaults/main.yml with name: value pairs in hierarchy. Lowest priority of any variables. Overridden by any other variable
+----------------------------------------------------------------------------------------------------------------
+create vars/main.yml. YAML uses role variables like any other variable: {{ VAR_NAME }}. High priority and it Cannot be overridden by inventory variables. Use default variables to set default values for included or dependent role variables. To define default variables, create defaults/main.yml with name: value pairs in hierarchy. Lowest priority of any variables. Overridden by any other variable
 
 note: Best practice: Define variable in vars/main.yml or defaults/main.yml. Use default variable when role needs value to be overridden
 
@@ -2428,26 +2425,15 @@ Example:
 -----------------------------
 
 Roles in Playbooks:
--------------------
+----------------------------------------------------------------------------------------------------------------
 For each role, include the following in playbook in this order. 
 	1. Tasks
 	2. Handlers
 	3. Variables
 	4. Dependencies
 
--> Role tasks (copy, script, template, include) reference files, templates, tasks
--> Ansible searches for items in these locations:
-	-> Files: files
-	-> Templates: templates
-	-> Tasks: tasks
--> Eliminates need for absolute or relative path names
-
-Alternative Syntax:-
---------------------
--> role1 same as previous example
-
 If role2 used, default variable values overridden:
----------------------------------------
+----------------------------------------------------------------------------------------------------------------
 ---
 - hosts: remote.example.com
   roles:
@@ -2461,21 +2447,17 @@ dependencies:
 ---------------------------------------
 
 Dependency Behavior:
---------------------
--> Default: Role added as dependency to playbook once
-	-> If role is listed as dependency again, it does not run
--> To override default, set allow_duplicates to yes in meta/main.yml
+-------------------------------------------------------------------------------------------------------------
+Default: Role added as dependency to playbook once . If role is listed as dependency again, it does not run. To override default, set allow_duplicates to yes in meta/main.yml
 
 Order of Execution:
--------------------
--> Default: Role tasks execute before tasks of playbooks in which they appear
--> To override default, use pre_tasks and post_tasks
-	-> pre_tasks: Tasks performed before any roles applied
-	-> post_tasks: Tasks performed after all roles completed
+-------------------------------------------------------------------------------------------------------------
+Default: Role tasks execute before tasks of playbooks in which they appear. To override default, use pre_tasks and post_tasks. 
+	pre_tasks: Tasks performed before any roles applied
+	post_tasks: Tasks performed after all roles completed
 
 Order of Execution Example:
----------------------------
-
+-------------------------------------------------------------------------------------------------------------
 ---
 - hosts: remote.example.com
   pre_tasks:
@@ -2487,12 +2469,10 @@ Order of Execution Example:
     - shell: echo 'still busy'
   post_tasks:
     - shell: echo 'goodbye'
-
-
 ------------------------------
 
 Directory Structure:
----------------------
+-------------------------------------------------------------------------------------------------------------
 -> Ansible looks for roles in:
 	-> roles subdirectory
 	-> Directories referenced by roles_path
