@@ -1,6 +1,6 @@
 Q. What is Infrastructure as Code (IAC) ?
 -------------------------------------------------------------------------
-A. Infrastructure as code (IaC) tools allow you to manage infrastructure with configuration files rather than through a graphical user interface. IaC allows you to build, change, and manage your infrastructure in a safe environment. Configuration file can be reuse and share.
+A. Infrastructure as code (IaC) tools, allow you to manage infrastructure with configuration files rather than through a graphical user interface. IaC allows you to build, change, and manage your infrastructure in a safe environment. Configuration file can be reuse and share.
 
 Examples: 
  
@@ -21,7 +21,7 @@ Q. How to manage any infrastructure?
 -------------------------------------------------------------------------
 A. Terraform plugins called **providers** let Terraform interact with cloud platforms and other services via their application programming interfaces (APIs). HashiCorp and the Terraform community have written over 1,000 providers to manage resources on Amazon Web Services (AWS), Azure, Google Cloud Platform (GCP), Kubernetes, Helm, GitHub, Splunk, and DataDog, just to name a few. 
 
-            Providers: Providers are the plug-ins that allow you to connect with different resouces. 
+            Providers: Providers are the plug-ins that allow you to connect with different cloud providers like AWS, Azure, GCP, VM-Ware, Physical machine and more. 
             Resources: Resouces are the objects that are created on the cloud like ec2, vpc, s2  and more.            
 
 Q. How terraform track your infrastructure changes?
@@ -30,47 +30,46 @@ A. Terraform keeps track of your real infrastructure in a state file know as `te
 
 Q. Terraform commands ?
 ------------------------------------------------------------------------------------------
-* `$ terraform version` --> check terrafom version details
-* `$ terraform init` --> initializing terraform 
-* `$ terraform fmt` --> formating the .tf files
-* `$ terraform validate` --> validating the .tf files 
-* `$ terraform plan` --> dry-run the terrafrom code
-* `$ terraform apply` --> applying the configuration changes 
+* `$ terraform version` 		--> check terrafom version details
+* `$ terraform init` 			--> initializing terraform 
+* `$ terraform fmt` 			--> formating the .tf files
+* `$ terraform validate` 		--> validating the .tf files 
+* `$ terraform plan` 			--> dry-run the terrafrom code
+* `$ terraform apply` 			--> applying the configuration changes 
 * `$ terraform apply --auto-approve` --> autoapprove the deployment changes
-* `$ terraform show` --> inspect the current state of configurations 
-* `$ terraform state list` --> state the resources list
-* `$ terraform output` --> print output of `output.tf` file
+* `$ terraform show` 			--> inspect the current state of configurations 
+* `$ terraform state list` 		--> state the resources list
+* `$ terraform output` 			--> print output of `output.tf` file
 
 Q. Important file in terraform
 -----------------------------------------------------------------------------------------
-* .terraform      --> post `terraform init`, it download the plugins and providers to this directory
-* .terraform.lock.hcl     --> lock file for terraform setup
-* terraform.tfstate   --> post `terraform appply` 
-* .terraform.tfstate.lock.info --> while testing `terraform plan` and `terraform apply`, it creates and deletes it.
-* terrform.tfstate.d     --> while working with workspace it creates this folder structure to store the state file.
+* `.terraform`              --> post `terraform init`, it download the plugins and providers to this directory
+* `.terraform.lock.hcl`     --> lock file for terraform setup
+* `terraform.tfstate`       --> post `terraform appply` 
+* `.terraform.tfstate.lock.info`   --> while testing `terraform plan` and `terraform apply`, it creates and deletes it.
+* `terrform.tfstate.d`             --> while working with workspace it creates this folder structure to store the state file.
 
 Q. Files and its purpose
 -----------------------------------------------------------------------------------------
-* main.tf	--> Main configuration file containing resource definition
-* variables.tf --> Contains variable declarations
-* outputs.tf --> Contains outputs from resources
-* provider.tf --> Contains Provider definition
-* terraform.tf --> Configure Terraform behaviour
+* `main.tf`	        	--> Main configuration file containing resource definition
+* `variables.tf`      	--> Contains variable declarations
+* `outputs.tf`        	--> Contains outputs from resources
+* `provider.tf`       	--> Contains Provider definition
+* `terraform.tf`      	--> Configure Terraform behaviour
 
-* variable.tfvars  --> 
-* terraform.tfvars  
-* terraform.tfvars.json
-* *.auto.tfvars
+* `variable.tfvars`  	--> 
+* `terraform.tfvars`  
+* `terraform.tfvars.json`
+* `*.auto.tfvars`
 
 Q. Variables
 -------------------------------------------------------------------------------------------
-Terraform variables are defined in mutiple ways,  using different .tf files like. the variable presidence is like below. 
+Terraform variables are defined in mutiple ways,  using different `.tf ` files like. the variable presidence is like below. 
 
-4 Environment Variables 
-3 terraform.tfvars 
-2 `*.auto.tfvars` (alphabetical order)
-1 -var or –var-file (command-line flags) 
-
+	1. -var or –var-file (command-line flags) 
+ 	2. `*.auto.tfvars` (alphabetical order)
+  	3. terraform.tfvars 
+	4. Environment Variables 
 
 Lab-1: using variables.tf with default values
 --------------------------------------------------------------------------------------------
