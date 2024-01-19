@@ -467,12 +467,15 @@ Error Handling:
 ======================================================================================================================
 Ansible - Strategy:
 ======================================================================================================================
-There are 2 types of Strategies in Ansible.
-    1. Linear (Defalut) - You don't need to specify
+There are 2 types of Strategies in Ansible. 
+    1. Linear (Defalut) - You don't need to specify.
     2. Free - 
-    
-change the strategy as below. 
 
+Linear strategy: is the default strategy used by ansible, if we are using linear strategy the ansible tasks execution will be done parallel accross all servers. if one server is completed first it will wait for the other servers to complete. if it got failed then it will also get failed accross all servers. 
+
+Free strategy: when you use Free strategy, it will complete the task execution independently with out witing for other servers to complete.
+
+change the strategy as below. 
 ----------------------------------------------------
 # free will install tasks on the servers independently with out waiting for other servers.
 ---
@@ -485,7 +488,7 @@ change the strategy as below.
 ======================================================================================================================
 Ansible - Serial:
 ======================================================================================================================
-by default how many servers ansible can perform playbook changes is 5. Ansible can create 5 forks by Defalut. this is configured in ansibile.cfg file as "forks = 5". how ever we can change this behaviour using to execute tasks BATCH wise on host servers, we use the "serial" directive. it means, it will performs playbook execution on 3 servers.
+by default how many servers ansible can perform playbook changes on remote servers is 5. Ansible can create 5 forks by Defalut. this is configured in `ansibile.cfg` file as "forks = 5". how ever we can change this behaviour using to execute tasks BATCH wise on host servers, we use the "serial" directive. it means, it will performs playbook execution on 3 servers.
 ---
 - name: install
   hosts: all
