@@ -1,16 +1,16 @@
 Q. What is Infrastructure as Code (IAC) ?
 -------------------------------------------------------------------------
-A. Infrastructure as code (IaC) tools, allow you to manage infrastructure with configuration files rather than through a graphical user interface. IaC allows you to build, change, and manage your infrastructure in a safe environment. Configuration file can be reuse and share.
+A. Infrastructure as code (IaC) tools, allow you to manage infrastructure with configuration files rather than through a graphical user interface. IaC allows you to build, change, and manage your infrastructure in a safe environment. Configuration file can be reuse and shared.
 
 Examples: 
  
             Configuration Management IAC tools:             Ansible, Puppet, Salt Stack
-            Server templating IAC Tools:                    Docker, Vagrant,
-            Infrastructure Provisioning IAC Tools:          Terraform, Cloud Formation
+            Server templating IAC Tools:                    Docker, Vagrant, packer 
+            Infrastructure Provisioning IAC Tools:          Terraform, Cloud-Formation
             
 Q. IaC as Terraform?
 -------------------------------------------------------------------------
-A. Terraform is HashiCorp's infrastructure as code tool. Its and opensource IAC tool. It lets you define resources and infrastructure in a human-readable, declarative configuration files, and manages your infrastructure's lifecycle. Using Terraform has several advantages over manually managing your infrastructure.
+A. Terraform is HashiCorp's infrastructure as code tool. Its and `opensource` IAC tool. It lets you define resources and infrastructure in a human-readable, declarative configuration files, and manages your infrastructure's lifecycle. Using Terraform has several advantages over manually managing your infrastructure.
 
               1. Terraform can manage infrastructure on multiple cloud platforms.
               2. The human-readable configuration language helps you write infrastructure code quickly.
@@ -19,14 +19,16 @@ A. Terraform is HashiCorp's infrastructure as code tool. Its and opensource IAC 
 
 Q. How to manage any infrastructure? 
 -------------------------------------------------------------------------
-A. Terraform plugins called **providers** let Terraform interact with cloud platforms and other services via their application programming interfaces (APIs). HashiCorp and the Terraform community have written over 1,000 providers to manage resources on Amazon Web Services (AWS), Azure, Google Cloud Platform (GCP), Kubernetes, Helm, GitHub, Splunk, and DataDog, just to name a few. 
+A. Terraform plugins called `providers` let Terraform interact with cloud platforms and other services via their application programming interfaces (APIs). HashiCorp and the Terraform community have written over 1,000 providers to manage resources on Amazon Web Services (AWS), Azure, Google Cloud Platform (GCP), Kubernetes, Helm, GitHub, Splunk, and DataDog, just to name a few. 
 
             Providers: Providers are the plug-ins that allow you to connect with different cloud providers like AWS, Azure, GCP, VM-Ware, Physical machine and more. 
-            Resources: Resouces are the objects that are created on the cloud like ec2, vpc, s2  and more.            
+            Resources: Resouces are the objects that are created on the cloud like ec2, vpc, s2  and more.      
+
+   Note: terraform downloads the plugins known as providers in `.terraform` folder in your local directory
 
 Q. How terraform track your infrastructure changes?
 -----------------------------------------------------------------------------------------
-A. Terraform keeps track of your real infrastructure in a state file know as `terraform.tfstate`, which acts as a source of truth for your environment. This file is only created in same directory where `terrafrom apply` executed successful. Terraform uses this state file to determine the changes to make to your infrastructure so that it will match your configuration. `terraform.tfstate` file is the obsalute copy of your environment. so don't edit or modify this file. if any resources missing during the apply phase this will create the missing resouces as per the .tfstate file defintion. so explicit editing of this file will delete resouces created.
+A. Terraform keeps track of your real infrastructure in a state file know as `terraform.tfstate`, which acts as a source of truth for your environment. This file is only created in same directory where `terrafrom apply` executed successful. Terraform uses this state file to determine the changes to make to your infrastructure so that it will match your configuration. `terraform.tfstate` file is the obsalute copy of your environment. so don't edit or modify this file. if any resources missing during the apply phase this will create the missing resouces as per the `.tfstate` file defintion. so explicit editing of this file will delete resouces created.
 
 Q. Terraform commands ?
 ------------------------------------------------------------------------------------------
@@ -40,12 +42,13 @@ Q. Terraform commands ?
 * `$ terraform show` 			--> inspect the current state of configurations 
 * `$ terraform state list` 		--> state the resources list
 * `$ terraform output` 			--> print output of `output.tf` file
+* `$ terraform destroy` 		--> it will delete all the configurations
 
 Q. Important file in terraform
 -----------------------------------------------------------------------------------------
 * `.terraform`              --> post `terraform init`, it download the plugins and providers to this directory
 * `.terraform.lock.hcl`     --> lock file for terraform setup
-* `terraform.tfstate`       --> post `terraform appply` 
+* `terraform.tfstate`       	   --> post `terraform appply` 
 * `.terraform.tfstate.lock.info`   --> while testing `terraform plan` and `terraform apply`, it creates and deletes it.
 * `terrform.tfstate.d`             --> while working with workspace it creates this folder structure to store the state file.
 
