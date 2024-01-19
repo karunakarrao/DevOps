@@ -26,7 +26,7 @@ A. Terraform plugins called **providers** let Terraform interact with cloud plat
 
 Q. How terraform track your infrastructure changes?
 -----------------------------------------------------------------------------------------
-A. Terraform keeps track of your real infrastructure in a state file know as `terraform.tfstate`, which acts as a source of truth for your environment. This file is only created in same directory where `terrafrom apply` executed successful. Terraform uses this state file to determine the changes to make to your infrastructure so that it will match your configuration. `terraform.tfstate` file is the obsalute copy of your environment. so don't edit or modify this file.
+A. Terraform keeps track of your real infrastructure in a state file know as `terraform.tfstate`, which acts as a source of truth for your environment. This file is only created in same directory where `terrafrom apply` executed successful. Terraform uses this state file to determine the changes to make to your infrastructure so that it will match your configuration. `terraform.tfstate` file is the obsalute copy of your environment. so don't edit or modify this file. if any resources missing during the apply phase this will create the missing resouces as per the .tfstate file defintion. so explicit editing of this file will delete resouces created.
 
 Q. Terraform commands ?
 ------------------------------------------------------------------------------------------
