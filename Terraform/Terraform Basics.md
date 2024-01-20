@@ -30,6 +30,25 @@ Q. How terraform track your infrastructure changes?
 -----------------------------------------------------------------------------------------
 A. Terraform keeps track of your real infrastructure in a state file know as `terraform.tfstate`, which acts as a source of truth for your environment. This file is only created in same directory where `terrafrom apply` executed successful. Terraform uses this state file to determine the changes to make to your infrastructure so that it will match your configuration. `terraform.tfstate` file is the obsalute copy of your environment. so don't edit or modify this file. if any resources missing during the apply phase this will create the missing resouces as per the `.tfstate` file defintion. so explicit editing of this file will delete resouces created.
 
+Q. What is a provider?
+------------------------------------------------------------------------------------------
+Providers are the plugins that are used to  connect with different providers like (aws, azure, docker, k8s, gcp, vmware, etc..). providers are of Official/community/sponserd. most cloud providers are official one. we can accumilate multipule  providers in  a single manifest file. we can see the privider details during the `init` phase.
+
+multipule-providers.tf
+------------------------------------------------
+```
+resource "local_file" "pet" {
+	filename = "/root/pets.txt"
+	content = "We love pets!"
+}
+
+resource "random_pet" "my-pet" {
+	prefix = "Mrs"
+	separator = "."
+	length = "1"
+}
+```
+
 Q. Terraform commands ?
 ------------------------------------------------------------------------------------------
 * `$ terraform version` 		--> check terrafom version details
@@ -54,27 +73,66 @@ Q. Important file in terraform
 
 Q. Files and its purpose
 -----------------------------------------------------------------------------------------
-* `main.tf`	        	--> Main configuration file containing resource definition
+* `main.tf`	        --> Main configuration file containing resource definition
 * `variables.tf`      	--> Contains variable declarations
 * `outputs.tf`        	--> Contains outputs from resources
 * `provider.tf`       	--> Contains Provider definition
 * `terraform.tf`      	--> Configure Terraform behaviour
 
-* `variable.tfvars`  	--> 
-* `terraform.tfvars`  
-* `terraform.tfvars.json`
-* `*.auto.tfvars`
+* `variable.tfvars`  		--> 
+* `terraform.tfvars`  		-->
+* `terraform.tfvars.json`	-->
+* `*.auto.tfvars`		-->
 
 Q. Variables
 -------------------------------------------------------------------------------------------
-Terraform variables are defined in mutiple ways,  using different `.tf ` files like. the variable presidence is like below. 
+Define variables in terraform using `variables.tf` file where you define the variables used in the `main.tf` file. it allow 3 parameters default, type, description. type and description are optinal parameters. 
+	
+ 	1. default 		--> default value 
+       	2. type			--> variable type - default type is any ( any/string/bool/number/list/map/set/object/tuple )
+	3. description		--> variable description what is the use of it.
 
-	1. -var or –var-file (command-line flags) 
- 	2. `*.auto.tfvars` (alphabetical order)
-  	3. terraform.tfvars 
-	4. Environment Variables 
+variables.tf
+---------------------------------------------
+```
+variable "filename" {
+  default = "/root/my-pet.txt"			# String 
+  type = string
+  description =	" image used for the instance creation " 
+}
+# Note: how to access the variable in main.tf is " var.filename"
 
-Lab-1: using variables.tf with default values
+variable "password_change" {
+  default = true				# Bool
+  type	= bool
+}
+# Note: how to access the variable in main.tf is " var.password_change"
+
+variable "length" {
+  default = 1					# Number
+  type	= number
+}
+# Note: how to access the variable in main.tf is " var.length"
+
+variable "prefix" {
+  default = ["Mr", "Mrs", "Sir"]		# List
+  type = list
+}
+# Note: first eleiment in the list is indexed as 0, 1, 2, 3.  how to access the variable in main.tf is "var.prefix[0]" 
+
+variable "perfix" {
+  default = ["Mr", "Mrs", "Sir"]		# set 
+  type = set
+}
+# Note: set will not allow duplicates in it. if duplicates are there it will send error msg.
+
+variable kitty {
+type = tuple([string, number, bool])		#tuple
+default = ["cat", 7, true]
+}
+```
+
+Lab-1: DEFAULT values in variable.tf file
 --------------------------------------------------------------------------------------------
 create `variables.tf` file same directory as `main.tf` file. and add the variables in the exmple shown
 
@@ -98,8 +156,8 @@ resource "aws_instance" "webserver" {
 }
 ```
 
-Lab-2: using variables.tf with out default values
--------------------------------------------------
+Lab-2: WITH_OUT DEFAULT values in  variable.tf file
+------------------------------------------------------------------------------------------------
 once you run the `$ terrform apply` command the system will promt for the values to enter dynamical values. 
 
 variables.tf
@@ -121,8 +179,9 @@ resource "aws_instance" "webserver" {
 ```
 
 Lab-3: command line arguments to over ride the values
------------------------------------------------------
-we can pass "n" number of variables using the option -var as a command line argument.
+------------------------------------------------------------------------------------------------
+we can pass "n" number of variables using the option `-var` as a command line argument.
+
 variables.tf
 -------------
 ```
@@ -144,17 +203,18 @@ resource "aws_instance" "webserver" {
 `$ terraform apply -var "ami=ami-0edab43b6fa892279" -var "instance_type=t2.micro"`
 
 Lab-4: setting as environment variables
-----------------------------------------
-we can export as environment varialbes.
+------------------------------------------------------------------------------------------------
+we can export as environment varialbes. just have to add TF_VAR as prefix to the actual variable type.
 
-
-$ export TF_VAR_instance_type="t2.micro"
-$ export TF_VAR_ami="ami-0edab43b6fa892279"
-$ terraform apply
+	$ export TF_VAR_instance_type="t2.micro"
+	$ export TF_VAR_ami="ami-0edab43b6fa892279"
+	$ terraform apply
 
 Lab-5: define variables in bulk using `variable.tfvars`
--------------------------------------------------------
-we can name the `variable.tfvars` with any name but extension should be with `.tfvars`. variables are automatically loaded when the files are create with name `terraform.tfvars`, `*.auto.tfvars`, `terraform.tfvars.json`, `*.auto.tfvars.json` the files are automatically loaded in the env. else we need to use argument `-var-file variable.tfvars`
+------------------------------------------------------------------------------------------------
+we can name the `variable.tfvars` with any name, but extension should be with `.tfvars`. variables are automatically loaded when the files are create with name `terraform.tfvars`, `*.auto.tfvars`, `terraform.tfvars.json`, `*.auto.tfvars.json` the files are automatically loaded in the env. else we need to use argument `-var-file variable.tfvars`. 
+
+Note: we need to define `variable.tf` file to load values in to `main.tf` event we define it in the `.tfvars/.auto.tfvars` files. 
 
 variables.tf
 --------------
@@ -179,11 +239,10 @@ variable.tfvars
 ami="ami-0edab43b6fa892279"
 instance_type="t2.micro"
 ```
-
-$ terraform apply -var-file variables.tfvars
+	$ terraform apply -var-file variables.tfvars
 
 Output variables:
-------------------
+-----------------------------------------------------------------------------------------------
 to present the output after applying the change, we can use the as below in the `main.tf` file. show the output `$ terraform apply` command
 
 ```
@@ -192,10 +251,16 @@ value = aws_instance.cerberus.public_ip
 description = "print the public IPv4 address"
 }
 ```
+	$ terraform ouput 		--> to show the output of the defined variables
+	$ terraform output pub_ip 	--> it will present only seleted output field
 
-$ terraform ouput --> to show the output of the defined variables
-$ terraform output pub_ip --> it will present only seleted output field
-
+Q.Terraform variables are defined in mutiple ways. the variable presidence is like below. 
+-----------------------------------------------------------------------------------------------
+	1. -var or –var-file (command-line flags) 
+ 	2. `*.auto.tfvars` (alphabetical order)
+  	3. terraform.tfvars 
+	4. Environment Variables 
+ 
 Q. Install Terraform ?
 ----------------------------
 A. Terraform installtion package comes with only one file named as **`terraform`** which is a binary file. it is responsible to connect with all providers. Once **`terrafrom init`** is executed it will connect with terrform repository and download the appropriate plug-in. this plugins are used to configure repective providers. 
