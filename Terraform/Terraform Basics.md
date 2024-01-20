@@ -243,7 +243,7 @@ instance_type="t2.micro"
 	$ terraform apply -var-file variables.tfvars
 
 ----------------------------------------------------------------------------------------------
-Resource Dependency ? 
+Resource Dependency 
 -----------------------------------------------------------------------------------------------
 using `depends_on` parameter in the resource block. will help you to achieve the sinario. once the dependent resouce block is executed, then only the dependent block gets created. 
 	1. Explicit	2. implicit
@@ -263,7 +263,7 @@ resource "random_pet" "my-pet" {
 	length = var.length
 }
 ```
- 2. Implicit Dependency  Reference expressions
+ 2. Implicit Dependency || Reference expressions
 ----------------------------------------------------
 ```
 resource "local_file" "pet" {
