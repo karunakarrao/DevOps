@@ -84,8 +84,9 @@ Q. Files and its purpose
 * `terraform.tfvars.json`	-->
 * `*.auto.tfvars`		-->
 
-Q. Variables
--------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------
+Variables
+----------------------------------------------------------------------------------------------
 Define variables in terraform using `variables.tf` file where you define the variables used in the `main.tf` file. it allow 3 parameters default, type, description. type and description are optinal parameters. 
 	
  	1. default 		--> default value 
@@ -150,8 +151,8 @@ main.tf
 -------------
 ```
 resource "aws_instance" "webserver" {
-  ami           = var.ami
-  instance_type = var.instance_type
+  ami           = var.ami  
+  instance_type = var.instance_type 
 
 }
 ```
@@ -241,6 +242,42 @@ instance_type="t2.micro"
 ```
 	$ terraform apply -var-file variables.tfvars
 
+----------------------------------------------------------------------------------------------
+Resource Dependency ? 
+-----------------------------------------------------------------------------------------------
+using `depends_on` parameter in the resource block. will help you to achieve the sinario. once the dependent resouce block is executed, then only the dependent block gets created. 
+	1. Explicit	2. implicit
+
+1. Explicit Dependency (depends_on)
+------------------------------------------
+```
+resource "local_file" "pet" {
+	filename = var.filename
+	content = "My favorite pet is Mr.Cat"
+	
+	depends_on = [ random_pet.my-pet ]	# resouce is dependent on the output of below resouce . 
+}
+resource "random_pet" "my-pet" {
+	prefix = var.prefix
+	separator = var.separator
+	length = var.length
+}
+```
+ 2. Implicit Dependency  Reference expressions
+----------------------------------------------------
+```
+resource "local_file" "pet" {
+	filename = var.filename
+	content = "My favorite pet is ${random_pet.my-pet.id}"
+}
+resource "random_pet" "my-pet" {
+	prefix = var.prefix
+	separator = var.separator
+	length = var.length
+}
+```
+
+----------------------------------------------------------------------------------------------
 Output variables:
 -----------------------------------------------------------------------------------------------
 to present the output after applying the change, we can use the as below in the `main.tf` file. show the output `$ terraform apply` command
