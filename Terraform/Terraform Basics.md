@@ -79,10 +79,10 @@ Q. Files and its purpose
 * `provider.tf`       	--> Contains Provider definition
 * `terraform.tf`      	--> Configure Terraform behaviour
 
-* `variable.tfvars`  		--> 
-* `terraform.tfvars`  		-->
-* `terraform.tfvars.json`	-->
-* `*.auto.tfvars`		-->
+* `variable.tfvars`  		--> variables defined in this file need to pass explicityly using `-var-file`
+* `terraform.tfvars`  		--> variables will auto load the values, doen't require to specify `-var-file`
+* `terraform.tfvars.json`	--> writing in JSON 
+* `*.auto.tfvars`		--> any filename with auto.tfvars will load variables automatically
 
 ----------------------------------------------------------------------------------------------
 Variables
