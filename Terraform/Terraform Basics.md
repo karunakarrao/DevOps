@@ -320,6 +320,76 @@ A. Terraform installtion package comes with only one file named as **`terraform`
 4. verify installtion `$ terraform -help` or `$ terraform -help plan`.
 5. we can also do it `$ touch ~/.bashrc` and `$ terraform -install-autocomplete`.
 
+Terraform commands:
+------------------------------------------------------------------------
+	$ terraform validate
+ 	$ terraform fmt
+  	$ terraform show
+   	$ terraform providers
+    	$ terraform output
+     
+      	$ terraform graph
+       	$ terraform graph |dot -Tsvg > graph.svg
+	$ apt update
+ 	$ apt install graphviz -y
+
+Immutable vs mutabule Infrastructure:
+------------------------------------------------------------------------
+`Mutable Infrastructure:`	In mutable infrastructure we update the cofigurations of the server from one version to next version. this require complex setup, which means need to see dependencies/os/libraries/etc right to perform.
+
+`Immutable Infrastructure:` 	In immutable infrastrucutre we destroy the new resouce with updated changes and destroys the old one upon the success. this is easy compare to mutable. 
+
+Why terraform will destroy resource when you do any miner modifications? 
+-------------------------------------------------------------------------
+This is the Default behaviour for the terraform to destroy the object, and creates the new object with the updated changes. this is also known as immutable infrastructure. by default terraform destroys the resouce first then it creates the object. this can be changes using "lifecycle rules".   
+
+---------------------------------------------------------------------------------------------------------------
+Lifecycle Rules:
+---------------------------------------------------------------------------------------------------------------
+To change the terraform default behaviour of "destroying the resource first then creating the resource". this can be changes using Lifecycle Rules.
+
+example:
+-----------------
+```
+resource "local_file" "pet-name" {
+  filename = "test.txt"
+  content  = "this is my pet, updated file"
+
+  lifecycle {					# This will ensure to change the order of creating resource. 
+    create_before_destroy = true
+  }
+}
+------------------------------------------------------------
+lifecycle {
+	prevent_destroy	= true			# This will prevent from destroing the resource.
+}
+------------------------------------------------------------
+lifecycle {
+	ignore_changes = [ tags, ami ]		# Terraform ignore the changes 
+}
+------------------------------------------------------------
+lifecycle {
+	ignore_changes	= all 			# Terraform will ignore the changes on this resouce.
+}
+-------------------------------------------------------------
+```
+
+---------------------------------------------------------------------------------------------------------------
+Datasources: ( Data Resources)
+---------------------------------------------------------------------------------------------------------------
+if you want to use the data-file from local/external filesystem into terraform then we use the `data` block. this will allow you to load the data from an external file.
+```
+resource "local_file" "pets" {
+	filename = /root/pets.txt
+	content  = data.local_file.dogs.content		
+}
+data "local_file" "dogs" {		# this is used to load the data from an external resouce /root/dogs.txt
+	filename = /root/dogs.txt
+}
+
+```
+
+
 Lab-1. How to Deploy a Docker image on Windows machine using terraform?
 ------------------------------------------------------------------------
 A. deploying a docker image using terraform, we need to first set prerequisites.
