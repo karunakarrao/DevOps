@@ -377,7 +377,8 @@ lifecycle {
 ---------------------------------------------------------------------------------------------------------------
 Datasources: ( Data Resources)
 ---------------------------------------------------------------------------------------------------------------
-if you want to use the data-file from local/external filesystem into terraform then we use the `data` block. this will allow you to load the data from an external file.
+if you want to use the data-file from local/external filesystem into terraform then we use the `data` block. this will allow you to load the data from an external file. datasources are not like `resource` blocks. they are used for read the data from a file. 
+
 ```
 resource "local_file" "pets" {
 	filename = /root/pets.txt
@@ -389,7 +390,60 @@ data "local_file" "dogs" {		# this is used to load the data from an external res
 
 ```
 
+---------------------------------------------------------------------------------------------------------------
+Meta arguments: 
+---------------------------------------------------------------------------------------------------------------
+meta arguments can be used any block that will change the behaviour of any resource. some of the meta  arguments like
 
+ 	1. depends_on	--> 
+  	2. lifecycle	--> to control the resouce  lifecycle
+   	3. count	--> to create same resouces for mutipule times
+    	4. for_each	--> similer to loop
+
+variables.tf
+---------------------------------------------
+```
+variable "filename" {
+	default	= [ "/root/pet.txt", "/root/dogs.txt", "/root/fox.txt" ]
+}
+```
+main.tf
+---------------------------------------------
+```
+resource "local_file" "pets" {
+	filename = var.filename[count.index]		# use count 
+	count 	= 3
+}
+```
+
+```
+resource "local_file" "pets"{
+	filename = var.filename[count.index]
+	count   =  length(var.filename)
+}
+```
+
+variables.tf
+----------------------------------------------------------
+```
+variable "users" {
+    type = list(string)
+    default = [ "/root/user10", "/root/user11", "/root/user12", "/root/user10"]
+}
+variable "content" {
+    default = "password: S3cr3tP@ssw0rd"
+  
+}
+```
+main.tf
+------------------------------------------------------------
+```
+resource "local_sensitive_file" "name" {
+    filename = each.value			# for_each
+    content = var.content
+    for_each = toset(var.users)
+}
+```
 Lab-1. How to Deploy a Docker image on Windows machine using terraform?
 ------------------------------------------------------------------------
 A. deploying a docker image using terraform, we need to first set prerequisites.
