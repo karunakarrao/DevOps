@@ -444,6 +444,79 @@ resource "local_sensitive_file" "name" {
     for_each = toset(var.users)
 }
 ```
+
+---------------------------------------------------------------------------------------------------------------
+Provider Version: 
+---------------------------------------------------------------------------------------------------------------
+Providers are the plugins for  terraform. sometimes we require to use specific version. for that goto the terraform provider documentation and use the required providers version as below. we can specify the version details like below. 
+	
+	1. version = "5.33.0"
+ 	2. version = "!= 5.33.0"	# any version other than this	
+  	3. version = "> 5.33.0"		# higher version 
+   	4. version = "< 5.33.0"		# lower version
+    
+```
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "5.33.0" 		# specific provider version 
+    }
+  }
+}
+
+provider "aws" {
+  # Configuration options
+}
+```
+
+---------------------------------------------------------------------------------------------------------------
+AWS :
+---------------------------------------------------------------------------------------------------------------
+Creating resources on AWS using the terraform is simple, follow the below steps.
+
+ 	1. install AWS-CLI 
+  	2. configure AWS with credentials
+   	3. terraform play creation for required resouces. 
+
+1. Install AWS-CLI
+------------------------------------------------------------------------------
+Step-1: Download the AWS_CLI and install it on your working OS.
+Step-2: run AWS version and check installed properly or not.
+
+	$ aws --version
+Step-3: create your AWS account and configure & Setup the AWS to connect with your account on AWS cloud
+
+	$ aws configure
+ 
+2. AWS - Terraform
+------------------------------------------------------------------------------
+create a 
+
+
+main.tf
+------------------------------------------------
+```
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+# Configure the AWS Provider
+provider "aws" {
+  region = "us-east-1"
+  access_key = "my-access-key"
+  secret_key = "my-secret-key"  
+}
+```
+
+
+
+
 Lab-1. How to Deploy a Docker image on Windows machine using terraform?
 ------------------------------------------------------------------------
 A. deploying a docker image using terraform, we need to first set prerequisites.
