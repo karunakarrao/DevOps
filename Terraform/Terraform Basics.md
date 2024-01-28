@@ -491,7 +491,7 @@ Step-3: create your AWS account and configure & Setup the AWS to connect with yo
  
 2. AWS - Terraform
 ------------------------------------------------------------------------------
-create a 
+create a aws user account and configure the access credentials as an input in the main.tf file like below or create a environment variables and pass the values `AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY_ID=`
 
 
 main.tf
@@ -514,6 +514,32 @@ provider "aws" {
 }
 ```
 
+Lab-1: creating AWS-IAM User and providing Admin Access
+------------------------------------------------------------------------------------------
+
+main.tf
+-------------------------------------------------
+```
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+# Configure the AWS Provider
+provider "aws" {
+  region = "us-east-1"
+  access_key = "my-access-key"
+  secret_key = "my-secret-key"  
+}
+```
+resource "aws_iam_user" "users" {
+  name = var.project-sapphire-users[count.index]
+  count = length(var.project-sapphire-users)
+}
 
 
 
