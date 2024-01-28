@@ -541,6 +541,19 @@ resource "aws_iam_user" "users" {
   count = length(var.project-sapphire-users)
 }
 
+variable "project-sapphire-users" {
+     type = list(string)
+     default = [ "mary", "jack", "jill", "mack", "buzz", "mater"]
+}
+provider "aws" {
+  region                      = "us-east-1"
+  skip_credentials_validation = true
+  skip_requesting_account_id  = true
+
+  endpoints {
+    iam                       = "http://aws:4566"
+  }
+}
 
 
 Lab-1. How to Deploy a Docker image on Windows machine using terraform?
