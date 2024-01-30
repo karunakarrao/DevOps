@@ -633,7 +633,18 @@ provider "aws" {
 ------------------------------------------------------------------------------------------
 Lab-3: Creating an S3 bucket using Terraform
 ------------------------------------------------------------------------------------------
+main.tf
+--------------------------
+```
+resource "aws_s3_bucket" "example" {
+  bucket = "my-tf-test-bucket"
 
+  tags = {
+    Name        = "My bucket"
+    Environment = "Dev"
+  }
+}
+```
 ------------------------------------------------------------------------------------------
 Lab-4: upload an item to S3 bucket using Terraform
 ------------------------------------------------------------------------------------------
@@ -660,6 +671,50 @@ provider "aws" {
   }
 }
 ```
+
+------------------------------------------------------------------------------------------
+Lab-5: Creating a Dynamo-DB table creation
+------------------------------------------------------------------------------------------
+main.tf
+-------------------------------------------
+```
+resource "aws_dynamodb_table" "project_sapphire_user_data" {
+  name           = "userdata"
+  billing_mode   = "PAY_PER_REQUEST"
+  hash_key       = "UserId"
+
+  attribute {
+    name = "UserId"
+    type = "N"
+  }
+}
+```
+providers.tf
+---------------------------------------------
+```
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "4.15.0"
+    }
+  }
+}
+
+provider "aws" {
+  region                      = var.region
+  skip_credentials_validation = true
+  skip_requesting_account_id  = true
+
+  endpoints {
+    dynamodb                       = "http://aws:4566"
+  }
+}
+```
+
+------------------------------------------------------------------------------
+Remote State file:
+------------------------------------------------------------------------------
 
 
 
