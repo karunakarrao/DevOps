@@ -335,12 +335,12 @@ Terraform commands:
 
 Immutable vs mutabule Infrastructure:
 ------------------------------------------------------------------------
-`Mutable Infrastructure:`	In mutable infrastructure we update the cofigurations of the server from one version to next version. this require complex setup, which means need to see dependencies/os/libraries/etc right to perform.
+`Mutable Infrastructure:`	In mutable infrastructure we update the cofigurations of the server from one version to next version. this require complex setup, which means need to see dependencies/os/libraries/etc to perform.
 
-`Immutable Infrastructure:` 	In immutable infrastrucutre we destroy the new resouce with updated changes and destroys the old one upon the success. this is easy compare to mutable. 
+`Immutable Infrastructure:` 	In immutable infrastrucutre new resouce is created with updated changes and destroys the old one upon the successful setup. this is easy compare to mutable. 
 
-Why terraform will destroy resource when you do any miner modifications? 
--------------------------------------------------------------------------
+Why terraform will destroy resource when you do any miner modifications ? 
+--------------------------------------------------------------------------
 This is the Default behaviour for the terraform to destroy the object, and creates the new object with the updated changes. this is also known as immutable infrastructure. by default terraform destroys the resouce first then it creates the object. this can be changes using "lifecycle rules".   
 
 ---------------------------------------------------------------------------------------------------------------
@@ -348,8 +348,8 @@ Lifecycle Rules:
 ---------------------------------------------------------------------------------------------------------------
 To change the terraform default behaviour of "destroying the resource first then creating the resource". this can be changes using Lifecycle Rules.
 
-example:
------------------
+main.tf
+------------------------------------------------------------
 ```
 resource "local_file" "pet-name" {
   filename = "test.txt"
@@ -377,8 +377,10 @@ lifecycle {
 ---------------------------------------------------------------------------------------------------------------
 Datasources: ( Data Resources)
 ---------------------------------------------------------------------------------------------------------------
-if you want to use the data-file from local/external filesystem into terraform then we use the `data` block. this will allow you to load the data from an external file. datasources are not like `resource` blocks. they are used for read the data from a file. 
+if you want to use the data-file from local/external filesystem into terraform, then we use the `data` block. this will allow you to load the data from an external file. datasources are not like `resource` blocks. they are used for read the data from a file. 
 
+main.tf
+---------------------------------------
 ```
 resource "local_file" "pets" {
 	filename = /root/pets.txt
@@ -387,7 +389,6 @@ resource "local_file" "pets" {
 data "local_file" "dogs" {		# this is used to load the data from an external resouce /root/dogs.txt
 	filename = /root/dogs.txt
 }
-
 ```
 
 ---------------------------------------------------------------------------------------------------------------
@@ -404,7 +405,7 @@ variables.tf
 ---------------------------------------------
 ```
 variable "filename" {
-	default	= [ "/root/pet.txt", "/root/dogs.txt", "/root/fox.txt" ]
+	default	= [ "/root/pet.txt", "/root/dogs.txt", "/root/fox.txt", "/root/elephant.txt ]
 }
 ```
 main.tf
@@ -415,7 +416,7 @@ resource "local_file" "pets" {
 	count 	= 3
 }
 ```
-
+---------------------------------------------
 ```
 resource "local_file" "pets"{
 	filename = var.filename[count.index]
@@ -432,13 +433,12 @@ variable "users" {
 }
 variable "content" {
     default = "password: S3cr3tP@ssw0rd"
-  
 }
 ```
 main.tf
 ------------------------------------------------------------
 ```
-resource "local_sensitive_file" "name" {
+resource "local_sensitive_file" "sensitive-file" {
     filename = each.value			# for_each
     content = var.content
     for_each = toset(var.users)
@@ -715,7 +715,25 @@ provider "aws" {
 ------------------------------------------------------------------------------
 Remote State file:
 ------------------------------------------------------------------------------
+Terraform state file maintain the realtime infrastructure in .tfstate file. this will allow us to track metadata while deleting resources, terraform will track its dependencies and delete in the required order. we can work with number of cloud providers that will imporove the performance. 
 
+It is not recommunded to maintain the statefile in the version controll systems, because of its sensitive data. terraform will maintain state locking this will prevent from others to apply changes, but in version controll system this is not posible. if in somecase the user didn't pull  the latest changes this will effect the  system to destory the infrstructure. 
+
+this is why we need remote backed to store the terraform file. these backends will load the latest state file when ever they need to run. remote backends like
+	1. terraform cloud
+ 	2. google cloud
+  	3. amazon s3 bucket
+   	4. 
+
+
+----------------------------------------------------------------------------------
+Lab-1: Remote backend  with s3 & Dynamo-DB
+----------------------------------------------------------------------------------
+First we need to configure 2 things, after that we need Bucket name, Key to be used, Region, Dynamo-DB table. 
+
+	1. S3 bucket for storing the state file
+ 	2. Dynamo-DB table will be used for state locking & consistency checks
+  
 
 
 Lab-1. How to Deploy a Docker image on Windows machine using terraform?
