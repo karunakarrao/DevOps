@@ -491,8 +491,37 @@ Step-3: create your AWS account and configure & Setup the AWS to connect with yo
  
 2. AWS - Terraform
 ------------------------------------------------------------------------------
-create a aws user account and configure the access credentials as an input in the main.tf file like below or create a environment variables and pass the values `AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY_ID=`
+create a aws user account and configure the access credentials as an input in the `main.tf`.  
 
+1. Passing credentials in main.tf
+-----------------------------------------------------------------
+```
+provider "aws" {
+  region = "us-east-1"
+  access_key = "my-access-key"
+  secret_key = "my-secret-key"  
+}
+```
+
+2. exporting as an environment variables  `AWS_ACCESS_KEY_ID` & `AWS_SECRET_ACCESS_KEY_ID`
+-----------------------------------------------------------------
+	$ export AWS_ACCESS_KEY_ID=
+	$ export AWS_SECRET_ACCESS_KEY_ID=
+	$ export AWS_REGION= us-west-2
+
+3. adding credentials in `.aws/config/credentials` file.
+-----------------------------------------------------------------
+	[default]
+	aws_access_key_id = AKIAI44QH8DHBEXAMPLE
+	aws_secret_access_key = je7MtGbClwBF/2tk/h3yCo8n…
+
+4. configure aws credentials in working directory
+-----------------------------------------------------------------
+	$ aws configure
+		AWS Access Key ID [None]:
+		AWS Secret Access Key [None]:
+		Default region name [None]:
+		Default output format [None]:
 
 main.tf
 ------------------------------------------------
@@ -513,38 +542,84 @@ provider "aws" {
   secret_key = "my-secret-key"  
 }
 ```
-
-Lab-1: creating AWS-IAM User and providing Admin Access
 ------------------------------------------------------------------------------------------
-
+Lab-1: creating AWS-IAM User "Lucy" and providing Admin Access
+------------------------------------------------------------------------------------------
 main.tf
--------------------------------------------------
+------------------------------
 ```
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
+resource "aws_iam_user" "admin-user" {
+	name = "lucy"
+	tags = {
+	Description = "Technical Team Leader"
+	}
+}
+resource "aws_iam_policy" "adminUser" {
+name = "AdminUsers"
+policy = <<EOF				
+  {	"Version": "2012-10-17",
+	"Statement": [
+	         {
+	             "Effect": "Allow",
+	             "Action": "*",
+	             "Resource": "*"
+		}
+	]
   }
+  EOF
 }
+resource "aws_iam_user_policy_attachment" "lucy-admin-access" {
+	user = aws_iam_user.admin-user.name
+	policy_arn = aws_iam_policy.adminUser.arn
+}
+```
 
-# Configure the AWS Provider
-provider "aws" {
-  region = "us-east-1"
-  access_key = "my-access-key"
-  secret_key = "my-secret-key"  
+admin-policy.json
+-------------------------------------------
+above EOF section can be moved into a file and pass that file as `file("admin-policy.json")` in the program like below. 
+```
+{	"Version": "2012-10-17",
+	"Statement": [
+	         {
+	             "Effect": "Allow",
+	             "Action": "*",
+	             "Resource": "*"
+		}
+	]
+  }
+```
+main.tf
+-------------------------------------------
+```
+resource "aws_iam_policy" "adminUser" {
+	name = "AdminUsers"
+	policy =
 }
+```
+------------------------------------------------------------------------------------------
+Lab-2: creating AWS-IAM Users in bulk 
+------------------------------------------------------------------------------------------
+In this lab we create bulk uses using terrafrom. 
+main.tf
+-------------------------------
 ```
 resource "aws_iam_user" "users" {
   name = var.project-sapphire-users[count.index]
   count = length(var.project-sapphire-users)
 }
-
+```
+variable.tf
+-------------------------------
+```
 variable "project-sapphire-users" {
      type = list(string)
      default = [ "mary", "jack", "jill", "mack", "buzz", "mater"]
 }
+
+```
+provider.tf
+-------------------------------
+```
 provider "aws" {
   region                      = "us-east-1"
   skip_credentials_validation = true
@@ -554,6 +629,38 @@ provider "aws" {
     iam                       = "http://aws:4566"
   }
 }
+```
+------------------------------------------------------------------------------------------
+Lab-3: Creating an S3 bucket using Terraform
+------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------------
+Lab-4: upload an item to S3 bucket using Terraform
+------------------------------------------------------------------------------------------
+main.tf
+------------------------------------------
+```
+resource "aws_s3_object" "upload" {
+  bucket = "pixar-studios-2020"
+  key = "woody.jpg"
+  source = "/root/woody.jpg"
+}
+```
+providers.tf
+------------------------------------------
+```
+provider "aws" {
+  region                      = var.region
+  s3_use_path_style = true
+  skip_credentials_validation = true
+  skip_requesting_account_id  = true
+
+  endpoints {
+    s3                       = "http://aws:4566"
+  }
+}
+```
+
 
 
 Lab-1. How to Deploy a Docker image on Windows machine using terraform?
