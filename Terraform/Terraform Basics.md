@@ -734,7 +734,36 @@ First we need to configure 2 things, after that we need Bucket name, Key to be u
 	1. S3 bucket for storing the state file
  	2. Dynamo-DB table will be used for state locking & consistency checks
   
+terraform.tf
+---------------------------------------------------------------
+```
+terraform {
+  backend "s3" {
+    key = "terraform.tfstate"
+    region = "us-east-1"
+    bucket = "remote-state"
+    endpoint = "http://172.16.238.105:9000"
+    force_path_style = true
 
+    skip_credentials_validation = true
+    skip_metadata_api_check = true
+    skip_region_validation = true
+  }
+}
+```
+main.tf
+------------------------------------------------------------------
+```
+resource "local_file" "state" {
+    filename = "/root/${var.remote-state}"
+    content = "This configuration uses ${var.remote-state} state"
+}
+```
+
+	$ terraform state list
+ 	$ terraform state show
+  	$ terrafrom state mv
+   	$ 
 
 Lab-1. How to Deploy a Docker image on Windows machine using terraform?
 ------------------------------------------------------------------------
