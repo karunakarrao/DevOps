@@ -760,10 +760,21 @@ resource "local_file" "state" {
 }
 ```
 
-	$ terraform state list
- 	$ terraform state show
-  	$ terrafrom state mv
-   	$ 
+How to list/move/e/remove a resouce block from terrraform statefile perminently 
+---------------------------------------------------------------------------
+to remove a resouce block that we no longer need to maintain, to do so first we need to remove the block from `main.tf` file then from the state file using the `terraform state rm`.
+
+	$ terraform state list							--> lists all resources in state file
+ 	$ terraform state show random_pet.super_pet_1 				--> 
+  	$ terraform state mv random_pet.super_pet_1 random_pet.ultra_pet	--> change in main.tf and state file 
+   	$ terrafrom state rm random_pet.ultra_pet				--> remove a resource from state file & main.tf file
+    	$ terraform state 
+     	$ terraform show
+
+AWS-EC2 instance create using Terraform
+------------------------------------------------------------------------
+
+
 
 Lab-1. How to Deploy a Docker image on Windows machine using terraform?
 ------------------------------------------------------------------------
@@ -772,7 +783,7 @@ A. deploying a docker image using terraform, we need to first set prerequisites.
 2. make sure the DockerDesktop is up and running. otherwise the system will not able to find the docker daemon.
 3. create folder 'terraform-docker' and change into it
 4. create file `main.tf` and copy the below content to it.
--------------------------------------------------------------
+------------------------------------------------------------- 
 ```
 # required providers Terraform will use to provision your infrastructure.
 
