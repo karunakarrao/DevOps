@@ -1,11 +1,11 @@
 -----------------------------------------------------------------------------
 Ansible installtion & Configuration files :
 -----------------------------------------------------------------------------
-	/etc/ansible/ansible.cfg 	--> main ansible configuration file
-	/etc/ansible/hosts  	 	--> default host inventory file
-	/usr/bin/ansible	 	--> ansible binaries are available here
-	/usr/lib/python2.7/site-packages/ansible/modulescd  --> ansible modules are available here
-	/etc/ansible/facts.d/custom.fact	--> for defining the custom facts
+	/etc/ansible/ansible.cfg 				--> main ansible configuration file
+	/etc/ansible/hosts  	 				--> default host inventory file
+	/usr/bin/ansible	 				--> ansible binaries are available here
+	/usr/lib/python2.7/site-packages/ansible/modulescd  	--> ansible modules are available here
+	/etc/ansible/facts.d/custom.fact			--> for defining the custom facts
 ------------------------------------------------------------------------------
 Ansible installation Binaries:
 ------------------------------------------------------------------------------
@@ -108,10 +108,10 @@ SSH keys:
 ---------------------------------------------------
 Ping/Pong status check:
 ----------------------------------------------------
-	$ ansible all -m ping -i inventory							--> ad-hoc command to ping all the severs 
-	$ ansible all -m command -a uptime -i inventory 					--> to check server uptime on all inventory hosts
-	$ ansible all -m copy -a "src=~/src/file1 dest=~/dest/file1" -i inventory 		--> copy the source file to destination.
-	$ ansible localhost -m command -a uptime -i inventory 					--> to check the server uptime on localhost using ansible command
+	$ ansible all -m ping -i inventory						--> ad-hoc command to ping all the severs 
+	$ ansible all -m command -a uptime -i inventory 				--> to check server uptime on all inventory hosts
+	$ ansible all -m copy -a "src=~/src/file1 dest=~/dest/file1" -i inventory 	--> copy the source file to destination.
+	$ ansible localhost -m command -a uptime -i inventory 				--> to check the server uptime on localhost using ansible command
 
 Note: to make the custom inventory file as a default, we can have a copy of the `ansible.cfg` file in home directory. and modify field `#inventory` with new path. so you don't have to use the parameter -i for each command. 
 
