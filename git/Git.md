@@ -34,7 +34,7 @@ for creating a local repository run  ` git init `, this will create a local repo
     
     $ git diff --color-words hello.sh -----------> diff b/w untracked modified-file vs actual-file
     $ git diff --cached --color-words hello.sh --> diff b/w stagged modified-file vs actual-file
-    
+        
     $ git reset --soft HEAD~1 --------> keep the changes in file but delete the commit entry
     $ git reset --hard HEAD~1 --------> to delete the commited chagnes 
     
@@ -56,7 +56,7 @@ Note: `git config --global` will set values for all your repositories. it saves 
 
 restore:
 ---------------------------
-    $ git restore hello.v1.sh  --> revert the changes from original file before stagging area.
+    $ git restore hello.v1.sh           --> revert the changes from original file before stagging area.
     $ git restore --staged hello.v2.sh  --> remove updated file from stagging area. 
     
     $ git rm --cached hello.sh --> remove untracked files from stagging area
@@ -189,9 +189,9 @@ stash
 ------------------------------------------
 if you don't want to commit the changes you made, but switch to other branch and do changes use the stash command, we can have may stashes. access and apply stashed changes as below 
 
-    $ git stash     --> it will store as cache in that branch
-    $ git stash pop --> to revert the stash.
-    $ git stash list    --> list all the stashed files
+    $ git stash     			--> it will store as cache in that branch
+    $ git stash pop 			--> to revert the stash.
+    $ git stash list    		--> list all the stashed files
     $ git stash show stash-id   --> to see the change in that stash-id
     $ git statsh pop stash-id   --> to unstash the changes uisng stash-id
 
