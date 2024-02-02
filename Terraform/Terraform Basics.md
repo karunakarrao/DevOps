@@ -157,7 +157,7 @@ resource "aws_instance" "webserver" {
 }
 ```
 
-Lab-2: WITH_OUT DEFAULT values in  variable.tf file
+Lab-2: with out DEFAULT values in  variable.tf file
 ------------------------------------------------------------------------------------------------
 once you run the `$ terrform apply` command the system will promt for the values to enter dynamical values. 
 
@@ -775,8 +775,121 @@ to remove a resouce block that we no longer need to maintain, to do so first we 
 
 AWS-EC2 instance create using Terraform
 ------------------------------------------------------------------------
+main.tf
+--------------------------------------
+```
+resource "aws_instance" "webserver" {		#To create an Ec2 machine 
+  ami = "ami-0277155c3f0ab2930"
+  instance_type = "t2.micro"
+  tags = {
+    Name = "web-1"
+    description = "for testing purpose"
+  }
+  key_name = aws_key_pair.webserver.id
+}
+
+resource "aws_key_pair" "webserver" {		# mapping public key to connect with instance 
+  key_name = "webserver-key"
+  public_key = file("C:\\Users\\karun\\.ssh\\id_rsa.pub")
+}
+```
+
+---------------------------------------------------------------------------------------------------------
+Lab-2 : how to install nginx on the server. 
+---------------------------------------------------------------------------------------------------------
+main.tf
+--------------------------------------
+`user_data` will run only at the first boot of the server. this script will try to modify but still it will not install the nginx script.
+```
+resource "aws_instance" "cerberus" {
+  ami = "ami-06178cf087598769c"
+  instance_type = "m5.large"
+  key_name = aws_key_pair.cerberus-key.id
+  user_data = file("./install-nginx.sh")    
+  }
+resource "aws_key_pair" "cerberus-key" {
+  key_name = "cerberus"
+  public_key = file("/root/terraform-projects/project-cerberus/.ssh/cerberus.pub")
+}
+```
+
+Lab-3: creating Elastic-IP 
+----------------------------------------------------------------------------------
+```
+resource "aws_instance" "cerberus" {
+  ami = "ami-06178cf087598769c"
+  instance_type = "m5.large"
+  key_name = aws_key_pair.cerberus-key.id
+  user_data = file("./install-nginx.sh")    # user_data will run only at the first boot of the server.
+  }
+resource "aws_key_pair" "cerberus-key" {
+  key_name = "cerberus"
+  public_key = file("/root/terraform-projects/project-cerberus/.ssh/cerberus.pub")
+}
+resource "aws_eip" "eip" {
+  vpc = true
+  instance = aws_instance.cerberus.id
+  provisioner "local-exec" {
+    command = "echo ${aws_eip.eip.public_dns} >> /root/cerberus_public_dns.txt"
+  }
+}
+output "eip-value" {
+  value = aws_eip.eip.public_ip
+}
+```
+----------------------------------------------------------------------------------
+Provisioners:
+----------------------------------------------------------------------------------
+Provisioners provide a way to run tasks such as command, scripts on remote instance where terraform installed. while creating a EC2 instance we can include the provisioners block to install softwares like nginx/apache/redis/etc. specifying the provisioner block will not be sufficient to work, because it require network, security group, and local machine. this mean it require ssh connection to the machine.
+to fecilitate the authentication we can use connection block. 
+
+Provisioners are of 2 types
+
+	1. Remote (remote_exec)	--> its for remote machine actions
+ 	2. Local (local_exec)	--> its for local machine actions
+
+main.tf
+--------------------------------------------
+```
+resource "aws_instance" "webserver" {
+  ami = "ami-0277155c3f0ab2930"
+  instance_type = "t2.micro"
+  key_name = aws_key_pair.webserver.id
+
+# this section will perform install actions on the 
+  provisioner "remote-exec" {
+    inline = [	"sudo apt-get update",
+		"sudo apt-get install nginx -y",
+    		"sudo systemctl enable nginx",
+    		"sudo systemctl start nginx"  ]  
+  }
+  
+}
+
+# this section will use the public key to connect with ec2-machine create above "key_name"
+resource "aws_key_pair" "webserver" {
+  key_name = "webserver-key"
+  public_key = file("C:\\Users\\karun\\.ssh\\id_rsa.pub")
+}
 
 
+
+```
+-------------------------------------------------------------------------------------------
+Provisioners Behaviour:
+-------------------------------------------------------------------------------------------
+in the above example we run the provisioners during the creation time. if we want to run the provisioners during the ec2 instance destring time we can use when condition. 
+```
+provisioner "local-exec" {
+    command = "echo Instance ${aws_instance.webserver.public_ip} created > /tmp/aws_instance_ip.txt"
+  }
+```
+```
+provisioner "local-exec" {
+    when  = destroy
+    command = "echo Instance ${aws_instance.webserver.public_ip} created > /tmp/aws_instance_ip.txt"
+  }
+```
 
 Lab-1. How to Deploy a Docker image on Windows machine using terraform?
 ------------------------------------------------------------------------
