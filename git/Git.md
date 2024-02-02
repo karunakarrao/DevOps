@@ -26,7 +26,7 @@ Wokring with local repository:
 ------------------------------------------------------------------------------
 for creating a local repository run  ` git init `, this will create a local repository in your local machine. this also create a .git folder inside the repo which will track your git repo activity. 
 
-    $ git init
+    $ git init        ----> initialize the current directory wit Git.
     $ touch hello.sh    ---------------> Create a file 
     $ git status  ---------------------> shows untracked files + modified files. 
     $ git add hello.sh  ---------------> add to stagging area
