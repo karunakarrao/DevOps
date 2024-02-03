@@ -922,6 +922,27 @@ In most cases the real infrastucture is already created. to use the resouce data
   
   this will not import the resource block directly.
 
+-------------------------------------------------------------------------------------------------------------------------
+Terraform Modules:
+-------------------------------------------------------------------------------------------------------------------------
+Terraform modules are used to reuse the code, this will imporve the reusability of the code. 
+
+main.tf
+---------------------------------
+#creating and iam using the predefined modules provided by the terraform. create use `max`
+```
+module "iam_iam-user" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-user"
+  version = "5.28.0"
+  # insert the 1 required variable here
+  name  = "max"
+  create_iam_user_login_profile = false
+  create_iam_access_key =false
+}
+```
+
+
+
 Lab-1. How to Deploy a Docker image on Windows machine using terraform?
 ------------------------------------------------------------------------
 A. deploying a docker image using terraform, we need to first set prerequisites.
