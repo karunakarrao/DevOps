@@ -843,6 +843,8 @@ Provisioners:
 Provisioners provide a way to run tasks such as command, scripts on remote instance where terraform installed. while creating a EC2 instance we can include the provisioners block to install softwares like nginx/apache/redis/etc. specifying the provisioner block will not be sufficient to work, because it require network, security group, and local machine. this mean it require ssh connection to the machine.
 to fecilitate the authentication we can use connection block. 
 
+Note: Provisioners are not recommunded to use, instead use the resouce templates(user_data) or use the custom images that already created the nginx AMI's. 
+
 Provisioners are of 2 types
 
 	1. Remote (remote_exec)	--> its for remote machine actions
@@ -890,6 +892,35 @@ provisioner "local-exec" {
     command = "echo Instance ${aws_instance.webserver.public_ip} created > /tmp/aws_instance_ip.txt"
   }
 ```
+
+----------------------------------------------------------------------------------------------------------
+Taint & UnTaint:
+----------------------------------------------------------------------------------------------------------
+Terraform taints are used by terraform when a resource creation/action failed for any reasons, terraform will taint the resouces. we can taint a resouce to recreate. this can be undo using untaint command.
+
+	$ terraform taint aws_instance.webserver
+ 	$ terraform untaint aws_instance. webserver
+
+----------------------------------------------------------------------------------------------------------
+Debugging in Terraform :
+----------------------------------------------------------------------------------------------------------
+Terraform logs are provided during the execution. but you can increase the levels. There are 5 logging levels avaiable. this can be done using the log levels. 
+we can set the logging level `export TF_LOG=TRACE`, we can move the logs to a file `export TF_LOG_PATH=/tmp/tf.log`. to unset the logging use `unset TF_LOG_PATH`
+
+ 	1. info (INFO)
+  	2. warning (WARN)
+   	3. error (ERROR)
+    	4. debug (DEBUG)
+     	5. trace (TRACE)
+
+------------------------------------------------------------------------------------------------------------
+Terraform Import:
+------------------------------------------------------------------------------------------------------------
+In most cases the real infrastucture is already created. to use the resouce data we used `data` block. to take control of all the resouces that are created before terraform, to import thouse resouces we use the below command. 
+
+ 	$ terrafrom import <resouce_type>.<resource_name> <attribute>
+  
+  this will not import the resource block directly.
 
 Lab-1. How to Deploy a Docker image on Windows machine using terraform?
 ------------------------------------------------------------------------
