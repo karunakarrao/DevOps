@@ -770,8 +770,7 @@ to remove a resouce block that we no longer need to maintain, to do so first we 
  	$ terraform state show random_pet.super_pet_1 				--> 
   	$ terraform state mv random_pet.super_pet_1 random_pet.ultra_pet	--> change in main.tf and state file 
    	$ terrafrom state rm random_pet.ultra_pet				--> remove a resource from state file & main.tf file
-    	$ terraform state 
-     	$ terraform show
+     	$ terraform state pull			--> It will pull all the resouce details from the state file
 
 AWS-EC2 instance create using Terraform
 ------------------------------------------------------------------------
