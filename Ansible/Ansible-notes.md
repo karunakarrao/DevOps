@@ -3,19 +3,20 @@ Red Hat Ansible Engine Implementation:
 
 Q. What is Ansible?
 --------------------------------------------
-Ansible is an Open source configuration management and orchestration utility.  Ansible Automates and standardizes configuration of remote hosts and virtual machines. we can start and shutdown of applications. we can Performs rolling updates with zero downtime. it built on **Python**. it support Vagrant and Jenkins.
+Ansible is an Open source configuration management and orchestration utility.  Ansible Automates and standardizes configuration of remote hosts and virtual machines. we can start and shutdown of applications. we can Performs rolling updates with zero downtime. it built on `Python`. it support Vagrant and Jenkins.
 
 Q. What are Ansible Limitations?
 --------------------------------------------
-Ansible cannot audit changes made by other users on system. **we can't determine who made change to a file.** it does not perform initial minimal installation of system. it does not track changes made to files on system. and its does not track which user or process made changes. To track changes, use version control system or Linux® Auditing System
+Ansible cannot audit changes made by other users on system. `we can't determine who made change to a file` it does not perform initial minimal installation of system. it does not track changes made to files on system. and its does not track which user or process made changes. To track changes, use version control system or Linux® Auditing System
 
 Q. Ansible Architecture?
 --------------------------------------------
 there are two types of machines in Ansible architecture
-1. control node (Ansible-master) --> Ansible installed and maintained on Ansible-master. It must be linux OS.
-2. managed hosts (Ansible-Workers) --> Ansible-worker nodes can be linux / Windows.
+
+	1. control node (Ansible-master) --> Ansible installed and maintained on Ansible-master. It must be linux OS.
+	2. managed hosts (Ansible-Workers) --> Ansible-worker nodes can be linux / Windows.
 	
-System administrators login to Ansible-Master and launch Ansible playbook on a specify target host to hosts. Ansible uses **SSH** as network transport to communicate with managed hosts. Modules refer in playbook copied to managed hosts and delete once the task is completed. Core modules perform most system administration tasks Users can write custom modules if needed.
+System administrators login to Ansible-Master and launch Ansible playbook on a specify target host to hosts. Ansible uses `SSH` as network transport to communicate with managed hosts. Modules refer in playbook copied to managed hosts and delete once the task is completed. Core modules perform most system administration tasks Users can write custom modules if needed.
 
 Q. What are Ansible-Master Components?
 --------------------------------------------
@@ -23,30 +24,31 @@ Q. What are Ansible-Master Components?
 
 **Host inventory:** This is a text file, ansible-worker nodes added here. we can devide them into groups for specific tasks.
 
-**Core modules:** Ansible installtion comes with default/core modules. over 400 modules are built to perform various tasks on ansible worker nodes.
+**Core modules:** Ansible installtion comes with default/core modules. over `400` modules are built to perform various tasks on ansible worker nodes.
 
 **Custom modules:** Ansible allow to use & create custom modules to perform a specific functionality in ansible. they written in python, Add custom modules to Ansible library
 
-**Playbooks:** Ansible playbooks are written in YAML. each task to perform one operation on Ansible-worker node. this task are exicuted in sequential order. playbook tasks use modules with arguments and exicutes on managed hosts
+**Playbooks:** Ansible playbooks are written in `YAML`. each task to perform one operation on Ansible-worker node. this task are exicuted in `sequential order`. playbook tasks use modules with arguments and exicutes on managed hosts
 
-**Connection plug-ins:** Ansible communicate with remote hosts/cloud-hosts using native SSH (default) or Paramiko SSH or local. Paramiko is Python implementation of OpenSSH for Red Hat Enterprise Linux 5 and 6. Ansible supports passwords for SSH authentication. Most common practice: Use SSH user keys to access managed hosts
+**Connection plug-ins:** Ansible communicate with remote hosts/cloud-hosts using native `SSH (default)` or Paramiko SSH or `local`. Paramiko is Python implementation of OpenSSH for Red Hat Enterprise Linux 5 and 6. Ansible supports passwords for SSH authentication. Most common practice: Use SSH user keys to access managed hosts
 
 **Plug-ins:** Extend Ansible’s functionality Examples: Email notifications and logging
 
 Q. what are Ansible-Master Requirements?
 --------------------------------------------
-	1) Must have Python 2.6 or 2.7 installed
-	2) Ansible-master runs on Linux, macOS, any BSD-based UNIX system
+	1) Ansible-master Must be a LINUX based machine, like Linux, macOS, any BSD-based UNIX system
+	2) Must Install Python 2.6 or 2.7 and higher
 	3) Windows not currently supported for Ansible-Master.
 	4) On Red Hat Enterprise Linux 6 or 7, ansible package and dependencies must be installed
  
 Q. What are Ansible-Managed Host Requirements?
 --------------------------------------------
-	1. Ansible-worker nodes must install SSH and configured. and it should allow incoming connections from ansible-master. 
-	2. install Python 2.4 or later
-	3. python-simplejson package must be installed on Red Hat Enterprise Linux 5 managed hosts
+	1. Ansible Worker nodes can be LINUX or WINDOWS based machines.
+ 	2. Ansible-worker nodes  must Install & Configure SSH. It should allow incoming connections from Ansible-Master Node. 
+	3. install Python 2.4 or later version
+	4. for windows machines install "pywinrm" plug-in to control the Windows Machines. 
 	
-Note: python=simplejson is Not required on Red Hat Enterprise Linux 6 and 7 managed hosts. Python 2.5 and newer versions provide functionality by default.
+Note: `python=simplejson` is Not required on Red Hat Enterprise Linux 6 and 7 managed hosts. `Python 2.5` and newer versions provide functionality by default.
 
 Q. What are ansible Use Cases ?
 --------------------------------------------
@@ -85,7 +87,7 @@ Q. What are ansible Use Cases ?
 
 Q. what are Ansible Orchestration Methods?
 --------------------------------------------
-Ansible commonly used to finish provisioning application servers
+Ansible commonly used to finish provisioning application servers. 
 
 -> Example: Write playbook to perform these steps on newly installed base system:
 		-> Configure software repositories
@@ -98,21 +100,24 @@ Ansible commonly used to finish provisioning application servers
 
 Q. what is ansible plugin local?
 --------------------------------------------
-Ansible plugin "local" is an another connection plug-in for Linux applications. it use to manage Ansible-Master locally, without SSH
-	Common uses:
-	-> When writing playbooks that interface with cloud services or other API
-	-> When Ansible is invoked locally by cron job
+Ansible plugin `local` is an another connection plug-in for Linux applications. it use to manage Ansible-Master locally, without SSH
 
-Q. What is winrm and docker:
+	Common uses:
+	1.  When writing playbooks that interface with cloud services or other API
+	2.  When Ansible is invoked locally by cron job
+
+Q. What is `winrm` and `docker`:
 --------------------------------------------
-winrm: Allows Windows machines  as managed hosts.
-docker: Allows Ansible to treat Docker containers as managed hosts without using SSH. this feature introduced in Ansible 2
+	winrm: Allows Windows machines  as managed hosts.
+	docker: Allows Ansible to treat Docker containers as managed hosts without using SSH. this feature introduced in Ansible 2
 
  Note: `pywinrm` Python module must be installed on Linux control node to support `winrm`
 
 Q. How can we change Ansible Configuration Settings?
 -----------------------------------------------------
 Ansible will look for ansible configurations in the below order, we can use `$ ansible-config view` utility to see all configuration settings and their defaults.
+
+	$ ansible-config view 		--> to view the ansible configurations
 
 	1st) ANSIBLE_CONFIG (environment variable, if set)
 	2nd) ansible.cfg (in current directory)
@@ -182,8 +187,7 @@ To see modules available on Ansible-Master, run ansible-doc with -l option. Modu
 
 **Q. Types of Module comes with ansible?**
 ---------------------------------------------------------
-Core modules: These modules are Included with Ansible. Written and maintained by Ansible Engineering Team. Integral to basic foundations of Ansible distribution. 
-Used for common tasks. Always available
+Core modules: These modules are Included with Ansible. Written and maintained by Ansible Engineering Team. Used for common tasks. Always available
 
 Network modules: Currently included with Ansible. Written and maintained by Ansible Network Team. If categorized as Certified or Community, not maintained by Ansible
 
@@ -241,37 +245,37 @@ To call modules from Python scripts, use Ansible Python API
 	-> Can import API into application to leverage Ansible system deployment and configuration
 
 **Q. Ansible Ad-Hoc Commands**
-
- Ansible lets you run on-demand tasks on managed hosts using ad-hoc commands. Most basic operations you can perform using ad-hoc.  To perform ad-hoc commands, run "ansible" command in Ansible-Master node and specify operations. each command can perform only once operation. multiple operations require  series of commands. 
+---------------------------------------------------------
+ Ansible lets you run on-demand tasks on managed hosts using `ad-hoc` commands. Most basic operations you can perform using `ad-hoc`.  To perform ad-hoc commands, run `ansible` command in Ansible-Master node and specify operations. each command can perform only once operation. multiple operations require  series of commands. 
  
- example:
  	$ ansible -m ping all -i inventory
 	$ ansible localhost -m ping 
 	$ ansible all -m ping -i inventory
 
 Syntax: ad-hoc command
+
 	$ ansible hosts -m module -a arguments -i inventory
 
- /etc/ansible/hosts : default inventory file is created --> To specify alternative inventory, use -i
+ `/etc/ansible/hosts` : default inventory file is created 	--> To specify alternative inventory, use ` -i`
 
 Note: we can use Ansible-Master can include itself as managed host. To define Ansible-master as managed-host, add Ansible-master name, its IP address, localhost name, or IP address 127.0.0.1 to inventory
 
 **Q. ad-hoc with Modules and Arguments?**
-	
+---------------------------------------------------------	
 	 -m --> to specify a module to run on inventory hosts
 	 -a --> arguments passed to module.  If multiple arguments needed, use as below with space.
 	 -o --> option generates just one line of output for each operation performed
 	 
 	$ ansible hosts pattern -m module -a 'argument1 argument2 argument3' [-i inventory]
-examples:
+
 	$ ansible web1 -m command -a uptime
 	$ ansible db1 -m ping
 	$ ansible localhost -m copy -a "src=~/src1/file1 dest=~/dest1"
 	
 
 **Q. uses of Module: Shell ?**
-	
-"command" module lets you quickly run remote commands on managed hosts. Not processed by shell on managed hosts. Cannot access shell environment variables. Cannot perform shell operations. To run commands that require shell processing, use shell module. Pass commands to run as arguments to module. Ansible runs command remotelyshell commands processed through shell ans we Can use shell environment variables.
+---------------------------------------------------------	
+"command" module lets you quickly run remote commands on managed hosts. Not processed by shell on managed hosts. Cannot access shell environment variables. Cannot perform shell operations. To run commands that require shell processing, use shell module. Pass commands to run as arguments to module. Ansible runs command remotely. shell commands processed through shell ans we Can use shell environment variables.
 
 Connection Settings:
 After reading parameters, Ansible makes connections to managed host. 
