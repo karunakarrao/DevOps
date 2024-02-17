@@ -16,10 +16,8 @@ Docker architecture involve 3 componenets.
 
 ![Picture1-15](https://user-images.githubusercontent.com/33980623/234473946-a618580d-8b8f-4705-a100-6f6f98f4049e.png)
 
-Docker uses a client-server architecture. The Docker client talks to the Docker daemon, which does the heavy lifting of building, running, and distributing your Docker containers. You as a user will usually execute commands using the client component. The client then use the REST API to reach out to the long running daemon and get your work done. 
+Docker uses a `Client-Server` architecture. The Docker client talks to the Docker daemon, which does the heavy lifting of building, running, and distributing your Docker containers. You as a user will usually execute commands using the client component. The client then use the REST API to reach out to the long running daemon and get your work done. 
 
-Note: We come accross `docker.socket` vs `docker.service` in Docker, `docker.socket` is responsible for managing network connections to the Docker daemon, allowing client applications to interact with Docker over the network. On the other hand, `docker.service` manages the Docker daemon process itself, ensuring that it's started and running.
-	
 docker.service file Location	: `/lib/systemd/system/docker.service` | `/usr/lib/systemd/system/docker.service`
 
 Docker Configuration Files	: `/etc/docker/daemon.json` (Linux)
@@ -40,26 +38,35 @@ Docker: Install
 ----------------------------
 Docker installation on CentOS. When docker is installed, it create a dircectory `/var/lib/docker` where all the docker objects are stored. such as containers, images, volumes, network and others. Docker installtion comes with this binaries. 
 
-		$ docker		--> It is used to interact with the Docker daemon and manage Docker containers and services.
-		$ docker-compose	--> a tool for defining and running multi-container Docker applications. It allows you to define a multi-container environment in a single file and manage the entire application stack.
-		$ docker-init		--> for initializing Docker containers. It helps set up the container environment before executing the main process.
-		$ docker-proxy		--> Docker Proxy is involved in networking for Docker containers. It handles the routing of network traffic to and from Docker containers.
-		$ dockerd		--> This is the Docker daemon binary. It is the background process that manages Docker containers on a system. 
+	$ docker		--> It is used to interact with the Docker daemon and manage Docker containers and services.
+	$ docker-compose	--> It allows you to define a multi-container environment in a single file and manage the entire application stack.
+	$ docker-init		--> for initializing Docker containers. It helps set up the container environment before executing the main process.
+	$ docker-proxy		--> Docker Proxy is involved in networking for Docker containers. It handles the routing of network traffic to and from Docker containers.
+	$ dockerd		--> This is the Docker daemon binary. It is the background process that manages Docker containers on a system. 
 	
 Install: Docker
 ----------------
 Installing the docker on a Linux OS.
 
-	$ sudo yum install -y yum-utils  	--> install yum-utils package
- 
+	$ sudo yum install -y yum-utils  								--> install yum-utils package
 	$ sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo	--> add repository 
-  
-	$ sudo yum install docker-ce docker-ce-cli containerd.io  --> installs 3 components. 
+  	$ sudo yum install docker-ce docker-ce-cli containerd.io  					--> installs 3 components. 
 
   Note: 
   1. `docker-ce` is the main Docker package that includes the Docker daemon `dockerd`, client tools, and additional components for managing containers and images. 
   2. `docker-ce-cli` is a separate package that includes only the Docker command-line tools, It provides the Docker CLI commands for interacting with the Docker daemon and managing containers and images.
   3. `containerd.io` is an industry-standard core container runtime that manages the container lifecycle (start, stop, pause, resume, etc.).
+
+Status check:
+---------------------------
+`docker.socket` and `docker.service` are both components of the Docker Engine, but they serve different purposes. 
+
+`docker.socket` is This is a systemd socket unit that Docker creates during installation. It listens for incoming Docker API requests on a Unix domain socket (/var/run/docker.sock by default). When a client program (e.g., Docker CLI) wants to interact with the Docker daemon, it communicates through this socket. This socket allows users to interact with the Docker daemon without needing to start the Docker daemon directly.
+
+`docker.service` is systemd service unit that manages the Docker daemon. It is responsible for starting, stopping, and managing the Docker daemon process.The Docker daemon (dockerd) is the background process that manages Docker containers, images, networks, and volumes.
+
+	$ systemctl status docker	--> to check running status
+  	$ service docker status		--> to check running status
 
 Start/Stop Docker service:
 ---------------------------
@@ -70,9 +77,10 @@ Docker installtion creates `docker.service` file the this location : `/lib/syste
  	$ sudo systemctl status docker 	--> check Docker service status RUNNING/NOT.
 	$ sudo systemctl enable docker  --> enable the service to auto start post system reboot, it will add file in /etc/systemd/system directory.
  	$ sudo systemctl cat docker	--> to read the docker.service file.
-	$ sudo systemctl reload docker 	--> reload docker configurations
+	$ sudo systemctl reload docker 	--> Reloaded Docker Application Container Engine and its configurations.
     
 	$ journalctl -u docker.service 	--> docker daemon troubleshooting with service logs
+ 	$ journalctl -uf docker		--> docker daemon log troubleshoot 
 	$ vi /etc/docker/daemon.json 	--> docker configurations are stored in daemon.json
  	$ ps aux | grep docker 		--> to see process running inside container
 
@@ -100,36 +108,42 @@ Once the docker daemon starts, it listens on an internal unix socket `docker.soc
       			   --tlsverify=true \
 			   --tlscacerts=/var/docker/caserver.pem
 
-The above configurations can also be moved to the configuration file located in /etc/docker/daemon.json. this is the docker configuration file. 
+The above configurations can also be moved to the configuration file located in `/etc/docker/daemon.json`. this is the docker configuration file like below.  
 
 /etc/docker/daemon.json
 --------------------------
 ```
 {
-	"debug": true,
-	"hosts": ["tcp://192.168.1.10:2376"]
-	"tls": true,
-	"tlscert": "/var/docker/server.pem",
-	"tlskey": "/var/docker/serverkey.pem"
-	"tlsverify": true,
-	"tlscacerts": /var/docker/caserver.pem
+"debug": true,
+"hosts": ["tcp://192.168.1.10:2376"]
+"tls": true,
+"tlscert": "/var/docker/server.pem",
+"tlskey": "/var/docker/serverkey.pem"
+"tlsverify": true,
+"tlscacerts": /var/docker/caserver.pem
 }
 	
 ```
   
-if we want to control the docker daemon from remote host we need to add `--host=tcp://192.168.1.10:2375`. this will enable the TCP Socket so that the daemon can be interacted from remote host. In the remote host we need to install docker-cli  and need to export the DOCKER_HOST environment variable to like  `export DOCKER_HOST="tcp://192.168.1.10:2375`(2375 unencrypted) | `export DOCKER_HOST="tcp://192.168.1.10:2376` (2376 is encrypted SSL) this. now you can use docker-CLI to connect to the remote daemon.
+if we want to control the docker daemon from remote host we need to add `--host=tcp://192.168.1.10:2375`. this will enable the TCP Socket so that the daemon can be interacted from remote host. In the remote host we need to install docker-cli  and need to export the DOCKER_HOST environment variable to like below. then you can use docker-CLI to connect to the remote daemon. 
+	`export DOCKER_HOST="tcp://192.168.1.10:2375`(2375 unencrypted)  
+ 	`export DOCKER_HOST="tcp://192.168.1.10:2376` (2376 is encrypted SSL) this. 
+
+Unix Sockets: If you're connecting to the Docker daemon via a Unix socket, the default location is `/var/run/docker.sock`. There's no port number associated with Unix socket connections.
+TCP Socket: When Docker is configured to listen on a TCP socket, the default port number is `2375` for insecure connections and `2376` for connections secured with TLS.
 	
  	Unix Socket: this will only listens with in the same machine.
 	TCP Socket: this will enable you to communicate with remote machines.
 
-Note: In normal situations when the docker daemon crashed, it will takedown all the containers which are running. to avoid this behaviour we can configure the system. this methord is called as "LIVE RESTORE". we just need to add one line in the docker configuration file (/etc/docker/daemon.json) as below and restart the docker service using `$ systemctl restart docker.service` command.
+Note: In normal situations when the docker daemon crashed, it will takedown all the containers which are running. to avoid this behaviour we can configure the system. this methord is called as `LIVE RESTORE`. we just need to add one line in the docker configuration file (`/etc/docker/daemon.json`) as below and restart the docker service using `$ systemctl restart docker.service` command.
 
-	{
-	"debug": true,
-	"hosts": ["tcp://192.168.1.10:2376"]
- 	"live-restore": true	# Live-restore 
-	}
-  
+```
+{
+"debug": true,
+"hosts": ["tcp://192.168.1.10:2376"]
+"live-restore": true	# Live-restore 
+}
+``` 	
 Version: 
 ---------------------------------
 	$ docker --version		--> docker version
@@ -159,10 +173,10 @@ An image registry is a centralized place where you can upload your images and ca
 	$ docker login docker.io 	--> to login to docker hub repository
  	$ docker login nexus-registry-url 	--> to login to nexus private registry 
 	
-Q. What is a Docker: Container? 
+Q. What is a Docker Container? 
 --------------------------------
 A container is a light weight & isolated object, that wraps the application and its dependencies along with libraies and supporting file that are used to run the application indipendently with out having to worry about the underlying operating system. with containers you can run your application on any platform uniformly. this contaienrs are light wight objects. docker container life cycle. once the containers job is finished they closed.
-		
+		 b
 	Creation --> Running --> Pausing --> Unpausing --> starting --> Stopping --> Restarting --> Killing --> Destroying
 
  Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
