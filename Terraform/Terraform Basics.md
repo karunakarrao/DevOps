@@ -92,6 +92,15 @@ Define variables in terraform using `variables.tf` file where you define the var
  	1. default 		--> default value 
        	2. type			--> variable type - default type is any ( any/string/bool/number/list/map/set/object/tuple )
 	3. description		--> variable description what is the use of it.
+ 
+string:		Represents a sequence of characters.
+bool: 		Represents a boolean value (true or false).
+number: 	Represents a numerical value (integer or floating-point).
+list: 		Represents a list or array of values of the same type.
+map: 		Represents a collection of key-value pairs, where all keys and values are of the same type.
+set: 		Represents a collection of unique values of the same type.
+object: 	Represents a complex data structure with attributes of different types.
+tuple: 		Represents an ordered collection of values of different types. like string, bool, number
 
 variables.tf
 ---------------------------------------------
@@ -131,6 +140,28 @@ variable kitty {
 type = tuple([string, number, bool])		#tuple
 default = ["cat", 7, true]
 }
+# Note: tuple is a collection of different variable types
+
+variable "example_object" {
+  type = object({				# object
+    attribute1 = string
+    attribute2 = number
+  })
+  default = {
+    attribute1 = "value1"
+    attribute2 = 42
+  }
+}
+# Note: Represents a complex data structure with attributes of different types.
+
+variable "example_map" {
+  type = map					# map
+  default = {
+    key1 = "value1"
+    key2 = "value2"
+  }
+}
+# Note: Represents a collection of key-value pairs, where all keys and values are of the same type.
 ```
 
 Lab-1: DEFAULT values in variable.tf file
