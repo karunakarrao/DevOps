@@ -57,11 +57,11 @@ Installing the docker on a Linux OS.
   2. `docker-ce-cli` is a separate package that includes only the Docker command-line tools, It provides the Docker CLI commands for interacting with the Docker daemon and managing containers and images.
   3. `containerd.io` is an industry-standard core container runtime that manages the container lifecycle (start, stop, pause, resume, etc.).
 
-Status check:
----------------------------
-`docker.socket` and `docker.service` are both components of the Docker Engine, but they serve different purposes. 
+Docker Daemon Status check:
+----------------------------
+Docker run as a system service, which will run in the background. it has `docker.socket` and `docker.service` are both components of the Docker Engine, but they serve different purposes. 
 
-`docker.socket` is This is a systemd socket unit that Docker creates during installation. It listens for incoming Docker API requests on a Unix domain socket (/var/run/docker.sock by default). When a client program (e.g., Docker CLI) wants to interact with the Docker daemon, it communicates through this socket. This socket allows users to interact with the Docker daemon without needing to start the Docker daemon directly.
+`docker.socket` is This is a systemd socket unit that Docker creates during installation. It listens for incoming Docker API requests on a Unix domain socket (`/var/run/docker.sock` by default). When a client program (e.g., Docker CLI) wants to interact with the Docker daemon, it communicates through this socket. This socket allows users to interact with the Docker daemon without needing to start the Docker daemon directly.
 
 `docker.service` is systemd service unit that manages the Docker daemon. It is responsible for starting, stopping, and managing the Docker daemon process.The Docker daemon (dockerd) is the background process that manages Docker containers, images, networks, and volumes.
 
@@ -72,6 +72,8 @@ Start/Stop Docker service:
 ---------------------------
 Docker installtion creates `docker.service` file the this location : `/lib/systemd/system/docker.service` | `/usr/lib/systemd/system/docker.service`. to handle docker services to start/stop/restart use as below. 
 
+	$ sudo service docker start	--> start the docker service.
+ 
 	$ sudo systemctl start docker	--> start docker service.
  	$ sudo systemctl stop docker	--> stop docker service.
  	$ sudo systemctl status docker 	--> check Docker service status RUNNING/NOT.
@@ -181,21 +183,19 @@ A container is a light weight & isolated object, that wraps the application and 
 
  Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 	
-		-i 	--> interactive mode
-		-t 	--> terminal 
-		-d 	--> detached
-  		--rm 	--> remove the container, means destroys the cotainer perminently
-    		
-      		--cpus 1.0		--> cpu  (0.1 cpu(10%) - 0.5 cpu(50%) - 1.0 cpu(100%) )
-		--memory 512M		--> memory (K,M,G,)
-  		  
+		-i 					--> interactive mode
+		-t 					--> terminal 
+		-d 					--> detached
+  		--rm 					--> remove the container when it is stopped, means destroys the cotainer perminently
+      		--cpus 1.0				--> cpu  (0.1 cpu(10%) - 0.5 cpu(50%) - 1.0 cpu(100%) )
+		--memory 512M				--> memory (K,M,G,)
 		-u user-id:group-id			--> user group are assigned to containers
-  		-l env=PROD --label domain=FINANCE	--> labels
-		-v <Host-volume>:<container-volume> 	--> volumes
-		-p <Host-port>:<container-port> 	--> publish ( port )
+  		-l env=PROD --label domain=FINANCE	--> label your container for easy access
+		-v <Host-volume>:<container-volume> 	--> mapping container volumes with host volume
+		-p <Host-port>:<container-port> 	--> publish container port with host port 
 		-e key1=value1 -e key2=value2	 	--> environment variable
 		--network my-network1		 	--> mapping to custom network group
-		attach --> to attach to the running container
+		attach 					--> to attach to the running container
 
 create:
 -----------------------------
