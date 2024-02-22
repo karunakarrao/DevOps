@@ -93,14 +93,14 @@ Define variables in terraform using `variables.tf` file where you define the var
        	2. type			--> variable type - default type is any ( any/string/bool/number/list/map/set/object/tuple )
 	3. description		--> variable description what is the use of it.
  
-string:		Represents a sequence of characters.
-bool: 		Represents a boolean value (true or false).
-number: 	Represents a numerical value (integer or floating-point).
-list: 		Represents a list or array of values of the same type.
-map: 		Represents a collection of key-value pairs, where all keys and values are of the same type.
-set: 		Represents a collection of unique values of the same type.
-object: 	Represents a complex data structure with attributes of different types.
-tuple: 		Represents an ordered collection of values of different types. like string, bool, number
+string:		String
+bool: 		True / False
+number: 	Numeric
+list: 		list must be of the same type. list is indexed as 0, 1, 2, 3. Access like `var.prefix[0]`
+map: 		key-value pairs, where all keys and values are of the same type. `var.example_map["key1"]`
+set: 		collection of unique values of the same type. `var.prefix[0]`
+object: 	complex data structure with attributes of different types.
+tuple: 		collection of values of different types. like string, bool, number
 
 variables.tf
 ---------------------------------------------
@@ -161,7 +161,7 @@ variable "example_map" {
     key2 = "value2"
   }
 }
-# Note: Represents a collection of key-value pairs, where all keys and values are of the same type.
+# Note: Represents a collection of key-value pairs, where all keys and values are of the same type. access var.example_map["key1"]
 ```
 
 Lab-1: DEFAULT values in variable.tf file
@@ -184,21 +184,17 @@ main.tf
 resource "aws_instance" "webserver" {
   ami           = var.ami  
   instance_type = var.instance_type 
-
 }
 ```
-
-Lab-2: with out DEFAULT values in  variable.tf file
+Lab-2: with out DEFAULT values in  `variable.tf` file
 ------------------------------------------------------------------------------------------------
 once you run the `$ terrform apply` command the system will promt for the values to enter dynamical values. 
 
 variables.tf
 -------------
 ```
-variable "ami" {
-}
-variable "instance_type" {
-}
+variable "ami" {}
+variable "instance_type" {}
 ```
 main.tf
 -------------
@@ -206,10 +202,8 @@ main.tf
 resource "aws_instance" "webserver" {
   ami           = var.ami
   instance_type = var.instance_type
-
 }
 ```
-
 Lab-3: command line arguments to over ride the values
 ------------------------------------------------------------------------------------------------
 we can pass "n" number of variables using the option `-var` as a command line argument.
@@ -217,10 +211,8 @@ we can pass "n" number of variables using the option `-var` as a command line ar
 variables.tf
 -------------
 ```
-variable "ami" {
-}
-variable "instance_type" {
-}
+variable "ami" {}
+variable "instance_type" {}
 ```
 main.tf
 -------------
@@ -228,7 +220,6 @@ main.tf
 resource "aws_instance" "webserver" {
   ami           = var.ami
   instance_type = var.instance_type
-
 }
 ```
 
@@ -236,7 +227,7 @@ resource "aws_instance" "webserver" {
 
 Lab-4: setting as environment variables
 ------------------------------------------------------------------------------------------------
-we can export as environment varialbes. just have to add TF_VAR as prefix to the actual variable type.
+we can export as environment varialbes. just have to add `TF_VAR` as prefix to the actual variable type.
 
 	$ export TF_VAR_instance_type="t2.micro"
 	$ export TF_VAR_ami="ami-0edab43b6fa892279"
@@ -251,10 +242,8 @@ Note: we need to define `variable.tf` file to load values in to `main.tf` event 
 variables.tf
 --------------
 ```
-variable "ami" {
-}
-variable "instance_type" {
-}
+variable "ami" {}
+variable "instance_type" {}
 ```
 main.tf
 -------------
@@ -262,7 +251,6 @@ main.tf
 resource "aws_instance" "webserver" {
   ami           = var.ami
   instance_type = var.instance_type
-
 }
 ```
 variable.tfvars
@@ -271,13 +259,14 @@ variable.tfvars
 ami="ami-0edab43b6fa892279"
 instance_type="t2.micro"
 ```
-	$ terraform apply -var-file variables.tfvars
+	$ terraform apply -var-file variables.tfvars	--> passing as an argument. 
 
 ----------------------------------------------------------------------------------------------
 Resource Dependency 
 -----------------------------------------------------------------------------------------------
 using `depends_on` parameter in the resource block. will help you to achieve the sinario. once the dependent resouce block is executed, then only the dependent block gets created. 
-	1. Explicit	2. implicit
+	1. Explicit	
+ 	2. implicit
 
 1. Explicit Dependency (depends_on)
 ------------------------------------------
@@ -447,7 +436,9 @@ resource "local_file" "pets" {
 	count 	= 3
 }
 ```
----------------------------------------------
+---------------------------------------------------------------------------------------------
+count:
+---------------------------------------------------------------------------------------------
 ```
 resource "local_file" "pets"{
 	filename = var.filename[count.index]
@@ -466,6 +457,9 @@ variable "content" {
     default = "password: S3cr3tP@ssw0rd"
 }
 ```
+---------------------------------------------------------------------------------------------
+for_each:
+---------------------------------------------------------------------------------------------
 main.tf
 ------------------------------------------------------------
 ```
@@ -473,6 +467,20 @@ resource "local_sensitive_file" "sensitive-file" {
     filename = each.value			# for_each
     content = var.content
     for_each = toset(var.users)
+}
+```
+---------------------------------------------------------------------------------------------
+element:
+---------------------------------------------------------------------------------------------
+Terraform provides a function `element` is used  for accessing elements from a list or tuple based on their index. This function takes a list (or tuple) and an index as arguments and returns the element at the specified index in the list.
+
+```
+variable "example_list" {
+  type    = list(string)
+  default = ["a", "b", "c", "d", "e"]
+}
+output "third_element" {
+  value = element(var.example_list, 2)  	# Returns "c"
 }
 ```
 
@@ -753,12 +761,12 @@ Terraform state file maintain the realtime infrastructure in .tfstate file. this
 It is not recommunded to maintain the statefile in the version controll systems, because of its sensitive data. terraform will maintain state locking this will prevent from others to apply changes, but in version controll system this is not posible. if in somecase the user didn't pull  the latest changes this will effect the  system to destory the infrstructure. 
 
 this is why we need remote backed to store the terraform file. these backends will load the latest state file when ever they need to run. remote backends like
-	1. terraform cloud
- 	2. google cloud
+
+	1. Terraform cloud
+ 	2. Google cloud storage
   	3. amazon s3 bucket
-   	4. 
-
-
+   	4. Azure Blob storage
+    	5. Hashicarp Console
 ----------------------------------------------------------------------------------
 Lab-1: Remote backend  with s3 & Dynamo-DB
 ----------------------------------------------------------------------------------
@@ -970,7 +978,6 @@ module "iam_iam-user" {
   create_iam_access_key =false
 }
 ```
-
 
 
 Lab-1. How to Deploy a Docker image on Windows machine using terraform?
