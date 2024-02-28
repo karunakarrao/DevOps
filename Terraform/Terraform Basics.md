@@ -1,4 +1,4 @@
-Q. What is Infrastructure as Code (IAC) ?
+ Q. What is Infrastructure as Code (IAC) ?
 -------------------------------------------------------------------------
 A. Infrastructure as code (IaC) tools, allow you to manage infrastructure with configuration files rather than through a graphical user interface. IaC allows you to build, change, and manage your infrastructure in a safe environment. Configuration file can be reuse and shared.
 
@@ -801,7 +801,7 @@ resource "local_file" "state" {
 }
 ```
 
-How to list/move/e/remove a resouce block from terrraform statefile perminently 
+How to list/move/remove a resouce block from terrraform statefile perminently 
 ---------------------------------------------------------------------------
 to remove a resouce block that we no longer need to maintain, to do so first we need to remove the block from `main.tf` file then from the state file using the `terraform state rm`.
 
@@ -809,7 +809,7 @@ to remove a resouce block that we no longer need to maintain, to do so first we 
  	$ terraform state show random_pet.super_pet_1 				--> 
   	$ terraform state mv random_pet.super_pet_1 random_pet.ultra_pet	--> change in main.tf and state file 
    	$ terrafrom state rm random_pet.ultra_pet				--> remove a resource from state file & main.tf file
-     	$ terraform state pull			--> It will pull all the resouce details from the state file
+     	$ terraform state pull							--> It will pull all the resouce details from the state file
 
 AWS-EC2 instance create using Terraform
 ------------------------------------------------------------------------
@@ -918,7 +918,7 @@ resource "aws_key_pair" "webserver" {
 -------------------------------------------------------------------------------------------
 Provisioners Behaviour:
 -------------------------------------------------------------------------------------------
-in the above example we run the provisioners during the creation time. if we want to run the provisioners during the ec2 instance destring time we can use when condition. 
+in the above example we run the provisioners during the creation time. if we want to run the provisioners during the ec2 instance destring time we can use with when condition. 
 ```
 provisioner "local-exec" {
     command = "echo Instance ${aws_instance.webserver.public_ip} created > /tmp/aws_instance_ip.txt"
@@ -934,7 +934,7 @@ provisioner "local-exec" {
 ----------------------------------------------------------------------------------------------------------
 Taint & UnTaint:
 ----------------------------------------------------------------------------------------------------------
-Terraform taints are used by terraform when a resource creation/action failed for any reasons, terraform will taint the resouces. we can taint a resouce to recreate. this can be undo using untaint command.
+The terraform taint command is used to mark a resource managed by Terraform as "tainted," indicating that it needs to be recreated during the next apply operation. This means that Terraform will destroy the existing resource and create a new one to replace it, effectively forcing Terraform to re-provision the resource even if its configuration hasn't changed.
 
 	$ terraform taint aws_instance.webserver
  	$ terraform untaint aws_instance. webserver
@@ -954,12 +954,77 @@ we can set the logging level `export TF_LOG=TRACE`, we can move the logs to a fi
 ------------------------------------------------------------------------------------------------------------
 Terraform Import:
 ------------------------------------------------------------------------------------------------------------
-In most cases the real infrastucture is already created. to use the resouce data we used `data` block. to take control of all the resouces that are created before terraform, to import thouse resouces we use the below command. 
+In most cases the real infrastucture is already created. to use the resouce data we used `data` block. to take control of all the resouces that are created before terraform, to import thouse resouces we use the below command. `terraform import` does not support all resource types and may require manual intervention or custom scripting for complex resources.
 
- 	$ terrafrom import <resouce_type>.<resource_name> <attribute>
-  
-  this will not import the resource block directly.
+ 	$ terrafrom import <resouce_type>.<resource_name> <attribute> 	-->   this will not import the resource block directly.
 
+step-1: create a configuration update in main.tf file with the resource details. 
+step-2: run terraform import to import the resource details with terraform. then check `terraform state list`  you will find the details.
+
+----------------------------------------------------------------------------------------------
+Lab-1: Scenario-1: An AWS EC2 instance is already created using console, to bring the resource under terraform. first lets create a main.tf file with resouce details created using console. 
+----------------------------------------------------------------------------------------------
+
+step-1: add the resouce information in main.tf file.
+
+main.tf
+---------------------------------
+```
+resource "aws_instance" "single-web" {
+  ami = "ami-0440d3b780d96b29d"
+  instance_type = "t2.micro"
+}
+```
+
+step-2: import the resouce using the terraform import command. 
+
+	$ terraform import aws_instance.single-web i-0d2208c6358e84cab
+
+step-3: check your resources are added to your terraform file. 
+
+	$ terraform state list 
+
+ ----------------------------------------------------------------------------------------------
+Lab-2: Scenario-2: In Bulk An AWS EC2 instance is already created using console, to bring the resource under terraform.
+----------------------------------------------------------------------------------------------
+
+import.tf
+---------------------------------------------
+```
+import {
+  id = "i-0516a1c33cd29f163"
+  to = aws_instance.web1
+}
+import {
+  id = "i-0dae31784e91ab40d"
+  to = aws_instance.web2
+}
+import {
+  id = "i-0f821272162c34665"
+  to = aws_instance.web3
+}
+```
+generate.tf
+----------------------------
+```
+resource "aws_instance" "web3" {
+  ami           = "ami-0440d3b780d96b29d"
+  instance_type = "t2.micro"
+}
+resource "aws_instance" "web1" {
+  ami           = "ami-0440d3b780d96b29d"
+  instance_type = "t2.micro"
+}
+resource "aws_instance" "web2" {
+  ami           = "ami-0440d3b780d96b29d"
+  instance_type = "t2.micro"
+}
+```
+
+$ terraform init 
+$ terraform apply
+$ terraform state list 
+ 
 -------------------------------------------------------------------------------------------------------------------------
 Terraform Modules:
 -------------------------------------------------------------------------------------------------------------------------
