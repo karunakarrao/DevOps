@@ -463,6 +463,12 @@ for_each:
 main.tf
 ------------------------------------------------------------
 ```
+variable "users" {
+    type = list(string)
+    default = [ "/root/user10", "/root/user11", "/root/user12", "/root/user10"]
+}
+```
+```
 resource "local_sensitive_file" "sensitive-file" {
     filename = each.value			# for_each
     content = var.content
