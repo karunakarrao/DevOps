@@ -1,3 +1,10 @@
+Terraform :
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+`count` 	--> The "count" object can only be used in "module", "resource", and "data" blocks, and only when the "count" argument is set.
+`for_each`  	--> The "for_each" argument must be a MAP/SET of strings, and if you have provided a value of type List, then to convert use toset()/tomap() function
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 
  Q. What is Infrastructure as Code (IAC) ?
 -------------------------------------------------------------------------
 A. Infrastructure as code (IaC) tools, allow you to manage infrastructure with configuration files rather than through a graphical user interface. IaC allows you to build, change, and manage your infrastructure in a safe environment. Configuration file can be reuse and shared.
@@ -96,8 +103,8 @@ Define variables in terraform using `variables.tf` file where you define the var
 string:		String
 bool: 		True / False
 number: 	Numeric
-list: 		list must be of the same type. list is indexed as 0, 1, 2, 3. Access like `var.prefix[0]`
-map: 		key-value pairs, where all keys and values are of the same type. `var.example_map["key1"]`
+list: 		list is collection of any type. list is indexed as 0, 1, 2, 3. Access like `var.prefix[0]`
+map: 		key-value pairs, where all keys and values are of the any type. `var.example_map["key1"]`
 set: 		collection of unique values of the same type. `var.prefix[0]`
 object: 	complex data structure with attributes of different types.
 tuple: 		collection of values of different types. like string, bool, number
