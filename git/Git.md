@@ -78,6 +78,7 @@ to see the git commit history
     $ git log
     $ git log --oneline 
     $ git log --name-only
+    $ git log --oneline --name-only
     
 branch:
 -------------------------------------
