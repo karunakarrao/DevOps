@@ -77,12 +77,13 @@ revert commit: (Safe way to  revert changes)
 -----------------------------------------------
 to revert the commit. This will not delete the commit-ID from the log history, but it will delete the actual changes in the file. it will create an aditional commit. you can delete any specific commit-ID in commit history.
 
- 	$ git revert HEAD 			--> This will  revert the Latest Commit
+    $ git revert HEAD 			--> This will  revert the Latest Commit
     $ git revert commit-id		--> This  will revert the specific commit
-    $ git revert HEAD~0 		--> This 
+    $ git revert HEAD~0 		--> This will revert the lastest commit.
+    $ git revert --skip			--> to skip revert operations during conflicts.
     
-reset: ( DANGER )
---------------------------------
+reset: ( DANGER ) Destructive Operation. (--soft/--hard/--mixed)
+----------------------------------------------------------------
 To reset the commit, we can use revert/reset. but reset will delete the commit-ID from commit history. this is useful for personal level. not recommunded with teams. you can delete your personal branch. 
 
     $ git reset --soft HEAD~1 	--> keep the changes in file, but delete the commit-ID
@@ -104,13 +105,13 @@ branches are used to create a new branch from your working  branch. You can  cre
     $ git branch            	--> list branches 
     $ git branch -a         	--> lists local and remote branches
     
-	$ git branch feature    	--> creates a branch named  "feature"
+    $ git branch feature    	--> creates a branch named  "feature"
     $ git checkout feature  	--> checkout/move/switch to newly created  "feature"
     $ git checkout -b hotfix    --> creates branch name "hotfix" and  switch/move to new branch "hotfix"
 
-	$ git branch -d feature			--> only get deleted  if the branch merged in to main branch.
+    $ git branch -d feature		--> only get deleted  if the branch merged in to main branch.
     $ git branch -D feature     	--> delete branch feature
-    $ git log --graph --decorate    --> to see branch commit history
+    $ git log --graph --decorate    	--> to see branch commit history
     $ git branch -M main        	--> current branch is renamed to "main"
 
     
@@ -122,7 +123,7 @@ merges are of 2 types
     2. no-fastforward merge: this type of merge happen when the `master` branch has commits, and mergeing `feature` branch also has commits, this time Git will select "No fastForward merge".
     
     $ git checkout master  			--> To merge feature/signup branch -> master, first switch/move to master branch. then run merge command.
-    $ git merge feature/signup  	--> merge branch feature/signup in master branch.
+    $ git merge feature/signup  		--> merge branch feature/signup in master branch.
     
     $ git log --name-only
     $ git log --graph --decoreate
@@ -131,12 +132,12 @@ push repo:
 --------------------------------------
 Push your  changes to remote repository  in GitHub/Bitbucket/Gitlab.  
 
-    $ git remote 			--> to list remote repos available
+    $ git remote 		--> to list remote repos available
     $ git remote -v 		--> full remote repo details with  clone URL.
 	
     $ git remote add origin Remote_repo_URL.git  	--> to add remote repository locally. your git repo and remote-repo as "origin". you  can name as you like.
-    $ git push origin master    					--> to push your local changes to the remote master branch.
-	$ git push origin my_branch --> pushing the changes to my_branch and raising the PR for to Merge into master branch. 
+    $ git push origin master    			--> to push your local changes to the remote master branch.
+    $ git push origin my_branch 			--> pushing the changes to my_branch and raising the PR for to Merge into master branch. 
 
  Note: in realtime scenario we will not push our code to master branch, insted we push to your branch then raise a PR request to merge the changes in to master branch. 
     
@@ -151,16 +152,16 @@ Pull & fetch repo:
 Both git `pull` and git `fetch` have their advantages and use-cases. If you want a quick way to update your local repository and you  are sure that there won’t be any merge conflicts, `git pull` is a suitable option. On the other hand, if you want a safer, more flexible way to review changes before merging, then `git fetch` is the better choice.
 
     $ git fetch origin master 	--> fetch your remote changes locally, then review using diff command. 
-	$ git diff  origin master	--> check  the difference  between remote/local repo. then run  merge your changes  using merge.
+    $ git diff  origin master	--> check  the difference  between remote/local repo. then run  merge your changes  using merge.
     $ git merge origin/master 	--> to merge changes to local master branch
-	$ git rebase master			--> Rebasing helps in maintaining a cleaner commit history by incorporating changes from the master branch into your feature branch in a linear manner. 
+    $ git rebase master		--> Rebasing helps in maintaining a cleaner commit history by incorporating changes from the master branch into your feature branch in a linear manner. 
 
  (or)
  
     $ git pull origin sarah 	--> both fetch + merge are run with pull command.
     $ git rebase master	
 	
-    $ git clone git_url.git --single-branch 						--> clone only the remote master  branch (default: origin/master)
+    $ git clone git_url.git --single-branch 				--> clone only the remote master  branch (default: origin/master)
     $ git clone git_url.git --branch branch_name --single-branch 	--> clone a specific branch 
 
   Note: `git rebase master` after `git fetch` or `git pull` helps in maintaining a cleaner commit history, avoiding the creation of merge commits.
@@ -172,12 +173,6 @@ both developers are upto date with remote repo, they started working on same fil
     $ git push origin master 	--> you failed to push your changes to remote repo, then you pull new changes
     $ git pull origin master 	--> then you merge both changees locally and commit the changes and push the changes.
     
-fork:
------------------------------------------
-in opensource git projects, thousands of contributers are there, so every one can't be the contributer to the project. so you can fork the project and do the changes, and you can create pull request. if the owner of project think your changes are worth while they can approve the changes. and merge in to the project.
-
-fork the git repo then clone the repo to do the changes, push the changes to your forked repo then raise a pull request to thee main repo. thanks how the read permission users can contribute to the repo.
-
 rebase:
 ------------------------------------------
 Rebasing with `git rebase` allows for integrating changes from one branch onto another, maintaining a clean commit history, avoiding merge commits, resolving conflicts efficiently, and syncing forked repositories.
@@ -193,30 +188,35 @@ usecase-2: to combine the multipule commits into a single commit using the
 
     $ git rebase -i HEAD~3   		--> it will merge latest 3 commits in to 1 single commit. "-i" interactive  rebase.
     $ git reset --hard ORIG_HEAD   	--> this will revert the above step and reset back to previous state.
-        
+
+usercase-3: 
+	
 cherry-pick:
 -------------------------------------------
 if you don't want to apply all the commits just want to pick a specific commit. then use the cherry-pick
 
     $ git log master --oneline
-    $ git cherry-pick commit-id
+    $ git cherry-pick commit-id		--> picking a specific commit to  add changes.
     
-
- 
 stash
 ------------------------------------------
-if you don't want to commit the changes you made, but switch to other branch and do changes use the stash command, we can have may stashes. access and apply stashed changes as below 
+if you don't want to commit the changes you made, but switch to other branch and do changes use the `stash` command, we can have many stashes. access and apply stashed changes as below.
 
-    $ git stash     			--> it will store as cache in that branch
-    $ git stash pop 			--> to revert the stash.
-    $ git stash list    		--> list all the stashed files
+    $ git stash     		--> it will store as cache in that branch
+    $ git stash pop 		--> to revert the stash.
+    $ git stash list    	--> list all the stashed files
     $ git stash show stash-id   --> to see the change in that stash-id
     $ git statsh pop stash-id   --> to unstash the changes uisng stash-id
 
 reflog:
 -----------------------------------------   
-even afterr hard reset also we can revert the deleted changes. use the reflog 
+even afterr hard reset also we can revert the deleted changes. use the reflog.  
 
     $ git reflog
     $ git reset --hard reflog-id
-    
+
+fork:
+-----------------------------------------
+in opensource git projects, thousands of contributers are there, so every one can't be the contributer to the project. so you can fork the project and do the changes, and you can create pull request. if the owner of project think your changes are worth while they can approve the changes. and merge in to the project.
+
+fork the git repo then clone the repo to do the changes, push the changes to your forked repo then raise a pull request to thee main repo. thanks how the read permission users can contribute to the repo.
