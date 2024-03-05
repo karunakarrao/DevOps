@@ -1,5 +1,4 @@
 
-
 Git:  
 ------------------------------------------------------------------------------
 Git is an opensource, distributed version control system. which help you maintain your code and its versions. 
@@ -22,22 +21,15 @@ go to git install document and follow the instructions
     
     $ git --version
     
-Wokring with local repository:
+local repository:
 ------------------------------------------------------------------------------
-for creating a local repository run  ` git init `, this will create a local repository in your local machine. this also create a .git folder inside the repo which will track your git repo activity. 
+creating a local repository, run  ` git init ` this will create a local repository in your local machine. this also create a `.git` folder inside the repo which will track your repo activity. 
 
-    $ git init        ----> initialize the current directory wit Git.
-    $ touch hello.sh    ---------------> Create a file 
-    $ git status  ---------------------> shows untracked files + modified files. 
-    $ git add hello.sh  ---------------> add to stagging area
-    $ git commit -m "hello world script" -----> commit your changes locally
-    
-    $ git diff --color-words hello.sh -----------> diff b/w untracked modified-file vs actual-file
-    $ git diff --cached --color-words hello.sh --> diff b/w stagged modified-file vs actual-file
-        
-    $ git reset --soft HEAD~1 --------> keep the changes in file but delete the commit entry
-    $ git reset --hard HEAD~1 --------> to delete the commited chagnes 
-    
+    $ git init        	--> initialize the current directory wit Git.
+    $ git status  		--> shows untracked files + modified files. 
+    $ git add hello.sh  --> add to stagging area
+    $ git commit -m "hello world script" 	--> commit your changes locally
+   
 config:
 ---------------------------------
 during the 1st setup git need to know who you are, who is commiting the changes.
@@ -54,13 +46,14 @@ during the 1st setup git need to know who you are, who is commiting the changes.
 Note: `git config --global` will set values for all your repositories. it saves configurations in `~/.gitconfig` directory
 `git config` with out `--global` option this will limit for that git repository it self. it saves configurations in `~/.git` directory
 
-restore:
----------------------------
-    $ git restore hello.v1.sh           --> revert the changes from original file before stagging area.
-    $ git restore --staged hello.v2.sh  --> remove updated file from stagging area. 
-    
-    $ git rm --cached hello.sh --> remove untracked files from stagging area
-  
+diff:
+-----------------------------------
+To check the  difference between modified and original file.
+
+    $ git diff --color-words hello.sh 			--> diff b/w modified-file vs actual-file
+    $ git diff --cached --color-words hello.sh 	--> diff b/w stagged modified-file vs actual-file. --cached will refer the staged area.
+
+
 .gitignore file:
 ----------------------------
 this file will not track the unwanted file, so that you avoid commiting the file to git repository. you just add the neme of such files in this file. so they will not apear in the staging area. 
@@ -79,77 +72,105 @@ to see the git commit history
     $ git log --oneline 
     $ git log --name-only
     $ git log --oneline --name-only
+	
+revert commit: (Safe way to  revert changes)
+-----------------------------------------------
+to revert the commit. This will not delete the commit-ID from the log history, but it will delete the actual changes in the file. it will create an aditional commit. you can delete any specific commit-ID in commit history.
+
+ 	$ git revert HEAD 			--> This will  revert the Latest Commit
+    $ git revert commit-id		--> This  will revert the specific commit
+    $ git revert HEAD~0 		--> This 
     
+reset: ( DANGER )
+--------------------------------
+To reset the commit, we can use revert/reset. but reset will delete the commit-ID from commit history. this is useful for personal level. not recommunded with teams. you can delete your personal branch. 
+
+    $ git reset --soft HEAD~1 	--> keep the changes in file, but delete the commit-ID
+    $ git reset --hard HEAD~1 	--> Delete both Commit-ID + Changes in files.
+	
+restore:
+---------------------------
+To restore the changes from staging area to unstaged area. 
+
+    $ git restore hello.v1.sh           --> modified changes will get reverted. original 
+    $ git restore --staged hello.v2.sh  --> remove file from stagging area to  modified files area which is untracked area.
+    
+    $ git rm --cached hello.sh 			--> remove untracked files from stagging area
+	
 branch:
 -------------------------------------
-branches are used to 
+branches are used to create a new branch from your working  branch. You can  create a dummy branch from any  branch master/feature/hotfix/other.
 
-    $ git branch            --> list branches 
-    $ git branch -a         --> lists local and remote branches
-    $ git branch feature    --> creates feature branch
+    $ git branch            	--> list branches 
+    $ git branch -a         	--> lists local and remote branches
     
-    $ git checkout feature  --> checkout feature
-    $ git checkout -b hotfix    --> creates branch hotfix + checkout hotfix
-    
-    $ git branch -d feature     --> delete branch feature
+	$ git branch feature    	--> creates a branch named  "feature"
+    $ git checkout feature  	--> checkout/move/switch to newly created  "feature"
+    $ git checkout -b hotfix    --> creates branch name "hotfix" and  switch/move to new branch "hotfix"
+
+	$ git branch -d feature			--> only get deleted  if the branch merged in to main branch.
+    $ git branch -D feature     	--> delete branch feature
     $ git log --graph --decorate    --> to see branch commit history
-    $ git branch -M main        --> current branch is renamed to "main"
-  
+    $ git branch -M main        	--> current branch is renamed to "main"
+
     
 merge:
 --------------------------------------
 merges are of 2 types
 
     1. fastforward merge: this type of merge happen when the `Master` branch has no commits, and merging `feature` branch into master then the git will select "Fastforward merge". 
-    
     2. no-fastforward merge: this type of merge happen when the `master` branch has commits, and mergeing `feature` branch also has commits, this time Git will select "No fastForward merge".
     
-    $ git checkout master   ------> goto master branch 
-    $ git merge feature/signup  --> merge branch feature/signup in master branch.
+    $ git checkout master  			--> To merge feature/signup branch -> master, first switch/move to master branch. then run merge command.
+    $ git merge feature/signup  	--> merge branch feature/signup in master branch.
     
     $ git log --name-only
     $ git log --graph --decoreate
     
 push repo:
 --------------------------------------
-    $ git remote --> to list remote repo available
-    $ git remote -v --> full remote repo details
-    $ git remote add origin Remote_repo_URL.git  --> to add remote repo to local repo and naming the repo as "origin"
-    $ git push origin master    --> to push the changes to the remote master repository
-    
-Note: in realtime scenario we will not push our code to master branch, insted we push to our branch then raise a PR request to merge the changes in to master branch. 
+Push your  changes to remote repository  in GitHub/Bitbucket/Gitlab.  
 
-    $ git push origin my_branch --> pushing the changes to my_branch and raising the PR for to Merge into master branch. 
+    $ git remote 			--> to list remote repos available
+    $ git remote -v 		--> full remote repo details with  clone URL.
+	
+    $ git remote add origin Remote_repo_URL.git  	--> to add remote repository locally. your git repo and remote-repo as "origin". you  can name as you like.
+    $ git push origin master    					--> to push your local changes to the remote master branch.
+	$ git push origin my_branch --> pushing the changes to my_branch and raising the PR for to Merge into master branch. 
+
+ Note: in realtime scenario we will not push our code to master branch, insted we push to your branch then raise a PR request to merge the changes in to master branch. 
     
 Clone repo:
 ----------------------------------------
+To clone  remote repository locally we use clone. 
 
-    $ git clone remote_repo_URL.git
-    
-    $ git config --global user.name=max
-    $ git config --global user.email=max@example.com
-    $ git config --list-all
+    $ git clone remote_repo_URL.git			--> copy remote repo URL and clone. if its private you need login/ share SSH keys.
     
 Pull & fetch repo:
 ----------------------------------------
-we can fetch the latest changes made to remote repo to local repo using `fetch` / `pull`. if we fetch the data it will be on origin/master, to merge the changes with master branch need to run merge.
+Both git `pull` and git `fetch` have their advantages and use-cases. If you want a quick way to update your local repository and you  are sure that there won’t be any merge conflicts, `git pull` is a suitable option. On the other hand, if you want a safer, more flexible way to review changes before merging, then `git fetch` is the better choice.
 
-    $ git fetch origin master --> this will update origin/master branch in local repo
-    $ git merge origin/master --> to merge changes to local master branch
-    
- (or)   
+    $ git fetch origin master 	--> fetch your remote changes locally, then review using diff command. 
+	$ git diff  origin master	--> check  the difference  between remote/local repo. then run  merge your changes  using merge.
+    $ git merge origin/master 	--> to merge changes to local master branch
+	$ git rebase master			--> Rebasing helps in maintaining a cleaner commit history by incorporating changes from the master branch into your feature branch in a linear manner. 
+
+ (or)
  
-    $ git pull origin sarah --> both fetch + merge are run with pull command.
-    
-    $ git clone git_url.git --single-branch --> clone only the remote primary HEAD (default: origin/master)
-    $ git clone git_url.git --branch branch_name --single-branch --> clone a specific branch
-    
+    $ git pull origin sarah 	--> both fetch + merge are run with pull command.
+    $ git rebase master	
+	
+    $ git clone git_url.git --single-branch 						--> clone only the remote master  branch (default: origin/master)
+    $ git clone git_url.git --branch branch_name --single-branch 	--> clone a specific branch 
+
+  Note: `git rebase master` after `git fetch` or `git pull` helps in maintaining a cleaner commit history, avoiding the creation of merge commits.
+  
 merge conflict:
 ----------------------------------------
-both developers are upto date with remote repo, they started working on same file, if 2 developers are working on the same file script.sh, both try to commit the changes done on script.sh file in remote master. then we  see merge conflict. this can be addressed by modifing the file manually. 
+both developers are upto date with remote repo, they started working on same file, if 2 developers are working on the same file `script.sh`, both try to commit the changes done on `script.sh` file in remote master. then we  see merge conflict. this can be addressed by modifing the file manually. 
     
-    $ git push origin master --> you failed to push your changes to remote repo, then you pull new changes
-    $ git pull origin master --> then you merge both changees locally and commit the changes and push the changes.
+    $ git push origin master 	--> you failed to push your changes to remote repo, then you pull new changes
+    $ git pull origin master 	--> then you merge both changees locally and commit the changes and push the changes.
     
 fork:
 -----------------------------------------
@@ -159,15 +180,19 @@ fork the git repo then clone the repo to do the changes, push the changes to you
 
 rebase:
 ------------------------------------------
-rebase will combine number of commits your wish to combine can be bind to gether. 
+Rebasing with `git rebase` allows for integrating changes from one branch onto another, maintaining a clean commit history, avoiding merge commits, resolving conflicts efficiently, and syncing forked repositories.
 
-    $ git checkout master    --> first checkout master branch
-    $ git pull origin master --> pull remote changes to local master branch
-    $ git checkout feature   --> change to your working branch
-    $ git rebase master      --> get upto-date with master branch in your local working branch(feature) 
-    
-    $ git rebase -i HEAD~3   --> it will merge latest 3 commits in to 1 single commit.
-    $ git reset --hard ORIG_HEAD   --> this will revert the above step and reset back to previous state.
+usecase-1: updating the new commit  histroy with feature branch, to make sure its up-to date.
+
+    $ git checkout master    	--> first checkout master branch
+    $ git pull origin master 	--> pull remote changes to local master branch
+    $ git checkout feature   	--> change to your working branch
+    $ git rebase master      	--> get upto-date with master branch in your local working branch(feature) 
+
+usecase-2: to combine the multipule commits into a single commit using the 
+
+    $ git rebase -i HEAD~3   		--> it will merge latest 3 commits in to 1 single commit. "-i" interactive  rebase.
+    $ git reset --hard ORIG_HEAD   	--> this will revert the above step and reset back to previous state.
         
 cherry-pick:
 -------------------------------------------
@@ -176,15 +201,7 @@ if you don't want to apply all the commits just want to pick a specific commit. 
     $ git log master --oneline
     $ git cherry-pick commit-id
     
-revert commit:
--------------------------------------------
-to revert the commited changes. 
 
-    $ git revert commit-id
-    $ git revert HEAD~0 
-    
-    $ git reset --soft HEAD~1   --> it will not delete the data
-    $ get reset --hard HEAD~1   --> it will delete the data
  
 stash
 ------------------------------------------
