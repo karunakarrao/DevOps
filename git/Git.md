@@ -51,7 +51,7 @@ diff:
 To check the  difference between modified and original file.
 
     $ git diff --color-words hello.sh 			--> diff b/w modified-file vs actual-file
-    $ git diff --cached --color-words hello.sh 	--> diff b/w stagged modified-file vs actual-file. --cached will refer the staged area.
+    $ git diff --cached --color-words hello.sh 		--> diff b/w stagged modified-file vs actual-file. --cached will refer the staged area.
 
 
 .gitignore file:
@@ -189,8 +189,12 @@ usecase-2: to combine the multipule commits into a single commit using the
     $ git rebase -i HEAD~3   		--> it will merge latest 3 commits in to 1 single commit. "-i" interactive  rebase.
     $ git reset --hard ORIG_HEAD   	--> this will revert the above step and reset back to previous state.
 
-usercase-3: 
-	
+usercase-3: Druing rebase conflicts  use the below options.
+
+ 	$ git rebase -i HEAD~3			--> combine laste 3 commits.  but failed  
+	$ git rebase --edit-todo		--> edit rebase again
+ 	$ git rebase --continue			--> continue with rebase activity.
+
 cherry-pick:
 -------------------------------------------
 if you don't want to apply all the commits just want to pick a specific commit. then use the cherry-pick
@@ -206,11 +210,11 @@ if you don't want to commit the changes you made, but switch to other branch and
     $ git stash pop 		--> to revert the stash.
     $ git stash list    	--> list all the stashed files
     $ git stash show stash-id   --> to see the change in that stash-id
-    $ git statsh pop stash-id   --> to unstash the changes uisng stash-id
+    $ git statsh pop stash-id   --> to unstash a  specific stash-id
 
 reflog:
 -----------------------------------------   
-even afterr hard reset also we can revert the deleted changes. use the reflog.  
+even afterr hard reset also we can revert the deleted changes. use the reflog. its the mother of all git logs. 
 
     $ git reflog
     $ git reset --hard reflog-id
