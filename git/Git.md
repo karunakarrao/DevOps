@@ -173,9 +173,9 @@ both developers are upto date with remote repo, they started working on same fil
     $ git push origin master 	--> you failed to push your changes to remote repo, then you pull new changes
     $ git pull origin master 	--> then you merge both changees locally and commit the changes and push the changes.
     
-rebase:
+rebase: (DANGER) - Golden Rule
 ------------------------------------------
-Rebasing with `git rebase` allows for integrating changes from one branch onto another, maintaining a clean commit history, avoiding merge commits, resolving conflicts efficiently, and syncing forked repositories.
+Rebasing with `git rebase` allows for integrating changes from one branch onto another, maintaining a clean commit history, avoiding merge commits, resolving conflicts efficiently, and syncing forked repositories. (Golden rule of rebase, never use it on public branches. You should  never rebase master onto  a feature branch.)
 
 usecase-1: updating the new commit  histroy with feature branch, to make sure its up-to date.
 
@@ -186,7 +186,7 @@ usecase-1: updating the new commit  histroy with feature branch, to make sure it
 
 usecase-2: to combine the multipule commits into a single commit using the 
 
-    $ git rebase -i HEAD~3   		--> it will merge latest 3 commits in to 1 single commit. "-i" interactive  rebase.
+    $ git rebase -i HEAD~3   		--> it will merge latest 3 commits in to 1 single commit. "-i" interactive  rebase.  it will  rewrite the commit-ID's with new ID.
     $ git reset --hard ORIG_HEAD   	--> this will revert the above step and reset back to previous state.
 
 usercase-3: Druing rebase conflicts  use the below options.
@@ -195,6 +195,7 @@ usercase-3: Druing rebase conflicts  use the below options.
 	$ git rebase --edit-todo		--> edit rebase again
  	$ git rebase --continue			--> continue with rebase activity.
 
+	
 cherry-pick:
 -------------------------------------------
 if you don't want to apply all the commits just want to pick a specific commit. then use the cherry-pick
@@ -217,8 +218,21 @@ reflog:
 even afterr hard reset also we can revert the deleted changes. use the reflog. its the mother of all git logs. 
 
     $ git reflog
+    $ git reflog commit-ID
     $ git reset --hard reflog-id
 
+to create dummy commits. using for loop
+
+    $ for i in {1..5}; do echo $(date) > testfile_$i; git add .;  git commit -m "testing _$i"; done
+
+hooks:
+-----------------------------------------
+
+secreats
+-----------------------------------------
+
+	$ git screats.
+    
 fork:
 -----------------------------------------
 in opensource git projects, thousands of contributers are there, so every one can't be the contributer to the project. so you can fork the project and do the changes, and you can create pull request. if the owner of project think your changes are worth while they can approve the changes. and merge in to the project.
