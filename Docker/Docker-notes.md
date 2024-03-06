@@ -20,7 +20,7 @@ Docker uses a `Client-Server` architecture. The Docker client talks to the Docke
 
 docker.service file Location	: `/lib/systemd/system/docker.service` | `/usr/lib/systemd/system/docker.service`
 
-Docker Configuration Files	: `/etc/docker/daemon.json` (Linux)
+Docker Configuration Files	: `/etc/docker/daemon.json` (Linux) --> docker configurations are stored in daemon.json
 
 Docker Data Directory		: `/var/lib/docker/` (Linux)  --> all docker objects are stored here like "containers, images, networks, volumes, plugins"
 
@@ -61,7 +61,7 @@ Docker Daemon Status check:
 ----------------------------
 Docker run as a system service, which will run in the background. it has `docker.socket` and `docker.service` are both components of the Docker Engine, but they serve different purposes. 
 
-`docker.socket` is This is a systemd socket unit that Docker creates during installation. It listens for incoming Docker API requests on a Unix domain socket (`/var/run/docker.sock` by default). When a client program (e.g., Docker CLI) wants to interact with the Docker daemon, it communicates through this socket. This socket allows users to interact with the Docker daemon without needing to start the Docker daemon directly.
+`docker.socket` is a systemd socket that Docker creates during installation. It listens for incoming Docker API requests on a Unix domain socket (`/var/run/docker.sock` by default). When a client program (e.g., Docker CLI) wants to interact with the Docker daemon, it communicates through this socket. This socket allows users to interact with the Docker daemon without needing to start the Docker daemon directly.
 
 `docker.service` is systemd service unit that manages the Docker daemon. It is responsible for starting, stopping, and managing the Docker daemon process.The Docker daemon (dockerd) is the background process that manages Docker containers, images, networks, and volumes.
 
@@ -70,21 +70,22 @@ Docker run as a system service, which will run in the background. it has `docker
 
 Start/Stop Docker service:
 ---------------------------
-Docker installtion creates `docker.service` file the this location : `/lib/systemd/system/docker.service` | `/usr/lib/systemd/system/docker.service`. to handle docker services to start/stop/restart use as below. 
+Docker installtion creates `docker.service`, this file located `/lib/systemd/system/docker.service` | `/usr/lib/systemd/system/docker.service`. to handle docker services to start/stop/restart use as below. 
 
 	$ sudo service docker start	--> start the docker service.
  
 	$ sudo systemctl start docker	--> start docker service.
  	$ sudo systemctl stop docker	--> stop docker service.
  	$ sudo systemctl status docker 	--> check Docker service status RUNNING/NOT.
+  
 	$ sudo systemctl enable docker  --> enable the service to auto start post system reboot, it will add file in /etc/systemd/system directory.
  	$ sudo systemctl cat docker	--> to read the docker.service file.
 	$ sudo systemctl reload docker 	--> Reloaded Docker Application Container Engine and its configurations.
     
-	$ journalctl -u docker.service 	--> docker daemon troubleshooting with service logs
- 	$ journalctl -uf docker		--> docker daemon log troubleshoot 
-	$ vi /etc/docker/daemon.json 	--> docker configurations are stored in daemon.json
- 	$ ps aux | grep docker 		--> to see process running inside container
+	$ journalctl -u docker.service 		--> docker daemon troubleshooting with service logs
+ 	$ journalctl -u docker --follow		--> docker daemon log troubleshoot, follow the logs runtime.
+  
+ 	$ ps aux | grep docker 			--> to see process running inside container
 
 objects: 
 -----------------------------
@@ -95,14 +96,13 @@ objects:
 
 Daemon:
 -----------------------------
-Once the docker daemon starts, it listens on an internal unix socket `docker.sock` (/var/run/docker.sock) this is how the docker-cli interact with docker daemon. this is Unix Socket is only limited to that perticular system itself. You can start a Docker Daemon manually using `dockerd` command. 
+Once the docker daemon starts, it listens on an internal unix socket `docker.sock` (/var/run/docker.sock). this is how the docker-cli interact with docker daemon. this is Unix Socket is only limited to that perticular system itself. You can start a Docker Daemon manually using `dockerd` command. 
 
 	 $ dockerd 		--> starting Docker Daemon manually 
   	 $ dockerd &		--> run it in background using "&"
 	 $ dockerd --debug	--> running in debug mode. using option "--debug" 
   
 	 $ dockerd --debug --host=tcp://192.168.1.10:2375  --> remote docker service (export DOCKER_HOST="tcp://192.168.1.10:2375) no SSL (not secure)
-  
   	 $ dockerd --debug --host=tcp://192.168.1.10:2376\ --> secure connection is made with help of encription keys.
     			   --tls=true \
 			   --tlscert=/var/docker/server.pem \
@@ -124,10 +124,10 @@ The above configurations can also be moved to the configuration file located in 
 "tlsverify": true,
 "tlscacerts": /var/docker/caserver.pem
 }
-	
 ```
   
-if we want to control the docker daemon from remote host we need to add `--host=tcp://192.168.1.10:2375`. this will enable the TCP Socket so that the daemon can be interacted from remote host. In the remote host we need to install docker-cli  and need to export the DOCKER_HOST environment variable to like below. then you can use docker-CLI to connect to the remote daemon. 
+if we want to control the docker daemon from remote host we need to add `--host=tcp://192.168.1.10:2375`. this will enable the TCP Socket, so that the daemon can be interacted from remote host. In the remote host we need to install `docker-cli`  and need to export the `DOCKER_HOST` environment variable. then you can use docker-CLI to connect to the remote daemon. 
+
 	`export DOCKER_HOST="tcp://192.168.1.10:2375`(2375 unencrypted)  
  	`export DOCKER_HOST="tcp://192.168.1.10:2376` (2376 is encrypted SSL) this. 
 
@@ -145,22 +145,21 @@ Note: In normal situations when the docker daemon crashed, it will takedown all 
 "hosts": ["tcp://192.168.1.10:2376"]
 "live-restore": true	# Live-restore 
 }
-``` 	
+```
+
 Version: 
 ---------------------------------
 	$ docker --version		--> docker version
 	$ docker-compose --version	--> docker compose version
- 	$ docker system info 		--> docker full information (debug mode/
+ 	$ docker system info 		--> docker full information (debug mode)
  
 Process: 
 ---------------------------------------------
 	$ docker ps 		--> only running containers list
 	$ docker ps -a 		--> to see all containers (running/stopped/paused/created)
 	$ docker ps -q		--> shows only container-ID of running process
-	$ docker ps -s 		--> shows "Size" of a running container 
+	$ docker ps -s 		--> shows "Size" of a running container  
  	$ docker ps -l 		--> latest container created
-  
-  	$ docker ps -f		--> filter containers 
    
    	$ docker ps -f "label=env=DEV"	--> filter containers labelled as "DEV"
     	$ docker ps -f "label=env=PROD"	--> filter containers labelled ad "PROD"
@@ -169,17 +168,17 @@ Docker Registry
 ---------------------------------------------
 An image registry is a centralized place where you can upload your images and can also download images created by others. Docker Hub is the default public registry for Docker. create a docker hub account and login using link: https://hub.docker.com/
 
-	$ docker login 			--> to login to docker repository (default: docker hub repository)
-	$ docker logout 		--> to logout docker repository
-	$ docker login gcr.io		--> to login to GCP repository
-	$ docker login docker.io 	--> to login to docker hub repository
+	$ docker login 				--> to login to docker repository (default: docker hub repository)
+	$ docker logout 			--> to logout docker repository
+	$ docker login gcr.io			--> to login to GCP repository
+	$ docker login docker.io 		--> to login to docker hub repository
  	$ docker login nexus-registry-url 	--> to login to nexus private registry 
 	
 Q. What is a Docker Container? 
 --------------------------------
 A container is a light weight & isolated object, that wraps the application and its dependencies along with libraies and supporting file that are used to run the application indipendently with out having to worry about the underlying operating system. with containers you can run your application on any platform uniformly. this contaienrs are light wight objects. docker container life cycle. once the containers job is finished they closed.
-		 b
-	Creation --> Running --> Pausing --> Unpausing --> starting --> Stopping --> Restarting --> Killing --> Destroying
+	
+	Creation --> Running --> Pausing --> Unpausing --> Starting --> Stopping --> Restarting --> Killing --> Destroying
 
  Usage:  $ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 	
@@ -197,7 +196,7 @@ A container is a light weight & isolated object, that wraps the application and 
 		--network my-network1		 	--> mapping to custom network group
 		attach 					--> to attach to the running container
 
-create:
+create: 
 -----------------------------
 docker containers can be created using `$ docker create` command. this will not start the container until you start it using `$ docker start` command. 
 	
@@ -206,6 +205,7 @@ docker containers can be created using `$ docker create` command. this will not 
    	$ docker create --label env=DEV nginx	--> label the containers.
     	$ docker create -e key1=value1	nginx 	--> setting env variables.
 
+     	$ docker create --name my-httpd --label --rm  ENV=DEV -p 8081:80 -v /tmp/httpd:/usr/local/apache2/htdocs/:ro  httpd  	--> `:ro` suffix indicates that the mounted volume should be read-only. 
 run:
 -----------------------------
 docker containers can be "created and started" at  the sametime using `$ docker run ` command. 
@@ -214,6 +214,9 @@ docker containers can be "created and started" at  the sametime using `$ docker 
 	$ docker run --name my-nginx nginx 	--> it creates & starts nginx container named as my-nginx
 	$ docker run -d nginx 			--> container run in background
 	$ docker run -it nginx /bin/bash 	--> this will open a terminal to connect with running container 
+
+ 	$ docker run -d  -i -t --name my-nginx -p 8082:80 -v /some/content:/usr/share/nginx/html:ro --rm nginx 		--> `:ro` suffix indicates that the mounted volume should be read-only. 
+  	$ 
 
 resource:
 -----------------------
@@ -233,7 +236,7 @@ env:
 -------------------------
 passing the environment variables during the container. this variables are visible inside the container. and they use this environment variables. 
 
-     	$ docker run -e key1=value1 nginx	--> passing environment varialbes 
+     	$ docker run -e key1=value1 nginx			--> passing environment varialbes 
       	$ docker run -e key1=value1 -e key2=value2 httpd	--> passing 2 env variables. 
 
 Port Publish:
@@ -264,20 +267,20 @@ Kill will forcefully terminate, which immediately terminates the container witho
 
 auto restart: Restart policy
 -----------------------------
-To make the container auto restart we need to add the command with `--restart ` option with parameters like `no` | `on-failure` | `always` | `unless-stopped`
+To make the container auto restart we need to add the command with `--restart ` option with parameters like `no` | `on-failure` | `always` | `unless-stopped`. when your use `--restart` you can't use `--rm`.
 	
-  	$ docker run --restart=on-failure -d nginx	--> 
+  	$ docker run --restart=on-failure -d nginx	--> It will restart the container on failure.
 
-	   no:		--> never automatically restart
-	   on-failure:	--> depends on the exit code, if the exit code is ZERO it will not restart. if the exit code is NOT ZERO then it will restart
-	   always:	--> it will restart the container. 
-	   unless-stopped:	-->
+	   no:			--> never automatically restart
+	   on-failure:		--> depends on the exit code, if the exit code is ZERO it will not restart. if the exit code is NOT ZERO then it will restart
+	   always:		--> it will restart the container. 
+	   unless-stopped:	--> you stop the container, then it will be in stopped state.
 
 remove: 
 -----------------------------
-To delete the container once it done its work. 
+To delete the container once it done its work is done use `--rm`  option with container.
 
-	$ docker rm container-ID/container-name		
+	$ docker rm container-ID/container-name		--> to  delete the stopped container.	
 	$ docker run --rm ubuntu cat /etc/*release*	--> remove the docker container once the container exited.
 
 ports:
@@ -290,21 +293,21 @@ copy:
 -----------------------------
 Copy file from local host to container, this will allow you to update the container data. 
 
-	$ docker cp source destination 
+	$ docker cp host-file container-file
  
-	$ docker cp /tmp/web.conf webapp:/etc/web.conf 	--> copy file/directories to container from localhost --> container 
- 	$ docker cp webapp:/etc/web.conf /tmp		--> copy files from container --> localhost
+	$ docker cp /tmp/web.conf webapp:/etc/web.conf 		--> copy file/directories to webapp container from localhost --> container 
+ 	$ docker cp webapp:/etc/web.conf /tmp			--> copy files from container --> localhost
 
 rename:
 -----------------------------
-	$ docker rename my-nginx app1-nginx --> to rename nginx container from my-nginx to app1-nginx
+	$ docker rename my-nginx app1-nginx 	--> to rename nginx container from my-nginx to app1-nginx
 
 attach:	
 -----------------------------
-to attach to the detached container, first your container must enable the interactive terminal(-it) then only you can reattach to the attached container with out stopping the container.
+to attach to the detached container, first your container must enable the interactive terminal `-it`. then only you can reattach to the attached container with out stopping the container.
 
-	$ docker run -it -d nginx --> start container like this.
-	$ docker attach my-nginx --> to attach to the detached container, to detach (Ctrl+p + Ctrl+q )
+	$ docker run -it -d nginx 	--> start container like this.
+	$ docker attach my-nginx 	--> to attach to the detached container, to detach (Ctrl+p + Ctrl+q )
 
 exec:	
 -----------------------------
@@ -323,6 +326,27 @@ you can't perform any operation during this time, the container running but it w
 	$ docker pause my-nginx my-redis 	--> it will pause the container
 	$ docker unpause my-nginx my-redis 	-->it will unpause the containers
 
+diff:
+------------------------------
+This will show which file are changed during the contianer start. 
+
+	$ docker diff my-nginx		--> it will print the files and directories changes post  container is up.
+
+  	A: Added: Indicates that a new file or directory has been added to the container's filesystem.
+	C: Changed: Indicates that an existing file has been modified within the container.
+	D: Deleted: Indicates that a file or directory has been deleted from the container's filesystem.
+	R: Renamed: Indicates that a file or directory has been renamed within the container.
+	U: Unchanged: Indicates that a file or directory remains unchanged since it was started.
+
+commit:
+-------------------------------
+The docker `commit` command is used to create a new image from the changes made to a container. This can be useful when you have made changes to a container and want to save those changes as a new image that can be reused or shared with others. example as below.
+
+	$ docker run --name my-nginx -d nginx			--> you started a container.
+ 	$ docker exec -it my-nginx apt-get update -y 		--> you have done changes in container like upgrade
+  	$ docker exec -it my-nginx apt-get install -y vim	--> installed few  softwares
+   	$ docker commit my-nginx my-custom-nginx		--> create a new image "my-custom-nginx"
+
 inspect:	
 -----------------------------
 This will show all the details of docker container/image/volume/network. 
@@ -336,7 +360,8 @@ logs:
 -----------------------------
 docker logs are stored in `/var/lib/docker/containers/container-id/` location.  
 
-	$ docker logs my-nginx
+	$ docker logs my-nginx			--> recarded container logs
+ 	$ docker logs -f my-nginx		--> Live container logs monitoring. 
  	$ docker container logs -f my-nginx	--> Live log monitoring. like tail command. 
   
 Docker uses the `logging drivers` to store the logs on the specific container. there are different types of logging drivers available. to view the  drivers available use `$ docker system info`, there you can see the available driver plugins. to change the drivers add the below configurations in `/etc/docker/daemon.json` file. 
