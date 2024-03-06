@@ -195,17 +195,6 @@ A container is a light weight & isolated object, that wraps the application and 
 		-e key1=value1 -e key2=value2	 	--> environment variable
 		--network my-network1		 	--> mapping to custom network group
 		attach 					--> to attach to the running container
-
-create: 
------------------------------
-docker containers can be created using `$ docker create` command. this will not start the container until you start it using `$ docker start` command. 
-	
- 	$ docker create nginx			--> create a new container, it will be in "created" state
-  	$ docker create --name my-nginx nginx	--> naming cotainer as "my-nginx"
-   	$ docker create --label env=DEV nginx	--> label the containers.
-    	$ docker create -e key1=value1	nginx 	--> setting env variables.
-
-     	$ docker create --name my-httpd --label --rm  ENV=DEV -p 8081:80 -v /tmp/httpd:/usr/local/apache2/htdocs/:ro  httpd  	--> `:ro` suffix indicates that the mounted volume should be read-only. 
 run:
 -----------------------------
 docker containers can be "created and started" at  the sametime using `$ docker run ` command. 
@@ -216,28 +205,29 @@ docker containers can be "created and started" at  the sametime using `$ docker 
 	$ docker run -it nginx /bin/bash 	--> this will open a terminal to connect with running container 
 
  	$ docker run -d  -i -t --name my-nginx -p 8082:80 -v /some/content:/usr/share/nginx/html:ro --rm nginx 		--> `:ro` suffix indicates that the mounted volume should be read-only. 
-  	$ 
+  
+create: 
+-----------------------------
+docker containers can be created using `$ docker create` command. this will not start the container until you start it using `$ docker start` command. 
+	
+ 	$ docker create nginx			--> create a new container, it will be in "created" state
+  	$ docker create --name my-nginx nginx	--> naming cotainer as "my-nginx"
+   	$ docker create --label env=DEV nginx	--> label the containers.
+    	$ docker create -e key1=value1	nginx 	--> setting env variables.
 
-resource:
------------------------
-You can allocate system resources to the container, so that the container can only limit the system resources as defined. this will eliminate the cpu and memory crunch. 
+     	$ docker create --name my-httpd --label --rm  ENV=DEV -p 8081:80 -v /tmp/httpd:/usr/local/apache2/htdocs/:ro  httpd  	--> `:ro` suffix indicates that the mounted volume should be read-only. 
 
- 	$ docker run -cpus 0.5 -d nginx		--> assign CPU units 0.5 means half CPU
-  	$ docker run -memory 512M -d nginx	--> assign MEMORY units 512MB to a container
+start/stop:
+-----------------------------
+	$ docker create  nginx 		--> creates nginx container, named as my-nginx
+	$ docker start my-nginx		--> starts newly created nginx 
+	$ docker stop my-nginx 		--> stop nginx container, it will be avaiable to restart again
+	$ docker kill my-nginx 		--> it will obruptly kills the nginx container
+ 	$ docker rm my-nginx		--> it will delete the stopped/killed container process.
+ 
+"stop" vs "kill" commands. stop will gracefully shutdown the container, that means  it can perform cleanup operations or execute any defined exit procedures. it will  releasing resources, and then exit. Stopping a container allows it to save any changes to its file system, commit them to an image, and exit gracefully. it will invoke "SIGTERM" signal 
 
-Label:
-------------------------
-you can label your containers according to your need so that you can filter them later using the labels that are defined for the containers. this will help you to filter the containers easly. 
-
-   	$ docker run -l env=PROD -d nginx	--> Label a container with PROD 
-    	$ docker run --label env=DEV -d nginx	--> Lable a container with DEV
-
-env:
--------------------------
-passing the environment variables during the container. this variables are visible inside the container. and they use this environment variables. 
-
-     	$ docker run -e key1=value1 nginx			--> passing environment varialbes 
-      	$ docker run -e key1=value1 -e key2=value2 httpd	--> passing 2 env variables. 
+Kill will forcefully terminate, which immediately terminates the container without allowing it to perform any cleanup or exit procedures. any changes or in-memory data that haven't been saved will be lost. Killing a container is useful when a container is unresponsive or needs to be stopped forcefully. it will invoke "SIGKILL" signal
 
 Port Publish:
 -----------------------------
@@ -252,62 +242,38 @@ publishing the container port using the `--publish` or `-p` option. `-P` will al
 sometimes physical mechine have multipule NICs (network interface cards), it means that system can have mutipule IP address. so we want to publish the container on the internal NIC card then we can specify the IP of that NIC and create the container. so that the applicaton can only accessable on that IP only. 
 
  	$ docker run –p 192.168.1.5:8000:5000 kodekloud/simple-webapp	--> pulishing the container on a specific NIC card. 
-  
-start/stop:
------------------------------
-	$ docker create  nginx 		--> creates nginx container, named as my-nginx
-	$ docker start my-nginx		--> starts newly created nginx 
-	$ docker stop my-nginx 		--> stop nginx container, it will be avaiable to restart again
-	$ docker kill my-nginx 		--> it will obruptly kills the nginx container
- 	$ docker rm my-nginx		--> it will delete the stopped/killed container process.
- 
-"stop" vs "kill" commands. stop will gracefully shutdown the container, that means  it can perform cleanup operations or execute any defined exit procedures. it will  releasing resources, and then exit. Stopping a container allows it to save any changes to its file system, commit them to an image, and exit gracefully. it will invoke "SIGTERM" signal 
-
-Kill will forcefully terminate, which immediately terminates the container without allowing it to perform any cleanup or exit procedures. any changes or in-memory data that haven't been saved will be lost. Killing a container is useful when a container is unresponsive or needs to be stopped forcefully. it will invoke "SIGKILL" signal
-
-auto restart: Restart policy
------------------------------
-To make the container auto restart we need to add the command with `--restart ` option with parameters like `no` | `on-failure` | `always` | `unless-stopped`. when your use `--restart` you can't use `--rm`.
-	
-  	$ docker run --restart=on-failure -d nginx	--> It will restart the container on failure.
-
-	   no:			--> never automatically restart
-	   on-failure:		--> depends on the exit code, if the exit code is ZERO it will not restart. if the exit code is NOT ZERO then it will restart
-	   always:		--> it will restart the container. 
-	   unless-stopped:	--> you stop the container, then it will be in stopped state.
-
-remove: 
------------------------------
-To delete the container once it done its work is done use `--rm`  option with container.
-
-	$ docker rm container-ID/container-name		--> to  delete the stopped container.	
-	$ docker run --rm ubuntu cat /etc/*release*	--> remove the docker container once the container exited.
-
-ports:
+port:
 -----------------------------
 	$ docker port my-nginx/container-ID	--> to check container ports status
 	$ docker port my-nginx 8080/tcp 
 	$ docker port my-nginx 8080/ud
+ 
+Label:
+------------------------
+you can label your containers according to your need so that you can filter them later using the labels that are defined for the containers. this will help you to filter the containers easly. 
 
+   	$ docker run -l env=PROD -d nginx	--> Label a container with PROD 
+    	$ docker run --label env=DEV -d nginx	--> Lable a container with DEV
+
+env:
+-------------------------
+passing the environment variables during the container. this variables are visible inside the container. and they use this environment variables. 
+
+     	$ docker run -e key1=value1 nginx			--> passing environment varialbes 
+      	$ docker run -e key1=value1 -e key2=value2 httpd	--> passing 2 env variables.  
+       
 copy:
 -----------------------------
 Copy file from local host to container, this will allow you to update the container data. 
 
-	$ docker cp host-file container-file
+	$ docker cp host-file container-id/name:container-file/path
  
 	$ docker cp /tmp/web.conf webapp:/etc/web.conf 		--> copy file/directories to webapp container from localhost --> container 
  	$ docker cp webapp:/etc/web.conf /tmp			--> copy files from container --> localhost
 
 rename:
 -----------------------------
-	$ docker rename my-nginx app1-nginx 	--> to rename nginx container from my-nginx to app1-nginx
-
-attach:	
------------------------------
-to attach to the detached container, first your container must enable the interactive terminal `-it`. then only you can reattach to the attached container with out stopping the container.
-
-	$ docker run -it -d nginx 	--> start container like this.
-	$ docker attach my-nginx 	--> to attach to the detached container, to detach (Ctrl+p + Ctrl+q )
+	$ docker rename my-nginx app1-nginx 	--> to rename nginx container from my-nginx to app1-nginx   
 
 exec:	
 -----------------------------
@@ -316,7 +282,14 @@ to run/perform any operations inside the container, like checking the process, u
 	$ docker exec my-nginx uname -a 		--> to check the container OS details
 	$ docker exec my-nginx cat /etc/*release* 	--> to check container OS details
 	$ docker exec -it my-nginx /bin/bash		--> opens a bash container terminal 
- 	
+ 
+CPU/Memeory:
+-----------------------
+You can allocate system resources to the container, so that the container can only limit the system resources as defined. this will eliminate the cpu and memory crunch. 
+
+ 	$ docker run -cpus 0.5 -d nginx		--> assign CPU units 0.5 means half CPU
+  	$ docker run -memory 512M -d nginx	--> assign MEMORY units 512MB to a container
+
 pause/unpause: 
 -----------------------------
 Pausing a container is a Docker operation that temporarily stops all processes within a running container, Pausing a container allows you to temporarily free up system resources, such as CPU and memory, for other containers that need them. When you're troubleshooting issues within a container, pausing it can help you examine the container's file system or configurations without the interference of running processes. 
@@ -328,7 +301,7 @@ you can't perform any operation during this time, the container running but it w
 
 diff:
 ------------------------------
-This will show which file are changed during the contianer start. 
+This will show which file changed  from actual container image to  running  contianer.
 
 	$ docker diff my-nginx		--> it will print the files and directories changes post  container is up.
 
@@ -337,15 +310,6 @@ This will show which file are changed during the contianer start.
 	D: Deleted: Indicates that a file or directory has been deleted from the container's filesystem.
 	R: Renamed: Indicates that a file or directory has been renamed within the container.
 	U: Unchanged: Indicates that a file or directory remains unchanged since it was started.
-
-commit:
--------------------------------
-The docker `commit` command is used to create a new image from the changes made to a container. This can be useful when you have made changes to a container and want to save those changes as a new image that can be reused or shared with others. example as below.
-
-	$ docker run --name my-nginx -d nginx			--> you started a container.
- 	$ docker exec -it my-nginx apt-get update -y 		--> you have done changes in container like upgrade
-  	$ docker exec -it my-nginx apt-get install -y vim	--> installed few  softwares
-   	$ docker commit my-nginx my-custom-nginx		--> create a new image "my-custom-nginx"
 
 inspect:	
 -----------------------------
@@ -376,13 +340,36 @@ Docker uses the `logging drivers` to store the logs on the specific container. t
   	}
 Note: to store the docker logs on the aws cloud we must need to pass the AWS credentials, so that the docker daemon can store the logs on the aws. 
 
+remove: 
+-----------------------------
+To delete the container once it done its work is done use `--rm`  option with container.
 
+	$ docker rm container-ID/container-name		--> to  delete the stopped container.	
+	$ docker run --rm ubuntu cat /etc/*release*	--> remove the docker container once the container exited.
+
+attach:	
+-----------------------------
+to attach to the detached container, first your container must enable the interactive terminal `-it`. then only you can reattach to the attached container with out stopping the container.
+
+	$ docker run -it -d nginx 	--> start container like this.
+	$ docker attach my-nginx 	--> to attach to the detached container, to detach (Ctrl+p + Ctrl+q )
+ 
 top:
 -----------------------------
 	$ docker top my-nginx/container-ID 	--> to see process running for that container.
 	$ docker stats				--> provide the stats of the containers like memory,cpu,PID,usage and etc.
  	$ docker stats my-nginx 		--> check the stats for a specific container
+  
+auto restart: Restart policy
+-----------------------------
+To make the container auto restart we need to add the command with `--restart ` option with parameters like `no` | `on-failure` | `always` | `unless-stopped`. when your use `--restart` you can't use `--rm`.
+	
+  	$ docker run --restart=on-failure -d nginx	--> It will restart the container on failure.
 
+	   no:			--> never automatically restart
+	   on-failure:		--> depends on the exit code, if the exit code is ZERO it will not restart. if the exit code is NOT ZERO then it will restart
+	   always:		--> it will restart the container. 
+	   unless-stopped:	--> you stop the container, then it will be in stopped state.
 events:	
 -----------------------------
 `docker system events ` vs `docker events` both  are same. 
@@ -489,6 +476,15 @@ we can export and import containers also using eport and import command.
 
 	$ docker export <container-name> file1.tar
 	$ docker image import file1.tar newimage:latest
+ 
+commit:
+-------------------------------
+The docker `commit` command is used to create a new image from the changes made to a container. This can be useful when you have made changes to a container and want to save those changes as a new image that can be reused or shared with others. example as below.
+
+	$ docker run --name my-nginx -d nginx			--> you started a container.
+ 	$ docker exec -it my-nginx apt-get update -y 		--> you have done changes in container like upgrade
+  	$ docker exec -it my-nginx apt-get install -y vim	--> installed few  softwares
+   	$ docker commit my-nginx my-custom-nginx		--> create a new image "my-custom-nginx"
 
 What is Multistage-docker build ? how to?
 ----------------------------------------------
