@@ -72,5 +72,5 @@ Step-7: you can check the container logs using `$ docker logs container-1` see, 
 
 
 Scenario-3: 
-
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         $ docker run -d --name nginx-load-balancer --network my-nginx-network -p 8080:80 -v ./nginx.conf:/etc/nginx/nginx.conf nginx
