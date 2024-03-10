@@ -96,7 +96,7 @@ To restore the changes from staging area to unstaged area.
     $ git restore hello.v1.sh           --> modified changes will get reverted. original 
     $ git restore --staged hello.v2.sh  --> remove file from stagging area to  modified files area which is untracked area.
     
-    $ git rm --cached hello.sh 			--> remove untracked files from stagging area
+    $ git rm --cached hello.sh 		--> remove untracked files from stagging area
 	
 branch:
 -------------------------------------
@@ -113,7 +113,6 @@ branches are used to create a new branch from your working  branch. You can  cre
     $ git branch -D feature     	--> delete branch feature
     $ git log --graph --decorate    	--> to see branch commit history
     $ git branch -M main        	--> current branch is renamed to "main"
-
     
 merge:
 --------------------------------------
