@@ -173,9 +173,13 @@ An image registry is a centralized place where you can upload your images and ca
 	$ docker login gcr.io			--> to login to GCP repository
 	$ docker login docker.io 		--> to login to docker hub repository
  	$ docker login nexus-registry-url 	--> to login to nexus private registry 
-	
+
+--------------------------------------------------------------------------------------------------------------------------
+Containers
+-------------------------------------------------------------------------------------------------------------------------- 
+
 Q. What is a Docker Container? 
---------------------------------
+---------------------------------------------
 A container is a light weight & isolated object, that wraps the application and its dependencies along with libraies and supporting file that are used to run the application indipendently with out having to worry about the underlying operating system. with containers you can run your application on any platform uniformly. this contaienrs are light wight objects. docker container life cycle. once the containers job is finished they closed.
 	
 	Creation --> Running --> Pausing --> Unpausing --> Starting --> Stopping --> Restarting --> Killing --> Destroying
@@ -244,6 +248,8 @@ sometimes physical mechine have multipule NICs (network interface cards), it mea
  	$ docker run –p 192.168.1.5:8000:5000 kodekloud/simple-webapp	--> pulishing the container on a specific NIC card. 
 port:
 -----------------------------
+to list the  ports mapped to the containers.
+
 	$ docker port my-nginx/container-ID	--> to check container ports status
 	$ docker port my-nginx 8080/tcp 
 	$ docker port my-nginx 8080/ud
@@ -396,7 +402,12 @@ system:
 	
 	$ docker container stop $(docker container ls -q) 	--> stop all containers at once
 	$ docker container rm $(docker container ls -aq) 	--> remove all container at once.
-	
+
+
+--------------------------------------------------------------------------------------------------------------------------
+Images
+--------------------------------------------------------------------------------------------------------------------------
+ 
 Q. What is a Docker: Image?
 ----------------------------
 Docker image is a lightweight, standalone, and executable package that encapsulates the software, its dependencies, and configuration needed to run an application. It serves as a blueprint for creating Docker containers. Docker images are built from a set of instructions called a Dockerfile, which specifies the base image, application code, environment settings, and other components. 
@@ -493,7 +504,6 @@ Multistage Docker builds are a feature that allows creating more efficient and s
 Dockerfile
 ------------------
 ```
-
 FROM node AS builder
 COPY . .
 RUN npm install
@@ -539,7 +549,21 @@ ENV and ARG are both used to define variables in Docker, but they serve differen
 	
 Q. what is the use of docker namespaces ?
 ------------------------------------------
-Docker uses Namespaces to isolate the containers from the hosted OS, Docker containers running on hosted severs are not fully isolated, means they share same kernal. So the containers running on host are given a process-ID. Docker uses namespaces for each container so with in the container only container process are visible. but if we actually see hosted system process, respective process are visible in the hosted system with different PID.  
+Docker uses Namespaces to isolate the containers from the hosted OS, Docker containers running on hosted severs are not fully isolated, means they share same kernal. So the containers running on host are given a process-ID. Docker uses namespaces for each container so with in the container only container process are visible. but if we actually see hosted system process, respective process are visible in the hosted system with different PID. there are different namespaces like  belwo
+	
+1. PID Namespace : it isolate the PID of Containers. Each container gets its own set of process IDs, and processes in one namespace are unaware of processes in other namespaces. This prevents processes in one container from seeing or affecting processes in other containers. Running `ps aux` inside a container will only show processes running within that container, not processes from other containers or the host system.
+
+2. Network Namespace : Network namespaces isolate network resources such as network devices, IP addresses, routing tables, and port numbers. Each container gets its own network namespace, providing isolation at the network level. Containers can have their own network interfaces, IP addresses, and routing rules. Example: Running ifconfig inside a container will only show the network interfaces associated with that container, not interfaces from other containers or the host system.
+
+3. Mount Namespace: Mount namespaces isolate the filesystem mount points. Each container gets its own mount namespace, providing an isolated filesystem view. Containers can have their own set of mounted filesystems, independent of other containers or the host system. Example: Mounting a volume inside a container with docker run -v /host/path:/container/path will only affect that container's filesystem, not other containers or the host system.
+   	
+4. User Namespace: Isolates user and group IDs. 
+
+5. UTS Namespaces: UTS (Unix Time-sharing System) namespaces isolate the hostname and domain name. Each container gets its own UTS namespace, allowing it to have a unique hostname and domain name. Containers can have different hostnames and domain names, even if they share the same kernel. Example: Setting a custom hostname inside a container with docker run --hostname my-container will only affect the hostname within that container, not other containers or the host system.
+
+6. IPC Namespaces :  Isolates System V IPC and POSIX message queues.
+
+7. Cgroup Namespace: This is not directly used by Docker but is used by Linux Control Groups (cgroups) to manage resource allocation and tracking.
 
 Q. What is CGroups?
 -----------------------
@@ -559,9 +583,19 @@ docker uses the storage drivers to maintain the layered architecture, creating w
     	4. Device Mapper
      	5. Overlay
       	6. Overlay2
-
+       
+--------------------------------------------------------------------------------------------------------------------------
 volumes:
------------------------------
+--------------------------------------------------------------------------------------------------------------------------
+
+Q. What are docker volumes?
+-----------------------------------
+Docker volumes are a way to persist data generated by and used by Docker containers. They allow you to share data between the host machine and containers, as well as between different containers. Volumes are separate from the container's filesystem and can exist even after the container is stopped or deleted.
+
+1. Named Volumes: Named volumes are explicitly created using the `docker volume create` command or automatically created when specified in a container's configuration. They have a meaningful name assigned to them, making it easier to manage and reference. Named volumes are typically the recommended way to persist data in Docker. this will create a volume in the docker-host `/var/lib/docker/volumes`
+2. Host-mounted Volumes: Host-mounted volumes allow you to mount directories from the host machine into Docker containers. With host-mounted volumes, the data resides on the host's filesystem, and changes made in the container are reflected on the host and vice versa. They are useful for sharing files between the host and containers. `docker run -d -v  /home/user1:/usr/local/contaner nginx`
+3. Anonymous Volumes: Anonymous volumes are created automatically by Docker when a container is started without explicitly specifying a volume. They are assigned a random, unique identifier and are managed by Docker internally. Anonymous volumes are typically used when you don't need to manage the volume explicitly or when temporary data storage is sufficient. `docker run -d nginx`
+
 	$ docker volume ls 
 	$ docker volume create my-volume1 	--> this will create a volume in the docker-host /var/lib/docker/volumes
 	$ docker volume remove my-volume1	--> remove my-volume1
@@ -573,6 +607,65 @@ run:
 	$ docker run -v my-volume2:/var/lib/mysql mysql 	--> if we didn't create a volume, docker will create the volume and map.
 	$ docker run -v /home/mysql:/var/lib/mysql mysql 	--> we can map the external location to store the data persistantly
 	$ docker run --mount type=bind,source=/home/mysql,target=/var/lib/mysql mysql 	--> this way also we can mount the volumes.
+
+--------------------------------------------------------------------------------------------------------------------------
+Networks:
+--------------------------------------------------------------------------------------------------------------------------
+
+Q. What is Docker: Networking ?
+--------------------------------
+Docker installtion comes with 3 types of networks
+
+	1. Bridge (default) --> network 
+	2. Host
+	3. None
+	
+Bridge:  Is the default network that a conatiner will attach to. this network 172.17.0.1 range. 
+Host: container ports are attached to Host Network, this results port conflict. so extra precusions are needed.
+None: no network created to that containers.
+	
+	$ docker run nginx --> this will map to default Bridge network.
+	$ docker run --network=host nginx --> to map to host network.
+	$ docker run --network=none nginx --> to map to none network.
+	
+	$ docker network ls
+	$ docker inspect my-nginx --> to see the network details attached to the container
+	
+	$ docker network create --driver bridge --subnet 182.18.10.0/16  my-network1 --> create docker network my-network1
+	$ docker run -itd --name first nginx --> run on default network 
+	$ docker run -itd --name second nginx --> runs on default bridge network
+	$ docker exec first ping second --> ping will not work, in default network containers are isolated 
+	
+	$ docker run -itd --name customfirst --network my-network1 nginx 
+	$ docker run -itd --name customsecond --network my-network1 redis
+	$ docker exec customsecond ping customfirst --> ping with in the custom network will work, by default ping is enabled
+	
+	$ docker network connect custom-network1 first --> to establish the connection between 2 networks
+	$ docker exec customfirst ping first --> will work.
+	
+	$ docker network disconnect my-network1 my-nginx1
+	$ docker network disconnect my-network1 first
+	$ docker network rm my-network1
+	
+Note: Docker containers reach each other using container name, this is achived using docker built Embedded DNS, which will resolve all the container names. when we map the containers, we specify the container name. the built in DNS server runs always on 127.0.0.11 
+
+Bridge: bridge network is the default network for containers created. it ranges from 172.17.x.x. the containers communicate each other using bridge network.
+
+example: scenario1
+----------------------
+In a real life scenario in 3-tire environment, we have web-containers network range (175.17.0.0/16), app-containers network range (182.18.0.0/16) and DB-containers network range (192.19.0.0/16). to deploy containers in differnt networks, first we need to create the respective networks and map them to the containers. if we want to used the other network for database containers we can create a new bridge network and mapp this network to the database containers, so they will be isolated with different network. 
+
+ 	$ docker network create --driver bridge --subnet 175.17.0.0/16 web-network1
+	$ docker network create --driver bridge --subnet 180.17.0.0/16 app-network1
+	$ docker network create --driver bridge --subnet 182.17.0.0/16 db-network1
+	
+	$ docker run -d --network web-network1 nginx
+	$ docker run -d --network 
+	$ docker run --network=my-nginx1 nginx 
+
+--------------------------------------------------------------------------------------------------------------------------
+docker-compose:
+-------------------------------------------------------------------------------------------------------------------------- 
 
 Q. What is `docker-compose` ? 
 ---------------------------------
@@ -669,55 +762,6 @@ networks:
 ```
 -------------------
 
-Q. What is Docker: Networking ?
---------------------------------
-Docker installtion comes with 3 types of networks
-	1. Bridge (default) --> network 
-	2. Host
-	3. None
-	
-Bridge:  Is the default network that a conatiner will attach to. this network 172.17.0.1 range. 
-Host: container ports are attached to Host Network, this results port conflict. so extra precusions are needed.
-None: no network created to that containers.
-	
-	$ docker run nginx --> this will map to default Bridge network.
-	$ docker run --network=host nginx --> to map to host network.
-	$ docker run --network=none nginx --> to map to none network.
-	
-	$ docker network ls
-	$ docker inspect my-nginx --> to see the network details attached to the container
-	
-	$ docker network create --driver bridge --subnet 182.18.10.0/16  my-network1 --> create docker network my-network1
-	$ docker run -itd --name first nginx --> run on default network 
-	$ docker run -itd --name second nginx --> runs on default bridge network
-	$ docker exec first ping second --> ping will not work, in default network containers are isolated 
-	
-	$ docker run -itd --name customfirst --network my-network1 nginx 
-	$ docker run -itd --name customsecond --network my-network1 redis
-	$ docker exec customsecond ping customfirst --> ping with in the custom network will work, by default ping is enabled
-	
-	$ docker network connect custom-network1 first --> to establish the connection between 2 networks
-	$ docker exec customfirst ping first --> will work.
-	
-	$ docker network disconnect my-network1 my-nginx1
-	$ docker network disconnect my-network1 first
-	$ docker network rm my-network1
-	
-Note: Docker containers reach each other using container name, this is achived using docker built Embedded DNS, which will resolve all the container names. when we map the containers, we specify the container name. the built in DNS server runs always on 127.0.0.11 
-
-Bridge: bridge network is the default network for containers created. it ranges from 172.17.x.x. the containers communicate each other using bridge network.
-
-example: scenario1
-----------------------
-In a real life scenario in 3-tire environment, we have web-containers network range (175.17.0.0/16), app-containers network range (182.18.0.0/16) and DB-containers network range (192.19.0.0/16). to deploy containers in differnt networks, first we need to create the respective networks and map them to the containers. if we want to used the other network for database containers we can create a new bridge network and mapp this network to the database containers, so they will be isolated with different network. 
-
- 	$ docker network create --driver bridge --subnet 175.17.0.0/16 web-network1
-	$ docker network create --driver bridge --subnet 180.17.0.0/16 app-network1
-	$ docker network create --driver bridge --subnet 182.17.0.0/16 db-network1
-	
-	$ docker run -d --network web-network1 nginx
-	$ docker run -d --network 
-	$ docker run --network=my-nginx1 nginx 
 
 	
 
