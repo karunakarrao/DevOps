@@ -483,7 +483,7 @@ Images can be shared as a .tar file and extract it using the save and  load comm
 	
 export/import:
 ---------------------
-we can export and import containers also using eport and import command. 
+we can export and import containers also using export and import command. 
 
 	$ docker export <container-name> file1.tar
 	$ docker image import file1.tar newimage:latest
@@ -686,8 +686,7 @@ docker-compose file must be named like this `docker-compose.yml`, `docker-compos
 	$ docker-compose pull	--> Pulls images for services.
 	$ docker-compose up -d	--> Starts the services in the background.
 
- 	$ docker-compose -f my-compose.yaml up	--> to bringup the custom named docker-compose file
-
+ 	$ docker-compose -f my-compose.yaml up -d	--> to bringup the custom named docker-compose file
    	$ docker-compose -f my-compose.yaml logs -f web	--> to view the logs like 'tail' command
 
 there are 2 versions in docker-compose file, mention the version details in "" like "2" or "3". 
@@ -763,10 +762,7 @@ networks:
 	- back-end
 ```
 -------------------
-
-
-	
-
+ 
 Q. how the Docker Image works?
 -----------------------------------------------
 1. To understand DockerImage better, we need to understand how Docker images are build. DockerImages are build using Dockerfiles. Dockerfiles are contructed in multipule layers ( base(OS), package, dependencies, souce-code(application), entrypoint) bind together and builds and image. this image is docker image. 
