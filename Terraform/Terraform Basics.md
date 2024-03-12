@@ -100,14 +100,14 @@ Define variables in terraform using `variables.tf` file where you define the var
        	2. type			--> variable type - default type is any ( any/string/bool/number/list/map/set/object/tuple )
 	3. description		--> variable description what is the use of it.
  
-string:		String
-bool: 		True / False
-number: 	Numeric
-list: 		list is collection of any type. list is indexed as 0, 1, 2, 3. Access like `var.prefix[0]`
-map: 		key-value pairs, where all keys and values are of the any type. `var.example_map["key1"]`
-set: 		collection of unique values of the same type. `var.prefix[0]`
-object: 	complex data structure with attributes of different types.
-tuple: 		collection of values of different types. like string, bool, number
+	string:		String
+	bool: 		True / False
+	number: 	Numeric
+	list: 		list is collection of any type. list is indexed as 0, 1, 2, 3. Access like `var.prefix[0]`
+	map: 		key-value pairs, where all keys and values are of the same type. `var.example_map["key1"]`
+	set: 		collection of unique values of the same type. `var.prefix[0]`
+	object: 	complex data structure with attributes of different types. `var.example_object.key1`
+	tuple: 		collection of values of different types. like string, bool, number
 
 variables.tf
 ---------------------------------------------
@@ -149,6 +149,15 @@ default = ["cat", 7, true]
 }
 # Note: tuple is a collection of different variable types
 
+variable "example_map" {
+  type = map					# map
+  default = {
+    key1 = "value1"
+    key2 = "value2"
+  }
+}
+# Note: Represents a collection of key-value pairs, where all keys and values are of the same type. access var.example_map["key1"]
+
 variable "example_object" {
   type = object({				# object
     attribute1 = string
@@ -160,15 +169,6 @@ variable "example_object" {
   }
 }
 # Note: Represents a complex data structure with attributes of different types.
-
-variable "example_map" {
-  type = map					# map
-  default = {
-    key1 = "value1"
-    key2 = "value2"
-  }
-}
-# Note: Represents a collection of key-value pairs, where all keys and values are of the same type. access var.example_map["key1"]
 ```
 
 Lab-1: DEFAULT values in variable.tf file
