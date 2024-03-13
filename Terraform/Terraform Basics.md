@@ -3,6 +3,7 @@ Terraform :
 `count` 	--> The "count" object can only be used in "module", "resource", and "data" blocks, and only when the "count" argument is set.
 `for_each`  	--> The "for_each" argument must be a MAP/SET of strings, and if you have provided a value of type List, then to convert use toset()/tomap() function
 
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------
  
  Q. What is Infrastructure as Code (IAC) ?
@@ -111,44 +112,71 @@ Define variables in terraform using `variables.tf` file where you define the var
 
 variables.tf
 ---------------------------------------------
+
+string
+--------------
 ```
 variable "filename" {
   default = "/root/my-pet.txt"			# String 
   type = string
   description =	" image used for the instance creation " 
 }
+```
 # Note: how to access the variable in main.tf is " var.filename"
 
+bool
+--------------
+```
 variable "password_change" {
   default = true				# Bool
   type	= bool
 }
 # Note: how to access the variable in main.tf is " var.password_change"
+```
 
+Number
+-------------
+```
 variable "length" {
   default = 1					# Number
   type	= number
 }
+```
 # Note: how to access the variable in main.tf is " var.length"
 
+List
+--------------
+```
 variable "prefix" {
   default = ["Mr", "Mrs", "Sir"]		# List
   type = list
 }
+```
 # Note: first eleiment in the list is indexed as 0, 1, 2, 3.  how to access the variable in main.tf is "var.prefix[0]" 
 
+Set
+---------------
+```
 variable "perfix" {
   default = ["Mr", "Mrs", "Sir"]		# set 
   type = set
 }
+```
 # Note: set will not allow duplicates in it. if duplicates are there it will send error msg.
 
+tuple
+-----------------
+```
 variable kitty {
 type = tuple([string, number, bool])		#tuple
 default = ["cat", 7, true]
 }
+```
 # Note: tuple is a collection of different variable types
 
+map
+---------------
+```
 variable "example_map" {
   type = map					# map
   default = {
@@ -156,8 +184,12 @@ variable "example_map" {
     key2 = "value2"
   }
 }
+```
 # Note: Represents a collection of key-value pairs, where all keys and values are of the same type. access var.example_map["key1"]
 
+object
+-------------
+```
 variable "example_object" {
   type = object({				# object
     attribute1 = string
@@ -168,8 +200,8 @@ variable "example_object" {
     attribute2 = 42
   }
 }
-# Note: Represents a complex data structure with attributes of different types.
 ```
+# Note: Represents a complex data structure with attributes of different types.
 
 Lab-1: DEFAULT values in variable.tf file
 --------------------------------------------------------------------------------------------
@@ -1321,4 +1353,24 @@ variable "new-users" {
 }
 ```
 
+---------------------------------------------------------------------------------------------------------
+Locals
+---------------------------------------------------------------------------------------------------------
+In Terraform, locals is a construct that allows you to define local values within your configuration. These values are computed during the Terraform execution and can be referenced elsewhere within the same configuration. Locals are useful for simplifying complex expressions, avoiding repetition, and improving readability of your Terraform code.
 
+Note: Local values are created by a `locals` block, but you reference them as attributes on an object named `local`. Make sure to leave off the "s" when referencing a local value!
+
+```
+locals {
+  vpc_name        = "my_vpc"		  # Define local values
+  subnet_cidr     = "10.0.1.0/24"
+  instance_count  = 3
+}
+
+resource "aws_vpc" "example_vpc" {
+  cidr_block = "10.0.0.0/16"
+  tags = {
+    Name = local.vpc_name		# Use local value for VPC name
+  }
+}
+```
