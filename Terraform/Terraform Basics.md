@@ -1360,6 +1360,8 @@ In Terraform, locals is a construct that allows you to define local values withi
 
 Note: Local values are created by a `locals` block, but you reference them as attributes on an object named `local`. Make sure to leave off the "s" when referencing a local value!
 
+Example-1
+-----------------------------------
 ```
 locals {
   vpc_name        = "my_vpc"		  # Define local values
@@ -1374,3 +1376,28 @@ resource "aws_vpc" "example_vpc" {
   }
 }
 ```
+
+Example-2
+-----------------------------------
+```
+locals {
+  public_subnets_cidr = distinct(var.public_subnets_cidr)
+  private_subnets_cidr = distinct(var.private_subnets_cidr)
+}
+
+resource "aws_subnet" "public-subnets" {
+  count             = length(local.public_subnets_cidr)
+  vpc_id            = aws_vpc.default.id
+  cidr_block        = element(local.public_subnets_cidr, count.index)	# To avoid  the duplicates  in public_subnet use "distinct"
+  availability_zone = element(var.azs, count.index)
+}
+```
+
+---------------------------------------------------------------------------------------------------------
+Functions
+---------------------------------------------------------------------------------------------------------
+useful functions when writing the code.
+
+	1. upper
+ 	2. lower
+  	3. distinct
