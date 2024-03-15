@@ -923,15 +923,16 @@ output "eip-value" {
 ----------------------------------------------------------------------------------
 Provisioners:
 ----------------------------------------------------------------------------------
-Provisioners provide a way to run tasks such as command, scripts on remote instance where terraform installed. while creating a EC2 instance we can include the provisioners block to install softwares like nginx/apache/redis/etc. specifying the provisioner block will not be sufficient to work, because it require network, security group, and local machine. this mean it require ssh connection to the machine.
+Provisioners provide a way to run tasks such as commands, scripts on remote instance where terraform installed. while creating a EC2 instance we can include the provisioners block to install softwares like nginx/apache/redis/etc. specifying the provisioner block will not be sufficient to work, because it require network, security group, and local machine. this mean it require ssh connection to the machine.
 to fecilitate the authentication we can use connection block. 
 
-Note: Provisioners are not recommunded to use, instead use the resouce templates(user_data) or use the custom images that already created the nginx AMI's. 
+Note: Provisioners are not recommunded to use, instead use the resouce templates(user_data) or use the custom images that already created the nginx AMI's. how ever to get confirmation on installed softwares/scripts/commands you can use 
 
 Provisioners are of 2 types
 
-	1. Remote (remote_exec)	--> its for remote machine actions
- 	2. Local (local_exec)	--> its for local machine actions
+	1. Remote (remote_exec)	--> to run commands/scripts on newly created ec2 machines using terraform 
+ 	2. Local (local_exec)	--> to run scripts on local machines from where you run
+  	3. file			--> to copyfile local to  remote
 
 main.tf
 --------------------------------------------
