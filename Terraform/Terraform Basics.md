@@ -1402,3 +1402,53 @@ useful functions when writing the code.
 	1. upper
  	2. lower
   	3. distinct
+
+
+-----------------------------------------------------------------------------------------------------------
+local_file: Templates
+---------------------------------------------------------------------------------------------------------
+these templates are used to create a file as per the template given as an input. this is usefull in some scenarios  like ansible host file creation using the template, so you don't have to create it.
+
+template.tpl
+---------------------------------
+```
+[all]
+ansible_host=${web_public_ip} 
+ansible_user=${web_public_dns}
+```
+localfile.tf
+------------------------------------
+```
+resource "local_file" "inventory" {
+  filename = "inventory.txt"
+  content = templatefile("template.tpl", {
+    web_public_ip  = aws_instance.web.public_ip
+    web_public_dns = aws_instance.web.public_dns
+  })
+}
+```
+---------------------------------------------------------------------------------------------------------
+Dynamic Blocking:
+---------------------------------------------------------------------------------------------------------
+Dynamic blocks in Terraform are like flexible templates that allow you to describe parts of your infrastructure that might change. They're handy when you're not sure exactly how many things you need to configure, like security rules for different services or options for different resources.
+
+main.tf
+------------------
+```
+variable "ingress" {
+  type = set(number)
+  default = [80, 443, 22, 23]
+}
+resource "aws_security_group" "dynamic_sg" {
+  name = "dynamic_sg"
+  dynamic "ingress" {
+    for_each = var.ingress
+    content {
+      from_port   = ingress.value
+      to_port     = ingress.value
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+}
+```
