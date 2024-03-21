@@ -2,6 +2,8 @@ Terraform :
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 `count` 	--> The "count" object can only be used in "module", "resource", and "data" blocks, and only when the "count" argument is set.
 `for_each`  	--> The "for_each" argument must be a MAP/SET of strings, and if you have provided a value of type List, then to convert use toset()/tomap() function
+`element`	--> 
+`
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1284,11 +1286,11 @@ variable "region" {
 }
 ```
 2. create the workspace for the DEV and PROD using below command
-3. `$ terraform workspace create "DEV"      --> to create "DEV" workspace
-4. `$ terraform workspace create "PROD"     --> to create "PROD" workspace
-5. `$ terraform workspace list`     --> to list the workspaces we are working on.
-6. `$ terraform workspace select "DEV"      --> to select workspace where we work on.
-7. `$ terraform console`    --> will open a interactive terminal for checking the values. 
+3. `$ terraform workspace create "DEV"`      	--> to create "DEV" workspace
+4. `$ terraform workspace create "PROD"`     	--> to create "PROD" workspace
+5. `$ terraform workspace list`     		--> to list the workspaces we are working on.
+6. `$ terraform workspace select "DEV"`      	--> to select workspace where we work on.
+7. `$ terraform console`    			--> will open a interactive terminal for checking the values. 
 8. ![image](https://user-images.githubusercontent.com/33980623/191747996-61f77579-c7c1-47d1-a7f8-8bde5ba037e4.png)
 
 9. `terraform apply` to apply the changes, now i working on workspace "DEV"
