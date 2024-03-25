@@ -281,6 +281,7 @@ Connection Settings:
 After reading parameters, Ansible makes connections to managed host. 
 	Default: Connections initiated with SSH
 Defined by remote_user setting under [defaults] section in /etc/ansible/ansible.cfg:
+
 		# default user to use for playbooks if user is not specified
 		# (/usr/bin/ansible will use current user as default)
 		# remote_user = root
@@ -289,23 +290,26 @@ Remote Operations:
 Default: remote_user parameter commented out in /etc/ansible/ansible.cfg. With parameter undefined, commands connect to managed hosts using same remote user account as one on Ansible-Master running command. After making SSH connection to managed host, specified module performs operation. After operation completed, output displayed on Ansible-Master. Operation restricted by limits on permissions of remote user who initiated it
 
 **Q. what is Privilege Escalation:**
-
+----------------------------------------------------------
 After connecting to managed host, Ansible can switch to another user before executing operation. Example: Using sudo, can run ad hoc command with root privilege
 	-> Only if connection to managed host authenticated by nonprivileged remote user
 	-> Settings to enable privilege escalation located under [privilege_escalation] section of ansible.cfg:
+ 
 		#become=True
 		#become_method=sudo
 		#become_user=root
 		#become_ask_pass=False
 
 **Q. how to Enabling Privilege Escalation?**
-
+----------------------------------------------------------
 Privilege escalation not enabled by default, To enable, uncomment become parameter and define as True in ansible.cfg file.
+
 	become=True
 	
 Enabling privilege escalation makes become_method, become_user, and become_ask_pass parameters available. Applies even if commented out in /etc/ansible/ansible.cfg
 
 Predefined internally within Ansible. Predefined values:
+
 	become_method=sudo
 	become_user=root
 	become_ask_pass=False
@@ -314,24 +318,25 @@ Predefined internally within Ansible. Predefined values:
 
 Configure settings for remote host connections and privilege escalation in /etc/ansible/ansible.cfg. 
 Alternative: Define using options in ad hoc commands. Command line options take precedence over configuration file settings
-	-> inventory -i
-	-> remote-user -u
-	-> become --become, -b
-	-> become_method --become-method
-	-> become_user --become-user
-	-> become_ask_pass --ask-become-pass, -K
+
+	inventory 		-i
+	remote-user 		-u
+	become 			--become, -b
+	become_method 		--become-method  [ sudo | su | pbrun | pfexec | runas | doas ]
+	become_user 		--become-user
+	become_ask_pass 	--ask-become-pass/ -K
 
 Obtaining Current Setting Values:-
 ----------------------------------
 -> Before configuring privilege escalation settings using options, can determine currently defined values
 -> To do so, consult output of ansible --help:
+
 	[student@controlnode ~]$ ansible --help
 	...output omitted...
 	  -b, --become		run operations with become (nopasswd implied)
 	  --become-method=BECOME_METHOD
 			privilege escalation method to use (default=sudo),
-			valid choices: [ sudo | su | pbrun | pfexec | runas |
-			doas ]
+			valid choices: [ sudo | su | pbrun | pfexec | runas |doas ]
 	  --become-user=BECOME_USER
 	...output omitted...
 	  -u REMOTE_USER, --user=REMOTE_USER
@@ -362,22 +367,24 @@ Goals:-
 
 2. Configure Ansible Controller:-
 ---------------------------------
-You use a "devops" user on the Ansible-Master, and generate an SSH key pair for the user "devops". The "devops" user is used to run all of the Ansible CLI commands to manage the remote hosts.
+You use a `devops` user on the Ansible-Master, and generate an SSH key pair for the user "devops". The "devops" user is used to run all of the Ansible CLI commands to manage the remote hosts.
 
 2.1. Install Ansible:-
 ----------------------
 -> Install ansible on Linux machine as below
 
-	$ sudo yum/dnf install ansible --> Linux based OS
-	$ sudo pip install ansible --> Non yum based OS
-	$ sudo apt-get install ansible --> Debian/Ubuntu based OS
+	$ sudo yum/dnf install ansible 		--> Linux based OS
+	$ sudo pip install ansible 		--> Non yum based OS
+	$ sudo apt-get install ansible 		--> Debian/Ubuntu based OS
 
 2.2. Generate SSH Key Pair:-
 ----------------------------
 Generate an SSH key pair for the devops user
+
 	$ ssh-keygen -N '' -f ~/.ssh/id_rsa
 
-Verify that the SSH key was successfully created	
+Verify that the SSH key was successfully created
+
 	$ ls -ltr ~/.ssh
 
 3. Set Up Remote Hosts:-
@@ -387,11 +394,13 @@ Verify that the SSH key was successfully created
 set up the remote hosts: create "devops" user on all of the remote hosts and copy its public key to each host.
 
 -> As the devops user, explore the remote hosts in control node:
+
 	$ ansible all --list-hosts
 	(or)
 	$ ansible all --list
 
 -> To test the connectivity with remote host using ping module
+
 	$ ansible -m ping all
 	(or)
 	$ ansible all -m ping
@@ -401,25 +410,31 @@ set up the remote hosts: create "devops" user on all of the remote hosts and cop
 In this section, you create the user and set up the SSH keys for the devops user on the remote hosts.
 
 -> Create the devops user on the remote hosts using the Ansible user module
+
 	$ ansible all -m user -a "name=devops" -b 
 	(or)
 	$ ansible -m user -a "name=devops" -b all
 
--> Display the SSH public key for the devops user	
+-> Display the SSH public key for the devops user
+
 	$ cat ~/.ssh/id_rsa.pub
 
 -> To Add the SSH key to the authorized keys for "devops" user, making sure to replace the value of the SSH public key with the one that you just displayed
+
 	$ ansible all -m authorized_key -a "user=devops state=present key='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCiR9HQUu8OUr7k8oe+odfvVQgdMNVsHM+dV0oNQnqG+Unv5PSf7GVkp1JwCroF4wIdjKKvEJ8qJqAbxoY3gEcfrSTR9e9p3zeydHIY2svENGmSNjlX28tMe9uisA9KfIEqe013MuIsplGV7YhXAV0YyCCuJ+OMDr+iEmsmVTza/MLzd9iQxYffLwrV+yY+VUilpS12ns/gmDR8ijO5b0sxdHk8Umk77h8Q1bXE8gyue3cnc1c9Sdzpm4UVNhp9ZcqZCqepUBQOszEvllWxrIw+mktzMdn8INgYhiUBzFQxS/92Qh9prB33F3TdOjin4d/Z/tV2lsNN8HVexXswmoF3 devops@bastion.0926.internal'" -b 
 
 -> To Remove the SSH key from authorized_key file use change the state=present to state=removed/absent which will remove the entry from the file.
+
 	$ ansible all -m authorized_key -a "user=devops state=absent key='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCiR9HQUu8OUr7k8oe+odfvVQgdMNVsHM+dV0oNQnqG+Unv5PSf7GVkp1JwCroF4wIdjKKvEJ8qJqAbxoY3gEcfrSTR9e9p3zeydHIY2svENGmSNjlX28tMe9uisA9KfIEqe013MuIsplGV7YhXAV0YyCCuJ+OMDr+iEmsmVTza/MLzd9iQxYffLwrV+yY+VUilpS12ns/gmDR8ijO5b0sxdHk8Umk77h8Q1bXE8gyue3cnc1c9Sdzpm4UVNhp9ZcqZCqepUBQOszEvllWxrIw+mktzMdn8INgYhiUBzFQxS/92Qh9prB33F3TdOjin4d/Z/tV2lsNN8HVexXswmoF3 devops@bastion.0926.internal'" -b
 
--> The contents of /home/devops/.ssh/id_rsa.pub is used as the value of the parameter "key" for "authorized_key" Ansible module.
+-> The contents of `/home/devops/.ssh/id_rsa.pub` is used as the value of the parameter "key" for "authorized_key" Ansible module.
 
 -> Configure sudo on the remote host for privileged escalation for the "devops" user by adding in /etc/sudoers file	
+
 	$ ansible all -m lineinfile -a "dest=/etc/sudoers state=present line='devops ALL=(ALL) NOPASSWD: ALL'" -b
 
 -> Verify the connection to the remote hosts from bastion as the devops user, starting with the app1 server
+
 	$ export GUID=`hostname | awk -F"." '{print $2}'`
 
 	$ ssh <hostname>
@@ -435,62 +450,62 @@ You configure ansible.cfg and the static inventory needed to complete this lab. 
 
 1. Verify remote user:
 	
-	$ ansible all -m command -a whoami
+		$ ansible all -m command -a whoami
 
 The command is expected to show "ec2-user" because it is using the default ansible.cfg and the SSH keys defined in the default /etc/ansible/hosts static inventory.
 
 2. Create a directory called "ansible_implementation" as your working directory for all future labs and an "ansible.cfg" file with a [defaults] 
 section for specifying user-specific settings
 
-	$ mkdir ansible_implementation
-	$ cd ansible_implementation/
-	$ cat << EOF > ansible.cfg
-	[defaults]
-	inventory = /home/devops/ansible_implementation/hosts
-	remote_user = devops
-	private_key_file = /home/devops/.ssh/id_rsa
-	host_key_checking = false
-	EOF
+		$ mkdir ansible_implementation
+		$ cd ansible_implementation/
+		$ cat << EOF > ansible.cfg
+		[defaults]
+		inventory = /home/devops/ansible_implementation/hosts
+		remote_user = devops
+		private_key_file = /home/devops/.ssh/id_rsa
+		host_key_checking = false
+		EOF
 
 3. Create /home/devops/ansible_implementation/hosts as the static inventory, which contains the hostnames of all of the remote hosts
 	
-	$ export GUID=`hostname | awk -F"." '{print $2}'`
-	$ cat << EOF > /home/devops/ansible_implementation/hosts
-	frontend1.${GUID}.internal
-	appdb1.${GUID}.internal
-	app1.${GUID}.internal
-	app2.${GUID}.internal
-	EOF
+		$ export GUID=`hostname | awk -F"." '{print $2}'`
+		$ cat << EOF > /home/devops/ansible_implementation/hosts
+		frontend1.${GUID}.internal
+		appdb1.${GUID}.internal
+		app1.${GUID}.internal
+		app2.${GUID}.internal
+		EOF
 	
 4. Verify the remote user
 
-	$ ansible all -a whoami
+		$ ansible all -a whoami
 
 5. testing the connectivity 
 	
-	$ ansible all -m ping
+		$ ansible all -m ping
 
 6. identify the user account used by Ansible to perform operations on managed hosts
 		
-	$ ansible localhost -m command -a 'id'
+		$ ansible localhost -m command -a 'id'
 
 7. to display the contents of the /etc/motd file on all managed hosts as the devops user
 	
-	$ ansible all -m command -a "cat /etc/motd" 
+		$ ansible all -m command -a "cat /etc/motd" 
 
 8. copy module and the devops account to change the contents of the /etc/motd file to include the message "Managed by Ansible" on all of the remote hosts	
 
-	$ ansible all -m copy -a 'content="Managed by Ansible \n" dest=/etc/motd'
+		$ ansible all -m copy -a 'content="Managed by Ansible \n" dest=/etc/motd'
 	
 Error: Expect the ad hoc command to fail due to insufficient permissions
 
 9. Create the /etc/motd file on all of the hosts, but this time, escalate the root user’s privileges using -b or --become
 
-	$ ansible all -m copy -a 'content="Managed by Ansible\n" dest=/etc/motd' -b
+		$ ansible all -m copy -a 'content="Managed by Ansible\n" dest=/etc/motd' -b
 
 10. Execute an ad hoc command to verify the changes to /etc/motd on all of the remote hosts
 
-	$ ansible all -m command -a 'cat /etc/motd' --become
+		$ ansible all -m command -a 'cat /etc/motd' --become
 
 ===================================================================================================================
 Your First Playbook:-
@@ -580,17 +595,19 @@ Playbook Variables:-
 we can define variables in inventory.txt file, as below. if the variables are specific to a single host, or to a group of hosts
 	
 1. Variable are specific to a single host. on web1 we are installing "httpd" on web2 we are installing "tomcat"
-	[web]
-	web1 ansible_host=172.20.1.100 ansible_ssh_pass=Passw0rd ansible_user=root webserver=httpd
-	web2 ansible_host=172.20.1.101 ansible_ssh_pass=Passw0rd ansible_user=root webserver=tomcat
+
+		[web]
+		web1 ansible_host=172.20.1.100 ansible_ssh_pass=Passw0rd ansible_user=root webserver=httpd
+		web2 ansible_host=172.20.1.101 ansible_ssh_pass=Passw0rd ansible_user=root webserver=tomcat
 
 2. Defining variables for a specific group. to do so [group-name:vars]. this means variables defined in vars section 
-	[web]
-	web1 ansible_host=172.20.1.100 ansible_ssh_pass=Passw0rd ansible_user=root 
-	web2 ansible_host=172.20.1.101 ansible_ssh_pass=Passw0rd ansible_user=root 
-
-	[web:vars] 	# syntax to define group variables [group-name:vars]
-	webserver=httpd
+	
+	 	[web]
+		web1 ansible_host=172.20.1.100 ansible_ssh_pass=Passw0rd ansible_user=root 
+		web2 ansible_host=172.20.1.101 ansible_ssh_pass=Passw0rd ansible_user=root 
+	
+		[web:vars] 	# syntax to define group variables [group-name:vars]
+		webserver=httpd
 
 2. Dynamic Host Inventory:
 ---------------------------
@@ -770,6 +787,7 @@ Name Attribute:-
 -> Gives descriptive label to play
 -> Optional but recommended
 -> Especially useful in playbook with multiple plays
+
 	name: my first play
 
 Hosts Attribute:-
@@ -778,6 +796,7 @@ Hosts Attribute:-
 -> Integral component to play
 -> Must be defined in every play
 -> To define, use host pattern to reference hosts in inventory:
+
 	hosts: managedhost.example.com
 
 User Attribute:-
@@ -787,6 +806,7 @@ User Attribute:-
 -> To define user to execute task, use remote_user
 	-> If privilege escalation enabled, other parameters such as become_user can have impact
 -> To overwrite user from configuration file and define different user, use user
+
 	user: remoteuser
 
 Privilege Escalation Attribute:-
@@ -794,13 +814,16 @@ Privilege Escalation Attribute:-
 -> Attributes define privilege escalation parameters within playbook
 -> To enable/disable privilege escalation, use become boolean
 -> Takes effect regardless of how escalation is defined in configuration file
+
 	become: yes/no
 
 -> To define privilege escalation method for specific play, use become_method
 -> Example: Use sudo for privilege escalation:
+
 	become_method: sudo
 
 -> To define user account to use for privilege escalation within specific play, use become_user:
+
 	become_user: privileged_user
 
 Tasks Attribute:-
@@ -811,6 +834,7 @@ Tasks Attribute:-
 -> Example: tasks list consisting of single task
 	-> First item entry defines task name
 	-> Second invokes service module and supplies arguments as values:
+ 
 	tasks:
 	     -	name: first task
 		service: name=httpd enabled=true
@@ -835,40 +859,38 @@ Multiple Tasks:-
 
 Example: Writing a Playbook:-
 ----------------------------
----
-  # This is a simple playbook with a single play
-  - name: a simple play
-    host: managedhost.example.com
-    user: remoteuser
-    become: yes
-    become_method: sudo
-    become_user: root
-    tasks:
-    - name: first task
-      service: name=httpd enabled=true
-    - name: second task
-      service: name=sshd enabled=true
-...
+	---
+	  # This is a simple playbook with a single play
+	  - name: a simple play
+	    host: managedhost.example.com
+	    user: remoteuser
+	    become: yes
+	    become_method: sudo
+	    become_user: root
+	    tasks:
+	    - name: first task
+	      service: name=httpd enabled=true
+	    - name: second task
+	      service: name=sshd enabled=true
+	...
 -------------------------------
 
 Example: Multiline Formatting:-
 -------------------------------
 Single-line format:-
 ---------------------
-
-tasks:
-    - name: first task
-      service: name=httpd enabled=true state=started
+	tasks:
+	    - name: first task
+	      service: name=httpd enabled=true state=started
 
 Multiline format:-
 ------------------
-
-tasks:
-    - name: first task
-      service: 
-      	name: httpd
-        enabled: true	# Will enable httpd as a service.
-        state: started
+	tasks:
+	    - name: first task
+	      service: 
+	      	name: httpd
+	        enabled: true	# Will enable httpd as a service.
+	        state: started
 
 Blocks:-
 ------------
@@ -879,47 +901,47 @@ in high level it Use to group related tasks. this will improves readability.
 
 Examples: Block Formatting:-
 -----------------------------
-tasks:
-    - name: first task
-      yum: name=httpd state=latest
-    - name: second task
-      yum: name=sshd enabled=openssh-server state=latest
-    - name: third task
-      service: name=httpd enabled=true state=started
-    - name: fourth task
-      service: name=sshd enabled=true state=started
-tasks:
-    - block:
-      - name: first package task
-        yum: name=httpd state=latest
-      - name: second package task
-        yum: name=sshd enabled=openssh-server state=latest
-    - service:
-      - name: first service task
-        service: name=httpd enabled=true state=started
-      - name: second service task
-        service: name=sshd enabled=true state=started
-	
+	tasks:
+	    - name: first task
+	      yum: name=httpd state=latest
+	    - name: second task
+	      yum: name=sshd enabled=openssh-server state=latest
+	    - name: third task
+	      service: name=httpd enabled=true state=started
+	    - name: fourth task
+	      service: name=sshd enabled=true state=started
+	tasks:
+	    - block:
+	      - name: first package task
+	        yum: name=httpd state=latest
+	      - name: second package task
+	        yum: name=sshd enabled=openssh-server state=latest
+	    - service:
+	      - name: first service task
+	        service: name=httpd enabled=true state=started
+	      - name: second service task
+	        service: name=sshd enabled=true state=started
+		
 ------------------------------
 
 Example: Playbook with Multiple Plays
 ---------------------------------------
----
-  # This is a simple playbook with two plays
-
-  - name: first play
-    host: web.example.com
-    tasks:
-    - name: first task
-      service: name=httpd enabled=true
-
-  - name: second play
-    host: database.example.com
-    tasks:
-    - name: first task
-      service: name=mariadb enabled=true
-
-...
+	---
+	  # This is a simple playbook with two plays
+	
+	  - name: first play
+	    host: web.example.com
+	    tasks:
+	    - name: first task
+	      service: name=httpd enabled=true
+	
+	  - name: second play
+	    host: database.example.com
+	    tasks:
+	    - name: first task
+	      service: name=mariadb enabled=true
+	
+	...
 -----------------------------------------
 
 Playbook Execution:
@@ -932,29 +954,20 @@ Playbook Execution:
 
 Example: Playbook Execution:-
 -----------------------------
-[student@controlnode ~]$ cat webserver.yml
-  ---
-  - name: play to setup web server
-    hosts: servera.lab.example.com
-    tasks:
-    - name: latest httpd version installed
-      yum:
-        name: httpd
-        state: latest
-  ...
+webserver.yml
+-----------------------
+	  ---
+	  - name: play to setup web server
+	    hosts: servera.lab.example.com
+	    tasks:
+	    - name: latest httpd version installed
+	      yum:
+	        name: httpd
+	        state: latest
+	  ...
 
-  [student@controlnode ~]$ ansible-playbook webserver.yml
+	$ ansible-playbook webserver.yml
 
-  PLAY [play to setup web server] ************************************************
-
-  TASK [setup] *******************************************************************
-  ok: [servera.lab.example.com]
-
-  TASK [latest httpd version installed] ******************************************
-  ok: [servera.lab.example.com]
-
-  PLAY RECAP *********************************************************************
-  servera.lab.example.com : ok=2 changed=0 unreachable=0 failed=0
 
 -------------------------------
 
@@ -976,18 +989,9 @@ Dry Run: -C
 -> Ansible does not make changes on managed hosts
 -> Instead reports what changes would occur if playbook is executed
 
-$ ansible-playbook -C webserver.yml
+	$ ansible-playbook -C webserver.yml
 
-  PLAY [play to setup web server] ************************************************
 
-  TASK [setup] *******************************************************************
-  ok: [servera.lab.example.com]
-
-  TASK [latest httpd version installed] ******************************************
-  changed: [servera.lab.example.com]
-
-  PLAY RECAP *********************************************************************
-  servera.lab.example.com : ok=2 changed=1 unreachable=0 failed=0
 
 Step-by-Step Execution: --step
 ------------------------------
@@ -1036,7 +1040,7 @@ Facts provide information about:
 -> Custom Facts
 -> Cached Facts
 
-$ ansible demo1.example.com -m setup --> to gather the facts 
+	$ ansible demo1.example.com -m setup --> to gather the facts 
 
 Use in Playbooks: 
 -> Fact output returned in JSON
@@ -1054,34 +1058,18 @@ Variable Values:
 ----------------
 -> When using fact, Ansible dynamically swaps in value for variable name:
 
----
-- hosts: all
-  tasks:
-  - name: Prints various Ansible facts
-    debug:
-      msg: The default IPv4 address of {{ ansible_fqdn }} is {{ ansible_default_ipv4.address }}
+	---
+	- hosts: all
+	  tasks:
+	  - name: Prints various Ansible facts
+	    debug:
+	      msg: The default IPv4 address of {{ ansible_fqdn }} is {{ ansible_default_ipv4.address }}
 
 Sample Output:
 --------------
 Ansible:
 -> Queries managed host
 -> Uses system information to dynamically update variable:
-
-[user@demo ~]$ ansible-playbook playbook.yml
-PLAY ***********************************************************************
-
-TASK [setup] ***************************************************************
-ok: [demo1.example.com]
-
-TASK [Prints various Ansible facts] ****************************************
-
-ok: [demo1.example.com] => {
-    "msg": "The default IPv4 address of demo1.example.com is
-            172.25.250.10"
-}
-
-PLAY RECAP *****************************************************************
-demo1.example.com : ok=2 changed=0 unreachable=0 failed=0
 
 -> Also can use facts to create dynamic groups of hosts that match criteria
 
@@ -1100,35 +1088,36 @@ Filters:-
 
 Example: Filters:-
 -------------------
-[user@demo ~]$ ansible demo1.example.com -m setup -a 'filter=ansible_eth0'
-demo1.lab.example.com | SUCCESS => {
-    "ansible_facts": {
-        "ansible_eth0": {
-            "active": true,
-            "device": "eth0",
-            "ipv4": {
-                "address": "172.25.250.10",
-                "broadcast": "172.25.250.255",
-                "netmask": "255.255.255.0",
-                "network": "172.25.250.0"
-            },
-            "ipv6": [
-                {
-                    "address": "fe80::5054:ff:fe00:fa0a",
-                    "prefix": "64",
-                    "scope": "link"
-                }
-            ],
-            "macaddress": "52:54:00:00:fa:0a",
-            "module": "virtio_net",
-            "mtu": 1500,
-            "pciid": "virtio0",
-            "promisc": false,
-            "type": "ether"
-        }
-    },
-    "changed": false
-}
+	$ ansible demo1.example.com -m setup -a 'filter=ansible_eth0'
+ 
+	demo1.lab.example.com | SUCCESS => {
+	    "ansible_facts": {
+	        "ansible_eth0": {
+	            "active": true,
+	            "device": "eth0",
+	            "ipv4": {
+	                "address": "172.25.250.10",
+	                "broadcast": "172.25.250.255",
+	                "netmask": "255.255.255.0",
+	                "network": "172.25.250.0"
+	            },
+	            "ipv6": [
+	                {
+	                    "address": "fe80::5054:ff:fe00:fa0a",
+	                    "prefix": "64",
+	                    "scope": "link"
+	                }
+	            ],
+	            "macaddress": "52:54:00:00:fa:0a",
+	            "module": "virtio_net",
+	            "mtu": 1500,
+	            "pciid": "virtio0",
+	            "promisc": false,
+	            "type": "ether"
+	        }
+	    },
+	    "changed": false
+	}
 ---------------------
 
 Disabling Facts:
@@ -1136,9 +1125,9 @@ Disabling Facts:
 -> Disable facts for managed hosts if managing large number of servers
 -> To disable facts, set gather_facts to no in playbook:
 
----
-- hosts: large_farm
-  gather_facts: no
+	---
+	- hosts: large_farm
+	  gather_facts: no
 
 Custom Facts:-
 -------------
@@ -1147,64 +1136,51 @@ Example: uses of custome facts.
 		-> System value based on custom script
 		-> Value based on program execution
 
-custom.fact
-----------------------------------------
-[packages]
-web_package = httpd
-db_package = mariadb-server
-
-[users]
-user1 = joe
-user2 = jane
-----------------------------------------
+	custom.fact
+	----------------------------------------
+	[packages]
+	web_package = httpd
+	db_package = mariadb-server
+	
+	[users]
+	user1 = joe
+	user2 = jane
+	----------------------------------------
 
 -> Help ensure successful installation and retrieval of custom facts:
 -------------------------------
-[user@demo ~]$ ansible demo1.example.com -m setup -a 'filter=ansible_local'
-demo1.lab.example.com | SUCCESS => {
-    "ansible_facts": {
-        "ansible_local": {
-            "custom": {
-                "packages": {
-                    "db_package": "mariadb-server",
-                    "web_package": "httpd"
-                },
-                "users": {
-                    "user1": "joe",
-                    "user2": "jane"
-                }
-            }
-        }
-    },
-    "changed": false
-}
+	$ ansible demo1.example.com -m setup -a 'filter=ansible_local'
+	demo1.lab.example.com | SUCCESS => {
+	    "ansible_facts": {
+	        "ansible_local": {
+	            "custom": {
+	                "packages": {
+	                    "db_package": "mariadb-server",
+	                    "web_package": "httpd"
+	                },
+	                "users": {
+	                    "user1": "joe",
+	                    "user2": "jane"
+	                }
+	            }
+	        }
+	    },
+	    "changed": false
+	}
 --------------------------------
 
 Playbooks
 Used in same way as default facts:
 
----
-- hosts: all
-  tasks:
-  - name: Prints various Ansible facts
-    debug:
-      msg: The package to install on {{ ansible_fqdn }} is {{ ansible_local.custom.packages.web_package }}
+	---
+	- hosts: all
+	  tasks:
+	  - name: Prints various Ansible facts
+	    debug:
+	      msg: The package to install on {{ ansible_fqdn }} is {{ ansible_local.custom.packages.web_package }}
 
-[user@demo ~]$ ansible-playbook playbook.yml
-PLAY ***********************************************************************
+	$ ansible-playbook playbook.yml
 
-TASK [setup] ***************************************************************
-ok: [demo1.example.com]
-
-TASK [Prints various Ansible facts] ****************************************
-ok: [demo1.example.com] => {
-    "msg": "The package to install on demo1.example.com is httpd"
-}
-
-PLAY RECAP *****************************************************************
-demo1.example.com : ok=2 changed=0 unreachable=0 failed=0
-
-----------------------------------
 ==================================================================================
 Lab-2: -
 ==================================================================================
@@ -1301,35 +1277,38 @@ In this section, you write a playbook to deploy an Apache web server on the webs
 Write a playbook to deploy the Apache (HTTPD) web server—but this time, rather than specifying the "--become or -b" option for privileged escalation, use become: yes in your playbook
 
 ---------------
-$ cat << EOF > /home/devops/ansible_implementation/deploy_apache.yml
-- hosts: webservers
-  become: yes
-  tasks:
-  - name: Install httpd package
-    yum:
-      name: httpd
-      state: latest
-  - name: Enable and start httpd service
-    service:
-       name: httpd
-       state: started
-       enabled: yes
-  - name: Create index.html file for hosting static content
-    copy:
-      content: "Hoorraaayyy!!! My first playbook ran successfully"
-      dest: /var/www/html/index.html
-EOF
+	$ cat << EOF > /home/devops/ansible_implementation/deploy_apache.yml
+	- hosts: webservers
+	  become: yes
+	  tasks:
+	  - name: Install httpd package
+	    yum:
+	      name: httpd
+	      state: latest
+	  - name: Enable and start httpd service
+	    service:
+	       name: httpd
+	       state: started
+	       enabled: yes
+	  - name: Create index.html file for hosting static content
+	    copy:
+	      content: "Hoorraaayyy!!! My first playbook ran successfully"
+	      dest: /var/www/html/index.html
+	EOF
 -----------------
 -> To check the playbook syntax errors: $ ansible-playbook --syntax-check deploy_apache.yml
 -> To check the playbook on remote hosts: $ ansible-playbook deploy_apache.yml --check
 
 -> Run/Execute the playbook:
+
 	$ ansible-playbook deploy_apache.yml
 
 -> Verify that you are able to access the web page on the app1 host
+
 	$ curl http://app1.${GUID}.internal
 
 -> Verify that you are able to access the web page on the app2 host
+
 	$ curl http://app2.${GUID}.internal
 
 ============================================================================================
@@ -1338,19 +1317,19 @@ Lab-3: facts
 ============================================================================================
 1. Ansible managed hosts information:
 -------------------------------------
-[lb]
-frontend1.0926.internal
-
-[webservers]
-app1.0926.internal
-app2.0926.internal
-
-[db]
-appdb1.0926.internal
-
-[webservers:vars]
-ansible_user = devops
-ansible_ssh_private_key_file = /home/devops/.ssh/id_rsa
+	[lb]
+	frontend1.0926.internal
+	
+	[webservers]
+	app1.0926.internal
+	app2.0926.internal
+	
+	[db]
+	appdb1.0926.internal
+	
+	[webservers:vars]
+	ansible_user = devops
+	ansible_ssh_private_key_file = /home/devops/.ssh/id_rsa
 
 ----------
 
@@ -1383,24 +1362,24 @@ ansible_ssh_private_key_file = /home/devops/.ssh/id_rsa
 -> Create a setup_facts.yml playbook to create the /etc/ansible/facts.d remote directory and save the custom.fact file to it
 
 -------------------------------------
-$ cat << EOF > setup_facts.yml
-- name: Install remote facts
-  hosts: webservers
-  become: yes
-  vars:
-    remote_dir: /etc/ansible/facts.d
-    facts_file: custom.fact
-  tasks:
-  - name: Create the remote directory
-    file:
-      state: directory
-      recurse: yes
-      path: "{{ remote_dir }}"
-  - name: Install the new facts
-    copy:
-      src: "{{ facts_file }}"
-      dest: "{{ remote_dir }}"
-EOF
+	$ cat << EOF > setup_facts.yml
+	- name: Install remote facts
+	  hosts: webservers
+	  become: yes
+	  vars:
+	    remote_dir: /etc/ansible/facts.d
+	    facts_file: custom.fact
+	  tasks:
+	  - name: Create the remote directory
+	    file:
+	      state: directory
+	      recurse: yes
+	      path: "{{ remote_dir }}"
+	  - name: Install the new facts
+	    copy:
+	      src: "{{ facts_file }}"
+	      dest: "{{ remote_dir }}"
+	EOF
 -------------------------------------
 
 Run the playbook: $ ansible-playbook setup_facts.yml
@@ -1418,21 +1397,21 @@ Run the playbook: $ ansible-playbook setup_facts.yml
 -> Create another task that uses the custom fact to start the httpd service
 
 --------------------
-$ cat << EOF > setup_facts_httpd.yml
-- name: Install Apache and starts the service
-  hosts: webservers
-  become: yes
-  tasks:
-  - name: Install the required package
-    yum:
-      name: "{{ ansible_local.custom.general.package }}"
-      state: latest
-
-  - name: Start the service
-    service:
-      name: "{{ ansible_local.custom.general.service }}"
-      state: "{{ ansible_local.custom.general.state }}"
-EOF
+	$ cat << EOF > setup_facts_httpd.yml
+	- name: Install Apache and starts the service
+	  hosts: webservers
+	  become: yes
+	  tasks:
+	  - name: Install the required package
+	    yum:
+	      name: "{{ ansible_local.custom.general.package }}"
+	      state: latest
+	
+	  - name: Start the service
+	    service:
+	      name: "{{ ansible_local.custom.general.service }}"
+	      state: "{{ ansible_local.custom.general.state }}"
+	EOF
 -----------------
 ->  Run the playbook:
 
@@ -1444,56 +1423,65 @@ EOF
 
 -----------------------------------------------------------
 Question 1 : How do you make Ansible pick up a custom module without adding that custom module in the standard module installation path?
-Name the module 'library' and place it in the same directory as the playbook
-Create a library directory in the standard module path and place the module there
-Create a "library" directory in the same directory as the playbook and place the custom module there
-Place the module in the default system module path
+
+	Name the module 'library' and place it in the same directory as the playbook
+	Create a library directory in the standard module path and place the module there
+	Create a "library" directory in the same directory as the playbook and place the custom module there
+	Place the module in the default system module path
 
 Question 2: Which command enables you to identify the parameters that a module accepts?
-ansible -m module_name --show-paramters
-ansible-playbook --show-doc module_name
-ansible-doc module_name
-ansibledoc module_name
+
+	ansible -m module_name --show-paramters
+	ansible-playbook --show-doc module_name
+	ansible-doc module_name
+	ansibledoc module_name
 
 Question 3: In which order do tasks execute inside plays or roles?
-Assigned importance
-Alphabetical order, based on role name
-Opportunistically based on availability of resources on the target host
-One at a time, against all machines matched by the host pattern
+
+	Assigned importance
+	Alphabetical order, based on role name
+	Opportunistically based on availability of resources on the target host
+	One at a time, against all machines matched by the host pattern
 
 Question 4: Tasks must be written with parameters using either "key=value" or "key: value".
-TRUE
-FALSE
+
+	TRUE
+	FALSE
 
 Question 5: Under which circumstances should plays be named?
-When more than one play exists in a playbook, or when a more friendly grouping of output is desired
-Plays must always be named
-When starting at a named play with the --start-at-play command line option
-Never; only tasks can be named
+
+	When more than one play exists in a playbook, or when a more friendly grouping of output is desired
+	Plays must always be named
+	When starting at a named play with the --start-at-play command line option
+	Never; only tasks can be named
 
 Question 6: The following directory can be used to include custom modules in task lists in a role:
-modules
-files
-alt
-library
+
+	modules
+	files
+	alt
+	library
 
 Question 7: Which command would you execute to run an ad hoc task against an Ansible managed host?
-ansible
-ansible-vault
-ansible-ad hoc
-ansible-playbook
+
+	ansible
+	ansible-vault
+	ansible-ad hoc
+	ansible-playbook
 
 Question 8 : The following describes Ansible Playbooks:
-A collection of Ansible modules
-The language by which Ansible orchestrates, configures, administers, or deploys systems
-It is written in Python
-None of the above
+
+	A collection of Ansible modules
+	The language by which Ansible orchestrates, configures, administers, or deploys systems
+	It is written in Python
+	None of the above
 
 Question 9 : Which of the following best describes Ansible facts?
-Ansible does not use facts
-Things that are discovered about remote nodes
-The source of truth
-User-defined variables
+
+	Ansible does not use facts
+	Things that are discovered about remote nodes
+	The source of truth
+	User-defined variables
 
 ---------------------------------
 
@@ -1535,32 +1523,32 @@ remoteserver$1	: remote_server_1, remote_server1
 Array Example: users array:-
 ---------------------------
 
-users:
-  bjones:
-    first_name: Bob
-    last_name: Jones
-    home_dir: /users/bjones
-  acook:
-    first_name: Anne
-    last_name: Cook
-    home_dir: /users/acook
+	users:
+	  bjones:
+	    first_name: Bob
+	    last_name: Jones
+	    home_dir: /users/bjones
+	  acook:
+	    first_name: Anne
+	    last_name: Cook
+	    home_dir: /users/acook
 
 Accessing Variables in the yaml file:-
 ----------------------------------
--> To access users "Bob" :  users.bjones.first_name
--> to access /users/bjones : users.acook.home_dir
+-> To access users "Bob" : ` users.bjones.first_name`
+-> to access /users/bjones : ` users.acook.home_dir`
 
 Alternative method for accessing users:
 
--> To access users "Bob" : users['bjones']['first_name']
--> to access /users/bjones : users['acook']['home_dir']
+-> To access users "Bob" : `users['bjones']['first_name']`
+-> to access /users/bjones : `users['acook']['home_dir']`
 
 Ad Hoc Commands:-
 ------------------
 -> To pass variables as arguments for ad hoc commands, use -a
 	-> Allows module arguments
 
-$ ansible all -i hosts -m debug -a "msg='This line will appear as a message'"
+	$ ansible all -i hosts -m debug -a "msg='This line will appear as a message'"
 
 
 Playbooks:-
@@ -1571,14 +1559,14 @@ You can use your own variables and invoke them in task. we can do it in 2 ways
 
 In vars section we can define the variables.
 ----------------------------------
-- hosts: all
-  vars:
-    user: joe
-    home: /home/joe
-  tasks:
-  - name: Creates the user {{ user }}	# This line will read: Creates the user joe
-    user:
-      name: "{{ user }}"	 # This line will create the user named Joe
+	- hosts: all
+	  vars:
+	    user: joe
+	    home: /home/joe
+	  tasks:
+	  - name: Creates the user {{ user }}	# This line will read: Creates the user joe
+	    user:
+	      name: "{{ user }}"	 # This line will create the user named Joe
 ------------------------------------
 
 -> When using variable as first element for value, must use " ". Should be written as: with in Quotations "{{  }}"
@@ -1591,22 +1579,22 @@ In vars section we can define the variables.
 
 Example: Definition Reuse:-
 --------------------------
-- name: Installs Apache and starts the service
-  hosts: webserver
-  vars:
-    base_path: /srv/users/host1/mgmt/sys/users
-    users:
-      joe:
-        name: Joe Foo
-        home: "{{ base_path }}/joe"
-      bob:
-        name: Bob Bar
-        home: "{{ base_path }}/bob"
-
-  tasks:
-  - name: Print user details records
-    debug: msg="User {{ item.key }} full name is {{ item.value.name }}. Home is {{ item.value.home }}"
-    with_dict: "{{ users }}"
+	- name: Installs Apache and starts the service
+	  hosts: webserver
+	  vars:
+	    base_path: /srv/users/host1/mgmt/sys/users
+	    users:
+	      joe:
+	        name: Joe Foo
+	        home: "{{ base_path }}/joe"
+	      bob:
+	        name: Bob Bar
+	        home: "{{ base_path }}/bob"
+	
+	  tasks:
+	  - name: Print user details records
+	    debug: msg="User {{ item.key }} full name is {{ item.value.name }}. Home is {{ item.value.home }}"
+	    with_dict: "{{ users }}"
 -----------------------------------------
 
 Variable Precedence: 
@@ -1620,140 +1608,139 @@ Variable Precedence:
 
 Set in roles vars directory:
 
-[configuration]
-users:
-  - joe
-  - jane
-  - bob
+	[configuration]
+	users:
+	  - joe
+	  - jane
+	  - bob
 
 2. Inventory variables:
 -----------------------
 
-[host_group]
-demo.exmample.com ansible_user: joe
+	[host_group]
+	demo.exmample.com ansible_user: joe
 
 3. Inventory group_vars variables:
 ----------------------------------
-
-[hostgroup:children]
-host_group1
-host_group2
-
-[host_group:vars]
-user: joe
+	
+	[hostgroup:children]
+	host_group1
+	host_group2
+	
+	[host_group:vars]
+	user: joe
 
 4. Inventory host_vars variables:
 ---------------------------------
 
-[hostgroup:vars]
-user: joe
+	[hostgroup:vars]
+	user: joe
 
 5. group_vars variables defined in group_vars directory:
 --------------------------------------------------------
---
-user: joe
+	--
+	user: joe
 
 6. host_vars variables defined in host_vars directory:
 ------------------------------------------------------
 
----
-user: joe
+	---
+	user: joe
 
 7. Host facts:
 --------------
-
 -> Facts discovered by Ansible:
 
-"ansible_facts": {
-        "ansible_all_ipv4_addresses": [
-        "172.25.250.11"
-        ],
-        "ansible_all_ipv6_addresses": [
-        "fe80::5054:ff:fe00:fa0b"
-        ],
-        "ansible_architecture": "x86_64",
-        "ansible_bios_date": "01/01/2011",
-        "ansible_bios_version": "0.5.1",
-...
+	"ansible_facts": {
+	        "ansible_all_ipv4_addresses": [
+	        "172.25.250.11"
+	        ],
+	        "ansible_all_ipv6_addresses": [
+	        "fe80::5054:ff:fe00:fa0b"
+	        ],
+	        "ansible_architecture": "x86_64",
+	        "ansible_bios_date": "01/01/2011",
+	        "ansible_bios_version": "0.5.1",
+	...
 
 8. Registered variables:
 ------------------------
 
 Registered with register keyword:
 
----
-- hosts: all
-  tasks:
-    - name: Checking if Sources are Available
-      shell: echo "This is a test"
-      register: output
+	---
+	- hosts: all
+	  tasks:
+	    - name: Checking if Sources are Available
+	      shell: echo "This is a test"
+	      register: output
 
 9. Variables defined via set_fact:
 ----------------------------------
 
-- set_fact:
-  user: joe
+	- set_fact:
+	  user: joe
 
 10. Variables defined with -a or --args:
 ----------------------------------------
 
-ansible-playbook main.yml -a "user=joe"
-ansible-playbook main.yml --args "user=joe"
+	ansible-playbook main.yml -a "user=joe"
+	ansible-playbook main.yml --args "user=joe"
 
 11. vars_prompt variables:
 --------------------------
+it will ask the end-user to provide the user value on the stdout.
 
-vars:
-from: "user"
-  vars_prompt:
-    - name: "user"
-      prompt: "User to create"
+	vars:
+	from: "user"
+	  vars_prompt:
+	    - name: "user"
+	      prompt: "User to create"
 
 12.Variables included using vars_files:
 ---------------------------------------
 
-vars_files:
-  - /vars/environment.yml
+	vars_files:
+	  - /vars/environment.yml
 
 13. role and include variables:
 -------------------------------
 
----
-- hosts: all
-  roles:
-    - { role: user, name: 'joe' }
-  tasks:
-    - name: Includes the environment file and sets the variables
-      include: tasks/environment.yml
-      vars:
-        package: httpd
-        state: started
+	---
+	- hosts: all
+	  roles:
+	    - { role: user, name: 'joe' }
+	  tasks:
+	    - name: Includes the environment file and sets the variables
+	      include: tasks/environment.yml
+	      vars:
+	        package: httpd
+	        state: started
 
 14. Block variables:-
 -----------------
 
-For tasks defined in block statement:
-
-tasks:
-  - block:
-    - yum: name={{ item }} state=installed
-      with_items:
-        - httpd
-        - memcached
+	For tasks defined in block statement:
+	
+	tasks:
+	  - block:
+	    - yum: name= {{ item }} state=installed
+	      with_items:
+	        - httpd
+	        - memcached
 
 15. Task variables:-
 ----------------
+Only for task itself
 
-Only for task itself:
-
-- user: name=joe
+	- user: name=joe
 
 16. extra variables:
 ----------------------
 
 Precedence over all other variables
 
-[user@demo ~]$ ansible-playbook users.yml -e "user=joe"
+	$ ansible-playbook users.yml -e "user=joe"
 
 
 Variable Scope:
@@ -1762,15 +1749,15 @@ variable Scope determined by location in which you declare variable. Defines whe
 
  Three are 3 levels
 
-Global	: Set by configuration, environment variables, command line
-Play	: Set by playbook, play, defined by vars, include, include_vars
-Host	: Set at host level, Example: ansible_user defines user to connect with on managed host
+	Global	: Set by configuration, environment variables, command line
+	Play	: Set by playbook, play, defined by vars, include, include_vars
+	Host	: Set at host level, Example: ansible_user defines user to connect with on managed host
 
 
 Variable evaluated when playbook is played:
 --------------------------------------------
-vars:
-  user: joe
+	vars:
+	  user: joe
   
 -----------------------------------------
 
@@ -1779,11 +1766,11 @@ Host independent of play:
 -> To make variable available for host independent of play, define as group variable in inventory file:
 
 ---------------------------------
-[servers]
-demo.example.com
-
-[servers:vars]
-user: joe
+	[servers]
+	demo.example.com
+	
+	[servers:vars]
+	user: joe
 
 --------------------------------
 
@@ -1791,7 +1778,7 @@ Extra-Vars:
 -----------
 -> To enable variable to override playbook, declare as extra:
 
-[user@demo ~]$ ansible-playbook users.yml -e 'user=joe'
+	$ ansible-playbook users.yml -e 'user=joe'
 
 Variables Management:
 ---------------------
@@ -1804,34 +1791,34 @@ Variables Management:
 
 Host Variables:-
 ----------------
-[servers]
-demo.example.com ansible_user=joe
+	[servers]
+	demo.example.com ansible_user=joe
 
 Group Variables:
 -----------------
-[servers]
-demo1.example.com
-demo2.example.com
-
-[servers:vars]
-user=joe
+	[servers]
+	demo1.example.com
+	demo2.example.com
+	
+	[servers:vars]
+	user=joe
 
 Host Group Variables:
 -----------------------------------
-[servers1]
-demo1.example.com
-demo2.example.com
-
-[servers2]
-demo3.example.com
-demo4.example.com
-
-[servers:children]
-servers1
-servers2
-
-[servers:vars]
-user=joe
+	[servers1]
+	demo1.example.com
+	demo2.example.com
+	
+	[servers2]
+	demo3.example.com
+	demo4.example.com
+	
+	[servers:children]
+	servers1
+	servers2
+	
+	[servers:vars]
+	user=joe
 
 ------------------------------------
 
@@ -1846,16 +1833,16 @@ Goal: Define general value for all servers in both datacenters
 
 Recommended: Use group variables
 ------------------------------------------------
-[datacenter1]
-demo1.example.com
-demo2.example.com
-
-[datacenter2]
-demo3.example.com
-demo4.example.com
-
-[all:vars]
-package=httpd
+	[datacenter1]
+	demo1.example.com
+	demo2.example.com
+	
+	[datacenter2]
+	demo3.example.com
+	demo4.example.com
+	
+	[all:vars]
+	package=httpd
 
 ------------------------------------------------
 
@@ -1863,54 +1850,54 @@ Value Varying by Datacenter:
 ----------------------------
 Recommended: Use group variables
 
-[datacenter1]
-demo1.example.com
-demo2.example.com
-
-[datacenter2]
-demo3.example.com
-demo4.example.com
-
-[datacenter1:vars]
-package=httpd
-
-[datacenter2:vars]
-package=apache
+	[datacenter1]
+	demo1.example.com
+	demo2.example.com
+	
+	[datacenter2]
+	demo3.example.com
+	demo4.example.com
+	
+	[datacenter1:vars]
+	package=httpd
+	
+	[datacenter2:vars]
+	package=apache
 
 Example 3: Value Varying by Host:
 ---------------------------------
 Recommended: Use host variables
 
-[datacenter1]
-demo1.example.com package=httpd
-demo2.example.com package=apache
-
-[datacenter2]
-demo3.example.com package=mariadb-server
-demo4.example.com package=mysql-server
-
-[datacenters:children]
-datacenter1
-datacenter2
+	[datacenter1]
+	demo1.example.com package=httpd
+	demo2.example.com package=apache
+	
+	[datacenter2]
+	demo3.example.com package=mariadb-server
+	demo4.example.com package=mysql-server
+	
+	[datacenters:children]
+	datacenter1
+	datacenter2
 
 Example 4: Default Value That Host Overrides:
 ---------------------------------------------
 Recommended: Host group variable with manual override
 
-[datacenter1]
-demo1.example.com
-demo2.example.com
-
-[datacenter2]
-demo3.example.com
-demo4.example.com
-
-[datacenters:children]
-datacenter1
-datacenter2
-
-[datacenters:vars]
-package=httpd
+	[datacenter1]
+	demo1.example.com
+	demo2.example.com
+	
+	[datacenter2]
+	demo3.example.com
+	demo4.example.com
+	
+	[datacenters:children]
+	datacenter1
+	datacenter2
+	
+	[datacenters:vars]
+	package=httpd
 
 $ ansible-playbook demo2.exampe.com main.yml -e "package=apache"
 
@@ -1920,22 +1907,23 @@ register variable is used in the tasks, to To capture command’s output. use "r
 
 Example: register
 -----------------------------
----
-- name: Installs a package and prints the result
-  hosts: all
-  tasks:
-    - name: Install the package
-      yum:
-        name: httpd
-        state: installed
-      register: install_result
-    - debug: var=install_result
+	---
+	- name: Installs a package and prints the result
+	  hosts: all
+	  tasks:
+	    - name: Install the package
+	      yum:
+	        name: httpd
+	        state: installed
+	      register: install_result
+	    - debug: var=install_result
 -------------------------------
 	- shell: echo "{{ item }}"
 	  loop:
 	    - one
 	    - two
 	  register: echo
+   	- debug: var=echo
 	  
   ------------------------------
 Tasks and Variables:
