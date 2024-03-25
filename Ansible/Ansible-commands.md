@@ -33,16 +33,16 @@ Ansible searches for its config file(ansible.cfg) in below order in system. Firs
 ---------------------------------------------------------------------------------------------
 Inventory file arguments
 ---------------------------------------------------------------------------------------------
-	ansible_connection
-	ansible_host
-	ansible_port
-	ansible_user
-	ansible_password
-	ansible_ssh_private_key_file
-	ansible_become
-	ansible_become_user
-	ansible_become_method
-	ansible_ssh_private_key_file
+	ansible_connection				--> Method of connection to the remote host. Options: ssh, winrm, local, docker, etc.
+	ansible_host					--> Hostname or IP address of the remote host.
+	ansible_port					--> Port number used for connection. Default SSH port is 22.
+	ansible_user					--> Username used for authentication when connecting to the remote host.
+	ansible_password				--> Password used for authentication. (Note: Not recommended for security reasons.)
+	ansible_ssh_private_key_file			--> Path to the private SSH key file used for authentication.
+	ansible_become					--> Enable privilege escalation. Options: yes or no.
+	ansible_become_user				--> User account used for privilege escalation.
+	ansible_become_method				--> Method used for privilege escalation. Options: sudo, su, pbrun, etc.
+	ansible_ssh_private_key_file			--> Path to the private SSH key file used for authentication.
 
 ---------------------------------------------------------------------------------------------
 Ansible commands: ansible (-a, -b, -C, -e, -i, -m, -o, -t, -v, -vvv, -k, -s, -u, -U, -K)
@@ -133,13 +133,13 @@ authorized_key : module - public key
 ----------------------------------------------
 	$ cat ~/.ssh/id_rsa.pub
 
-to add a public key to remote authorized_keys file. to trust Ansible_master for password less authentication.
+to add a public key to remote `authorized_keys` file. to trust Ansible_master for password less authentication.
 	
  	$ ansible all -m authorized-key -a "user=devops  state=present  key='ssh-rsa AAAAB3NzaC1ycQgdMNVsHM+dV0oNQnqG+ devops@bastion.0926.internal'" -b
 	
-to Remove the same key, we can use the same command with belwo option. State=absent and option -b is to become sudo user
+to Remove the same key, we can use the same command with belwo option. `state=absent` and option `-b` is to become sudo user
 
-	$ ansible all -m authorized_key -a "user=devops state=presnet key='ssh-rsa AAAABfvVQgdMNVsHM+dV0oNQnqG+ devops@bastion.0926.internal'" -b
+	$ ansible all -m authorized_key -a "user=devops state=absent key='ssh-rsa AAAABfvVQgdMNVsHM+dV0oNQnqG+ devops@bastion.0926.internal'" -b
 
 ----------------------------------------------------
 lineinfile: module:
@@ -175,7 +175,6 @@ inventory
 	[webservers:children]
 	web
 	db
-----------------------------------------------------------------------------------------------------
 
 --------------------------------------------------------------------
 ansible-playbook:
@@ -195,8 +194,9 @@ this is to check the ansible playbook trial run and check the changes. it will n
     become_method: sudo
     become_user: root
 ...
+
 ```
---------------------------------
+
 
 Example: Playbook with Multiple Plays
 --------------------------------------------------------------------
@@ -217,7 +217,6 @@ Example: Playbook with Multiple Plays
       service: name=mariadb enabled=true
 ...
 ```
---------------------------------------------------------------------
 
 	$ ansible-playbook httpd-play.yaml -i inventory 		--> to run the playbook
 	$ ansible-playbook --syntax-check httpd-play.yaml -i inventory 	--> to check the syntax errors.
@@ -248,32 +247,24 @@ to disable collecting ansible facts can be done using gather_facts: no
 	$ ANSIBLE_GATHERING=explicit ansible-playbook play1 -i inventory  --> command line gather facts disable
 
 --------------------------------------------------------------------
-Ansible-vault:
+Ansible-vault: 
 --------------------------------------------------------------------
---ask-vault-pass
 
---vault-password-file:
+	$ ansible-vault create secret.yml		--> to create a new secure file	
+	$ ansible-vault create secret.yml --vault-password-file=./password.txt 		--> to create a secure file using a password.txt file which contain password
 
-	$ ansible-vault create secret.yml	--> to create a new secure file
- 
-(or)
-	
-	$ ansible-vault create secret.yml --vault-password-file=./password.txt --> to create a secure file using a password.txt file which contain password
-
- 
 password.txt
 -----------------------
 Passw0rd
------------------------
 
-$ ansible-vault decrypt secret.yml 	--> to decrypt the secure file
-$ ansible-vault encrypt secret.yml	--> to encrypt the existing file
-$ ansible-vault edit secret.yml 	--> to edit the encrypted file
-$ ansible-vault view secret.yml		--> to view the encrypted file
-$ ansible-vault rekey secret.yml	--> to change the password 
-
-$ ansible-vault decrypt super-secret.yml --output=super-secret-decrypted.yml
-$ ansible-vault encrypt super-secret-decrypted.yml --output=super-secret-encrypted.yml
+	$ ansible-vault decrypt secret.yml 	--> to decrypt the secure file
+	$ ansible-vault encrypt secret.yml	--> to encrypt the existing file
+	$ ansible-vault edit 	secret.yml 	--> to edit the encrypted file
+	$ ansible-vault view 	secret.yml	--> to view the encrypted file
+	$ ansible-vault rekey 	secret.yml	--> to change the password 
+	
+	$ ansible-vault decrypt super-secret.yml --output=super-secret-decrypted.yml
+	$ ansible-vault encrypt super-secret-decrypted.yml --output=super-secret-encrypted.yml
 
 vars_files: module
 ------------------
