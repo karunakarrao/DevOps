@@ -281,7 +281,6 @@ defined in the playbook using vars sections
       seetha:
 	name: seetha devi
         home: "{{ home_path }}/seetha"
- 
 ```
 
 2. vars_file / include_vars
@@ -358,14 +357,12 @@ web2 ansible_host=192.168.1.10
 
 [web:vars]
 home_path=/home/users
-
 users:
-  rama:
-    name: sri rama
-    home: "{{ home_path }}/rama"
-  seetha:
-    name: seetha devi
-    home: "{{ home_path }}/seetha"
+  - rama
+  - seetha
+
+[all:vars]
+ansible_user=devops
 
 ```
 
@@ -373,12 +370,95 @@ users:
 -----------------------------
 ansible facts are the custom facts that are defined in `/etc/ansible/facts.d` in managed hosts using file extention `custom.facts`. this will be used in the playbook. these facts are pushed using the playbook using `copy` moduels to the respective managed hosts. 
 
+8. include
+------------------------------
+The include directive in Ansible allows you to include external YAML files, tasks, or even other playbooks within your main playbook.
+```
+---
+- name: install
+  hosts: all
+  tasks:
+   - name: include file
+     include: /root/install.yml
+   
+```
+
+--------------------------------------------------------------------
+Loops
+--------------------------------------------------------------------
+using `loop` is a generic directive that replaces `with_items` other looping directives.
+```
+---
+- name: looping
+  hosts: all
+  tasks:
+    - name: install packages
+      yum:
+        name: "{{ item }}"
+        state: present
+      loop:
+         - httpd
+         - nginx
+```
+
+```
+- user:
+    name: {{ item.name }}
+    state: present
+    groups: {{ item.groups }}
+  loop:
+    - { name: 'jane', groups: 'wheel' }
+    - { name: 'joe', groups: 'root' }
+```
+
+```
+vars:
+  mail_services:
+    - postfix
+    - dovecot
+
+tasks:
+  - yum:
+      name: "{{ item }}"
+      state: latest
+    loop: "{{ mail_services }}"
+```
+
+--------------------------------------------------------------------
+with_items
+--------------------------------------------------------------------
+This directive is used to loop over a list of items. It's one of the older looping directives in Ansible and is still widely used, especially in older playbooks.
+```
+- name: Install packages
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - vim
+    - git
+    - curl
+```
+
+--------------------------------------------------------------------
+until
+--------------------------------------------------------------------
+The until directive is used to retry a task until a certain condition is met.
+```
+- name: Wait for a service to start
+  command: /usr/bin/foo --check
+  register: result
+  retries: 5
+  until: result.stdout == "Service started"
+
+```
+
+
+
 --------------------------------------------------------------------
 Ansible-vault: 
 --------------------------------------------------------------------
-
-	$ ansible-vault create secret.yml		--> to create a new secure file	
-	$ ansible-vault create secret.yml --vault-password-file=./password.txt 		--> to create a secure file using a password.txt file which contain password
+	$ ansible-vault create secret.yml					--> to create a new secure file	
+	$ ansible-vault create secret.yml --vault-password-file=./password.txt 	--> to create a secure file using a password.txt file which contain password
 
 password.txt
 -----------------------
