@@ -1941,14 +1941,14 @@ Module: include
 include module is used to call/use other playbook in to current YAML file. with help of this we can call multiple plays with in a YAML file. remember (include_tasks, include_role, import_playbook, import_tasks) that have well established and clear behaviours. This module will still be supported for some time but we are looking at deprecating it in the near future. this can't be used for importing variable files. you import variable file need to use other module call include_vars.
 
 ------------------------
-----
-- hosts: localhost
-  tasks:
-    - debug:
-        msg: play1
-
-- name: Include a play after another play
-  include: otherplays.yaml
+	---
+	- hosts: localhost
+	  tasks:
+	    - debug:
+	        msg: play1
+	
+	- name: Include a play after another play
+	  include: otherplays.yaml
 -----------------------------
 
 Module: include_vars
@@ -1957,20 +1957,20 @@ include_vars is a module to load variables from a file dynamically with in a tas
 
 variables.yml
 ------------------------
-packages:
-   web_package: httpd
-   db_package: redis
+	packages:
+	   web_package: httpd
+	   db_package: redis
    
 ----------------------
----
-- hosts: all
-  tasks:
-  - name: Includes the tasks file and defines the variables
-    include_vars: /tmp/variables.yml
-
-  - name: Debugs the variables imported
-    debug:
-      msg: "{{ packages['web_package'] }} and {{ packages.db_package }} have been imported"
+	---
+	- hosts: all
+	  tasks:
+	  - name: Includes the tasks file and defines the variables
+	    include_vars: /tmp/variables.yml
+	
+	  - name: Debugs the variables imported
+	    debug:
+	      msg: "{{ packages['web_package'] }} and {{ packages.db_package }} have been imported"
 -------------------------
 
 Loop:
@@ -1981,15 +1981,15 @@ Example: If installing multiple packages, loop avoids using yum module multiple 
 
 Simple Loops:
 ------------
----
-- hosts: all
-  tasks:
-  - yum:
-      name: "{{ item }}"
-      state: latest
-    loop:
-    - postfix
-    - dovecot
+	---
+	- hosts: all
+	  tasks:
+	  - yum:
+	      name: "{{ item }}"
+	      state: latest
+	    loop:
+	    - postfix
+	    - dovecot 
 ----------------------
 
 Simple Loop Array:
@@ -1998,29 +1998,29 @@ use a vairable and list the array of values and use that in the loop.
 
 Example: Pass loop array as argument
 -----------------------------
-vars:
-  mail_services:
-    - postfix
-    - dovecot
-
-tasks:
-  - yum:
-      name: "{{ item }}"
-      state: latest
-    loop: "{{ mail_services }}"
+	vars:
+	  mail_services:
+	    - postfix
+	    - dovecot
+	
+	tasks:
+	  - yum:
+	      name: "{{ item }}"
+	      state: latest
+	    loop: "{{ mail_services }}"
 ---------------------------
 
 List of Hashes:
 ---------------
 to pass list of arrays, we can pass it as below. 
 
-- user:
-    name: {{ item.name }}
-    state: present
-    groups: {{ item.groups }}
-  loop:
-    - { name: 'jane', groups: 'wheel' }
-    - { name: 'joe', groups: 'root' }
+	- user:
+	    name: {{ item.name }}
+	    state: present
+	    groups: {{ item.groups }}
+	  loop:
+	    - { name: 'jane', groups: 'wheel' }
+	    - { name: 'joe', groups: 'root' }
 
 Ansible Return Values:
 ----------------------
@@ -2080,68 +2080,69 @@ In this section, you create a playbook to set up web services on the webservers.
 ---------------------------------------------
 $ cat << EOF > variable_test.yml
 ---------------------------------------------
----	
-- name: Install Apache and start the service
-  hosts: webservers
-  become: yes
-  vars:
-    web_pkg: httpd		# web_pkg defines the name of the package to install for the web server
-    firewall_pkg: firewalld	# firewall_pkg defines the name of the firewall package
-    web_service: httpd		# web_service defines the name of the web service to manage
-    firewall_service: firewalld		# firewall_service defines the name of the firewall service to manage
-    python_pkg: python-httplib2		# python_pkg defines a package to be installed for the uri module
-    rule: http			# rule defines the service to open
-  tasks:
-    - name: Install the required packages
-      yum:
-        name:
-          - "{{ web_pkg  }}"
-          - "{{ firewall_pkg }}"
-          - "{{ python_pkg }}"
-        state: latest
-    - name: Start and enable the {{ firewall_service }} service
-      service:
-        name: "{{ firewall_service }}"
-        enabled: true
-        state: started
-
-    - name: Start and enable the {{ web_service }} service
-      service:
-        name: "{{ web_service }}"
-        enabled: true
-        state: started
-    - name: Create web content to be served
-      copy:
-        content: "Example web content"
-        dest: /var/www/html/index.html
-    - name: Open the port for {{ rule }}
-      firewalld:
-        service: "{{ rule }}"
-        permanent: true
-        immediate: true
-        state: enabled
-
-EOF
+	---	
+	- name: Install Apache and start the service
+	  hosts: webservers
+	  become: yes
+	  vars:
+	    web_pkg: httpd			# web_pkg defines the name of the package to install for the web server
+	    firewall_pkg: firewalld		# firewall_pkg defines the name of the firewall package
+	    web_service: httpd			# web_service defines the name of the web service to manage
+	    firewall_service: firewalld		# firewall_service defines the name of the firewall service to manage
+	    python_pkg: python-httplib2		# python_pkg defines a package to be installed for the uri module
+	    rule: http				# rule defines the service to open
+	  tasks:
+	    - name: Install the required packages
+	      yum:
+	        name:
+	          - "{{ web_pkg  }}"
+	          - "{{ firewall_pkg }}"
+	          - "{{ python_pkg }}"
+	        state: latest
+	    - name: Start and enable the {{ firewall_service }} service
+	      service:
+	        name: "{{ firewall_service }}"
+	        enabled: true
+	        state: started
+	
+	    - name: Start and enable the {{ web_service }} service
+	      service:
+	        name: "{{ web_service }}"
+	        enabled: true
+	        state: started
+	    - name: Create web content to be served
+	      copy:
+	        content: "Example web content"
+	        dest: /var/www/html/index.html
+	    - name: Open the port for {{ rule }}
+	      firewalld:
+	        service: "{{ rule }}"
+	        permanent: true
+	        immediate: true
+	        state: enabled
+	
+	EOF
 -----------------------------------------------
 
 -> Check the syntax of the variable_test.yml playbook:
-	$ ansible-playbook --syntax-check variable_test.yml
+	
+ 	$ ansible-playbook --syntax-check variable_test.yml
 
 3. Create Playbook for Smoke Test:
 ----------------------------------
 this will help to find the above YAML play is working/not. we will check the URL for the content on the servers. and will look for the output is as expected or not.
 
 -------------------------------------
-cat << EOF > webserver_smoketest.yml
----
-- name: Verify the Apache service
-  hosts: localhost
-  tasks:
-    - name: Ensure the webserver is reachable
-      uri:
-        url: http://app1.${GUID}.internal
-        status_code: 200
-EOF
+	cat << EOF > webserver_smoketest.yml
+	---
+	- name: Verify the Apache service
+	  hosts: localhost
+	  tasks:
+	    - name: Ensure the webserver is reachable
+	      uri:
+	        url: http://app1.${GUID}.internal
+	        status_code: 200
+	EOF
 ---------------------------------
 
 -> In this section, you run the variable_test.yml playbook to set up the web services of app1 and app2. Then you run the webserver_smoketest.yml smoke-test playbook to verify that the web services are running on the correct hosts.
@@ -2164,18 +2165,18 @@ In this lab, you manage inclusions in Ansible Playbooks. You create a task file,
 	4.  Use the "package" variable for the package name, "service" for the service name, and "svc_state" for the service state.
 
 -------------------------------
-$ mkdir tasks
-$ cd tasks
-$ cat << EOF > environment.yml
-  - name: Install the {{ package }} package
-    yum:
-      name: "{{ package }}"
-      state: latest
-  - name: Start the {{ service }} service
-    service:
-      name: "{{ service }}"
-      state: "{{ svc_state }}"
-EOF
+	$ mkdir tasks
+	$ cd tasks
+	$ cat << EOF > environment.yml
+	  - name: Install the {{ package }} package
+	    yum:
+	      name: "{{ package }}"
+	      state: latest
+	  - name: Start the {{ service }} service
+	    service:
+	      name: "{{ service }}"
+	      state: "{{ svc_state }}"
+	EOF
 -------------------------------
 
 -> Change back to the main project directory:
@@ -2183,14 +2184,15 @@ EOF
 3. Create Variable File:
 ------------------------
 -> Create and change to the vars directory
+
 	$ mkdir vars
 	$ cd vars
 
 -> Create the variables.yml variable file with the following content:
 ------------------------
-$ cat << EOF > variables.yml
-firewall_pkg: firewalld
-EOF
+	$ cat << EOF > variables.yml
+	firewall_pkg: firewalld
+	EOF
 ------------------------
 -> The file defines the firewall_pkg variable in YAML format.
 
@@ -2220,52 +2222,54 @@ steps:
 	13. Include a time stamp in the file using an Ansible fact.
 
 ----------------------------------------
- cat << EOF > main_playbook.yml
-- hosts: webservers
-  become: yes
-  vars:
-    rule: http
-  tasks:
-    - name: Include the variables from the YAML file
-      include_vars: vars/variables.yml
-
-    - name: Include the environment file and set the variables
-      import_tasks: tasks/environment.yml
-      vars:
-        package: httpd
-        service: httpd
-        svc_state: started
-
-    - name: Install the firewall
-      yum:
-        name: "{{ firewall_pkg }}"
-        state: latest
-
-    - name: Start the firewall
-      service:
-        name: firewalld
-        state: started
-        enabled: true
-
-    - name: Open the port for {{ rule }}
-      firewalld:
-        service: "{{ rule }}"
-        immediate: true
-        permanent: true
-        state: enabled
-
-    - name: Create index.html
-      copy:
-        content: "{{ ansible_fqdn }} has been customized using Ansible on the {{ ansible_date_time.date }}\n"
-        dest: /var/www/html/index.html
-EOF
+	 cat << EOF > main_playbook.yml
+	- hosts: webservers
+	  become: yes
+	  vars:
+	    rule: http
+	  tasks:
+	    - name: Include the variables from the YAML file
+	      include_vars: vars/variables.yml
+	
+	    - name: Include the environment file and set the variables
+	      import_tasks: tasks/environment.yml
+	      vars:
+	        package: httpd
+	        service: httpd
+	        svc_state: started
+	
+	    - name: Install the firewall
+	      yum:
+	        name: "{{ firewall_pkg }}"
+	        state: latest
+	
+	    - name: Start the firewall
+	      service:
+	        name: firewalld
+	        state: started
+	        enabled: true
+	
+	    - name: Open the port for {{ rule }}
+	      firewalld:
+	        service: "{{ rule }}"
+	        immediate: true
+	        permanent: true
+	        state: enabled
+	
+	    - name: Create index.html
+	      copy:
+	        content: "{{ ansible_fqdn }} has been customized using Ansible on the {{ ansible_date_time.date }}\n"
+	        dest: /var/www/html/index.html
+	EOF
 ---------------------------------------
 
 -> Verify the syntax of the main_playbook.yml playbook:
-	$ ansible-playbook --syntax-check main_playbook.yml
+	
+ 	$ ansible-playbook --syntax-check main_playbook.yml
 
 -> Run the playbook and examine the output
-	$ ansible-playbook main_playbook.yml
+	
+ 	$ ansible-playbook main_playbook.yml
 
 
 -> Note that Ansible starts by including the environment.yml playbook and running its tasks, then continues to execute the tasks defined in the main playbook.
@@ -2359,24 +2363,24 @@ Role Uses: Enable Ansible to load components from external files. Roles written 
 
 Structure Example:
 
-		$ tree user.example
-		user.example/
-		├── defaults
-		│   └── main.yml
-		├── files
-		├── handlers
-		│   └── main.yml
-		├── meta
-		│   └── main.yml
-		├── README.md
-		├── tasks
-		│   └── main.yml
-		├── templates
-		├── tests
-		│   ├── inventory
-		│   └── test.yml
-		└── vars
-		└── main.yml
+	$ tree user.example
+	user.example/
+	├── defaults
+	│   └── main.yml
+	├── files
+	├── handlers
+	│   └── main.yml
+	├── meta
+	│   └── main.yml
+	├── README.md
+	├── tasks
+	│   └── main.yml
+	├── templates
+	├── tests
+	│   ├── inventory
+	│   └── test.yml
+	└── vars
+	└── main.yml
 
 Subdirectories:
 ----------------------------------------------------------------------------------------------------------------
@@ -2408,16 +2412,17 @@ note: Best practice: Define variable in vars/main.yml or defaults/main.yml. Use 
 
 Example:
 ----------------------------
----
-- hosts: remote.example.com
-  roles:
-    - role1
-    - role2
+	---
+	- hosts: remote.example.com
+	  roles:
+	    - role1
+	    - role2
 -----------------------------
 
 Roles in Playbooks:
 ----------------------------------------------------------------------------------------------------------------
 For each role, include the following in playbook in this order. 
+
 	1. Tasks
 	2. Handlers
 	3. Variables
@@ -2425,16 +2430,16 @@ For each role, include the following in playbook in this order.
 
 If role2 used, default variable values overridden:
 ----------------------------------------------------------------------------------------------------------------
----
-- hosts: remote.example.com
-  roles:
-    - { role: role1 }
-    - { role: role2, var1: val1, var2: val2 }
+	---
+	- hosts: remote.example.com
+	  roles:
+	    - { role: role1 }
+	    - { role: role2, var1: val1, var2: val2 }
 ---------------------------------------
----
-dependencies:
-  - { role: apache, port: 8080 }
-  - { role: postgres, dbname: serverlist, admin_user: felix }
+	---
+	dependencies:
+	  - { role: apache, port: 8080 }
+	  - { role: postgres, dbname: serverlist, admin_user: felix }
 ---------------------------------------
 
 Dependency Behavior:
@@ -2444,22 +2449,23 @@ Default: Role added as dependency to playbook once . If role is listed as depend
 Order of Execution:
 -------------------------------------------------------------------------------------------------------------
 Default: Role tasks execute before tasks of playbooks in which they appear. To override default, use pre_tasks and post_tasks. 
+
 	pre_tasks: Tasks performed before any roles applied
 	post_tasks: Tasks performed after all roles completed
 
 Order of Execution Example:
 -------------------------------------------------------------------------------------------------------------
----
-- hosts: remote.example.com
-  pre_tasks:
-    - shell: echo 'hello'
-  roles:
-    - role1
-    - role2
-  tasks:
-    - shell: echo 'still busy'
-  post_tasks:
-    - shell: echo 'goodbye'
+	---
+	- hosts: remote.example.com
+	  pre_tasks:
+	    - shell: echo 'hello'
+	  roles:
+	    - role1
+	    - role2
+	  tasks:
+	    - shell: echo 'still busy'
+	  post_tasks:
+	    - shell: echo 'goodbye'
 ------------------------------
 
 Directory Structure:
@@ -2511,17 +2517,17 @@ Content Example:
 -> Uses template to copy motd.j2 to managed host
 -> Retrieves motd.j2 from role’s templates subdirectory:
 
-[user@host ~]$ cat roles/motd/tasks/main.yml
----
-# tasks file for motd
-
-- name: deliver motd file
-  template:
-    src: templates/motd.j2
-    dest: /etc/motd
-    owner: root
-    group: root
-    mode: 0444
+$ cat roles/motd/tasks/main.yml
+	---
+	# tasks file for motd
+	
+	- name: deliver motd file
+	  template:
+	    src: templates/motd.j2
+	    dest: /etc/motd
+	    owner: root
+	    group: root
+	    mode: 0444
 
 --------------------
 
@@ -2530,7 +2536,7 @@ Content Output:
 -> Display contents of templates/motd.j2 template of motd role
 	-> References Ansible facts and system_owner variable:
 
-$ cat roles/motd/templates/motd.j2
+	$ cat roles/motd/templates/motd.j2
 This is the system {{ ansible_hostname }}.
 
 Today's date is: {{ ansible_date_time.date }}.
@@ -2545,7 +2551,7 @@ Default Variable Values:
 -> Example: defaults/main.yml sets system_owner to user@host.example.com
 -> Email address written in /etc/motd of managed hosts where role is applied:
 
-$ cat roles/motd/defaults/main.yml
+	$ cat roles/motd/defaults/main.yml
 ---
 system_owner: user@host.example.com
 
@@ -2559,14 +2565,15 @@ Example: Playbook referencing motd role
 
 ------------------
 $ cat use-motd-role.yml
----
-- name: use motd role playbook
-  hosts: remote.example.com
-  user: devops
-  become: true
 
-  roles:
-    - motd
+	---
+	- name: use motd role playbook
+	  hosts: remote.example.com
+	  user: devops
+	  become: true
+	
+	  roles:
+	    - motd
 
 ----------------------
 
@@ -2581,14 +2588,15 @@ Use motd with different value for system_owner
 
 someone@host.example.com replaces variable reference when role is applied to managed host:
 $ cat use-motd-role.yml
----
-- name: use motd role playbook
-  hosts: remote.example.com
-  user: devops
-  become: true
 
-  roles:
-    - { role: motd, system_owner: someone@host.example.com }
+	---
+	- name: use motd role playbook
+	  hosts: remote.example.com
+	  user: devops
+	  become: true
+	
+	  roles:
+	    - { role: motd, system_owner: someone@host.example.com }
 
 --------------------------
 
