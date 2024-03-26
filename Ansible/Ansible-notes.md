@@ -1605,8 +1605,7 @@ Variable Precedence:
 
 1. Role default variables:
 --------------------------
-
-Set in roles vars directory:
+Variables are defined in the `roles/default` directory. 
 
 	[configuration]
 	users:
