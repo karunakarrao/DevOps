@@ -332,6 +332,16 @@ To register a ansible tasks output to a variable called `register`
         when: out_httpd.rc == 0
 ```
 
+	stdout: 	Contains the standard output of the command.
+	stderr: 	Contains the standard error output of the command.
+	stdout_lines: 	Contains the standard output split into a list of lines.
+	stderr_lines: 	Contains the standard error output split into a list of lines.
+	stdout_json: 	Contains the standard output parsed as JSON (if possible).
+	changed: 	Indicates whether the task made any changes on the target system (true or false).
+	failed: 	Indicates whether the task failed (true or false).
+	msg: 		Contains a human-readable message describing the outcome of the task.
+	rc: 		Contains the return code of the command.
+
 5. -e / --extra-vars
 -------------------------------------
 To pass the variables as an input during execution use the -e / --extra-vars option.
