@@ -129,13 +129,13 @@ list host inventory:
 	$ ansible all --list 			--> to list the hosts.
 
 ----------------------------------------------------
-creating users on worker nodes:
+user:
 ----------------------------------------------------
 	$ ansible all -m user -a "user=devops" -i inventory	--> to create new user "devops"
 	$ ansible all -m command -a "id -a devops" 		--> to check user "devops" details.
 
 ----------------------------------------------------
-authorized_key : module - public key 
+authorized_key:
 ----------------------------------------------
 	$ cat ~/.ssh/id_rsa.pub
 
@@ -148,7 +148,7 @@ to Remove the same key, we can use the same command with belwo option. `state=ab
 	$ ansible all -m authorized_key -a "user=devops state=absent key='ssh-rsa AAAABfvVQgdMNVsHM+dV0oNQnqG+ devops@bastion.0926.internal'" -b
 
 ----------------------------------------------------
-lineinfile: module:
+lineinfile:
 ----------------------------------------------------
  this module check the line present if not we can add. /etc/sudoers is a sudo users list.
  
@@ -157,7 +157,7 @@ lineinfile: module:
 	$ ansible all -m command -a "whoami"	--> to check the user at remote host
 
 ----------------------------------------------------
-copy: module:
+copy: 
 ----------------------------------------------------
 this module is used to copy the file to remote server, if file present it will update else it will create it. 
 
@@ -229,11 +229,11 @@ Example: Playbook with Multiple Plays
 	$ ansible-playbook httpd-play.yaml -i inventory --step 		--> to exicute step by step task play with user confirmation (yes/no/cancel)
 
 --------------------------------------------------------------------
-facts: setup module
+setup:
 --------------------------------------------------------------------
-to collect the managed host "web1" facts like OS, version, network info, ip info, and much more\.. etc...
+To collect facts for managed host "web1" facts like OS, version, network info, ip info, and much more\.. etc...
 	
- 	$ ansible web1 -m setup -i inventory --> to collect facts. 
+ 	$ ansible -m setup -i inventory web1				--> to collect facts. 
 
 to disable collecting ansible facts can be done using gather_facts: no
 -----------------------------------------------------------------------
@@ -250,7 +250,118 @@ to disable collecting ansible facts can be done using gather_facts: no
 
 (or)
 
-	$ ANSIBLE_GATHERING=explicit ansible-playbook play1 -i inventory  --> command line gather facts disable
+ 	$ ANSIBLE_GATHERING=explicit ansible-playbook play1 -i inventory  --> command line gather facts disable
+
+--------------------------------------------------------------------
+Variables:
+--------------------------------------------------------------------
+Ansible variables are declared in multipule loctions
+
+	1. vars					--> direct in script
+ 	2. vars_file / include_vars		--> File as an input
+  	3. vars_prompt				--> enter values dynamically during the exicution.
+   	4. register				--> register output to a variable in YAML file.
+    	5. -e / --extra-vars			--> command line variables
+     	6. inventory				--> define vars in the inventory file using [web:vars] etc.
+      	7. facts				--> define variables as custom facts and add to managed host in "/etc/ansible/facts.d" with file name "custom.facts"
+
+1. vars
+------------------------
+defined in the playbook using vars sections
+```
+---
+- name: variables
+  hosts: all
+  vars:
+    home_path: /home/users
+    users:
+      rama:
+        name: sri rama
+        home: "{{ home_path }}/rama"
+      seetha:
+	name: seetha devi
+        home: "{{ home_path }}/seetha"
+ 
+```
+
+2. vars_file / include_vars
+-------------------------------
+we can call the `vars.yaml` file in the playbook using `vars_file` / `include_vars` 
+```
+---
+- name: variables
+  hosts: all
+  vars_file:
+    - /root/vars.yml
+```
+(or)
+```
+---
+- name: variables
+  hosts: all
+  include_vars:
+    - /root/vars.yml
+```
+
+3. vars_prompt
+------------------------------
+To get input from end user during the execution
+```
+---
+- name: dynamic inputs
+  hosts: all
+  vars_prompt:
+    - name: "new_user"
+      prompt: "User to create"
+```
+
+4. register
+------------------------------
+To register a ansible tasks output to a variable called `register`
+```
+---
+- name: testing register
+  hosts: all
+  tasks:
+    - name: install httpd
+      apt: name=apache2 state=latest
+      register: out_httpd
+    - name: print
+      debug:
+        msg: SUCCESS
+        when: out_httpd.rc == 0
+```
+
+5. -e / --extra-vars
+-------------------------------------
+To pass the variables as an input during execution use the -e / --extra-vars option.
+
+	$ ansible-playbook your_playbook.yml --extra-vars "users={'rama': {'name': 'sri rama', 'home': '/home/users/rama'}, 'seetha': {'name': 'seetha devi', 'home': '/home/users/seetha'}}"
+
+6. inventory
+----------------------------
+To pass the varialbes as an inventory file, 
+```
+[web]
+web1 ansible_host=192.168.1.11
+web2 ansible_host=192.168.1.10
+
+[web:vars]
+home_path=/home/users
+
+users:
+  rama:
+    name: sri rama
+    home: "{{ home_path }}/rama"
+  seetha:
+    name: seetha devi
+    home: "{{ home_path }}/seetha"
+
+```
+
+7. facts
+-----------------------------
+ansible facts are the custom facts that are defined in `/etc/ansible/facts.d` in managed hosts using file extention `custom.facts`. this will be used in the playbook. these facts are pushed using the playbook using `copy` moduels to the respective managed hosts. 
 
 --------------------------------------------------------------------
 Ansible-vault: 
