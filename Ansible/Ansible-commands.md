@@ -271,7 +271,7 @@ Ansible variables are declared in multipule loctions
 defined in the playbook using vars sections
 ```
 ---
-- name: variables
+- name: variables						# vars
   hosts: all
   vars:
     home_path: /home/users
@@ -289,7 +289,7 @@ defined in the playbook using vars sections
 we can call the `vars.yaml` file in the playbook using `vars_file` / `include_vars` 
 ```
 ---
-- name: variables
+- name: variables						# vars_file
   hosts: all
   vars_file:
     - /root/vars.yml
@@ -297,7 +297,7 @@ we can call the `vars.yaml` file in the playbook using `vars_file` / `include_va
 (or)
 ```
 ---
-- name: variables
+- name: variables						# include_vars
   hosts: all
   include_vars:
     - /root/vars.yml
@@ -308,7 +308,7 @@ we can call the `vars.yaml` file in the playbook using `vars_file` / `include_va
 To get input from end user during the execution
 ```
 ---
-- name: dynamic inputs
+- name: dynamic inputs						# vars_prompt
   hosts: all
   vars_prompt:
     - name: "new_user"
@@ -320,7 +320,7 @@ To get input from end user during the execution
 To register a ansible tasks output to a variable called `register`
 ```
 ---
-- name: testing register
+- name: testing register					# register
   hosts: all
   tasks:
     - name: install httpd
@@ -352,7 +352,7 @@ To pass the variables as an input during execution use the -e / --extra-vars opt
 ----------------------------
 To pass the varialbes as an inventory file, 
 ```
-[web]
+[web]								# inventory
 web1 ansible_host=192.168.1.11
 web2 ansible_host=192.168.1.10
 
@@ -374,23 +374,59 @@ ansible facts are the custom facts that are defined in `/etc/ansible/facts.d` in
 8. include
 ------------------------------
 The include directive in Ansible allows you to include external YAML files, tasks, or even other playbooks within your main playbook.
+
 ```
 ---
-- name: install
+- name: install							# include
   hosts: all
   tasks:
    - name: include file
      include: /root/install.yml
-   
+
 ```
 
+```
+vars.yaml
+-----------------------------------
+package:
+- apache2
+- nginx
+- redis
+- mangodb
+-----------------------------------
+- name: install                            			# include_vars
+  hosts: all
+  tasks:
+  - include_vars:
+      file: /root/vars.yaml
+      name: package
+  - include_tasks:
+      file: /root/install.yaml
+      name: Install
+      
+  - name: install package
+    apt: name="{{ item }}" state=latest
+    loop: "{{ package.package }}"
+```
+-----------------------------------------------------
+```
+--- 
+- name: Install                             			# include_tasks
+  hosts: all
+  tasks:
+  - include_tasks: /root/install-db.yaml
+  - include_tasks: /root/install-app.yaml
+  - include_tasks: /root/install_web.yaml
+  - include_tasks: /root/start-service_db.yaml
+```  
+
 --------------------------------------------------------------------
-Loops
+Loop
 --------------------------------------------------------------------
 using `loop` is a generic directive that replaces `with_items` other looping directives.
 ```
 ---
-- name: looping
+- name: looping							#  loop
   hosts: all
   tasks:
     - name: install packages
@@ -430,7 +466,7 @@ with_items
 --------------------------------------------------------------------
 This directive is used to loop over a list of items. It's one of the older looping directives in Ansible and is still widely used, especially in older playbooks.
 ```
-- name: Install packages
+- name: Install packages					# with_items
   apt:
     name: "{{ item }}"
     state: latest
@@ -445,7 +481,7 @@ until
 --------------------------------------------------------------------
 The until directive is used to retry a task until a certain condition is met.
 ```
-- name: Wait for a service to start
+- name: Wait for a service to start				# until
   command: /usr/bin/foo --check
   register: result
   retries: 5
@@ -456,7 +492,7 @@ The until directive is used to retry a task until a certain condition is met.
 --------------------------------------------------------------------
 when
 --------------------------------------------------------------------
-
+```
 ---
 - name: install list of packages on Debian                      # When
   hosts: all
@@ -478,6 +514,7 @@ when
         state:  latest
      when: ansible_os_family == "Debian"
      loop: "{{ list }}"
+```
 
 --------------------------------------------------------------------
 Error Handling:
@@ -493,7 +530,7 @@ There are list of directives avaiable in  ansible
 # Stop the playbook on all servers, if any once task failed on the play on any of the servers.
 ```
 ---
-- name: install                 #  any_error_fatal
+- name: install                 			#  any_error_fatal
   hosts: all
   any_error_fatal: true
   tasks:
@@ -503,7 +540,7 @@ There are list of directives avaiable in  ansible
 # if more than 30% servers are failed then quit the play 
 ```
 ---
-- name: install                 # max_fail_percentage
+- name: install                 			# max_fail_percentage
   hosts: all
   max_fail_percentage: 30
   tasks:
@@ -513,7 +550,7 @@ There are list of directives avaiable in  ansible
 # To ignore errors for a task we can use this `ignore_errors`, so the task is igonred if fail/pass.
 ```
 ---
-- name: install                 #   ignore_errors
+- name: install                 			#   ignore_errors
   hosts: all
   tasks:
   - name: install 
@@ -529,7 +566,7 @@ There are list of directives avaiable in  ansible
 # if errors found in the server log, we can make the playbook fail. 
 ```
 ---
-- name: install			# failed_when
+- name: install						# failed_when
   hosts: all
   any_error_fatal: true 
   tasks: 
@@ -542,7 +579,7 @@ There are list of directives avaiable in  ansible
 # incase failure in the block it will trigger the rescue section. 
 ```
 ---
-- name: install & service	# block/resuce/always
+- name: install & service				# block/resuce/always
   hosts: all
   tasks:
   - blocks:
@@ -566,7 +603,7 @@ There are list of directives avaiable in  ansible
 # how to use blocks and Handling the errors.
 ```
 ---
-- name: install
+- name: install						# block/resuce/always
   hosts: all
   tasks: 
     - block:
@@ -603,7 +640,7 @@ Free strategy: when you use Free strategy, it will complete the task execution i
 
 ```
 ---
-- name: install
+- name: install						# strategy
   hosts: all
   strategy: free 
   tasks: 
@@ -613,18 +650,18 @@ Free strategy: when you use Free strategy, it will complete the task execution i
 --------------------------------------------------------------------
 Serial
 --------------------------------------------------------------------
-by default how many servers ansible can perform playbook changes on remote servers is 5. Ansible can create 5 forks by Defalut. this is configured in `ansibile.cfg` file as "forks = 5". how ever we can change this behaviour using to execute tasks BATCH wise on host servers, we use the "serial" directive. it means, it will performs playbook execution on 3 servers.
+by default how many servers ansible can perform playbook changes on remote servers is 5. Ansible can create 5 forks by Defalut. this is configured in `ansibile.cfg` file as `forks = 5`. how ever we can change this behaviour using to execute tasks BATCH wise on host servers, we use the `serial` directive. it means, it will performs playbook execution on 3 servers.
 
 ```
 ---
-- name: install
+- name: install						#serial
   hosts: all
   serial: 3
   tasks:
   - name:
 ```
 
-Note: by default how many servers ansible can perform playbook changes is 5. Ansible can create 5 forks by Defalut. this is configured in ansibile.cfg file as "forks = 5". how ever we can change this behaviour using ansible configuration file. 
+Note: by default how many servers ansible can perform playbook changes is 5. Ansible can create 5 forks by Defalut. this is configured in ansibile.cfg file as `forks = 5`. how ever we can change this behaviour using ansible configuration file. 
 
 --------------------------------------------------------------------
 Pre_tasks / Post_tasks
@@ -633,7 +670,7 @@ Playbook-tasks execution order, Roles are executed before the playbook tasks. To
 
 ```
 ---
-- name: install 
+- name: install 					# pre_tasks / post_tasks
   hosts: all
   tasks:
   - name: install apache2
@@ -653,7 +690,7 @@ Handlers in Ansible are used to trigger actions in response to events during the
 
 ```
 ---
-- name: install 
+- name: install 					# handlers
   hosts: all
   tasks: 
     - name: install
