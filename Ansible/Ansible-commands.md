@@ -229,14 +229,14 @@ Example: Playbook with Multiple Plays
 	$ ansible-playbook httpd-play.yaml -i inventory --step 		--> to exicute step by step task play with user confirmation (yes/no/cancel)
 
 --------------------------------------------------------------------
-setup:
+ansible facts:
 --------------------------------------------------------------------
 To collect facts for managed host "web1" facts like OS, version, network info, ip info, and much more\.. etc...
 	
  	$ ansible -m setup -i inventory web1				--> to collect facts. 
 
-to disable collecting ansible facts can be done using gather_facts: no
------------------------------------------------------------------------
+Note:  to disable collecting ansible facts can be done using gather_facts: no
+
 ```
 ---
 - name: Disable ansible facts
@@ -244,11 +244,12 @@ to disable collecting ansible facts can be done using gather_facts: no
   gather_facts: no  	# to avoid ansilbe collecting facts.
 ...
 ```
+
 (or)  change the values in the ansible.cfg file `/etc/ansible/ansible.cfg`
 	
  	gathering = implicit/explicit --> `implicit` it will gather facts | `explicit` it will not gather facts.
 
-(or)
+(or)  using ansible environment variables `ANSIBLE_GATHERING` variable
 
  	$ ANSIBLE_GATHERING=explicit ansible-playbook play1 -i inventory  --> command line gather facts disable
 
@@ -452,6 +453,225 @@ The until directive is used to retry a task until a certain condition is met.
 
 ```
 
+--------------------------------------------------------------------
+when
+--------------------------------------------------------------------
+
+---
+- name: install list of packages on Debian                      # When
+  hosts: all
+  vars:
+     list:
+     - firewalld
+     - apache2
+     - nginx
+  tasks:
+   - name: install list on Ubuntu
+     yum: 
+        name: "{{ item }}" 
+        state: latest
+     when: ansible_os_family == "Ubuntu"
+     loop: "{{ list }}"
+   - name: install list on Debian
+     apt: 
+        name: "{{ item }}" 
+        state:  latest
+     when: ansible_os_family == "Debian"
+     loop: "{{ list }}"
+
+--------------------------------------------------------------------
+Error Handling:
+--------------------------------------------------------------------
+There are list of directives avaiable in  ansible
+
+ 	1. any_error_fatal
+  	2. max_fail_percentage
+   	3. ignore_errors
+    	4. failed_when
+     	5. block/rescue/always
+
+# Stop the playbook on all servers, if any once task failed on the play on any of the servers.
+```
+---
+- name: install                 #  any_error_fatal
+  hosts: all
+  any_error_fatal: true
+  tasks:
+```
+
+--------------------------------------------------
+# if more than 30% servers are failed then quit the play 
+```
+---
+- name: install                 # max_fail_percentage
+  hosts: all
+  max_fail_percentage: 30
+  tasks:
+ ```
+ 
+---------------------------------------------------
+# To ignore errors for a task we can use this `ignore_errors`, so the task is igonred if fail/pass.
+```
+---
+- name: install                 #   ignore_errors
+  hosts: all
+  tasks:
+  - name: install 
+    apt: name=apache2 state=latest
+  - mail: 
+      to: 
+      subject:
+      body:
+    ignore_errors: true
+```
+  
+---------------------------------------------------
+# if errors found in the server log, we can make the playbook fail. 
+```
+---
+- name: install			# failed_when
+  hosts: all
+  any_error_fatal: true 
+  tasks: 
+  - command: cat /var/log/server.log
+    register: command_output
+    failed_when: '"ERROR"  in command_output.stdout'
+```
+
+-----------------------------------------------------
+# incase failure in the block it will trigger the rescue section. 
+```
+---
+- name: install & service	# block/resuce/always
+  hosts: all
+  tasks:
+  - blocks:
+      - name: install apache2
+        apt: name=apache2 state=latest
+      - name: start apache
+        servcie: name=apache2 state=started
+    rescue:
+    - mail:
+        to: dev-group@hcl.com
+        subject: failed playbook
+        body: 
+    always:
+    - mail: 
+        to: 
+        subject:
+        body:
+```
+-------------------------------------------------
+
+# how to use blocks and Handling the errors.
+```
+---
+- name: install
+  hosts: all
+  tasks: 
+    - block:
+      - name: install mysql
+        yum: name=mysql state=present
+      - name: start mysql servvice
+        service: name=mysql-serverr state=started
+      become_user: db-user
+      when: ansible_facts['distribution'] == 'centos'
+      rescue:
+       - mail:
+           to: team@xyz.com
+           subject: Install my-sql status
+           body: DB install failed at {{ ansible_failed_task.name }} 
+      always:
+      - mail:
+          to: team@xyz.com
+          subject: Install my-sql status
+          body: 
+        ignore_errors: yes
+```
+
+--------------------------------------------------------------------
+Strategy
+--------------------------------------------------------------------
+There are 2 types of Strategies in Ansible. 
+
+    1. Linear (Defalut) - You don't need to specify.
+    2. Free 		- will install tasks on the servers independently with out waiting for other servers
+
+Linear strategy: is the default strategy used by ansible, if we are using linear strategy the ansible tasks execution will be done parallel accross all servers. if one server is completed first it will wait for the other servers to complete. if it got failed then it will also get failed accross all servers. 
+
+Free strategy: when you use Free strategy, it will complete the task execution independently with out witing for other servers to complete.
+
+```
+---
+- name: install
+  hosts: all
+  strategy: free 
+  tasks: 
+  - name:
+ ```
+
+--------------------------------------------------------------------
+Serial
+--------------------------------------------------------------------
+by default how many servers ansible can perform playbook changes on remote servers is 5. Ansible can create 5 forks by Defalut. this is configured in `ansibile.cfg` file as "forks = 5". how ever we can change this behaviour using to execute tasks BATCH wise on host servers, we use the "serial" directive. it means, it will performs playbook execution on 3 servers.
+
+```
+---
+- name: install
+  hosts: all
+  serial: 3
+  tasks:
+  - name:
+```
+
+Note: by default how many servers ansible can perform playbook changes is 5. Ansible can create 5 forks by Defalut. this is configured in ansibile.cfg file as "forks = 5". how ever we can change this behaviour using ansible configuration file. 
+
+--------------------------------------------------------------------
+Pre_tasks / Post_tasks
+--------------------------------------------------------------------
+Playbook-tasks execution order, Roles are executed before the playbook tasks. To execute tasks before the roles, we can use the directives like pre_tasks,  post_tasks. 
+
+```
+---
+- name: install 
+  hosts: all
+  tasks:
+  - name: install apache2
+    apt: name=apache2 state=latest
+  post_tasks:
+  - name: start servcie
+    service: name=apache2 state=started    
+  pre_tasks:
+  - name: check os version
+    command: 'cat /etc/*release*'
+ ```
+
+--------------------------------------------------------------------
+handlers:
+--------------------------------------------------------------------
+Handlers in Ansible are used to trigger actions in response to events during the execution of playbooks. Typically, handlers are defined to perform tasks like restarting a service or taking some other action only when notified by a specific task. 
+
+```
+---
+- name: install 
+  hosts: all
+  tasks: 
+    - name: install
+      apt: 
+        name:
+          - apache2
+          - nginx
+        state: latest
+      notify: start service
+  handlers:
+    - name: start service
+      service:              # The service module handles services individually, so you should provide a single service name.
+        name: "{{ item }}"
+        state: started
+      loop:
+        - apache2
+        - nginx
+ ```       
 
 
 --------------------------------------------------------------------
