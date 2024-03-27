@@ -2203,6 +2203,7 @@ In this lab, you manage inclusions in Ansible Playbooks. You create a task file,
 In this section, you create and edit the main playbook, main_playbook.yml, which imports the tasks and variables, and installs and configures the firewalld service.
 
 steps:
+
 	1.  Create the playbook main_playbook.yml.
 	2.  Add the webservers host group and define a rule variable with a value of http.
 	3.  Define the first task with the include_vars module and the variables.yml variable file.
