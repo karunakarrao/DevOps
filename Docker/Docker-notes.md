@@ -175,8 +175,9 @@ An image registry is a centralized place where you can upload your images and ca
  	$ docker login nexus-registry-url 	--> to login to nexus private registry 
 
 --------------------------------------------------------------------------------------------------------------------------
-Containers
+Containers - ( run, create/start/stop, pause/unpause, rm/kill, logs, inspect, ports, cp, diff, events, exec, info, ps, stats, top)
 -------------------------------------------------------------------------------------------------------------------------- 
+
 
 Q. What is a Docker Container? 
 ---------------------------------------------
@@ -405,7 +406,7 @@ system:
 
 
 --------------------------------------------------------------------------------------------------------------------------
-Images
+Images ( build, history, rmi, tag, save/load, export/import, commit, login/logout, push/pull, 
 --------------------------------------------------------------------------------------------------------------------------
  
 Q. What is a Docker: Image?
@@ -499,7 +500,7 @@ The docker `commit` command is used to create a new image from the changes made 
 
 What is Multistage-docker build ? how to?
 ----------------------------------------------
-Multistage Docker builds are a feature that allows creating more efficient and smaller Docker images by using multiple build stages within a single Dockerfile. Each stage represents a phase of the build process. This helps reduce the size of the final Docker image by excluding unnecessary build dependencies and files, making it more lightweight and suitable for production deployment. 
+Multistage Docker builds are a feature that allows creating more efficient and smaller Docker images. by using multiple build stages within a single Dockerfile. Each stage represents a phase of the build process. This helps reduce the size of the final Docker image by excluding unnecessary build dependencies and files, making it more lightweight and suitable for production deployment. 
 
 Dockerfile
 ------------------
