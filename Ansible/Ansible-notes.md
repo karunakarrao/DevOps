@@ -2651,6 +2651,7 @@ $ ansible-galaxy init roles/app-tier
 $ cat << EOF > roles/app-tier/tasks/main.yml
 
 -------------------------------------------
+```
 ---
 # tasks file for roles/app-tier
 # Installation of packages based on inventory groups
@@ -2716,8 +2717,9 @@ $ cat << EOF > roles/app-tier/tasks/main.yml
    - httpd_can_network_connect
 
 EOF
-
-[devops@bastion ansible_implementation]$ cat << EOF > roles/app-tier/handlers/main.yml
+```
+$ cat << EOF > roles/app-tier/handlers/main.yml
+```
 ---
 # handlers file for roles/app-tier
 
@@ -2727,8 +2729,10 @@ EOF
    state: restarted
 
 EOF
+```
+$ cat << EOF > roles/app-tier/vars/main.yml
 
-[devops@bastion ansible_implementation]$ cat << EOF > roles/app-tier/vars/main.yml
+```
 ---
 # vars file for roles/app-tier
 
@@ -2743,7 +2747,7 @@ httpd_pkg:
 httpd_srv: httpd
 db_srv: mariadb
 EOF
-
+```
 $ cp ~/roles-setup-files/index.j2 roles/app-tier/templates/
 $ cp ~/roles-setup-files/vhost.conf.j2 roles/app-tier/templates/
 
@@ -2761,16 +2765,20 @@ $ cp ~/roles-setup-files/vhost.conf.j2 roles/app-tier/templates/
 -> Add a task to ensure that users have the appropriate privileges on the database.
 -> Add a task to copy the userdb.backup database backup file to the server.
 -> Add a task to restore the userdb.backup backup file for mariadb data.
--> Create a vars/main.yml file under the db-tier role that defines values for all of the variables defined in the tasks, including these values for the 	database:
+-> Create a vars/main.yml file under the db-tier role that defines values for all of the variables defined in the tasks, including these values for the 	
+
+	database:
 	user: root
 	password: redhat
 	database: userdb
 	backup file name: userdb.backup
 
 ------------------------------------
-[devops@bastion ansible_implementation]$ ansible-galaxy init roles/db-tier
-[devops@bastion ansible_implementation]$ cp ~/roles-setup-files/userdb.backup roles/db-tier/files/
-[devops@bastion ansible_implementation]$ cat << EOF > roles/db-tier/tasks/main.yml
+$ ansible-galaxy init roles/db-tier
+$ cp ~/roles-setup-files/userdb.backup roles/db-tier/files/
+$ cat << EOF > roles/db-tier/tasks/main.yml
+
+```
 ---
 # tasks file for roles/db-tier
 - name: Install mysql
@@ -2837,8 +2845,10 @@ $ cp ~/roles-setup-files/vhost.conf.j2 roles/app-tier/templates/
    target: "/tmp/{{ db['backupfile'] }}"
    login_password: "{{ db['password']}}"
 EOF
+```
+$ cat << EOF > roles/db-tier/vars/main.yml
 
-[devops@bastion ansible_implementation]$ cat << EOF > roles/db-tier/vars/main.yml
+```
 ---
 # vars file for roles/db-tier
 db_pkg:
@@ -2853,6 +2863,7 @@ db:
  password: redhat
  backupfile: userdb.backup
 EOF
+```
 -----------------------------------
 
 2.3. Create Role to Set Up Load Balancer:
@@ -2870,6 +2881,7 @@ EOF
 $ ansible-galaxy init roles/lb-tier
 $ cp ~/roles-setup-files/haproxy.j2 roles/lb-tier/templates/
 $ cat << EOF > roles/lb-tier/tasks/main.yml
+```
 ---
 # tasks file for roles/lb-tier
 - name: Install Firewalld
@@ -2920,9 +2932,10 @@ $ cat << EOF > roles/lb-tier/tasks/main.yml
    immediate: true
    permanent: true
 EOF
+```
 
-
-[devops@bastion ansible_implementation]$ cat << EOF > roles/lb-tier/handlers/main.yml
+$ cat << EOF > roles/lb-tier/handlers/main.yml
+```
 # handlers file for roles/lb-tier
 - name: restart_haproxy
   service:
@@ -2930,8 +2943,9 @@ EOF
    enabled: true
    state: restarted
 EOF
-
-[devops@bastion ansible_implementation]$ cat << EOF > roles/lb-tier/vars/main.yml
+```
+$ cat << EOF > roles/lb-tier/vars/main.yml
+```
 ---
 # vars file for roles/lb-tier
 haproxy_pkg:
@@ -2939,8 +2953,7 @@ haproxy_pkg:
  - firewalld
 haproxy_srv: haproxy
 EOF
-
--------------------------------------
+```
 
 3. Create and Execute Main Playbook:
 ------------------------------------
@@ -3221,6 +3234,7 @@ You name the playbook create_users.yml and create it under same directory.
 
 	$ cat create_users.yml
 -----------------------------------
+```
 ---
 - name: create user accounts for all our servers
   hosts: lb
@@ -3234,6 +3248,8 @@ You name the playbook create_users.yml and create it under same directory.
         name: "{{ item.name }}"
         password: "{{ item.pw | password_hash('sha512') }}"
       with_items: "{{ newusers }}"
+
+```
 ------------------------------------
 
 The password is converted into a password hash that uses the password_hash hashing filters and sha512 algorithm. You use the `user` module and pass this hashed password as an argument, as shown in this simplified example:
@@ -3242,7 +3258,7 @@ The password is converted into a password hash that uses the password_hash hashi
 	  name: user1
 	  password: "{{ 'passwordsaresecret' | password_hash('sha512') }}"
 
-Perform a syntax check of create_users.yml using ansible-playbook --syntax-check, and include the --ask-vault-pass option to prompt for the vault password set on secret.yml:
+Perform a syntax check of `create_users.yml` using ansible-playbook `--syntax-check`, and include the `--ask-vault-pass` option to prompt for the vault password set on secret.yml:
 
 	$ ansible-playbook --syntax-check --ask-vault-pass create_users.yml
 
