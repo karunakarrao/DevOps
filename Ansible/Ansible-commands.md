@@ -521,9 +521,14 @@ Error Handling:
 --------------------------------------------------------------------
 There are list of directives avaiable in  ansible
 
- 	1. any_error_fatal
+Global Level:
+ 	
+  	1. any_error_fatal
   	2. max_fail_percentage
-   	3. ignore_errors
+
+Tasks Level:
+
+    	3. ignore_errors
     	4. failed_when
      	5. block/rescue/always
 
@@ -710,10 +715,42 @@ Handlers in Ansible are used to trigger actions in response to events during the
         - nginx
  ```       
 
+--------------------------------------------------------------------
+Ansible-role:  ansible-galaxy
+--------------------------------------------------------------------
+Ansible Roles provide a structured way to organize tasks, templates, files, and variables. roles can be reusable in other playbooks. This structure makes it easier to manage complex automation setups. ansible roles are installed/stored in `~/.ansible/roles` (or) `/etc/ansible/roles`. we can  download roles from ansible community which are already created by others using https://galaxy.ansible.com/ link.
+
+	$ ansible-galaxy role install robertdebock.httpd	--> this roles created by user robert to install httpd
+	$ ansible-galaxy list 					--> list roles installed using  https://galaxy.ansible.com/.
+ 	$ ansible-galaxy remove robertdebock.httpd		--> to delete the role 
+  
+ we can use this role in ansible playbooks using as below
+```
+---
+- name: install httpd						# ansible-galaxy
+  hosts: all
+  roles:
+    - robertdebock.httpd
+```
+
+we can create custom roles using ansible galaxy as below, we can upload this  roles to the community. if your are using custom roles, we need to create a directory `roles` in same location where you are running your  main playbook.
+ 
+	$ ansible-galaxy init my-role-httpd	--> create a role structure  to write  ansible plays
+
+	tasks/: 	The main list of tasks that the role executes.
+	handlers/: 	Handlers, which may be used within or outside this role.
+	library/: 	Modules, which may be used within this role.
+	defaults/: 	Default variables for the role. These variables have the lowest priority of any variables available and can be easily overridden by any other variable, including inventory variables.
+	vars/: 		Other variables for the role.
+	files/: 	static files used by role tasks
+	templates/: 	Contains Jinja2 templates referenced by role tasks
+	meta/: 		Includes author, license, platforms, optional dependencies
 
 --------------------------------------------------------------------
 Ansible-vault: 
 --------------------------------------------------------------------
+Ansible vault is used to encrypt the sensitive  files, and they can be used in  the playbooks. this way we can protect sensitive information.
+
 	$ ansible-vault create secret.yml					--> to create a new secure file	
 	$ ansible-vault create secret.yml --vault-password-file=./password.txt 	--> to create a secure file using a password.txt file which contain password
 
@@ -727,10 +764,35 @@ Passw0rd
 	$ ansible-vault view 	secret.yml	--> to view the encrypted file
 	$ ansible-vault rekey 	secret.yml	--> to change the password 
 	
-	$ ansible-vault decrypt super-secret.yml --output=super-secret-decrypted.yml
-	$ ansible-vault encrypt super-secret-decrypted.yml --output=super-secret-encrypted.yml
+	$ ansible-vault decrypt super-secret.yml --output=super-secret-decrypted.yml		--> decrypt to a new output file
+	$ ansible-vault encrypt super-secret-decrypted.yml --output=super-secret-encrypted.yml	--> encrypt to a new output file
+ 
+secret.yml
+---------------------------------
+newusers:
+  - name: ansibleuser1
+    pw: redhat
+  - name: ansibleuser2
+    pw: Re4H1T
+---------------------------------
 
-vars_files: module
-------------------
+main.yaml
+------------------------------
+```
+---
+- name: create user accounts for all our servers	`			# ansible-vault
+  hosts: lb
+  become: True
+  remote_user: devops
+  vars_files:
+    - secret.yml
+  tasks:
+    - name: Creating users from secret.yml
+      user:
+        name: "{{ item.name }}"
+        password: "{{ item.pw | password_hash('sha512') }}"
+      with_items: "{{ newusers }}"
 
+```
+------------------------------
 
