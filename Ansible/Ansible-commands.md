@@ -532,7 +532,7 @@ Tasks Level:
     	4. failed_when
      	5. block/rescue/always
 
-# Stop the playbook on all servers, if any once task failed on the play on any of the servers.
+Stop the playbook on all servers, if any once task failed on the play on any of the servers.
 ```
 ---
 - name: install                 			#  any_error_fatal
@@ -542,7 +542,7 @@ Tasks Level:
 ```
 
 --------------------------------------------------
-# if more than 30% servers are failed then quit the play 
+if more than 30% servers are failed then quit the play 
 ```
 ---
 - name: install                 			# max_fail_percentage
@@ -552,7 +552,7 @@ Tasks Level:
  ```
  
 ---------------------------------------------------
-# To ignore errors for a task we can use this `ignore_errors`, so the task is igonred if fail/pass.
+To ignore errors for a task we can use this `ignore_errors`, so the task is igonred if fail/pass.
 ```
 ---
 - name: install                 			#   ignore_errors
@@ -568,7 +568,7 @@ Tasks Level:
 ```
   
 ---------------------------------------------------
-# if errors found in the server log, we can make the playbook fail. 
+if errors found in the server log, we can make the playbook fail. 
 ```
 ---
 - name: install						# failed_when
@@ -581,7 +581,7 @@ Tasks Level:
 ```
 
 -----------------------------------------------------
-# incase failure in the block it will trigger the rescue section. 
+incase failure in the block it will trigger the rescue section. 
 ```
 ---
 - name: install & service				# block/resuce/always
@@ -605,7 +605,7 @@ Tasks Level:
 ```
 -------------------------------------------------
 
-# how to use blocks and Handling the errors.
+how to use blocks and Handling the errors.
 ```
 ---
 - name: install						# block/resuce/always
