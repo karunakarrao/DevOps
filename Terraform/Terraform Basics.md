@@ -357,7 +357,8 @@ Q.Terraform variables are defined in mutiple ways. the variable presidence is li
 	1. -var or –var-file (command-line flags) 
  	2. `*.auto.tfvars` (alphabetical order)
   	3. terraform.tfvars 
-	4. Environment Variables 
+	4. Environment Variables (TF_VAR_*)
+ 	5. Default variables (variables.tf)
  
 Q. Install Terraform ?
 ----------------------------
@@ -408,6 +409,10 @@ This is the Default behaviour for the terraform to destroy the object, and creat
 Lifecycle Rules:
 ---------------------------------------------------------------------------------------------------------------
 To change the terraform default behaviour of "destroying the resource first then creating the resource". this can be changes using Lifecycle Rules.
+
+	1. create_before_destroy
+ 	2. prevent_destroy
+  	3. ignore_changes
 
 main.tf
 ------------------------------------------------------------
