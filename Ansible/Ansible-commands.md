@@ -3,7 +3,7 @@ Ansible installtion & Configuration files :
 -----------------------------------------------------------------------------
 	/etc/ansible/ansible.cfg 				--> main ansible configuration file
 	/etc/ansible/hosts  	 				--> default host inventory file
-	/usr/bin/ansible	 				--> ansible binaries are available here
+	/usr/bin/ansible	 				--> ansible binaries are available 
 	/usr/lib/python2.7/site-packages/ansible/modulescd  	--> ansible modules are available here
 	/etc/ansible/facts.d/custom.fact			--> for defining the custom facts
 ------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ user:
 	$ ansible all -m command -a "id -a devops" 		--> to check user "devops" details.
 
 ----------------------------------------------------
-authorized_key:
+authorized_keys:
 ----------------------------------------------
 	$ cat ~/.ssh/id_rsa.pub
 
