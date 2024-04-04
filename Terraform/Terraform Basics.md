@@ -983,24 +983,24 @@ resource "aws_instance" "webserver" {
   
 }
 
-# this section will use the public key to connect with ec2-machine create above "key_name"
+# Mapping local public key to access EC2 instance
 resource "aws_key_pair" "webserver" {
   key_name = "webserver-key"
   public_key = file("C:\\Users\\karun\\.ssh\\id_rsa.pub")
 }
 
-
-
 ```
--------------------------------------------------------------------------------------------
-Provisioners Behaviour:
--------------------------------------------------------------------------------------------
-in the above example we run the provisioners during the creation time. if we want to run the provisioners during the ec2 instance destring time we can use with when condition. 
+
 ```
 provisioner "local-exec" {
     command = "echo Instance ${aws_instance.webserver.public_ip} created > /tmp/aws_instance_ip.txt"
   }
 ```
+-------------------------------------------------------------------------------------------
+Provisioners Behaviour:
+-------------------------------------------------------------------------------------------
+in the above example we run the provisioners during the creation time. if we want to run the provisioners during the ec2 instance destring time we can use with when condition. 
+
 ```
 provisioner "local-exec" {
     when  = destroy
