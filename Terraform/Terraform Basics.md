@@ -456,7 +456,21 @@ data "local_file" "dogs" {		# this is used to load the data from an external res
 	filename = /root/dogs.txt
 }
 ```
+example
+---------------------------------------
+```
+variable "vpc_id" {}
 
+data "aws_vpc" "selected" {
+  id = var.vpc_id
+}
+
+resource "aws_subnet" "example" {
+  vpc_id            = data.aws_vpc.selected.id
+  availability_zone = "us-west-2a"
+  cidr_block        = cidrsubnet(data.aws_vpc.selected.cidr_block, 4, 1)
+}
+```
 ---------------------------------------------------------------------------------------------------------------
 Meta arguments: 
 ---------------------------------------------------------------------------------------------------------------
@@ -467,18 +481,15 @@ meta arguments can be used any block that will change the behaviour of any resou
    	3. count	--> to create same resouces for mutipule times
     	4. for_each	--> similer to loop
 
-variables.tf
----------------------------------------------
 ```
 variable "filename" {
 	default	= [ "/root/pet.txt", "/root/dogs.txt", "/root/fox.txt", "/root/elephant.txt ]
 }
 ```
-main.tf
----------------------------------------------
+
 ```
 resource "local_file" "pets" {
-	filename = var.filename[count.index]		# use count 
+	filename = var.filename[count.index]						# count 
 	count 	= 3
 }
 ```
@@ -487,13 +498,11 @@ count:
 ---------------------------------------------------------------------------------------------
 ```
 resource "local_file" "pets"{
-	filename = var.filename[count.index]
+	filename = var.filename[count.index]						# length
 	count   =  length(var.filename)
 }
 ```
 
-variables.tf
-----------------------------------------------------------
 ```
 variable "users" {
     type = list(string)
@@ -506,25 +515,26 @@ variable "content" {
 ---------------------------------------------------------------------------------------------
 for_each:
 ---------------------------------------------------------------------------------------------
-main.tf
-------------------------------------------------------------
+
 ```
 variable "users" {
     type = list(string)
     default = [ "/root/user10", "/root/user11", "/root/user12", "/root/user10"]
 }
 ```
+
 ```
-resource "local_sensitive_file" "sensitive-file" {
+resource "local_sensitive_file" "sensitive-file" {					# for_each
     filename = each.value			# for_each
     content = var.content
     for_each = toset(var.users)
 }
 ```
+
 ---------------------------------------------------------------------------------------------
 element:
 ---------------------------------------------------------------------------------------------
-Terraform provides a function `element` is used  for accessing elements from a list or tuple based on their index. This function takes a list (or tuple) and an index as arguments and returns the element at the specified index in the list.
+Terraform provides a function `element` is used  for accessing single elements from a `list` or `tuple` based on their index. This function takes a list (or tuple) and an index as arguments and returns the element at the specified index in the list.
 
 ```
 variable "example_list" {
@@ -532,7 +542,21 @@ variable "example_list" {
   default = ["a", "b", "c", "d", "e"]
 }
 output "third_element" {
-  value = element(var.example_list, 2)  	# Returns "c"
+  value = element(var.example_list, 2)  						# element
+}
+```
+
+---------------------------------------------------------------------------------------------
+for
+---------------------------------------------------------------------------------------------
+```
+variable "my_list" {
+  type    = list
+  default = ["apple", "banana", "orange", "grape"]
+}
+
+output "all_fruits" {
+  value = [for fruit in var.my_list : fruit]						# for
 }
 ```
 
@@ -1081,9 +1105,9 @@ $ terraform state list
 -------------------------------------------------------------------------------------------------------------------------
 Terraform Modules:
 -------------------------------------------------------------------------------------------------------------------------
-Terraform modules are used to reuse the code, this will imporve the reusability of the code. 
+Terraform modules are like predefined templates, that are used to create resources. with modules you can reuse the code, this will imporve the reusability of the code. terraform provides defult modules like "Ansible Galaxy Roles" that we  can be use. We can also create custome modules to use over own modules. 
 
-main.tf
+Default module (create IAM user)
 ---------------------------------
 #creating and iam using the predefined modules provided by the terraform. create use `max`
 ```
@@ -1097,14 +1121,49 @@ module "iam_iam-user" {
 }
 ```
 
+Custome Module (create EC2 instance )
+--------------------------------------
+creating custom  module structure, with list of files as below. 
 
-Lab-1. How to Deploy a Docker image on Windows machine using terraform?
-------------------------------------------------------------------------
-A. deploying a docker image using terraform, we need to first set prerequisites.
-1. Download DockerDesktop and install using https://docs.docker.com/desktop/windows/install/
-2. make sure the DockerDesktop is up and running. otherwise the system will not able to find the docker daemon.
-3. create folder 'terraform-docker' and change into it
-4. create file `main.tf` and copy the below content to it.
+	my_ec2_module/
+	├── main.tf
+	├── variables.tf
+	├── outputs.tf (optional)
+
+```
+variable "instance_type" { }
+variable "ami_id" { }
+variable "subnet_id" { }
+
+resource "aws_instance" "ec2_instance" {
+  ami           = var.ami_id
+  instance_type = var.instance_type
+  subnet_id     = var.subnet_id
+}
+output "instance_id" {
+  value       = aws_instance.ec2_instance.id
+}
+```
+
+using the above module to create an EC2 instance
+```
+module "my_ec2_instance" {
+  source      = "./my_ec2_module/"
+  instance_type = "t2.micro"
+  ami_id       = "ami-12345678"
+  subnet_id    = "subnet-12345678"
+}
+```
+
+---------------------------------------------------------------------------------------------
+Docker  : Lab-1. How to Deploy a Docker image on Windows machine using terraform?
+---------------------------------------------------------------------------------------------
+deploying a docker image using terraform, we need to first set prerequisites.
+
+	1. Download DockerDesktop and install using https://docs.docker.com/desktop/windows/install/
+	2. make sure the DockerDesktop is up and running. otherwise the system will not able to find the docker daemon.
+	3. create folder 'terraform-docker' and change into it
+	4. create file `main.tf` and copy the below content to it.
 ------------------------------------------------------------- 
 ```
 # required providers Terraform will use to provision your infrastructure.
@@ -1117,15 +1176,14 @@ terraform {
     }
   }
 }
-
-# A provider is a plugin that Terraform uses to create and manage your resources.
-
 provider "docker" {
   host    = "npipe:////.//pipe//docker_engine"
 }
+```
 
-# Use resource blocks to define components of your infrastructure. A resource might be a physical or virtual component. Resource blocks have two strings before the block: the resource type and the resource name. In this example, the first resource type is docker_image and the name is nginx. 
+creating Docker resouces as below. 
 
+```
 resource "docker_image" "nginx" {
   name         = "nginx:latest"
   keep_locally = false
@@ -1146,7 +1204,7 @@ resource "docker_container" "nginx" {
 6. to check the docker container run `C:\> docker ps`, you will see 1 container running with name **tutorial**
 7. you can access the deployed container using http://localhost:8000 
 
-### Observations: During the setup
+Observations: During the setup
 -----------------------------------
 * after executing `C:\> terrafrom init` it create a folder structure inside directory as **`.terraform`** and one file **`.terraform.lock.hcl`**
 * in .terraform folder provider plug-ins are downloaded depends on the code written in main.tf file.
@@ -1406,10 +1464,65 @@ Functions
 ---------------------------------------------------------------------------------------------------------
 useful functions when writing the code.
 
-	1. upper
- 	2. lower
-  	3. distinct
+	1. upper	--> The upper function converts a string to uppercase.
+ 	2. lower	--> The lower function converts a string to lowercase.
+  	3. distinct  	--> The distinct function returns a list with duplicate values removed.
+   	4. length	--> The length function returns the number of elements in a list or map.
 
+upper:
+----------
+to convert a string to upper case
+```
+locals {
+  input_string = "hello"
+  uppercase_string = upper(local.input_string)
+}
+
+output "result" {
+  value = local.uppercase_string
+}
+```
+
+lower:
+------------
+```
+locals {
+  input_string = "WORLD"
+  lowercase_string = lower(local.input_string)
+}
+
+output "result" {
+  value = local.lowercase_string
+}
+```
+
+distinct:
+-------------
+The distinct function returns a list with out duplicate values.
+```
+locals {
+  input_list = ["a", "b", "c", "a", "b"]
+  distinct_list = distinct(local.input_list)
+}
+
+output "result" {
+  value = local.distinct_list
+}
+```
+
+Length:
+------------
+The length function returns the number of elements in a list or map.
+```
+locals {
+  input_list = ["a", "b", "c"]
+  list_length = length(local.input_list)
+}
+
+output "result" {
+  value = local.list_length
+}
+```
 
 -----------------------------------------------------------------------------------------------------------
 local_file: Templates
