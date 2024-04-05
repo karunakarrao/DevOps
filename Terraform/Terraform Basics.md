@@ -1572,3 +1572,46 @@ resource "aws_security_group" "dynamic_sg" {
   }
 }
 ```
+
+-----------------------------------------------------------------------------------------------------------------
+null_resource
+-----------------------------------------------------------------------------------------------------------------
+In Terraform, `null_resource` is a resource provided by Terraform itself that allows you to create a resource block without actually creating a infrastructure object. It's often used as a way to trigger certain "actions or provisioners" without creating a tangible resource in the infrastructure.
+
+	1. provisioning actions
+ 	2. Deployment management
+  	3. control flow
+
+```
+resource "null_resource" "hello_world" {
+  provisioner "local-exec" {
+    command = "echo Hello, World!"
+  }
+}
+
+```
+
+```
+resource "aws_instance" "example" {
+  count         = 3
+  ami           = "ami-0c55b159cbfafe1f0"
+  instance_type = "t2.micro"
+}
+
+resource "null_resource" "post_configuration" {
+  depends_on = [aws_instance.example]
+
+  provisioner "local-exec" {
+    command = "echo Post-configuration script executed! && sleep 5 && echo Script completed"
+  }
+}
+```
+
+
+
+
+
+
+
+
+
