@@ -13,7 +13,7 @@ k8s roles change according to your certification and responsibilities.
 there are other tools avaiable in the market, but k8s is the widly used one. other tools like
 
     1. OpenShift
-    2. DockerSwam 
+    2. DockerSwarm 
     3. Azure AKS
     4. AWS EKS
 
@@ -25,13 +25,11 @@ k8s installtion can be done is different ways depeding on the requirement.
     2. kubeadm 	--> for commertial purpose setup, or production grade setup require kubeadm.
     3. kops 	--> A command-line utility specifically for creating, managing, and upgrading Kubernetes clusters on AWS.
     4. Kubespray  --> A set of Ansible scripts used for deploying production-ready Kubernetes clusters.
-    5. Rancher	--> An open-source platform that includes its Kubernetes distribution and management interface. Rancher makes it easier to deploy and manage Kubernetes clusters across different environments.
+    5. Rancher	--> An open-source platform. Rancher makes it easier to deploy and manage Kubernetes clusters across different environments.
     6. Kind (Kubernetes in Docker) --> Allows you to run a Kubernetes cluster on your local machine using Docker containers as nodes. It's primarily used for testing and development workflows.
-
-    
     7. AWS - EKS --> Amazon Elastic Kubernetes Service (EKS) is a managed Kubernetes service provided by Amazon Web Services (AWS). 
-    8. Google Cloud (GKE) --> Google Kubernetes Engine (GKE) is Google Cloud Platform's (GCP) managed Kubernetes service that simplifies the deployment, management, and scaling of containerized applications using Kubernetes.
-    9. Azure (AKS) --> Azure Kubernetes Service (AKS) is Microsoft Azure's managed Kubernetes service offering that simplifies deploying, managing, and scaling containerized applications using Kubernetes on the Azure cloud platform.
+    8. Google Cloud (GKE) --> Google Kubernetes Engine (GKE) is (GCP) managed Kubernetes service that simplifies the deployment, management, and scaling of containerized applications using Kubernetes.
+    9. Azure (AKS) --> Azure Kubernetes Service (AKS) is Azure's managed k8s service offering that simplifies deploying, managing, and scaling containerized applications using Kubernetes on the Azure cloud platform.
 
 Kubernetes-architecture:
 -----------------------------------------------------------------
@@ -39,12 +37,13 @@ Kuberenetes architecture build on master & salve model. In K8S there are several
 
     Master-Node components: Kuber API-Server, ETCD, kube-Controller, kube-Scheduler, Container-runtime, kubelet(agent), kubeproxy(agent)
     Worker-Node Components: Container-Runtime(Docker), kubelet(agent), kubeproxy(agent)
+    
 
 K8s -Install:
 -----------------------------------------------------------------
 All configurations of K8s are stored in the below loaction.
 
- 	1. kubectl, kubeadm, kubelet, kube-proxy are available in /usr/bin (or) /usr/local/bin
+ 	1. kubectl, kubeadm, kubelet, kube-proxy are available in (or) /usr/local/bin
 	2. Configuration files for Kubernetes, such as kubeconfig files (which specify cluster details, authentication, and more), are commonly located in the user's home directory under ~/.kube/.
  	3. Kubernetes Configuration Directory: configuration files specific to Kubernetes are reside in /etc/kubernetes, /etc/kubernetes/manifests
   	4. Kubelet Data: Data associated with kubelet (like certificates, logs, and other runtime information) can be found in directories like (/var/lib/kubelet/).
@@ -55,7 +54,12 @@ All configurations of K8s are stored in the below loaction.
 		2. Controller-manager logs: 	--> $ journalctl -u kube-controller-manager
 		3. Scheduler logs: 		--> $ journalctl -u kube-scheduler
 
-  	     /etc/systemd/system/      --> all service files are avaiable here
+  	     	/etc/systemd/system/      	--> all service files are avaiable here
+		/etc/kubernetes			--> k8s installtion directory
+  		/etc/kubernetes/pki		--> k8s certificates store
+  		/etc/kubernetes/manifest	--> K8s manifest files (etcd.yaml,  kube-apiserver.yaml,  kube-controller-manager.yaml,  kube-scheduler.yaml)
+    		/var/lib/kubelet		--> k8s object are maintianed here like (pods, containers, logs, volumes)
+      		/var/log/pods			--> pods log information is recorded. 
 
 1). kube-API-server: 
 -----------------------------------------------------------------
@@ -82,9 +86,9 @@ we must specify the certificate path location. the location of certificates are 
     
 3). kube-Controller:
 -----------------------------------------------------------------
-kubernetes controller is a manager which controlls various k8s objects. controller is process which continuosly monitors various components of k8s inside the controller. it is a brain to k8s cluster. it has various controllers inside to monitor different k8s objects. like node controller, deployment controller, namespace controller, job controller, replication controller, and etc.
+kubernetes controller is a manager which controlls various k8s objects. controller is process which continuosly monitors various components of k8s inside the cluster. it is a brain to k8s cluster. it has various controllers inside to monitor different k8s objects. like node controller, deployment controller, namespace controller, job controller, replication controller, and etc.
 
-Controller check the heart beat of the nodes, if the node heart beat(40sec) is not receive availabe then it mark that node as unreachable. similerly there are other controllers avaible in the controller manager.
+Controller check the heart beat of the nodes, if the node heart beat(40sec) is not receive availabe then it mark that node as unreachable. similerly there are other controllers available in the controller manager.
        
        1. Node controller 	--> checks the node status and their avialability and the reach in the cluster
        2. Replication controller --> it will check the replicas defined are avaiable or not, if not will create the new pod
@@ -102,14 +106,14 @@ Controller check the heart beat of the nodes, if the node heart beat(40sec) is n
    
 4). kube-scheduler:
 -----------------------------------------------------------------
-kube-scheduler will deside which pod goes where, mean the scheduler will deside where to create the pod on which node, depends on the criteria. it will send the instructions to the kubelet on that node agent. scheduler just gives the instructions to the kubelet. kubelet is responsible to create the POD on that node.
+kube-scheduler will deside which pod goes where, mean the scheduler will deside where to create the pod on which node, depends on the criteria. it will send the instructions to the `kubelet` agent on that node. scheduler just gives the instructions to the `kubelet`. `kubelet` is responsible to create the POD on that node.
 
     $ cat /etc/kubernetes/manifests/kube-scheduler.yaml
     $ ps -aux |grep kube-scheduler  --> process check 
     
 5). kubelet: 
 -----------------------------------------------------------------
-kubelet is a agent running on all cluster nodes in kubernetes. which is installed on all the worker-nodes and master-nodes. if we install kubernetes using kubeadm, it will not install kubelet in the nodes, we manually install the kubelet in the nodes. kubelet is in general defined as daemonset in k8s cluster. 
+`kubelet` is a agent running on all k8s cluster nodes. which is installed on all the `worker-nodes` and `master-nodes`. if we install kubernetes using `kubeadm`, it will not install kubelet in the nodes, we manually install the kubelet in the nodes. kubelet is in general defined as daemonset in k8s cluster. 
 
     download the installer and extract it as a servcie kubelet.service.d in path /etc/systemd/system/
     
@@ -117,11 +121,11 @@ kubelet is a agent running on all cluster nodes in kubernetes. which is installe
     
 6). kubeproxy:
 -----------------------------------------------------------------
-The `kube-proxy` is a network proxy service running on each node in a Kubernetes cluster. It's responsible for implementing Kubernetes networking concepts and managing network communication to facilitate connectivity between different pods and services within the cluster. `kube-proxy` also performs health checks on backend pods within Services to ensure that traffic is routed only to healthy pods capable of serving requests. For Services of type LoadBalancer, kube-proxy facilitates load balancing across multiple pods by distributing incoming traffic to the appropriate backend pods that comprise the Service.
+The `kube-proxy` is a network proxy service running on each node in a Kubernetes cluster. It's responsible for implementing Kubernetes networking concepts and managing network communication to facilitate connectivity between different pods and services within the cluster. `kube-proxy` also performs health checks on backend pods within Services to ensure that traffic is routed only to healthy pods capable of serving requests. For Services of type `LoadBalancer`, `kube-proxy` facilitates load balancing across multiple pods by distributing incoming traffic to the appropriate backend pods that comprise the Service.
 
-kubeproxy is an agent with in the kubernetes cluster, every pod reaches every pod. this can achived with POD networking. POD network is an internal network that spans accross all the nodes in the cluster to which all th pods in the cluster. 
+`kubeproxy` is an agent with in the kubernetes cluster, every pod reaches every pod. this can be achived with POD networking. POD network is an internal network that spans accross all the nodes in the cluster to which all the pods in the cluster. 
 
-kubeproxy is a process runs on each node in k8s cluster. its job is to look for new services. and everytime a new service is created, kubelet creates appropriate rule on each node to forward the trafic to those services to the backend pods. it does with ip table rules. kube-proxy run as daemonset in the k8s cluster.
+kubeproxy is a process runs on each node in k8s cluster. its job is to look for new services. and everytime a new service is created, `kubelet` creates appropriate rule on each node to forward the trafic to those services to the backend pods. it does with `ip table` rules. `kube-proxy` run as daemonset in the k8s cluster.
 
     kube-proxy.service
     
@@ -136,9 +140,9 @@ Kubernetes Objects: `explain`
 -----------------------------------------------------------------
 kubernetes resources are called as kubernetes objects. which are used to setup the kubernetes for application deployment.
 
-	$ kubectl api-resources 	--> to list all kubernetes objects 
-	$ kubectl api-resources --namespaced=true --> k8s objects which are created inside namespace
-	$ kubectl api-resources --namespaced=false --> k8s objects which are not created inside namespace
+	$ kubectl api-resources 			--> to list all kubernetes objects 
+	$ kubectl api-resources --namespaced=true 	--> k8s objects which are created inside namespace
+	$ kubectl api-resources --namespaced=false 	--> k8s objects which are not created inside namespace
 
   | Objects Created in-side NameSpace 	| Objects Created Out-Side NameSpace 	|
   | ------------------------------------|---------------------------------------|
@@ -150,7 +154,7 @@ kubernetes resources are called as kubernetes objects. which are used to setup t
 	4. Deployment		 --> to deploy the application using deployment..
 	5. Service 		 --> to expose the deployed services to the external network need to create services. 
 	6. Daemonsets		 --> this pods created one for each cluster node. means one pod on one physical server.
-	7. Namespace		 --> k8s cluster have mutiple namespaces, we devide namespaces as a working are for dev/uat/prod.
+	7. Namespace		 --> k8s cluster have mutiple namespaces, we devide namespaces as a working are for DEV/UAT/PROD.
 	8. bindings
 	9. configmaps                  
 	10. endpoints                   
@@ -262,12 +266,19 @@ Note: In the above POD creation, we added the resources section to avoild the re
 -------------------------------------------------------------------------------------------
 NameSpace:
 -------------------------------------------------------------------------------------------
-K8s uses Namespaces to provides a mechanism for isolating groups of resources within a single cluster. we can create namespaces for each environment like Dev, Test, Prod. This will help in differentiate the objects of each env. object Names should be unique within a namespace, but not across namespaces. By default we see 4 namespaces in K8S cluster. 
+K8s uses `Namespaces` to provides a mechanism for isolating groups of resources within a single cluster. we can create namespaces for each environment like Dev, Test, Prod. This will help in differentiate the objects of each env. object Names should be unique within a namespace, but not across namespaces. 
+
+	By default we see 4 namespaces in K8S cluster. 
+
+ 	kube-system
+  	kube-public
+   	kube-node-lease
+    	default
 	
-   1. **kube-system** 	-->  Kubernetes system components that are essential for the functioning of the Kubernetes cluster. K8s object like etcd, api-server,controller, kube-scheduler, kubelet and etc are  created in this namespace. 
-   2. **default** 	--> Default namespace for users to use. It's a common place for deploying applications and services 
-   3. **kube-public** 	-->  Intended for resources that should be made accessible publicly throughout the cluster. It's often used for resources that should be readable by all users.
-   4. **kube-node-lease** --> This namespace contains node lease objects, which are used to determine the availability of nodes in the cluster.`kubelet` to send heartbeats so that the **Master-Node** can detect node failures.
+kube-system 	--> Kubernetes system components that are essential for the functioning of k8s. object like etcd, api-server,controller, kube-scheduler, kubelet and etc are created in this namespace. 
+default 	--> Default namespace for users to use. It's a common place for deploying applications and services 
+kube-public 	--> Intended for resources that should be made accessible publicly throughout the cluster. It's often used for resources that should be readable by all users.
+kube-node-lease --> This namespace contains node lease objects, which are used to determine the availability of nodes in the cluster.`kubelet` to send heartbeats so that the **Master-Node** can detect node failures.
 
 	$ kubectl api-resources --namespaced=true	--> resources which are created inside namespace
 	$ kubectl api-resources --namespaced=false	--> resources which are created outside namespace
