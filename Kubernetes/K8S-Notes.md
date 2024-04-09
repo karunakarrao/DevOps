@@ -597,9 +597,9 @@ In Kubernetes, a Service is a method for exposing an application services runnin
 
     Publishing Services K8s services to external network is exposed in 3 ways 
     
-        1). Cluster-IP (Default) --> Service only reachable within the cluster
-        2). NodePort --> Exposes the Service on each Node's static port. port range 30000 - 32767
-        3). LoadBalancer --> Exposes the Service externally using a cloud provider's load balancer.
+        1). Cluster-IP (Default) 	--> Service only reachable within the cluster
+        2). NodePort 			--> Exposes the Service on each Node's static port. port range 30000 - 32767
+        3). LoadBalancer 		--> Exposes the Service externally using a cloud provider's load balancer.
 
  	$ kubectl create service nodeport my-service --node-port 31200 --tcp 5432:80 		--> Nodeport service creation
   	 
@@ -1168,6 +1168,7 @@ If you specify multiple "nodeSelectorTerms" associated with nodeAffinity types, 
 
 pod-affinity.yaml
 -----------------------------------------------------
+```
 apiVersion: v1
 kind: Pod
 metadata:
@@ -1196,6 +1197,7 @@ spec:
   containers:
     - name: nginx
       image: nginx
+```
 ------------------------------------------------------
 
 Scenario-3: matchExpressions
@@ -1268,6 +1270,7 @@ Inter-pod affinity and anti-affinity allow you to constrain which nodes your pod
 Note: Inter-pod affinity and anti-affinity require substantial amount of processing which can slow down scheduling in large clusters significantly. We do not recommend using them in clusters larger than several hundred nodes.
 
 ------------------------------------------------------------------
+```
 apiVersion: v1
 kind: Pod
 metadata:
@@ -1297,6 +1300,7 @@ spec:
   containers:
   - name: with-pod-affinity
     image: k8s.gcr.io/pause:2.0
+```
 -----------------------------------------------------------------
 
 -----------------------------------------------------------------------------------
@@ -1598,7 +1602,7 @@ Logging:
 ---------------------------------------------------------------------------------------------------
 to view the Live logs of the pod use -f option, we can view the logs during the execution.
 
-        $ kubectl logs -f <pod-name> 	--> if we have only one pod in a definition file. this methord will work.
+        $ kubectl logs -f <pod-name> 			--> if we have only one pod in a definition file. this methord will work.
         $ kubectl logs -f <pod-name> <container-name> 	--> if multiple containers are available in the pod.
 
 ------------------------------------------------------------------------------------------------------
@@ -1630,7 +1634,7 @@ spec:
   containers:
   - name: command-demo-container
     image: debian
-    command: ["printenv"]		# Docker ENTRYPOINT is override with command in k8s
+    command: ["printenv"]			# Docker ENTRYPOINT is override with command in k8s
     args: ["HOSTNAME", "KUBERNETES_PORT"]	# docker CMD will override with args in k8s
   restartPolicy: OnFailure
 
@@ -2136,46 +2140,45 @@ kubenetes Cluster upgrade strategies:
 --------------------------------------------
 kube-apiserver is the primary component that communicate with others resources, so the versions should folow as follows. k8s supports only the latest 3 versions. if we upgrade from v1.10 to v1.13, the recommunded aproch is to upgrade 1 by 1 higher versions. means we need to upgrade frist from v1.10 to v1.11 then v1.11 to v1.12 then v1.12 to v1.13.
 
-
-Software 		Versions supports
------------------------------------------------
-kube-apiserver		v1.10
-control-manager		v1.9 | v1.10
-kube-scheduler		v1.9 | v1.10
-kubelet			v1.8 | v1.9 | v1.10
-kubeproxy		v1.8 | v1.9 | v1.10
-kubectl			v1.9 | v1.10| v1.11
-ETCD cluster
-core DNS
+	Software 		Versions supports
+	-----------------------------------------------
+	kube-apiserver		v1.10
+	control-manager		v1.9 | v1.10
+	kube-scheduler		v1.9 | v1.10
+	kubelet			v1.8 | v1.9 | v1.10
+	kubeproxy		v1.8 | v1.9 | v1.10
+	kubectl			v1.9 | v1.10| v1.11
+	ETCD cluster
+	core DNS
 
 Kubernetes cluster upgrade using `kubeadm` as production setup
 ----------------------------------------------------------------
 upgrade can be done in 2 steps, 1st upgrade master node, then upgrade the worker nodes. the master going to doen't effect the running application running in workernode, but the k8s services are not accessable as we bringdown the k8s api-server & schedulesrs. 
 
-strategy-1: bring down all with downtime, and bringup all post upgrade. 
-strategy-2: bringing down 1 by 1 and bringing up parallel, it doesn't require downtime
-strategy-3: adding new nodes to the cluster with new softwares and move the objects to new node and decomission the old one.
+	strategy-1: bring down all with downtime, and bringup all post upgrade. 
+	strategy-2: bringing down 1 by 1 and bringing up parallel, it doesn't require downtime
+	strategy-3: adding new nodes to the cluster with new softwares and move the objects to new node and decomission the old one.
 
 kubeadm - upgrade
 ------------------------------
 kubeadm will upgarde the k8s componets, but we must upgrade manually for kubelet as kubeadm will not do that.
 
-$ kubeadm upgrade plan
-$ kubeadm version
+	$ kubeadm upgrade plan
+	$ kubeadm version
 
 Note: first we need to upgrade `kubeadm`, 
 
-$ kubectl drain controlplane
-$ sudo apt-get upgrade -y kubeadm=1.12.0-00 --> upgrade the `kubeadm`
-$ kubeadm upgrade plan
-$ kubeadm upgrade apply v1.12.0	
-$ kubeadm get nodes 
+	$ kubectl drain controlplane
+	$ sudo apt-get upgrade -y kubeadm=1.12.0-00 --> upgrade the `kubeadm`
+	$ kubeadm upgrade plan
+	$ kubeadm upgrade apply v1.12.0	
+	$ kubeadm get nodes 
 
 still teh versions details are not reflected as `kubelet` is still not upgraded.
 
-$ sudo apt-get upgrade -y kubelet=1.12.0-00
-$ systemctl restart kubelet
-$ kubectl get nodes --> there you can see the master node got upgraded. 
+	$ sudo apt-get upgrade -y kubelet=1.12.0-00
+	$ systemctl restart kubelet
+	$ kubectl get nodes 			--> there you can see the master node got upgraded. 
 
 Upgrading the K8s cluster using `kubeadm`: Ubuntu 
 ----------------------------------------------------
@@ -2221,26 +2224,32 @@ step-4: Upgrade worker nodes
 to upgrade the worker node it should done 1 worker node at a time. ssh to the worker node and run the commands in node01 host.
 
 upgrade `kubeadm` in worker node
+
 	$ apt-mark unhold kubeadm && \
 	  apt-get update && apt-get install -y kubeadm=1.26.0-00 && \
 	  apt-mark hold kubeadm
 
-upgrade the `kubelet` configuration	
+upgrade the `kubelet` configuration
+
 	$ sudo kubeadm upgrade node
 
 drain the worker node node01
+
 	$ kubectl drain node01 --ignore-daemonsets
 
 upgrade `kubelet` and `kubectl` commands
+
 	$ apt-mark unhold kubelet kubectl && \
 	  apt-get update && apt-get install -y kubelet=1.26.0-00 kubectl=1.26.0-00 && \
 	  apt-mark hold kubelet kubectl
 	
 restart the `kubelet` services	
+
 	$ sudo systemctl daemon-reload
 	$ sudo systemctl restart kubelet
 	
 uncordon the worker node, so it start scheduing the new nodes
+
 	$ kubectl uncordon node01
 	
 	$ kubeadm token list	
@@ -2265,14 +2274,17 @@ while configuring the ETCD, we have defined the data storage location as `--data
 	$ ETCDCTL_API=3 etcdctl snapshot status snapshot.db
 	
 to restore the backup, first need to stop the kube-api-server 
+
 	$ service kube-apiserver stop 
 	$ ETCDCTL_API=3 etcdctl snapshot restore --data-dir /var/lib/etcd-from-backup/snapshot.db
 	
 edit the etcd.service file with new `--data-dir` path and restart the service
+
 	$ systemctl daemon-reload
 	$ service etcd restarted
 	
 Note: every time you use the etcd command we have pass the server.crt, ca.crt, key file and access url, then only it will work. 
+
 	$ ETCDCTL_API=3 etcdctl snapshot save snapshot.db \
 	  --endpoints=https://10.1.64.10:2379 \
 	  --cert=/etc/kubernetes/pki/etcd/server.crt \
@@ -2286,12 +2298,12 @@ working with ETCDCTL:
 
 This can be done as follows: $ export ETCDCTL_API=3	
 
-$ etcdctl snapshot save -h --> and keep a note of the mandatory global options.Since our ETCD database is TLS-Enabled, the following options are mandatory:
+	$ etcdctl snapshot save -h 		--> and keep a note of the mandatory global options.Since our ETCD database is TLS-Enabled, the following options are mandatory:
 
-–cacert                verify certificates of TLS-enabled secure servers using this CA bundle
-–cert                    identify secure client using this TLS certificate file
-–endpoints=[127.0.0.1:2379] This is the default as ETCD is running on master node and exposed on localhost 2379.
-–key                  identify secure client using this TLS key file
+	–cacert               	 	verify certificates of TLS-enabled secure servers using this CA bundle
+	–cert                    	identify secure client using this TLS certificate file
+	–endpoints=[127.0.0.1:2379] 	This is the default as ETCD is running on master node and exposed on localhost 2379.
+	–key                  		identify secure client using this TLS key file
 
 Example: Backup and restore:
 ----------------------------
@@ -2354,6 +2366,7 @@ the kubeconfig file resides on $HOME/.kube/config. this file will tell you which
 Authorization: --authorization-mode=Node,RBAC,Webhook
 -----------------------------------------------------------------------------------
 there are various types
+
 	1. Node 
 	2. ABAC (Atribute based authorization )
 	3. RBAC
@@ -2528,12 +2541,15 @@ spec:
 	  type: Directory
 ```
 ---------------------------------------
+```
   volumes:
   - name: data-volume
   	awsElasticBlockStore:
 		volumeID: volume-id
 		fsType: ext4
+```
 --------------------------------------
+```
 apiVersion: v1
 kind: Pod
 metadata:
@@ -2556,7 +2572,7 @@ spec:
       path: /var/log/webapp
       # this field is optional
       type: Directory
-	  
+```	  
 -----------------------------------------------------------------------------------------------------------------
 PersistantVolumes:
 -----------------------------------------------------------------------------------------------------------------
@@ -2578,7 +2594,7 @@ spec:
    fsType: ext4  
 ```
 ---------------------------------------------------------
----
+```
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -2590,9 +2606,9 @@ spec:
     storage: 100Mi
   hostPath:
     path: /pv/log
-	
+```	
 --------------------------------------------------------
----
+```
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -2603,14 +2619,15 @@ spec:
   resources:
     requests:
 	  storage: 50Mi
-	  
+```	  
 ------------------------
-  
-  
+ 
+  	$ kubectl create -f pv-definition.yaml
 
-$ kubectl create -f pv-definition.yaml
-
-A PersistentVolumeClaim (PVC): is a request for storage by a user. It is similar to a Pod. Pods consume node resources and PVCs consume PV resources. Pods can request specific levels of resources (CPU and Memory). Claims can request specific size and access modes (e.g., they can be mounted ReadWriteOnce, ReadOnlyMany or ReadWriteMany,
+-------------------------------------------------------------------
+PersistentVolumeClaim (PVC):
+-------------------------------------------------------------------
+is a request for storage by a user. It is similar to a Pod. Pods consume node resources and PVCs consume PV resources. Pods can request specific levels of resources (CPU and Memory). Claims can request specific size and access modes (e.g., they can be mounted ReadWriteOnce, ReadOnlyMany or ReadWriteMany,
 
 ------------------------------------
 ```
@@ -2648,7 +2665,7 @@ spec:
         claimName: myclaim
 ```
 ----------------------------------------
----
+```
 apiVersion: v1
 kind: Pod
 metadata:
@@ -2665,7 +2682,7 @@ spec:
   volumes:
   - persistentVolumeClaim:
       claimName: local-pvc
-      
+ ```     
 ------------------------------------------
 
 
