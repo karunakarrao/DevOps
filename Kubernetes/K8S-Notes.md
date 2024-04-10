@@ -1,4 +1,5 @@
 
+
 Kubernetes: Overview
 -----------------------------------------------------------------
 Kubernetes is an **Open-Source** and container orchestration system for automate software deployment, scale, descale, auto-scale, deploy, replicate, loadbalance, failover. its originally developed by Google.  which is used widely in containerization platfroms. it has widely spread global community support. now it maintained by **Cloud Native Computing Foundation**.
@@ -21,15 +22,15 @@ Kubernetes installtion:
 -----------------------------------------------------------------
 k8s installtion can be done is different ways depeding on the requirement.
 
-    1. minikube	--> for testing, training or local setup we can use it.
-    2. kubeadm 	--> for commertial purpose setup, or production grade setup require kubeadm.
-    3. kops 	--> A command-line utility specifically for creating, managing, and upgrading Kubernetes clusters on AWS.
-    4. Kubespray  --> A set of Ansible scripts used for deploying production-ready Kubernetes clusters.
-    5. Rancher	--> An open-source platform. Rancher makes it easier to deploy and manage Kubernetes clusters across different environments.
+    1. minikube		--> for testing, training or local setup we can use it.
+    2. kubeadm 		--> for commertial purpose setup, or production grade setup require kubeadm.
+    3. kops 		--> A command-line utility specifically for creating, managing, and upgrading Kubernetes clusters on AWS.
+    4. Kubespray  	--> A set of Ansible scripts used for deploying production-ready Kubernetes clusters.
+    5. Rancher		--> An open-source platform. Rancher makes it easier to deploy and manage Kubernetes clusters across different environments.
     6. Kind (Kubernetes in Docker) --> Allows you to run a Kubernetes cluster on your local machine using Docker containers as nodes. It's primarily used for testing and development workflows.
-    7. AWS - EKS --> Amazon Elastic Kubernetes Service (EKS) is a managed Kubernetes service provided by Amazon Web Services (AWS). 
-    8. Google Cloud (GKE) --> Google Kubernetes Engine (GKE) is (GCP) managed Kubernetes service that simplifies the deployment, management, and scaling of containerized applications using Kubernetes.
-    9. Azure (AKS) --> Azure Kubernetes Service (AKS) is Azure's managed k8s service offering that simplifies deploying, managing, and scaling containerized applications using Kubernetes on the Azure cloud platform.
+    7. AWS - EKS 	--> Amazon Elastic Kubernetes Service (EKS) is a managed Kubernetes service provided by Amazon Web Services (AWS). 
+    8. Google (GKE) 	--> Google Kubernetes Engine (GKE) is (GCP) managed Kubernetes service that simplifies the deployment, management, and scaling of containerized applications using Kubernetes.
+    9. Azure (AKS) 	--> Azure Kubernetes Service (AKS) is Azure's managed k8s service offering deploying, managing, and scaling containerized applications using Kubernetes on the Azure cloud platform.
 
 Kubernetes-architecture:
 -----------------------------------------------------------------
@@ -65,9 +66,8 @@ All configurations of K8s are stored in the below loaction.
 -----------------------------------------------------------------
 Kubernetes API-Server is the front-end for K8s, this will allow users interact with their Kubernetes cluster using `kubectl` command. The API (application programming interface) server determines if a request is valid and then processes it. the API is the interface used to manage, create, and configure Kubernetes clusters.
     
-    $ cat /etc/kubernetes/manifests/kube-apiserver.yaml  
-    
-    $ ps -aux |grep kube-apiserver
+   	$ cat /etc/kubernetes/manifests/kube-apiserver.yaml  
+	$ ps -aux |grep kube-apiserver
 
 2). ETCD: 
 -----------------------------------------------------------------
@@ -75,7 +75,7 @@ ETCD will stores data in key/value format. it is a distributed reliable key valu
 
     $ cat /etc/kubernetes/manifests/etcd.yaml  
 
-we must specify the certificate path location. the location of certificates are available in /etc/kubernetes/pki
+we must specify the certificate path location. the location of certificates are available in `/etc/kubernetes/pki`
 
     $ /etc/kubernetes/pki/etcd \
     -cacert /etc/kubernetes/pki/etcd/ca.crt \
@@ -182,12 +182,12 @@ kubernetes resources are called as kubernetes objects. which are used to setup t
 
     $ kubectl version --> to check the kubernetes version
     
-    $ kubectl explain <k8s-Object-name> --> Documentation for resource object (Pod, Replicaset, Deployment, service, etc.)
-    $ kubectl explain pod 		--> Documentation for POD. to check apiVersion of k8s object.
-    $ kubectl explain replicaset/rs 	--> Documentation for Replicaset
+    $ kubectl explain <k8s-Object-name> 	--> Documentation for resource object (Pod, Replicaset, Deployment, service, etc.)
+    $ kubectl explain pod 			--> Documentation for POD. to check apiVersion of k8s object.
+    $ kubectl explain replicaset/rs 		--> Documentation for Replicaset
     $ kubectl explain replicationcontroller/rc 	--> doc. for RC
-    $ kubectl explain deployment/deploy --> doc for deployment
-    $ kubectl explain service/svc 	--> doc for service
+    $ kubectl explain deployment/deploy 	--> doc for deployment
+    $ kubectl explain service/svc 		--> doc for service
 
 Kubernetes objects are created in two types.
 
@@ -202,7 +202,7 @@ POD: (create, replace, delete, describe, explain, edit, run )
 -------------------------------------------------------------------------------------------
 pod is the smallest object in the k8s. the containers are run inside the Pod. In k8s each pod is represented as one host and each pod is allocated with one IP address. once the pod is destroyed, its containers & its ip is also removed. if new pod is created in place of old pod they will be allocated with new IP address which is allocated by the kubernetes. kubernetes pod are communicated with help of pod networking. its is an internal network with in the cluster.  
 
-Syntax: Imperative way
+Syntax: Imperative way 
 ------------------------
 kubectl run command is used only for pods. it used to create POD using command-line interface.
     
@@ -217,7 +217,6 @@ Syntax: Declarative way
 pod-def.yaml 
 -----------------------------------------------------------
 ```
-
 ---
 apiVersion: v1
 kind: Pod
@@ -237,31 +236,42 @@ spec:
         cpu: "500m"  	 	# Limit to 0.5 CPU cores
         memory: "256Mi"  	# Limit to 256 MiB memory
 ...
-
 ```
 -------------------------------------------------------------
 Note: In the above POD creation, we added the resources section to avoild the resouce starvation, this means By setting appropriate resource requests and limits, Kubernetes can efficiently manage resource allocation and prevent one application from consuming an excessive amount of resources, thereby avoiding starvation for other processes running in the cluster. Adjust these values based on your application's resource needs and cluster capacity.
 
-	   $ kubectl create -f pod-def.yaml  	--> create a pod using YAML file.
-	   $ kubectl replace -f pod-def.v2.yml  --> updating with new version
-	
-	   $ kubectl get pods        --> to list pods running on default namespace
-	   $ kubectl get pods -o wide   --> to list pods with aditional details
-	   $ kubectl get pods  -w    --> to watch the pod status on fly
-	   $ kubectl get all         --> to list all objects(Pod, Replicasets, Deploylments, services, etc.) running in default namespace
-	   
-	   $ kubectl get pods -n prod1-namespace 	--> to list PODs on namespace prod1-namespace. insted of -n we can use --namespace
-	   $ kubectl get all --namespace=kube-system    --> to list "kube-system" namespace objects, kubernetes object namespace
-	   
-	   $ kubectl get pods --show-labels 		--> show labels of all pods
-	   $ kubectl get pods --selector=env=prod 	--> selecting pods on selector 
-	   $ kubectl get pods -n kube-system --show-labels | grep k8s-app=kube-dns --> filter the pods from 100's of pods
-	
-	   
-	   $ kubectl describe pod my-pod    --> it will provide pod information
-	   $ kubectl edit pod my-pod        --> to edit the Pod on fly
-	   
-	   $ kubectl delete pod my-pod  --> to delete the pods
+create:
+---------------
+    	$ kubectl create -f pod-def.yaml  		--> create a pod using YAML file.
+	$ kubectl replace -f pod-def.v2.yml  		--> updating with new version
+get:
+---------------	
+	$ kubectl get pods        			--> to list pods running on "default" namespace
+	$ kubectl get pods -o wide   			--> to list pods with aditional details
+	$ kubectl get pods  -w    			--> to watch the pod status on fly
+	$ kubectl get all         			--> to list all objects (Pod, Replicasets, Deploylments, services, etc.) running in default namespace
+	$ kubectl get pods -n prod1-namespace 		--> to list PODs on namespace "prod1-namespace". insted of -n we can use --namespace
+	$ kubectl get all --namespace=kube-system    	--> to list "kube-system" namespace objects, kubernetes object namespace
+	$ kubectl get pods --show-labels 		--> show labels of all pods
+	$ kubectl get pods --selector=env=prod 		--> fillter pods using the labels
+ 
+    	$ kubectl get pods -n kube-system --show-labels | grep k8s-app=kube-dns --> filter the pods from 100's of pods
+
+describe:
+---------------
+	   $ kubectl describe pod my-pod   		--> it will provide pod information
+edit:
+---------------
+	   $ kubectl edit pod my-pod        		--> to edit the Pod on fly
+delete:
+---------------
+	   $ kubectl delete pod my-pod  		--> to delete the pods
+
+     	   	-o wide 		--> more details 
+     		-n 			--> namespace 
+       		-w			--> watch PODs 
+	 	--show-labels		--> labels of PODs
+   		--selector		--> filter the POD using labels
    
 -------------------------------------------------------------------------------------------
 NameSpace:
@@ -270,15 +280,15 @@ K8s uses `Namespaces` to provides a mechanism for isolating groups of resources 
 
 	By default we see 4 namespaces in K8S cluster. 
 
- 	kube-system
-  	kube-public
-   	kube-node-lease
-    	default
+	 	1. kube-system
+	  	2. kube-public
+	   	3. kube-node-lease
+	    	4. default
 	
 kube-system 	--> Kubernetes system components that are essential for the functioning of k8s. object like etcd, api-server,controller, kube-scheduler, kubelet and etc are created in this namespace. 
 default 	--> Default namespace for users to use. It's a common place for deploying applications and services 
 kube-public 	--> Intended for resources that should be made accessible publicly throughout the cluster. It's often used for resources that should be readable by all users.
-kube-node-lease --> This namespace contains node lease objects, which are used to determine the availability of nodes in the cluster.`kubelet` to send heartbeats so that the **Master-Node** can detect node failures.
+kube-node-lease --> This namespace contains node lease objects, which are used to determine the availability of nodes in the cluster. `kubelet` to send heartbeats so that the **Master-Node** can detect node failures.
 
 	$ kubectl api-resources --namespaced=true	--> resources which are created inside namespace
 	$ kubectl api-resources --namespaced=false	--> resources which are created outside namespace
@@ -294,7 +304,7 @@ kube-node-lease --> This namespace contains node lease objects, which are used t
 -------------------------------------------------------------------------------------------
 ReplicationController: (create, replace, delete, describe, explain, edit, apply )
 -------------------------------------------------------------------------------------------
-A ReplicationController ensures that a number of pod replicas are running. `ReplicationController` is similer to ReplicaSet. but Replicaset is the next-generation for ReplicationController that supports the new set-based label "selector". It's mainly used by Deployment as a mechanism to orchestrate pod creation, deletion and updates. 
+A `ReplicationController` ensures that a number of pod replicas are running. `ReplicationController` is similer to `ReplicaSet`. but `Replicaset` is the next-generation for `ReplicationController` that supports the new set-based label `selector`. It's mainly used by Deployment as a mechanism to orchestrate pod creation, deletion and updates. 
 
 Note:  that we recommend using Deployments instead of directly using ReplicaSets, unless you require custom update orchestration or don't require updates at all.
 
@@ -336,11 +346,11 @@ spec:
 	$ kubectl describe rc my-rc1
 	$ kubectl edit rc my-rc1
 	$ kubectl replace -f replicationcontroller-definiton.v2.yaml
-
+	
 -------------------------------------------------------------------------------------------
 Replicaset: (create, replace, delete, describe, explain, edit, apply, scale, autoscale )
 -------------------------------------------------------------------------------------------
-A ReplicaSet's purpose is to maintain a set of replicas of Pods running at any given time. `ReplicationController` and `ReplicaSet` are used for similer functionality. ReplicationController is older version, ReplicaSet is the newer version. In deployment k8s uses replicasets to replicate the pods. 
+A `ReplicaSet` purpose is to maintain a set of replicas of Pods running at any given time. `ReplicationController` and `ReplicaSet` are used for similer functionality. ReplicationController is older version, ReplicaSet is the newer version. In deployment k8s uses replicasets to replicate the pods. 
 
 Note: ReplicaSet can own a non-homogenous set of Pods. it means if the `matchLabels` is condition is met with other pods the pods get destroyed by this replicaset controller to maintain the desired count. so careful while defining the labels. 
 
@@ -379,57 +389,79 @@ spec:
 ```
 -----------------------------------------------------------------------------------
 
-        $ kubectl create -f replicaset.v1.yaml --dry-run=client --> to run the YAML file with out applying the changes
-        $ kubectl create -f replicaset.v1.yaml   --> create replicaset
+        $ kubectl create -f replicaset.v1.yaml --dry-run=client 	--> to run the YAML file with out applying the changes
+        $ kubectl create -f replicaset.v1.yaml   			--> create replicaset
 
-        $ kubectl get replicaset    --> list replicasets
-	$ kubectl get rs    --> list replicasets 
+        $ kubectl get replicaset    			--> list replicasets
+	$ kubectl get rs    				--> list replicasets 
 
-        $ kubectl describe replicaset my-rs         --> describe replicaset properties
-        $ kubectl replace -f replicaset.v2.yaml     --> replace the new app version with latest version
-        $ kubectl scale replicaset my-rs --replicas=10  --> scale up number of replicas 
-        $ kubectl scale -f replicaset.yaml --replicas=10    --> scale up number of replicas using replicaset definition file
-        $ kubectl scale -f replicaset.yaml --replicas=2     --> scale down number of replicas
+        $ kubectl describe replicaset my-rs         	--> describe replicaset properties
+        $ kubectl replace -f replicaset.v2.yaml     	--> replace the new app version with latest version
+        $ kubectl scale replicaset my-rs --replicas=10  		--> scale up number of replicas 
+        $ kubectl scale -f replicaset.yaml --replicas=10    		--> scale up number of replicas using replicaset definition file
+        $ kubectl scale -f replicaset.yaml --replicas=2     		--> scale down number of replicas
        
-        $ kubectl edit replicaset my-rs   --> edit the replicaset properties using the 
-        $ kubectl explain replicaset|grep -i version
+        $ kubectl edit replicaset my-rs   			--> edit the replicaset properties using the 
+        $ kubectl explain replicaset|grep -i version		
        
-        $ kubectl delete replicaset my-rs   --> to delete replicaset my-rs
+        $ kubectl delete replicaset my-rs   			--> to delete replicaset my-rs
 
-        $ kubectl autoscale rs frontend --max=10 --min=3 --cpu-percent=50 --> to autoscale replicas to desired 
+        $ kubectl autoscale rs frontend --max=10 --min=3 --cpu-percent=50 	--> to autoscale replicas to desired 
 
 ReplicaSet as a Horizontal Pod Autoscaler:(HPA)
 ------------------------------------------------
 A ReplicaSet can also be a target for **Horizontal Pod Autoscalers** (HPA). That is, a ReplicaSet can be auto-scaled by an HPA.
 
-**HPA:** (Horizontal Pod scaling)
--------------------------------
-In Kubernetes, a HorizontalPodAutoscaler automatically updates a workload resource (such as a Deployment or StatefulSet), with the aim of automatically scaling the workload to match demand. Horizontal scaling means that the response to increased load is to deploy more Pods. Horizontal pod autoscaling does not apply to objects that can't be scaled (for example: a DaemonSet.). 
+**HPA:** (Horizontal Pod Autoscaling)
+------------------------------------------------
+The Horizontal Pod Autoscaler automatically scales the number of pod replicas in a deployment, replication controller, or replica set based on observed CPU utilization or custom metrics. For example, if the CPU usage of existing pods exceeds a certain threshold, HPA will automatically add more pods to distribute the load. Horizontal pod autoscaling does not apply to objects that can't be scaled (for example: a DaemonSet.). 
 
 **VPA:** (Vertical Pod scaling)
--------------------------------
-This is different from **vertical scaling**, which for Kubernetes would mean assigning more resources (for example: memory or CPU) to the Pods that are already running for the workload
+------------------------------------------------
+The Vertical Pod Autoscaler automatically adjusts the CPU and memory resource requests for a pod based on its usage patterns. For instance, if a pod is consistently using more CPU or memory than initially requested, VPA can dynamically increase the resource requests for that pod to ensure it has enough resources to operate efficiently.
 
-hpa-rs.yaml
------------------------------------
+HPA.yaml
+-------------------------------------------------
 ```
-apiVersion: autoscaling/v1
+apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: frontend-scaler
+  name: my-app-hpa
 spec:
   scaleTargetRef:
-    kind: ReplicaSet
-    name: frontend
-  minReplicas: 3
+    apiVersion: apps/v1
+    kind: Deployment
+    name: my-app			# HPA applying for Deployment "my-app"
+  minReplicas: 1
   maxReplicas: 10
-  targetCPUUtilizationPercentage: 50
-  
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
+
 ```
-----------------------------------
+-------------------------------------------------
 
-Note: autoscaling can be done using the command `autoscale` or as shown above we can use the hpa-rs.yaml 
+Note: autoscaling can be done using the command `autoscale` or as shown above we can use the hpa-rs.yaml
 
+VPA.yml
+---------------------------------------
+```
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: my-app-vpa
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind:       "Deployment"
+    name:       "my-app"
+  updatePolicy:
+    updateMode: "Auto"
+```
 
 ---------------------------------------------------------------------------------------------------------------
 Deployment: (create, replace, delete, describe, explain, edit, apply, scale, autoscale, rollout, set, expose )
@@ -485,13 +517,13 @@ spec:
 ```
 ------------------------------------------------------------------------------------------------------
 
-    $ kubectl create -f deployment-definition.yaml --dry-run=client --> to trial run the YAML file, if will not apply any changes
-    $ kubectl create -f deployment-definition.yaml  --> to exicute the YAML file.
+    $ kubectl create -f deployment-definition.yaml --dry-run=client 	--> to trial run the YAML file, if will not apply any changes
+    $ kubectl create -f deployment-definition.yaml  			--> to exicute the YAML file.
     
     $ kubectl apply -f deployment-definition.yaml   --> to create/update using YAML files
     
-    $ kubectl get deployment    --> to check deployments available
-    $ kubectl get deploy 	--> to check deployments available
+    $ kubectl get deployment    		--> to check deployments available
+    $ kubectl get deploy 			--> to check deployments available
     $ kubectl get deployment my-deply       	--> to check one deployment my-deploy
     $ kubectl get deployment --namespace=dev    --> to check the deploymets running on namespace "dev"
     
@@ -501,12 +533,11 @@ spec:
 
 deployment rollout is done in two ways 
 
-    1. RollingUpdate (Default) --> it will bringdown one by one depends on RollingUpdateStrategy defined. 
-    2. Recreate --> will bringdown all pods at a time, and brinup all 
+    1. RollingUpdate (Default) 	--> it will bringdown one by one depends on RollingUpdateStrategy defined. 
+    2. Recreate 		--> will bringdown all pods at a time, and brinup all 
     
 -------------------------
 ```
-...
 ...
 spec: 
   replicas: 5
@@ -517,24 +548,25 @@ spec:
       maxUnavailable: 25%
   selector:
   template:
-  ....
+
+....
 ```
 --------------------------
     
 Note: "Pod-template-hash" Do not change this label. This label ensures that child ReplicaSets of a Deployment do not overlap.
 
-    $ kubectl apply -f deployment-definition.v2.yaml    	--> to update the latest version of application.
-    $ kubectl replace -f deployment-definition.v2.yaml  	--> update new version(nginx to nginx:1.16.2) using YAML and replace running deployment.
+    $ kubectl apply -f deployment-definition.v2.yaml    		--> to update the latest version of application.
+    $ kubectl replace -f deployment-definition.v2.yaml  		--> update new version(nginx to nginx:1.16.2) using YAML and replace running deployment.
     $ kubectl replace --force -f deployment-definition.v2.yaml  	--> bring down the existing deployment forcefully and creates the new one.
     
     $ kubectl set image deployment my-deploy nginx=nginx:1.16.1 	--> to set the new nginx image on the running deployment use <image name>=<image>
 
-    $ kubectl rollout history deployment my-deploy  	--> history of the number of deployments
-    $ kubectl rollout status deployment my-deploy   	--> deployment status can be checked. 
-    $ kubectl rollout restart deployment my-deploy  	--> to restart the resources. 
-    $ kubectl rollout undo deployment my-deploy     	--> if update is failed  then rollout the new-version to the old-verison 
-    $ kubectl rollout undo deployment/nginx-deployment --to-revision=2 		--> rollback to a specific revision with --to-revision
+    $ kubectl rollout history deployment my-deploy  		--> history of the number of deployments
+    $ kubectl rollout status deployment my-deploy   		--> deployment status can be checked. 
+    $ kubectl rollout restart deployment my-deploy  		--> to restart the resources. 
+    $ kubectl rollout undo deployment my-deploy     		--> if update is failed  then rollout the new-version to the old-verison 
     
+    $ kubectl rollout undo deployment/nginx-deployment --to-revision=2 		--> rollback to a specific revision with --to-revision
     $ kubectl annotate deployment my-deploy1 kubernetes.io/change-cause="image updated to 1.16.1" 	--> update rollout history 
     
 Note: we can see revision version details in the deployment description in annotations field.  By default, 10 old ReplicaSets will be kept, however its ideal value depends on the frequency and stability of new Deployments.
@@ -613,7 +645,7 @@ metadata:
 spec:
   type: NodePort   	#--> NodePort/ClusterIP/LoadBalancer
   selector:
-    app: MyApp      	#--> this is the MyApp Pod's label app=MyApp
+    app: MyApp      	./'/#--> this is the MyApp Pod's label app=MyApp
   ports:
     - name: http
       port: 80  		#--> service exposes on this port
