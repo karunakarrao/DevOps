@@ -304,7 +304,7 @@ Pausing a container is a Docker operation that temporarily stops all processes w
 you can't perform any operation during this time, the container running but it will be in paused state. 
 
 	$ docker pause my-nginx my-redis 	--> it will pause the container
-	$ docker unpause my-nginx my-redis 	-->it will unpause the containers
+	$ docker unpause my-nginx my-redis 	--> it will unpause the containers
 
 diff:
 ------------------------------
@@ -384,7 +384,7 @@ events:
 	$ docker system events --since 60m		--> system events recorded for 60m 
  	$ docker events --since 60m -f "label=env=DEV" 	--> filter the events using  labels. (-f =  --filter)
 
-system:	
+system:	 ok 
 -----------------------------
 
 	$ docker system df	--> docker objects created count and memeory usage
