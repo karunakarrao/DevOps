@@ -1702,9 +1702,9 @@ spec:
 ---------------------------------------------------
 
 -------------------------------------------------------------------------------------------------
-Q. ConfigMaps: How to create & Inject configMap in k8s ?
+ConfigMaps: 
 -------------------------------------------------------------------------------------------------
-A `ConfigMap` is an K8S object used to store **non-confidential** data in **key-value** pairs. Pods can consume ConfigMaps as environment variables, command-line arguments, or as configuration files in a volume. A ConfigMap is not designed to hold large chunks of data. The data stored in a ConfigMap cannot exceed 1MiB. If you need to store larger chunks of data, you may want to consider mounting a `volume` or use a separate database or file service.
+How to create & Inject configMap in k8s ? A `ConfigMap` is an K8S object used to store **non-confidential** data in **key-value** pairs. Pods can consume ConfigMaps as environment variables, command-line arguments, or as configuration files in a volume. A ConfigMap is not designed to hold large chunks of data. The data stored in a ConfigMap cannot exceed 1MiB. If you need to store larger chunks of data, you may want to consider mounting a `volume` or use a separate database or file service.
 
 Note: The spec of a static Pod cannot refer to a ConfigMap or any other API objects. The Pod and the ConfigMap must be in the same namespace.
 
