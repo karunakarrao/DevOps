@@ -194,7 +194,6 @@ usercase-3: Druing rebase conflicts  use the below options.
 	$ git rebase --edit-todo		--> edit rebase again
  	$ git rebase --continue			--> continue with rebase activity.
 
-	
 cherry-pick:
 -------------------------------------------
 if you don't want to apply all the commits just want to pick a specific commit. then use the cherry-pick
