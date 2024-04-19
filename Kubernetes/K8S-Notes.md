@@ -566,7 +566,7 @@ Note: "Pod-template-hash" Do not change this label. This label ensures that chil
     $ kubectl rollout restart deployment my-deploy  		--> to restart the resources. 
     $ kubectl rollout undo deployment my-deploy     		--> if update is failed  then rollout the new-version to the old-verison 
     
-    $ kubectl rollout undo deployment/nginx-deployment --to-revision=2 		--> rollback to a specific revision with --to-revision
+    $ kubectl rollout undo deployment/nginx-deployment --to-revision=2 					--> rollback to a specific revision with --to-revision
     $ kubectl annotate deployment my-deploy1 kubernetes.io/change-cause="image updated to 1.16.1" 	--> update rollout history 
     
 Note: we can see revision version details in the deployment description in annotations field.  By default, 10 old ReplicaSets will be kept, however its ideal value depends on the frequency and stability of new Deployments.
@@ -1144,7 +1144,7 @@ Note: daemonset and static pods are ignored by kube-scheduler
 -----------------------------------------------------------
 NodeAffinity:
 -----------------------------------------------------------------
-Node affinity is conceptually similar to nodeSelector. it allows you to constrain which nodes your pod is eligible to be scheduled on, based on labels on the node. You can use In, NotIn, Exists, DoesNotExist, Gt and Lt.
+Node affinity is conceptually similar to `nodeSelector`. it allows you to constrain which nodes your pod is eligible to be scheduled on, based on labels on the node. You can use In, NotIn, Exists, DoesNotExist, Gt and Lt.
 
 there are 2 types of nodeAffinity 
 
@@ -1251,7 +1251,7 @@ spec:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
         -   matchExpressions:
-            -   key: env
+            -   key: env 
                 operator: In/ NotIn/ Exists/ DoesNotExist/ Gt/ Lt
                 value:  #  the pod can be scheduled onto a node if one of the nodeSelectorTerms can be satisfied.
                 - prod1
@@ -1817,10 +1817,14 @@ spec:
   containers:
   - name: my-container
     image: my-image:latest
-  volumes:			# injecting the data file as a volume.
+    volumeMounts:
+    - name: app-volume
+      mountPath: /path/to/mount			#  where you would mount the volume inside your container.
+      readOnly: true  				# Optionally, specify if the volume should be read-only
+  volumes:
   - name: app-volume
     configMap:
-       name: my-config
+      name: my-config
 ```
 ----------------------------------------------
 	$ kubectl get configmaps 			--> to list the configmaps
@@ -1953,9 +1957,9 @@ resources:
 ```      
 ---------------------------------------------------------
 
-	$ head -c 32 /dev/urandom | base64 --> randam encryption and use it in config file.
+	$ head -c 32 /dev/urandom | base64 	--> randam encryption and use it in config file.
 	
-to effect the above changes, we need to edit the `kube-apiserver` manifest file availabe in (/etc/kubernetes/manifest/) pod definition file and update the `enc.yaml` (REST encryption file) in the  `--encryption-provider-config=/etc/kubernetes/enc/enc.yaml` and update the `valumeMounts` and `valumes` and restart the kube-apiserver as below. for more details refer this link.
+to effect the above changes, we need to edit the `kube-apiserver` manifest file availabe in `/etc/kubernetes/manifest/` pod definition file and update the `enc.yaml` (REST encryption file) in the  `--encryption-provider-config=/etc/kubernetes/enc/enc.yaml` and update the `valumeMounts` and `valumes` and restart the kube-apiserver as below. for more details refer this link.
 
 https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/
 
