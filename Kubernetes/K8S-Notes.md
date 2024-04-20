@@ -2174,7 +2174,7 @@ kubernetes API versions, software releases are of 3 parts. example: v1.11.3, v1(
 --------------------------------------------
 kubenetes Cluster upgrade strategies: 
 --------------------------------------------
-kube-apiserver is the primary component that communicate with others resources, so the versions should folow as follows. k8s supports only the latest 3 versions. if we upgrade from v1.10 to v1.13, the recommunded aproch is to upgrade 1 by 1 higher versions. means we need to upgrade frist from v1.10 to v1.11 then v1.11 to v1.12 then v1.12 to v1.13.
+kube-apiserver is the primary component that communicate with others resources, so the versions should folow as follows. k8s supports only the latest 3 versions. if we upgrade from v1.10 to v1.13, the recommunded approch is to upgrade 1 by 1 higher versions. means we need to upgrade frist from v1.10 to v1.11 then v1.11 to v1.12 then v1.12 to v1.13.
 
 	Software 		Versions supports
 	-----------------------------------------------
@@ -2189,7 +2189,7 @@ kube-apiserver is the primary component that communicate with others resources, 
 
 Kubernetes cluster upgrade using `kubeadm` as production setup
 ----------------------------------------------------------------
-upgrade can be done in 2 steps, 1st upgrade master node, then upgrade the worker nodes. the master going to doen't effect the running application running in workernode, but the k8s services are not accessable as we bringdown the k8s api-server & schedulesrs. 
+upgrade can be done in 2 steps, 1st upgrade master node, then upgrade the worker nodes. the master going down doen't effect the running application running in workernode, but the k8s services are not accessable as we bringdown the k8s api-server & schedulesrs. 
 
 	strategy-1: bring down all with downtime, and bringup all post upgrade. 
 	strategy-2: bringing down 1 by 1 and bringing up parallel, it doesn't require downtime
@@ -2197,7 +2197,7 @@ upgrade can be done in 2 steps, 1st upgrade master node, then upgrade the worker
 
 kubeadm - upgrade
 ------------------------------
-kubeadm will upgarde the k8s componets, but we must upgrade manually for kubelet as kubeadm will not do that.
+kubeadm will upgarde the k8s componets, but we must upgrade manually for `kubelet` as `kubeadm` will not do that.
 
 	$ kubeadm upgrade plan
 	$ kubeadm version
@@ -2302,6 +2302,7 @@ In k8s what components are required to take backups,
 	3. Persistant volumes.
 	
 saving the all resources and all objects in a cluster backup
+   
 	$ kubectl get all --all-namespaces -o yaml >all-deploy-service.yaml
 
 while configuring the ETCD, we have defined the data storage location as `--data-dir=/var/lib/etcd`. this need to take backup. using the below command. 	
@@ -2319,7 +2320,7 @@ edit the etcd.service file with new `--data-dir` path and restart the service
 	$ systemctl daemon-reload
 	$ service etcd restarted
 	
-Note: every time you use the etcd command we have pass the server.crt, ca.crt, key file and access url, then only it will work. 
+Note: every time you use the etcd command we have to pass the server.crt, ca.crt, key file and endpoint url, then only it will work. 
 
 	$ ETCDCTL_API=3 etcdctl snapshot save snapshot.db \
 	  --endpoints=https://10.1.64.10:2379 \
@@ -2330,8 +2331,8 @@ Note: every time you use the etcd command we have pass the server.crt, ca.crt, k
 ---------------------------------------------------------	  
 working with ETCDCTL:
 ---------------------------------------------------------
-`etcdctl` is a command line client for etcd. the ETCD key-value database is deployed as a static pod on the master. The version used is v3. To make use of etcdctl for tasks such as back up and restore, make sure that you set the ETCDCTL_API to 3. You can do this by exporting the variable ETCDCTL_API prior to using the etcdctl client. 
-
+`etcdctl` is a command line client for etcd. the ETCD key-value database is deployed as a static pod on the master. The version used is v3. To make use of `etcdctl` for tasks such as back up and restore, make sure that you set the ETCDCTL_API to 3. You can do this by exporting the variable `ETCDCTL_API` prior to using the etcdctl client. 
+ 
 This can be done as follows: $ export ETCDCTL_API=3	
 
 	$ etcdctl snapshot save -h 		--> and keep a note of the mandatory global options.Since our ETCD database is TLS-Enabled, the following options are mandatory:
@@ -2344,8 +2345,8 @@ This can be done as follows: $ export ETCDCTL_API=3
 Example: Backup and restore:
 ----------------------------
 	$ kubectl config
-	$ kubectl config get-clusters	--> list the clusters in k8s
-	$ kubectl config use-context cluster1 --> switch between clusters.
+	$ kubectl config get-clusters		--> list the clusters in k8s
+	$ kubectl config use-context cluster1 	--> switch between clusters.
 	$ kubectl get nodes
 	
 --------------------------------------------------------------------------------------
@@ -2408,7 +2409,7 @@ there are various types
 	3. RBAC
 	4. Webhooks
 
-RBAC: Role-based access control (RBAC) is a method of regulating access to computer or network resources based on the roles. To enable RBAC, start the API server with the --authorization-mode flag set to a comma-separated list that includes RBAC.
+RBAC: Role-based access control (RBAC) is a method of regulating access to computer or network resources based on the roles. To enable RBAC, start the API server with the `--authorization-mode` flag set to a comma-separated list that includes RBAC.
 
 Webhook: to outsource the authorization we use webhooks. the third-party tools like `Open-policy-agent`. 
 
@@ -2417,10 +2418,13 @@ RBAC: Role based access control
 ------------------------------------------------------------------------------------
 To create roles and assing the roles, we need to create role based YAML file. then binding the user to that role using role-binding YAML file. 
 
-how to create roles ?
+Roles & RoleBindings
+--------------------------
+Roles and RoleBindings: Roles and RoleBindings are limited to a particular namespace within a Kubernetes cluster. They define permissions within that namespace only.
+Usage: Roles are used to define a set of permissions (e.g., to access resources like Pods, Services) within a specific namespace. RoleBindings are used to bind these roles to users, groups, or service accounts within the same namespace.
 	
-	$ kubectl create role developer --resource pods --verb=list,create,delete	-->developer role created
-	$ kubectl create rolebinding dev-user-binding --user dev-user --role developer --> dev-user added to developer role
+	$ kubectl create role developer --resource pods --verb=list,create,delete		--> developer role is created
+	$ kubectl create rolebinding dev-user-binding --user dev-user --role developer 		--> dev-user added to developer role
 
 developer-role.yaml
 --------------------------------------
@@ -2468,12 +2472,11 @@ roleRef:
 Q: how to check what access i have?
 -------------------------------------------
 	$ kubectl auth con-i create deployments
-	$ 
 
 ----------------------------------------------------------------------------------------------
 Clusterrole & clusterrolebinding
 ----------------------------------------------------------------------------------------------
-clusterroles are the roles defined for the cluster level authorization. clusterrolebinding are the users who has access to cluster roles. 
+ClusterRoles and ClusterRoleBindings are applied cluster-wide. ClusterRoles are used to define a set of permissions that apply across the entire cluster (e.g., to access nodes, namespaces, PersistentVolumes). ClusterRoleBindings are used to bind these cluster-wide roles to users, groups, or service accounts across the entire cluster.
 
 	$ kubectl create clusterrole storage-admin --resource persistentvolumes --resource storageclasses --verb get,watch,list,create,delete
 	$ kubectl create clusterrolebinding michelle-storage-admin --clusterrole storage-admin --user michelle
@@ -2494,7 +2497,7 @@ service accounts are of 2 types,
 	$ kubectl get serviceaccount
 	$ kubectl descrbe serviceaccount account-1
 	$ kubectl create token dashboard-sa
-	$ kubectl describe secret token-name --> found in the account describe command
+	$ kubectl describe secret token-name 		--> found in the account describe command
 
 Note: while creating the service accounts a token must be created, this token is used for the extenal application authentication. this tokens are encrypted secrets. serviceaccount tokens can be used as voulme mounts, if the application is deployed on the k8s cluster. 
 
@@ -2513,7 +2516,7 @@ Network traffic flow in 2 ways.
 	2. egress traffic
 
 Ingress Traffic: if the traffic comming into the application is called ingress-traffic
-Egress Traffic: if the traffic going from the application is called egress-traffic.
+Egress Traffic: if the traffic going out  from the application is called egress-traffic.
 
 Network polices: in the k8s by default all the PODS comminicates to all the PODS in the POD network. This is not ideal for critical application. so we need to restric the pods traffic it should communitcate with. thats where this network-policies are used. 
 
@@ -2528,7 +2531,7 @@ spec:
 		matchLabels:
 			app: db-pod
 	policyTypes:
-	-Ingress
+	  - Ingress
 	ingress:
 	- from:
 	  - ipBlock: 
@@ -2546,9 +2549,9 @@ spec:
 --------------------------------
 Note: what we mention in `policyType` that trafic only restricted. rest are by default communicate with all pods in cluster. 
 
-Note: NetworkPolicies are implimented how we havee configured them. Solutions that support network policies like(Kube-router,calico,romana,Weave-net). Solutions that didnt'support networkpolicies(fa
+Note: NetworkPolicies are implimented how we have configured them. Solutions that support network policies like(Kube-router,calico,romana,Weave-net). Solutions that didnt'support networkpolicies(fa
 
-Note: if we try to take backup of the db pod into external server which isnot part of k8s cluster, then we use `ipBlock` to enable the trafic.
+Note: if we try to take backup of the db pod into external server which is not part of k8s cluster, then we use `ipBlock` to enable the trafic.
 
 ---------------------------------------------------------------------------------------------
 Volumes:
@@ -2809,7 +2812,7 @@ Networking Basics: Linux
 -------------------------------------------------------------------------------------------------------------------
 Q. What is Switching and Routing?
 
-Switching: A network is an interface to connect one or more systems together. to connect one are more systems locally we use switches. a switch will create a network to connect both systems/computers together. systems that are in same network can only reach each other and ping each other.  /etc/network/interfaces file for persist the changes. 
+Switching: A network is an interface to connect one or more systems together. to connect one are more systems locally we use switches. a switch will create a network to connect both systems/computers together. systems that are in same network can only reach each other and ping each other.  `/etc/network/interfaces` file for persist the changes. 
 
 	$ ip link
 	$ ip addr
@@ -2843,8 +2846,8 @@ example: if there are 3 systems A-->B-->C. A connect B & B connect C. if A want 
 	
 Note: by default packets sends to other network devices are disabled in the Linux so we need to enable it via /etc/sysctl.conf.
 
-	$ cat /proc/sys/net/ipv4/ip_forwarrd --> set to 1
-	$ /etc/sysct.conf --> net.ipv4.ip_forward=1
+	$ cat /proc/sys/net/ipv4/ip_forwarrd 	--> set to 1
+	$ /etc/sysct.conf 			--> net.ipv4.ip_forward=1
 
 --------------------------------------------------------------------------------------------
 DNS: Domain Name Server
