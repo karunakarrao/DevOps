@@ -25,7 +25,7 @@ git config --list --show-origin
 -----------------------------------------------------------------------
 remote:
 -----------------------------------------------------------------------
-git remote -v 	------------------------------------> to check github remote repo info
+git remote -v 	                                  --> to check github remote repo info
 git remote add origin GitHub_Rep_URL.git -----------> adding Remote-Repo to Local-Repo.
 git remote -d origin  ------------------------------> to delete the origin 
 git remote rename origin my_origin -----------------> to rename the "origin" name to "my_origin"
@@ -94,6 +94,8 @@ restore:
 rm test1
 git restore  test1 
 
+reset:
+--------------------------
 git reset --soft HEAD^ ----------> to revert the last commit done
 git reset --soft HEAD~2 ---------> revert the commits back to 2 commits
 
