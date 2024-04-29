@@ -216,7 +216,7 @@ Syntax: Declarative way
 
 pod-def.yaml 
 -----------------------------------------------------------
-```
+```yaml
 ---
 apiVersion: v1
 kind: Pod
