@@ -310,7 +310,7 @@ Note:  that we recommend using Deployments instead of directly using ReplicaSets
 
 rc-def.yaml
 ------------------------------------------------------------------------------------------------
-```
+```YML
 ---
 apiVersion: v1
 kind: ReplicationController
@@ -356,7 +356,7 @@ Note: ReplicaSet can own a non-homogenous set of Pods. it means if the `matchLab
 
 replicaset.v1.yaml
 -------------------------------------------------------------------------------------
-```
+```YML
 apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
@@ -422,7 +422,7 @@ The Vertical Pod Autoscaler automatically adjusts the CPU and memory resource re
 
 HPA.yaml
 -------------------------------------------------
-```
+```YML
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -449,7 +449,7 @@ Note: autoscaling can be done using the command `autoscale` or as shown above we
 
 VPA.yml
 ---------------------------------------
-```
+```YML
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
@@ -481,7 +481,7 @@ by default k8s deployment will use rolling-update as default strategy.
         
 deployment.yaml --> this deployment YAML file creates PODs, Replicasets, Deployment objects
 -------------------------------------------------------------------------------------------------------
-```
+```YML
 apiVersion: apps/v1
 kind: Deployment
 metadata: 
