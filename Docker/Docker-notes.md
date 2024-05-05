@@ -1,6 +1,6 @@
 Docker: Overview 
 --------------------
-Docker is a Containerization platform. It will provide an environment to run your containers with out having to worry about the underlying OS. Docker is avaiable for Linux and Windows OS. so you can run your containers on any of the platfarms. just install the Docker and deploy your containers.  Containerization will encapsulate or package softwares and all its dependencies, so that it can run uniformly and consistently on any infrastructure. 
+Docker is an opensource Containerization platform. It will provide an environment to run your containers with out having to worry about the underlying OS. Docker is avaiable for Linux and Windows OS. so you can run your containers on any of the platfarms. just install the Docker and deploy your containers.  Containerization will encapsulate or package softwares and all its dependencies, so that it can run uniformly and consistently on any infrastructure. 
 
 What is a Container?
 ----------------------
@@ -43,7 +43,7 @@ Docker installation on CentOS. When docker is installed, it create a dircectory 
 	$ docker-init		--> for initializing Docker containers. It helps set up the container environment before executing the main process.
 	$ docker-proxy		--> Docker Proxy is involved in networking for Docker containers. It handles the routing of network traffic to and from Docker containers.
 	$ dockerd		--> This is the Docker daemon binary. It is the background process that manages Docker containers on a system. 
-	
+	 
 Install: Docker
 ----------------
 Installing the docker on a Linux OS.
