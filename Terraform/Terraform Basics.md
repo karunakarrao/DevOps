@@ -159,7 +159,7 @@ variable "prefix" {
 Set
 ---------------
 ```
-variable "perfix" {
+variable "prefix" {
   default = ["Mr", "Mrs", "Sir"]		# set 
   type = set
 }
@@ -213,7 +213,7 @@ variables.tf
 -------------
 ```
 variable "ami" {
-  default = "ami-0edab43b6fa892279"
+  default = "ami-0edab43b6fa892279"				# default values set for variable.
 }
 variable "instance_type" {
   default = "t2.micro"
@@ -234,7 +234,7 @@ once you run the `$ terrform apply` command the system will promt for the values
 variables.tf
 -------------
 ```
-variable "ami" {}
+variable "ami" {}						# not set default values, provide during run time.
 variable "instance_type" {}
 ```
 main.tf
@@ -264,7 +264,7 @@ resource "aws_instance" "webserver" {
 }
 ```
 
-`$ terraform apply -var "ami=ami-0edab43b6fa892279" -var "instance_type=t2.micro"`
+`$ terraform apply -var "ami=ami-0edab43b6fa892279" -var "instance_type=t2.micro"`	
 
 Lab-4: setting as environment variables
 ------------------------------------------------------------------------------------------------
@@ -316,7 +316,7 @@ resource "local_file" "pet" {
 	filename = var.filename
 	content = "My favorite pet is Mr.Cat"
 	
-	depends_on = [ random_pet.my-pet ]	# resouce is dependent on the output of below resouce . 
+	depends_on = [ random_pet.my-pet ]		# resouce is dependent on the output of below resouce . 
 }
 resource "random_pet" "my-pet" {
 	prefix = var.prefix
@@ -443,8 +443,11 @@ lifecycle {
 ---------------------------------------------------------------------------------------------------------------
 Datasources: ( Data Resources)
 ---------------------------------------------------------------------------------------------------------------
-if you want to use the data-file from local/external filesystem into terraform, then we use the `data` block. this will allow you to load the data from an external file. datasources are not like `resource` blocks. they are used for read the data from a file. 
+Terraform data sources allow you to fetch information from external sources and use that data within your Terraform configurations. if you want to use the data-file from local/external source into terraform, then we use the `data` block. this will allow you to load the data from an external source. datasources are not like `resource` blocks. they are used for read the data.
 
+ 	1. Querying existing infrastructure: provisioned outside of Terraform that you want to manage. query information about these existing resources, such as their IDs or attributes.
+	2. Interacting with APIs: Interact with APIs of various services to retrieve information dynamically. For example, information about existing EC2 instances, VPCs, or IAM roles.
+ 
 main.tf
 ---------------------------------------
 ```
@@ -709,8 +712,9 @@ main.tf
 -------------------------------------------
 ```
 resource "aws_iam_policy" "adminUser" {
+
 	name = "AdminUsers"
-	policy =
+	policy = file("admin-policy.json")
 }
 ```
 ------------------------------------------------------------------------------------------
@@ -832,7 +836,7 @@ provider "aws" {
 ------------------------------------------------------------------------------
 Remote State file:
 ------------------------------------------------------------------------------
-Terraform state file maintain the realtime infrastructure in .tfstate file. this will allow us to track metadata while deleting resources, terraform will track its dependencies and delete in the required order. we can work with number of cloud providers that will imporove the performance. 
+Terraform state file maintain the realtime infrastructure in `.tfstate` file. this will allow us to track metadata while deleting resources, terraform will track its dependencies and delete in the required order. we can work with number of cloud providers that will imporove the performance. 
 
 It is not recommunded to maintain the statefile in the version controll systems, because of its sensitive data. terraform will maintain state locking this will prevent from others to apply changes, but in version controll system this is not posible. if in somecase the user didn't pull  the latest changes this will effect the  system to destory the infrstructure. 
 
@@ -1035,10 +1039,10 @@ In most cases the real infrastucture is already created. to use the resouce data
 
  	$ terrafrom import <resouce_type>.<resource_name> <attribute> 	-->   this will not import the resource block directly.
 
-step-1: create a configuration update in main.tf file with the resource details. 
+step-1: create a configuration update in `main.tf` file with the resource details. 
 step-2: run terraform import to import the resource details with terraform. then check `terraform state list`  you will find the details.
 
-----------------------------------------------------------------------------------------------
+
 Lab-1: Scenario-1: An AWS EC2 instance is already created using console, to bring the resource under terraform. first lets create a main.tf file with resouce details created using console. 
 ----------------------------------------------------------------------------------------------
 
@@ -1105,11 +1109,11 @@ $ terraform state list
 -------------------------------------------------------------------------------------------------------------------------
 Terraform Modules:
 -------------------------------------------------------------------------------------------------------------------------
-Terraform modules are like predefined templates, that are used to create resources. with modules you can reuse the code, this will imporve the reusability of the code. terraform provides defult modules like "Ansible Galaxy Roles" that we  can be use. We can also create custome modules to use over own modules. 
+Terraform modules are like predefined templates, that are used to create resources. with modules you can reuse the code, this will imporve the reusability of the code. terraform provides defult modules like "Ansible Galaxy Roles" that we use. We can also create custome modules. 
 
 Default module (create IAM user)
 ---------------------------------
-#creating and iam using the predefined modules provided by the terraform. create use `max`
+# creating and iam using the predefined modules provided by the terraform. create use `max`
 ```
 module "iam_iam-user" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-user"
@@ -1207,14 +1211,14 @@ resource "docker_container" "nginx" {
 Observations: During the setup
 -----------------------------------
 * after executing `C:\> terrafrom init` it create a folder structure inside directory as **`.terraform`** and one file **`.terraform.lock.hcl`**
-* in .terraform folder provider plug-ins are downloaded depends on the code written in main.tf file.
+* in `.terraform` folder provider plug-ins are downloaded depends on the code written in `main.tf` file.
 * running `C:\> terraform apply` this will apply the configurations defined in the .tf files are applied. this create a file **`terraform.tfstate`**.
 * **`terraform.tfstate`** file will maintain the history of your configuration changes, this way terraform will track the changes.
 
 Q. How to Remove Deployed configurations ?
 -------------------------------------------
 * this configuration changes can be rollback using `C:\> terraform destory` command
-* this will remove all the configurations from **terraform.tfstate file**. so that terraform will have track of it
+* this will remove all the configurations from **`terraform.tfstate`** file. so that terraform will have track of it
 
 Q. How to update terraform configuration file?
 -----------------------------------------------
@@ -1380,6 +1384,7 @@ provider "aws" {
   # secret_key = "T++LEiSPGv3MKfP452rKh7yMtEWZ2mCUCXkcVqKe"  
 }
 ```
+
 main.tf
 -------------------
 ```# create user Shiva
@@ -1534,7 +1539,7 @@ template.tpl
 ```
 [all]
 ansible_host=${web_public_ip} 
-ansible_user=${web_public_dns}
+ansible_dns=${web_public_dns}
 ```
 localfile.tf
 ------------------------------------
