@@ -137,8 +137,6 @@ TCP Socket: When Docker is configured to listen on a TCP socket, the default por
  	Unix Socket: this will only listens with in the same machine.
 	TCP Socket: this will enable you to communicate with remote machines.
 
-Note: In normal situations when the docker daemon crashed, it will takedown all the containers which are running. to avoid this behaviour we can configure the system. this methord is called as `LIVE RESTORE`. we just need to add one line in the docker configuration file (`/etc/docker/daemon.json`) as below and restart the docker service using `$ systemctl restart docker.service` command.
-
 ```
 {
 "debug": true,
@@ -146,6 +144,7 @@ Note: In normal situations when the docker daemon crashed, it will takedown all 
 "live-restore": true	# Live-restore 
 }
 ```
+Note: In normal situations when the docker daemon crashed, it will takedown all the containers which are running. to avoid this behaviour we can configure the system. this methord is called as `LIVE RESTORE`. we just need to add one line in the docker configuration file (`/etc/docker/daemon.json`) as below and restart the docker service using `$ systemctl restart docker.service` command.
 
 Version: 
 ---------------------------------
@@ -159,7 +158,7 @@ Process:
 	$ docker ps -a 		--> to see all containers (running/stopped/paused/created)
 	$ docker ps -q		--> shows only container-ID of running process
 	$ docker ps -s 		--> shows "Size" of a running container  
- 	$ docker ps -l 		--> latest container created
+ 	$ docker ps -l 		--> latest container created 
    
    	$ docker ps -f "label=env=DEV"	--> filter containers labelled as "DEV"
     	$ docker ps -f "label=env=PROD"	--> filter containers labelled ad "PROD"
@@ -172,7 +171,7 @@ An image registry is a centralized place where you can upload your images and ca
 	$ docker logout 			--> to logout docker repository
 	$ docker login gcr.io			--> to login to GCP repository
 	$ docker login docker.io 		--> to login to docker hub repository
- 	$ docker login nexus-registry-url 	--> to login to nexus private registry 
+ 	 	--> to login to nexus private registry 
 
 --------------------------------------------------------------------------------------------------------------------------
 Containers - ( run, create/start/stop, pause/unpause, rm/kill, logs, inspect, ports, cp, diff, events, exec, info, ps, stats, top)
