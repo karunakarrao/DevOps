@@ -482,7 +482,7 @@ meta arguments can be used any block that will change the behaviour of any resou
  	1. depends_on	--> 
   	2. lifecycle	--> to control the resouce  lifecycle
    	3. count	--> to create same resouces for mutipule times
-    	4. for_each	--> similer to loop
+    	4. for_each	--> similer to loop ( it should be a map / set )
 
 ```
 variable "filename" {
@@ -516,8 +516,8 @@ variable "content" {
 }
 ```
 ---------------------------------------------------------------------------------------------
-for_each:
----------------------------------------------------------------------------------------------
+for_each: 
+--------------------------------------------------------------------------------------------
 
 ```
 variable "users" {
@@ -527,8 +527,8 @@ variable "users" {
 ```
 
 ```
-resource "local_sensitive_file" "sensitive-file" {					# for_each
-    filename = each.value			# for_each
+resource "local_sensitive_file" "sensitive-file" {					
+    filename = each.value								# for_each
     content = var.content
     for_each = toset(var.users)
 }
