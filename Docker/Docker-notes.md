@@ -681,19 +681,19 @@ If we deploying fullscale application on docker, we need to use mutiple containe
 
 docker-compose file must be named like this `docker-compose.yml`, `docker-compose.yaml`, other wise docker-compose will not notice your configuration file. else you need to specify the `-f` flag to pass the compose file. 
 
- 	$ docker-compose up	--> Builds, (re)creates, starts, and attaches to containers.
-	$ docker-compose down	--> Stops and removes containers, networks, volumes, and images created by up.
-	$ docker-compose ps	--> Lists containers.
-	$ docker-compose logs	--> Displays log output from services.
-	$ docker-compose exec	--> Runs a command in a running service.
-	$ docker-compose build	--> Builds or rebuilds services.
-	$ docker-compose stop	--> Stops services.
-	$ docker-compose restart --> Restarts services.
-	$ docker-compose pull	--> Pulls images for services.
-	$ docker-compose up -d	--> Starts the services in the background.
+ 	$ docker-compose up		--> Builds, (re)creates, starts, and attaches to containers.
+	$ docker-compose down		--> Stops and removes containers, networks, volumes, and images created by up.
+	$ docker-compose ps		--> Lists containers.
+	$ docker-compose logs		--> Displays log output from services.
+	$ docker-compose exec		--> Runs a command in a running service.
+	$ docker-compose build		--> Builds or rebuilds services.
+	$ docker-compose stop		--> Stops services.
+	$ docker-compose restart 	--> Restarts services.
+	$ docker-compose pull		--> Pulls images for services.
+	$ docker-compose up -d 		--> Starts the services in the background.
 
- 	$ docker-compose -f my-compose.yaml up -d	--> to bringup the custom named docker-compose file
-   	$ docker-compose -f my-compose.yaml logs -f web	--> to view the logs like 'tail' command
+ 	$ docker-compose -f my-compose.yaml up -d		--> to bringup the custom named docker-compose file
+   	$ docker-compose -f my-compose.yaml logs -f web		--> to view the logs like 'tail' command
 
 there are 2 versions in docker-compose file, mention the version details in "" like "2" or "3". 
 
@@ -780,11 +780,11 @@ Q. how the Docker Image works?
 	
 Q. how the Docker container works ?
 ---------------------------------------------------------------------------------------------------------------------
-1). You execute "docker run hello-world" command where hello-world is the name of an image.
+1). You execute `docker run hello-world` command where `hello-world` is the name of an image.
 
 2). Docker client reaches out to the daemon, tells it to get the hello-world image and run a container from that.
 
-3). Docker daemon looks for the image within your local repository and realizes that it's not there, resulting in the Unable to find image 'hello-world:latest' locally that's printed on your terminal.
+3). Docker daemon looks for the image within your local repository and realizes that it's not there, resulting in the Unable to find image `hello-world:latest` locally that's printed on your terminal.
 
 4). The daemon then reaches out to the default public registry which is Docker Hub and pulls in the latest copy of the hello-world image, indicated by the latest: Pulling from library/hello-world line in your terminal.
 
@@ -908,7 +908,7 @@ real life, the majority of projects that you'll have to work with will have more
 
 Scenario:1
 ------------
-Now consider a scenario where you have a notes-api application powered by Express.js and a PostgreSQL database server running in two separate containers. These two containers are completely isolated from each other and are oblivious to each other's existence. So how do you connect the two? Won't that be a challenge? you connect them by putting them under a user-defined bridge network. 
+Now consider a scenario where you have a `notes-api` application powered by `Express.js` and a PostgreSQL database server running in two separate containers. These two containers are completely isolated from each other and are oblivious to each other's existence. So how do you connect the two? Won't that be a challenge? you connect them by putting them under a user-defined bridge network. 
 
 		$ docker network ls 	--> to list the docker networks 
 
