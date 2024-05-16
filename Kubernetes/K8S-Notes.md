@@ -285,7 +285,7 @@ K8s uses `Namespaces` to provides a mechanism for isolating groups of resources 
 	   	3. kube-node-lease
 	    	4. default
 	
-kube-system 	--> Kubernetes system components that are essential for the functioning of k8s. object like etcd, api-server,controller, kube-scheduler, kubelet and etc are created in this namespace. 
+kube-system 	--> Kubernetes system components that are essential for the functioning of k8s. object like etcd, api-server, controller, kube-scheduler, kubelet and etc are created in this namespace. 
 default 	--> Default namespace for users to use. It's a common place for deploying applications and services 
 kube-public 	--> Intended for resources that should be made accessible publicly throughout the cluster. It's often used for resources that should be readable by all users.
 kube-node-lease --> This namespace contains node lease objects, which are used to determine the availability of nodes in the cluster. `kubelet` to send heartbeats so that the **Master-Node** can detect node failures.
@@ -355,7 +355,7 @@ A `ReplicaSet` purpose is to maintain a set of replicas of Pods running at any g
 Note: ReplicaSet can own a non-homogenous set of Pods. it means if the `matchLabels` is condition is met with other pods the pods get destroyed by this replicaset controller to maintain the desired count. so careful while defining the labels. 
 
 replicaset.v1.yaml
--------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 ```YML
 apiVersion: apps/v1
 kind: ReplicaSet
