@@ -624,7 +624,6 @@ Q. How to check the deployment status and history of deployments?
 ---------------------------------------------------------------------------------
 Service: (create, replace, delete, describe, explain, edit, apply,
 ---------------------------------------------------------------------------------
-
 In Kubernetes, a Service is a method for exposing an application services running on one or more Pods. Services offer a stable endpoint by grouping pods based on labels and facilitating load balancing and automatic discovery of pods, ensuring the application is available for access. for each servcie in k8s an IP is allocated to it. The set of Pods targeted by a Service is usually determined by a selector that you define in POD definition as labels.
 
     Publishing Services K8s services to external network is exposed in 3 ways 
@@ -914,7 +913,7 @@ metadata:
 ---------------------------------------------------------------------------
 NodeSelector:
 ---------------------------------------------------------------------------
-NodeSelector is similer to nodeName, but nodeSelector uses node labels to schedule the pods. for example in a cluster few nodes, labeled as "disktype=ssd" then if we use this label with nodeSelector field. that means all the nodes with disktype=ssd are all eligible to create the pods in that node. to apply this property we need to follow 2 steps
+NodeSelector is similer to nodeName, but nodeSelector uses node labels to schedule the pods. for example in a cluster few nodes, labeled as `disktype=ssd` then if we use this label with nodeSelector field. that means all the nodes with `disktype=ssd` are all eligible to create the pods in that node. to apply this property we need to follow 2 steps
 
 step-1: Labeling the node :
 ---------------------------------------
@@ -968,8 +967,8 @@ Taint & Tolerations:
 ------------------------------------------------------------------------------------
 Taints and tolerations work together to ensure that pods are not scheduled onto inappropriate nodes. One or more taints are applied to a node. this marks that the node should not accept any pods that do not tolerate the taints. to allow the tained nodes to create pods, we need to create the pods with taint tolerations while creating the pod.
 
-Taint: is applied to nodes, it will reject the pods if the pods not has tolerations 
-Tolerations: is applied to pods, it will allow the pod to accept by the tainted node.
+	Taint: is applied to nodes, it will reject the pods if the pods not has tolerations 
+	Tolerations: is applied to pods, it will allow the pod to accept by the tainted node.
 
 taints are 3 types
 
@@ -1029,10 +1028,10 @@ In K8s DaemonSet ensure a specific pod runs on every node in a cluster. The prim
 
 Key Features and Characteristics:
 
-	One Pod Per Node	--> A DaemonSet ensures that exactly one instance of a pod runs on each node in the cluster where the DaemonSet is applied.
-	Automatic Scheduling: 	-->When new nodes join the cluster, a DaemonSet automatically schedules the required pods on those nodes, ensuring that each node has the specified pods running.
-	Pod Lifecycle Management: --> DaemonSets handle pod lifecycle events, ensuring that pods are rescheduled or replaced if they fail or are deleted.
-	Use Cases: 		-->DaemonSets are commonly used for tasks like log collection, monitoring, networking, storage daemons, or any service that should run on all nodes.
+	One Pod Per Node:		--> A DaemonSet ensures that exactly one instance of a pod runs on each node in the cluster where the DaemonSet is applied.
+	Automatic Scheduling: 		--> When new nodes join the cluster, a DaemonSet automatically schedules the required pods on those nodes, ensuring that each node has the specified pods running.
+	Pod Lifecycle Management: 	--> DaemonSets handle pod lifecycle events, ensuring that pods are rescheduled or replaced if they fail or are deleted.
+	Use Cases: 			--> DaemonSets are commonly used for tasks like log collection, monitoring, networking, storage daemons, or any service that should run on all nodes.
 
 Example Use Cases:
 
@@ -1108,7 +1107,7 @@ Static Pods are managed directly by the `kubelet` daemon on a specific node, wit
 
         $ ps -ef |grep kubelet 
 
-note: all static pods ends with node name 
+Note: all static pods ends with node name 
 
 simple-static-pod.yaml
 -------------------------------
@@ -1144,7 +1143,7 @@ Note: daemonset and static pods are ignored by kube-scheduler
 -----------------------------------------------------------
 NodeAffinity:
 -----------------------------------------------------------------
-Node affinity is conceptually similar to `nodeSelector`. it allows you to constrain which nodes your pod is eligible to be scheduled on, based on labels on the node. You can use In, NotIn, Exists, DoesNotExist, Gt and Lt.
+Node affinity is conceptually similar to `nodeSelector`. it allows you to constrain which nodes your pod is eligible to be scheduled on, based on labels on the node. You can use `In, NotIn, Exists, DoesNotExist, Gt and Lt`.
 
 there are 2 types of nodeAffinity 
 
@@ -1161,7 +1160,7 @@ Note: In the preceding types, `IgnoredDuringExecution` means that if the node la
 Scenario-1: nodeSelector & affinity
 -----------------------------------------------------------
 Note: If you specify both nodeSelector and affinity, both must be satisfied for the pod to be scheduled onto a candidate node. the pod will get schedule on the node only both conditions are statisfied. ( nodeSelector & affinity rule)
-
+ 
 pod-affinity-nodeSelector.yaml 
 --------------------------------------------------------
 ```
@@ -1347,11 +1346,11 @@ default values k8s will consider as 0.5-CPU, 256mi-MEM, DISK
 For the POD to pick up those default values, first you need to set default values by creating a `LimitRange` in namespace.
 
 
-1 CPU   = 1000m CPU (milli) 
-0.1 CPU = 100m CPU
-1Gi MEM = 1024Mi MEM
-1Mi MEM = 1024Ki
-1Ki MEM = 1024bytes
+	1 CPU   = 1000m CPU (milli) 
+	0.1 CPU = 100m CPU
+	1Gi MEM = 1024Mi MEM
+	1Mi MEM = 1024Ki
+	1Ki MEM = 1024bytes
 
 pod-def-resource-limit.yaml
 ------------------------------------
@@ -1544,7 +1543,7 @@ spec:
         cpu: "10"
 ```
 -------------------------------------
-An individual Pod or Container that requests resources outside of these LimitRange constraints will be rejected, whereas a ResourceQuota only applies to all of the namespace/project's objects in aggregate.
+An individual Pod or Container that requests resources outside of these LimitRange constraints will be rejected, where as a ResourceQuota only applies to all of the namespace/project's objects in aggregate.
 
 
 -------------------------------------------------------------------------------------------------------
@@ -1552,7 +1551,7 @@ Multiple Schedulers:
 -------------------------------------------------------------------------------------------------------
 Kubernetes ships with a "default scheduler" that is described here. If the default scheduler does not suit your needs you can implement your own scheduler. Moreover, you can even run multiple schedulers simultaneously alongside the default scheduler and instruct Kubernetes what scheduler to use for each of your pods.
 
-default-scheduler.yaml
+default-scheduler.yaml  
 ----------------------------------------------------------------
 ```
 apiVersion: kubescheduler.config.k8s.io/v1alpha1
@@ -1959,7 +1958,7 @@ resources:
 
 	$ head -c 32 /dev/urandom | base64 	--> randam encryption and use it in config file.
 	
-to effect the above changes, we need to edit the `kube-apiserver` manifest file availabe in `/etc/kubernetes/manifest/` pod definition file and update the `enc.yaml` (REST encryption file) in the  `--encryption-provider-config=/etc/kubernetes/enc/enc.yaml` and update the `valumeMounts` and `valumes` and restart the kube-apiserver as below. for more details refer this link.
+to effect the above changes, we need to edit the `kube-apiserver` manifest file availabe in `/etc/kubernetes/manifest/` pod definition file and update the `enc.yaml` (REST encryption file) in the  `--encryption-provider-config=/etc/kubernetes/enc/enc.yaml` and update the `volumeMounts` and `volumes` and restart the kube-apiserver as below. for more details refer this link.
 
 https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/
 
@@ -2001,7 +2000,7 @@ multi-pod.yaml
 ```
 apiVersion: v1
 kind: Pod
-metadata::
+metadata:
   name: simple-webapp
   labels:
     app: simple-webapp
@@ -2056,6 +2055,41 @@ Self Healing Applications:
 ----------------------------------------------------------------------------
 Kubernetes supports self-healing applications through ReplicaSets and Replication Controllers. The replication controller helps in ensuring that a POD is re-created automatically when the application within the POD crashes. It helps in ensuring enough replicas of the application are running at all times.
 
+
+Probes :
+----------------------------------------------------------------------------
+In Kubernetes, probes are used to check the health and status of containers. There are three main types of probes: readiness probes, liveness probes, and startup probes. Each serves a different purpose in maintaining the health and availability of applications running in a Kubernetes cluster.
+
+	1. Readiness Probe: Purpose: Determines if a container is ready to start accepting traffic.
+ 	2. Liveness Probe: Purpose: Determines if a container is still running.
+  	3. Startup Probe: Purpose: Determines if a container has started successfully.
+
+Readiness Probe:
+------------------
+Purpose: Determines if a container is ready to start accepting traffic.
+Use Case: Used to prevent traffic from being sent to a container that is not ready to handle requests. This is particularly useful during initial startup or when the container is undergoing maintenance or updates.
+Example: If a web server needs some time to load its configuration files or warm up, the readiness probe can ensure that the container only starts receiving traffic once it is ready.
+
+Liveness Probe:
+------------------
+Purpose: Determines if a container is still running.
+Use Case: Used to restart a container if it is detected to be unhealthy or in a failed state. This helps in recovering from situations where the application is stuck or has crashed.
+Example: If a container runs into a deadlock or an unhandled exception, the liveness probe can detect this and restart the container to restore normal operation.
+
+Startup Probe:
+-------------------
+Purpose: Determines if a container has started successfully.
+Use Case: Useful for applications that have a long startup time. The startup probe is used to give containers a chance to start up properly before the liveness and readiness probes are applied.
+Example: For a complex application that requires a longer time to initialize, the startup probe ensures that Kubernetes gives it enough time to start without being prematurely restarted by a liveness probe.
+	
+Custom Probes:
+-------------------
+While the above three are the primary types, you can configure custom probes to suit specific needs using different handlers:
+
+	HTTP Probes: 	Checks the response of an HTTP GET request.
+	TCP Probes: 	Checks the TCP socket connection.
+	Exec Probes: 	Runs a command inside the container to check its health
+ 
 ---------------------------------------------------------------------------
 Readiness Probe:
 ---------------------------------------------------------------------------
@@ -2162,9 +2196,9 @@ OS Upgrade :
 ----------------------------------------------------------------------------------------
 before you proced to deploy any upgrades, we must empty the node then apply the upgrades. 
 	
-	$ kubectl drain node01	--> i will move all k8s service to other nodes in cluster
-	$ kubectl uncordon node01  --> post paching, we need to remove drain tag using this command. so its starts taking tasks
-	$ kubectl cordon node01 --> just to make it non schedulable node
+	$ kubectl drain node01		--> i will move all k8s service to other nodes in cluster
+	$ kubectl uncordon node01  	--> post paching, we need to remove drain tag using this command. so its starts taking tasks
+	$ kubectl cordon node01 	--> just to make it non schedulable node
 
 -----------------------------------------------------------
 Kubernetes Software vesrions:
@@ -2182,7 +2216,7 @@ kube-apiserver is the primary component that communicate with others resources, 
 	control-manager		v1.9 | v1.10
 	kube-scheduler		v1.9 | v1.10
 	kubelet			v1.8 | v1.9 | v1.10
-	kubeproxy		v1.8 | v1.9 | v1.10
+	kubeproxy		v1.8 | v1.9 | v1.10 
 	kubectl			v1.9 | v1.10| v1.11
 	ETCD cluster
 	core DNS
@@ -2335,8 +2369,7 @@ working with ETCDCTL:
  
 This can be done as follows: $ export ETCDCTL_API=3	
 
-	$ etcdctl snapshot save -h 		--> and keep a note of the mandatory global options.Since our ETCD database is TLS-Enabled, the following options are mandatory:
-
+	$ etcdctl snapshot save -h 	--> and keep a note of the mandatory global options.Since our ETCD database is TLS-Enabled, the following options are mandatory:
 	–cacert               	 	verify certificates of TLS-enabled secure servers using this CA bundle
 	–cert                    	identify secure client using this TLS certificate file
 	–endpoints=[127.0.0.1:2379] 	This is the default as ETCD is running on master node and exposed on localhost 2379.
@@ -2356,7 +2389,6 @@ kubernetes Security:
 2. SSH key based authentication enabled
 
 Who can access the K8s cluster?
-	1. Files
 	2. Files
 	3. cetificates
 	4. external authentication providers - LDAP
@@ -2471,7 +2503,7 @@ roleRef:
 
 Q: how to check what access i have?
 -------------------------------------------
-	$ kubectl auth con-i create deployments
+	$ kubectl auth can-i create deployments
 
 ----------------------------------------------------------------------------------------------
 Clusterrole & clusterrolebinding
@@ -2517,7 +2549,7 @@ Network traffic flow in 2 ways.
 
 Ingress Traffic: if the traffic comming into the application is called ingress-traffic
 Egress Traffic: if the traffic going out  from the application is called egress-traffic.
-
+ 
 Network polices: in the k8s by default all the PODS comminicates to all the PODS in the POD network. This is not ideal for critical application. so we need to restric the pods traffic it should communitcate with. thats where this network-policies are used. 
 
 --------------------------------
