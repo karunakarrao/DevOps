@@ -2528,7 +2528,7 @@ service accounts are of 2 types,
 	$ kubectl create serviceaccount account-1
 	$ kubectl get serviceaccount
 	$ kubectl descrbe serviceaccount account-1
-	$ kubectl create token dashboard-sa
+	$ kubectl create token dashboard-sa		--> create token for the service created. 
 	$ kubectl describe secret token-name 		--> found in the account describe command
 
 Note: while creating the service accounts a token must be created, this token is used for the extenal application authentication. this tokens are encrypted secrets. serviceaccount tokens can be used as voulme mounts, if the application is deployed on the k8s cluster. 
@@ -2554,29 +2554,31 @@ Network polices: in the k8s by default all the PODS comminicates to all the PODS
 
 --------------------------------
 ```
-apiVersion:
+apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-	name:
+  name: allow-db-ingress
+  namespace: critical-space  # Add namespace if necessary
 spec:
-	podSelector:
-		matchLabels:
-			app: db-pod
-	policyTypes:
-	  - Ingress
-	ingress:
-	- from:
-	  - ipBlock: 
-	  	  cidr: 192.168.1.10/32		
-	  - podSelector:
-		  matchLabels:
-			app: app-pod
-	    namespaceSelector:
-		  matchLabels:
-			app: prod                  
-	  ports:
-	  - protocol: TCP
-	    port: 3306
+  podSelector:
+    matchLabels:
+      app: db-pod
+  policyTypes:
+    - Ingress
+  ingress:
+  - from:
+    - ipBlock:
+        cidr: 192.168.1.10/32
+    - podSelector:
+        matchLabels:
+          app: app-pod
+      namespaceSelector:
+        matchLabels:
+          app: prod
+    ports:
+    - protocol: TCP
+      port: 3306
+ 
 ```
 --------------------------------
 Note: what we mention in `policyType` that trafic only restricted. rest are by default communicate with all pods in cluster. 
