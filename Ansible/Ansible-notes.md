@@ -158,6 +158,7 @@ To authenticate ssh logins without password, use public key authentication. SSH 
 **Q. How to generate SSH-Keys and uses ?**
 ---------------------------------------------------------
 ssh-keygen: 
+--------------------
 To generate keys, use ssh-keygen: $ ssh-keygen 
 	1. Private key: ~/.ssh/id_rsa
 	2. Public key: ~/.ssh/id_rsa.pub
@@ -170,10 +171,12 @@ File permissions on public key allow:
 	-> Octal 0644
 
 ssh-copy-id: 
+---------------------
 Before using key-based authentication, need to copy public key to destination system i.e. Ansible-Worker.
 To do this, use ssh-copy-id:
 	
 	$ ssh-copy-id user@managedhost-ip
+ 	$ ssh-copy-id -f -i ~/.ssh/id_rsa.pub -o StrictHostKeyChecking=no -o "IdentityFile ~/ansible.pem" ec2-user@ec2-18-117-148-174.us-east-2.compute.amazonaws.com
 
 After copying key, use key-based authentication to authenticate SSH connections to host
 
