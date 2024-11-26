@@ -300,7 +300,7 @@ After connecting to managed host, Ansible can switch to another user before exec
  
 		#become=True
 		#become_method=sudo
-		#become_user=root
+		#become_user=oracle/apache
 		#become_ask_pass=False
 
 **Q. how to Enabling Privilege Escalation?**
@@ -457,7 +457,7 @@ You configure ansible.cfg and the static inventory needed to complete this lab. 
 
 The command is expected to show "ec2-user" because it is using the default ansible.cfg and the SSH keys defined in the default /etc/ansible/hosts static inventory.
 
-2. Create a directory called "ansible_implementation" as your working directory for all future labs and an "ansible.cfg" file with a [defaults] 
+2. Create a directory called "ansible_implementation" as your working directory for all future labs and an `ansible.cfg` file with a [defaults] 
 section for specifying user-specific settings
 
 		$ mkdir ansible_implementation
@@ -524,8 +524,10 @@ Host inventory file defines hosts managed by Ansible. Hosts may belong to group 
 	-> Dynamic host inventory generated from outside providers
 
 Q. what is a Static Host Inventory? 
+-------------------------------------------
 Static host inventory defined in INI-like text file. Each section in file defines a host group. One line for each managed host
 Host entries define how Ansible communicates with managed host. Include transport and user account information. 
+
 	-> Default location for host inventory file: /etc/ansible/hosts
 	-> ansible* commands use different host inventory file when used with 
 		--inventory PATHNAME
@@ -665,6 +667,7 @@ Ansible Playbooks written in YAML language. Need understanding of YAML syntax ba
 YAML File Syntax:-
 -------------------
 -> Optional document markers:
+
 	-> Start of document: ---
 	-> End of document: ...
 
@@ -673,6 +676,7 @@ Strings:-
 -> No requirement to enclose strings in quotation marks
 -> Even if string contains spaces
 -> Optional: Enclose string in single or double quotation marks
+
 	Examples:
 	this is a string
 	'this is another string'
@@ -683,6 +687,7 @@ Multiline String Methods:-
 Use |:-
 ---------
 -> Preserves line returns within string:
+
 	include_newlines: |
          	Example Company
         	123 Main Street
@@ -693,6 +698,7 @@ Use > :-
 -> Removes leading white spaces in lines
 -> Use to break long strings at space characters
 -> Spanning multiple lines promotes better readability
+
 	fold_newlines: >
           	This is
           	a very long,
@@ -703,6 +709,7 @@ Lists:-
 --------
 -> Lists in YAML = arrays in other languages
 -> To represent list, precede each item with - followed by space:
+
 	---
   	- red
   	- green
@@ -711,8 +718,9 @@ Lists:-
 -> Optional: Express lists in inline format
 -> Enclose list items between square brackets
 -> To separate items, use , followed by space:
+
 	---
-	fruits:
+	fruits: 
   		[red, green, blue]
 
 Comments: #
@@ -734,8 +742,8 @@ Syntax Verification:-
 YAML Lint: Online YAML syntax verification tools available
 	Example: YAML Lint website: http://yamllint.com/
 
---syntax-check :
-	$ ansible-playbook --syntax-check myyaml.yml
+	--syntax-check :
+		$ ansible-playbook --syntax-check myyaml.yml
 
 4. Playbooks and Ad Hoc Commands:-
 ----------------------------------
@@ -926,6 +934,58 @@ Examples: Block Formatting:-
 	        service: name=sshd enabled=true state=started
 		
 ------------------------------
+examples:
+------------------------------
+```
+---
+- name: Basic block example
+  hosts: all
+  become: yes
+
+  tasks:
+    - block:
+        - name: Create a directory
+          file:
+            path: /tmp/example_dir
+            state: directory
+
+        - name: Copy a file
+          copy:
+            src: /path/to/source/file
+            dest: /tmp/example_dir/file
+      when: ansible_os_family == "RedHat"
+      become: yes
+```
+```
+---
+- name: Playbook with three blocks
+  hosts: all
+  become: yes
+
+  tasks:
+    - block:
+        - name: Create a directory
+          file:
+            path: /tmp/example_dir
+            state: directory
+      name: Create Directory Block
+
+    - block:
+        - name: Install a package
+          yum:
+            name: vim
+            state: present
+      name: Install Package Block
+
+    - block:
+        - name: Start a service
+          service:
+            name: httpd
+            state: started
+            enabled: yes
+      name: Start Service Block
+
+```
 
 Example: Playbook with Multiple Plays
 ---------------------------------------
@@ -1005,6 +1065,8 @@ Step-by-Step Execution: --step
 	y: Execute task
 	n: Skip task
 	c: Exit step-by-step and execute remaining tasks without further interaction
+
+ 	$ ansible-playbook --step webserver.yml
 
 Facts:-
 -------
@@ -1429,12 +1491,12 @@ Question 1 : How do you make Ansible pick up a custom module without adding that
 
 	Name the module 'library' and place it in the same directory as the playbook
 	Create a library directory in the standard module path and place the module there
-	Create a "library" directory in the same directory as the playbook and place the custom module there
+	-> Create a "library" directory in the same directory as the playbook and place the custom module there
 	Place the module in the default system module path
 
 Question 2: Which command enables you to identify the parameters that a module accepts?
 
-	ansible -m module_name --show-paramters
+	-> ansible -m module_name --show-paramters
 	ansible-playbook --show-doc module_name
 	ansible-doc module_name
 	ansibledoc module_name
@@ -1444,7 +1506,7 @@ Question 3: In which order do tasks execute inside plays or roles?
 	Assigned importance
 	Alphabetical order, based on role name
 	Opportunistically based on availability of resources on the target host
-	One at a time, against all machines matched by the host pattern
+	-> One at a time, against all machines matched by the host pattern
 
 Question 4: Tasks must be written with parameters using either "key=value" or "key: value".
 
@@ -1453,7 +1515,7 @@ Question 4: Tasks must be written with parameters using either "key=value" or "k
 
 Question 5: Under which circumstances should plays be named?
 
-	When more than one play exists in a playbook, or when a more friendly grouping of output is desired
+	->  When more than one play exists in a playbook, or when a more friendly grouping of output is desired
 	Plays must always be named
 	When starting at a named play with the --start-at-play command line option
 	Never; only tasks can be named
