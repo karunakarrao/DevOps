@@ -1,3 +1,104 @@
+-----------------------------------------------
+Ansible directory structure 
+-----------------------------------------------
+Ansiblebasic directory structure
+
+	ansible_project/
+	├── ansible.cfg
+	├── inventory
+	├── group_vars/
+	│   ├── group1.yml
+	│   └── group2.yml
+	├── host_vars/
+	│   ├── hostname1.yml
+	│   └── hostname2.yml
+	├── roles/
+	│   ├── common/
+	│   │   ├── defaults/
+	│   │   │   └── main.yml
+	│   │   ├── files/
+	│   │   │   └── bar.txt
+	│   │   ├── handlers/
+	│   │   │   └── main.yml
+	│   │   ├── tasks/
+	│   │   │   └── main.yml
+	│   │   ├── templates/
+	│   │   │   └── ntp.conf.j2
+	│   │   └── vars/
+	│   │       └── main.yml
+	│   └── webtier/
+	│       ├── defaults/
+	│       │   └── main.yml
+	│       ├── files/
+	│       │   └── foo.sh
+	│       ├── handlers/
+	│       │   └── main.yml
+	│       ├── tasks/
+	│       │   └── main.yml
+	│       ├── templates/
+	│       │   └── webserver.conf.j2
+	│       └── vars/
+	│           └── main.yml
+	├── site.yml
+	├── webservers.yml
+	└── dbservers.yml
+---------------------------------------------------------
+
+------------------------------------------------------------------------------------------------
+Install ansible using a  package  manager `apt-get`
+------------------------------------------------------------------------------------------------
+When you install Ansible using `apt-get`, the files are typically stored in standard directories according to the Filesystem Hierarchy Standard (FHS). Here’s an example directory structure for Ansible installed via `apt-get`:
+
+Example Directory Structure:
+--------------------------
+Binaries and Executables:
+-------------------------
+	/usr/bin/ansible
+	/usr/bin/ansible-playbook
+	/usr/bin/ansible-galaxy
+	/usr/bin/ansible-vault
+Configuration Files:
+---------------------
+	/etc/ansible/ansible.cfg
+Modules and Libraries:
+-----------------------
+	/usr/lib/python3/dist-packages/ansible
+	/usr/share/ansible
+Man Pages and Documentation:
+-----------------------------
+	/usr/share/man/man1/ansible.1.gz
+	/usr/share/doc/ansible
+Inventory File:
+----------------
+	/etc/ansible/hosts
+Additional Scripts:
+--------------------
+	/usr/bin/ansible-doc
+	/usr/bin/ansible-inventory
+---------------------------------------------------------
+ /usr/
+  ├── bin/
+  │   ├── ansible
+  │   ├── ansible-playbook
+  │   ├── ansible-galaxy
+  │   ├── ansible-vault
+  │   ├── ansible-doc
+  │   ├── ansible-inventory
+/usr/lib/
+  ├── python3/
+  │   ├── dist-packages/
+  │   │   ├── ansible/
+/etc/
+  ├── ansible/
+  │   ├── ansible.cfg
+  │   ├── hosts
+/usr/share/
+  ├── ansible/
+  ├── man/
+  │   ├── man1/
+  │   │   ├── ansible.1.gz
+---------------------------------------------------------
+
 -----------------------------------------------------------------------------
 Ansible installtion & Configuration files :
 -----------------------------------------------------------------------------
