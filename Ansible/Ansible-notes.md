@@ -18,6 +18,106 @@ there are two types of machines in Ansible architecture
 	
 System administrators login to Ansible-Master and launch Ansible playbook on a specify target host to hosts. Ansible uses `SSH` as network transport to communicate with managed hosts. Modules refer in playbook copied to managed hosts and delete once the task is completed. Core modules perform most system administration tasks Users can write custom modules if needed.
 
+Q.  Ansible directory structure ?
+-----------------------------------------------
+
+---------------------------------------------------------
+ansible_project/
+├── ansible.cfg
+├── inventory
+├── group_vars/
+│   ├── group1.yml
+│   └── group2.yml
+├── host_vars/
+│   ├── hostname1.yml
+│   └── hostname2.yml
+├── roles/
+│   ├── common/
+│   │   ├── defaults/
+│   │   │   └── main.yml
+│   │   ├── files/
+│   │   │   └── bar.txt
+│   │   ├── handlers/
+│   │   │   └── main.yml
+│   │   ├── tasks/
+│   │   │   └── main.yml
+│   │   ├── templates/
+│   │   │   └── ntp.conf.j2
+│   │   └── vars/
+│   │       └── main.yml
+│   └── webtier/
+│       ├── defaults/
+│       │   └── main.yml
+│       ├── files/
+│       │   └── foo.sh
+│       ├── handlers/
+│       │   └── main.yml
+│       ├── tasks/
+│       │   └── main.yml
+│       ├── templates/
+│       │   └── webserver.conf.j2
+│       └── vars/
+│           └── main.yml
+├── site.yml
+├── webservers.yml
+└── dbservers.yml
+---------------------------------------------------------
+
+Q. Install ansible using a  package  manager like  apt-get  where will  the files get stored ? 
+------------------------------------------------------------------------------------------------
+When you install Ansible using `apt-get`, the files are typically stored in standard directories according to the Filesystem Hierarchy Standard (FHS). Here’s an example directory structure for Ansible installed via `apt-get`:
+
+Example Directory Structure:
+--------------------------
+Binaries and Executables:
+-------------------------
+	/usr/bin/ansible
+	/usr/bin/ansible-playbook
+	/usr/bin/ansible-galaxy
+	/usr/bin/ansible-vault
+Configuration Files:
+---------------------
+	/etc/ansible/ansible.cfg
+Modules and Libraries:
+-----------------------
+	/usr/lib/python3/dist-packages/ansible
+	/usr/share/ansible
+Man Pages and Documentation:
+-----------------------------
+	/usr/share/man/man1/ansible.1.gz
+	/usr/share/doc/ansible
+Inventory File:
+----------------
+	/etc/ansible/hosts
+Additional Scripts:
+--------------------
+	/usr/bin/ansible-doc
+	/usr/bin/ansible-inventory
+---------------------------------------------------------
+ /usr/
+  ├── bin/
+  │   ├── ansible
+  │   ├── ansible-playbook
+  │   ├── ansible-galaxy
+  │   ├── ansible-vault
+  │   ├── ansible-doc
+  │   ├── ansible-inventory
+/usr/lib/
+  ├── python3/
+  │   ├── dist-packages/
+  │   │   ├── ansible/
+/etc/
+  ├── ansible/
+  │   ├── ansible.cfg
+  │   ├── hosts
+/usr/share/
+  ├── ansible/
+  ├── man/
+  │   ├── man1/
+  │   │   ├── ansible.1.gz
+---------------------------------------------------------
+
+
 Q. What are Ansible-Master Components?
 --------------------------------------------
 **Ansible configuration:** Ansible installtion comes with ansible config file `ansible.cfg` located in `/etc/ansible` directory. all ansible settings avaiable here. to override the default values we need to use environment variables (or) we can update the file. 
@@ -1544,7 +1644,7 @@ Question 8 : The following describes Ansible Playbooks:
 Question 9 : Which of the following best describes Ansible facts?
 
 	Ansible does not use facts
-	Things that are discovered about remote nodes
+	-> Things that are discovered about remote nodes
 	The source of truth
 	User-defined variables
 
@@ -1619,6 +1719,7 @@ Ad Hoc Commands:-
 Playbooks:-
 ------------
 You can use your own variables and invoke them in task. we can do it in 2 ways
+
 	1. define in the YAML file in "vars" section as below.
 	2. define all variables in a file and invoke that file in the YAML file. 
 
@@ -1644,22 +1745,33 @@ In vars section we can define the variables.
 
 Example: Definition Reuse:-
 --------------------------
-	- name: Installs Apache and starts the service
-	  hosts: webserver
-	  vars:
-	    base_path: /srv/users/host1/mgmt/sys/users
-	    users:
-	      joe:
-	        name: Joe Foo
-	        home: "{{ base_path }}/joe"
-	      bob:
-	        name: Bob Bar
-	        home: "{{ base_path }}/bob"
-	
-	  tasks:
-	  - name: Print user details records
-	    debug: msg="User {{ item.key }} full name is {{ item.value.name }}. Home is {{ item.value.home }}"
-	    with_dict: "{{ users }}"
+```
+---
+- name: Installs Apache and starts the service
+  hosts: workers
+  become: yes  # Ensure elevated privileges if required
+  vars:
+    base_path: /srv/users/host1/mgmt/sys/users
+    users:
+      vikram:
+        name: vikram kaparaboina
+        home: "{{ base_path }}/joe"
+      karna:
+        name: karna jeejula
+        home: "{{ base_path }}/bob"
+
+  tasks:
+    - name: Create users
+      user:
+        name: "{{ item.key }}"
+        home: "{{ item.value.home }}"
+      with_dict: "{{ users }}"
+
+    - name: Print user details records
+      debug:
+        msg: "User {{ item.key }} full name is {{ item.value.name }}. Home is {{ item.value.home }}"
+      with_dict: "{{ users }}"
+```
 -----------------------------------------
 
 Variable Precedence: 
@@ -1667,6 +1779,21 @@ Variable Precedence:
 -> Variables can be defined in multiple locations
 -> If Ansible finds variables with same name, uses chain of precedence
 -> Ansible 2: Variables evaluated in 16 categories of precedence order
+
+Complete Precedence Hierarchy
+----------------------------
+If needed, here’s the full list from highest to lowest:
+
+	Extra variables (--extra-vars)
+	Task variables (e.g., set_fact)
+	Block variables
+	Role (role vars and role defaults, where vars > defaults)
+	Play vars (e.g., vars in a play)
+	Inventory variables (host_vars and group_vars)
+	Facts (gather_facts or ansible_facts)
+	Registered variables
+	Role defaults
+	Environment variables
 
 1. Role default variables:
 --------------------------
@@ -1963,7 +2090,7 @@ Recommended: Host group variable with manual override
 	[datacenters:vars]
 	package=httpd
 
-$ ansible-playbook demo2.exampe.com main.yml -e "package=apache"
+	$ ansible-playbook demo2.exampe.com main.yml -e "package=apache"
 
 Variables: "register"
 ---------------------
