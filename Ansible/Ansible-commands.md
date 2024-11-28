@@ -1,7 +1,53 @@
+
+-----------------------------------------------------------------------------
+Ansible installtion & Configuration files :
+-----------------------------------------------------------------------------
+	/etc/ansible/ansible.cfg 				--> main ansible configuration file
+	/etc/ansible/hosts  	 				--> default host inventory file
+	/usr/bin/ansible	 				--> ansible binaries are available 
+	/usr/lib/python2.7/site-packages/ansible/modulescd  	--> ansible modules are available here
+	/etc/ansible/facts.d/custom.fact			--> for defining the custom facts
+------------------------------------------------------------------------------
+Ansible installation Binaries:
+------------------------------------------------------------------------------
+	ansible binaries are installed in /usr/bin.
+	$ ansible 
+	$ ansible-doc
+	$ ansible-playbook
+	$ ansible-glaxy
+	$ ansible-vault
+	$ ansible-config
+	$ ansible-pull
+	$ ansible-console
+	$ ansible-inventory
+
+--------------------------------------------------------------------------------
+Ansible configuration loading order:
+--------------------------------------------------------------------------------
+Ansible searches for its config file(ansible.cfg) in below order in system. First file found is used, all others paths ignored.
+	
+	1st. ANSIBLE_CONFIG (environment variable, if set)
+	2nd. ansible.cfg (in current directory)
+	3rd. ~/.ansible.cfg (in home directory)
+	4th. /etc/ansible/ansible.cfg
+
+---------------------------------------------------------------------------------------------
+Inventory file arguments
+---------------------------------------------------------------------------------------------
+	ansible_connection				--> Method of connection to the remote host. Options: ssh, winrm, local, docker, etc.
+	ansible_host					--> Hostname or IP address of the remote host.
+	ansible_port					--> Port number used for connection. Default SSH port is 22.
+	ansible_user					--> Username used for authentication when connecting to the remote host.
+	ansible_password				--> Password used for authentication. (Note: Not recommended for security reasons.)
+	ansible_ssh_private_key_file			--> Path to the private SSH key file used for authentication.
+	ansible_become					--> Enable privilege escalation. Options: yes or no.
+	ansible_become_user				--> User account used for privilege escalation.
+	ansible_become_method				--> Method used for privilege escalation. Options: sudo, su, pbrun, etc.
+	ansible_ssh_private_key_file			--> Path to the private SSH key file used for authentication.
 -----------------------------------------------
 Ansible directory structure 
 -----------------------------------------------
-Ansiblebasic directory structure
+Ansible basic directory structure from high level overview.
 
 	ansible_project/
 	├── ansible.cfg
@@ -76,75 +122,28 @@ Additional Scripts:
 	/usr/bin/ansible-doc
 	/usr/bin/ansible-inventory
 ---------------------------------------------------------
- /usr/
-  ├── bin/
-  │   ├── ansible
-  │   ├── ansible-playbook
-  │   ├── ansible-galaxy
-  │   ├── ansible-vault
-  │   ├── ansible-doc
-  │   ├── ansible-inventory
-/usr/lib/
-  ├── python3/
-  │   ├── dist-packages/
-  │   │   ├── ansible/
-/etc/
-  ├── ansible/
-  │   ├── ansible.cfg
-  │   ├── hosts
-/usr/share/
-  ├── ansible/
-  ├── man/
-  │   ├── man1/
-  │   │   ├── ansible.1.gz
+	 /usr/
+	  ├── bin/
+	  │   ├── ansible
+	  │   ├── ansible-playbook
+	  │   ├── ansible-galaxy
+	  │   ├── ansible-vault
+	  │   ├── ansible-doc
+	  │   ├── ansible-inventory
+	/usr/lib/
+	  ├── python3/
+	  │   ├── dist-packages/
+	  │   │   ├── ansible/
+	/etc/
+	  ├── ansible/
+	  │   ├── ansible.cfg
+	  │   ├── hosts
+	/usr/share/
+	  ├── ansible/
+	  ├── man/
+	  │   ├── man1/
+	  │   │   ├── ansible.1.gz
 ---------------------------------------------------------
-
------------------------------------------------------------------------------
-Ansible installtion & Configuration files :
------------------------------------------------------------------------------
-	/etc/ansible/ansible.cfg 				--> main ansible configuration file
-	/etc/ansible/hosts  	 				--> default host inventory file
-	/usr/bin/ansible	 				--> ansible binaries are available 
-	/usr/lib/python2.7/site-packages/ansible/modulescd  	--> ansible modules are available here
-	/etc/ansible/facts.d/custom.fact			--> for defining the custom facts
-------------------------------------------------------------------------------
-Ansible installation Binaries:
-------------------------------------------------------------------------------
-	ansible binaries are installed in /usr/bin.
-	$ ansible 
-	$ ansible-doc
-	$ ansible-playbook
-	$ ansible-glaxy
-	$ ansible-vault
-	$ ansible-config
-	$ ansible-pull
-	$ ansible-console
-	$ ansible-inventory
-
---------------------------------------------------------------------------------
-Ansible configuration loading order:
---------------------------------------------------------------------------------
-Ansible searches for its config file(ansible.cfg) in below order in system. First file found is used, all others paths ignored.
-	
-	1st. ANSIBLE_CONFIG (environment variable, if set)
-	2nd. ansible.cfg (in current directory)
-	3rd. ~/.ansible.cfg (in home directory)
-	4th. /etc/ansible/ansible.cfg
-
----------------------------------------------------------------------------------------------
-Inventory file arguments
----------------------------------------------------------------------------------------------
-	ansible_connection				--> Method of connection to the remote host. Options: ssh, winrm, local, docker, etc.
-	ansible_host					--> Hostname or IP address of the remote host.
-	ansible_port					--> Port number used for connection. Default SSH port is 22.
-	ansible_user					--> Username used for authentication when connecting to the remote host.
-	ansible_password				--> Password used for authentication. (Note: Not recommended for security reasons.)
-	ansible_ssh_private_key_file			--> Path to the private SSH key file used for authentication.
-	ansible_become					--> Enable privilege escalation. Options: yes or no.
-	ansible_become_user				--> User account used for privilege escalation.
-	ansible_become_method				--> Method used for privilege escalation. Options: sudo, su, pbrun, etc.
-	ansible_ssh_private_key_file			--> Path to the private SSH key file used for authentication.
-
 ---------------------------------------------------------------------------------------------
 Ansible commands: ansible (-a, -b, -C, -e, -i, -m, -o, -t, -v, -vvv, -k, -s, -u, -U, -K)
 ---------------------------------------------------------------------------------------------
@@ -211,6 +210,10 @@ ansible-playbook:
 SSH keys:
 ----------------------------------------------------
 	$ ssh -i id_rsa user@hostname
+ 	
+----------------------------------------------------
+SSH_COPY_id keys:
+----------------------------------------------------
 
 ---------------------------------------------------
 Ping/Pong status check:
@@ -357,7 +360,7 @@ Note:  to disable collecting ansible facts can be done using gather_facts: no
 --------------------------------------------------------------------
 Variables:
 --------------------------------------------------------------------
-Ansible variables are declared in multipule loctions
+Ansible variables are declared in multipule loctions. 
 
 	1. vars					--> direct in script
  	2. vars_file / include_vars		--> File as an input
@@ -367,6 +370,17 @@ Ansible variables are declared in multipule loctions
      	6. inventory				--> define vars in the inventory file using [web:vars] etc.
       	7. facts				--> define variables as custom facts and add to managed host in "/etc/ansible/facts.d" with file name "custom.facts"
 
+----------------------------------------
+Variable precidence over each other:
+----------------------------------------
+	Level-1: -e or --extra-vars (Global -  apply to  all plays in a playbook)
+ 	Level-2: set_fact  (Global -  apply to  all plays in a playbook)
+  	Level-3: task level vars  ((Taks level -  apply to  all plays in a playbook)
+   	Level-4: Block Level vars 
+    	Level-5: Playbook vars  
+     	Level-6: Role (role vars and role defaults, where vars > defaults)(vars/main.yml)
+        Level-7: 
+      
 1. vars
 ------------------------
 defined in the playbook using vars sections
